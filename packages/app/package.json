@@ -12,6 +12,7 @@
 		"@sentry/integrations": "^6.17.9",
 		"@sentry/node": "^6.17.9",
 		"@supabase/supabase-js": "^1.30.3",
+		"bowser": "^2.11.0",
 		"evergreen-ui": "^6.8.2",
 		"lodash": "^4.17.21",
 		"logrocket": "^2.2.0",
@@ -23,7 +24,8 @@
 		"react": "17.0.2",
 		"react-dom": "17.0.2",
 		"react-ga": "^3.3.0",
-		"sass": "^1.49.7"
+		"sass": "^1.49.7",
+		"use-arconnect": "^1.0.1"
 	},
 	"devDependencies": {
 		"@sentry/webpack-plugin": "^1.18.6",
