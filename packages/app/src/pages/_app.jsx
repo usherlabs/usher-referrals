@@ -20,7 +20,7 @@ const App = ({ Component, pageProps }) => {
 	return (
 		<main>
 			<DefaultSeo {...seo} />
-			<Component {...pageProps} />;
+			<Component {...pageProps} />
 		</main>
 	);
 };
