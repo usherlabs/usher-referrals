@@ -1,0 +1,59 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+node_modules
+jspm_packages
+flow-typed
+package-lock.json
+yarn.lock
+!/yarn.lock
+test/node_modules
+vendor
+.pnp
+.pnp.js
+.yarn/*
+!.yarn/cache
+!.yarn/releases
+!.yarn/plugins
+
+# testing
+coverage
+logs
+tmp
+report.*
+.test_temp
+
+# next.js
+.next
+out
+
+# production
+build
+dist
+
+# misc
+.DS_Store
+package.json.lerna_backup
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# env files
+.env
+.env.*
+!.env.example
+
+# Now
+.now
+.vercel
+
+# Auth0 deployment
+.auth0
+
+# serverless
+.serverless
+
+# Local certs for development
+*.pem

@@ -1,0 +1,25 @@
+{
+	"short_name": "Gangen Alumni Usher",
+	"name": "Gangen Alumni Usher",
+	"description": "Gangen Alumni is an AI produced meta-Show with a diverse cast of characters taking the form of a limited NFT collection.",
+	"icons": [
+		{
+			"src": "/static/icon/manifest-icon-192.jpg",
+			"sizes": "192x192",
+			"type": "image/jpg",
+			"purpose": "maskable any"
+		},
+		{
+			"src": "/static/icon/manifest-icon-512.jpg",
+			"sizes": "512x512",
+			"type": "image/jpg",
+			"purpose": "maskable any"
+		}
+	],
+	"start_url": "/?source=pwa",
+	"background_color": "#111111",
+	"display": "minimal-ui",
+	"orientation": "portrait",
+	"scope": "/",
+	"theme_color": "#ffffff"
+}
