@@ -8,7 +8,7 @@ import { setup as setupSignals } from "@/utils/signals";
 
 import "@/styles/styles.scss";
 
-function App({ Component, pageProps }) {
+const App = ({ Component, pageProps }) => {
 	useEffect(() => {
 		if (typeof window !== "undefined") {
 			setupSignals();
@@ -23,7 +23,7 @@ function App({ Component, pageProps }) {
 			<Component {...pageProps} />;
 		</main>
 	);
-}
+};
 
 App.propTypes = {
 	Component: PropTypes.func.isRequired,

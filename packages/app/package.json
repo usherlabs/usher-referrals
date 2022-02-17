@@ -11,6 +11,7 @@
 		"@sentry/browser": "^6.17.9",
 		"@sentry/integrations": "^6.17.9",
 		"@sentry/node": "^6.17.9",
+		"@supabase/supabase-js": "^1.30.3",
 		"lodash": "^4.17.21",
 		"logrocket": "^2.2.0",
 		"logrocket-react": "^5.0.1",

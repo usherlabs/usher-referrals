@@ -38,9 +38,10 @@ module.exports = {
 		react: {
 			version: "detect"
 		},
-		next: {
-			rootDir: "packages/app/"
-		},
+		// next: {
+		// 	rootDir: "packages/app/",
+		// 	pagesDir: "packages/app/src/pages"
+		// },
 		"import/resolver": {
 			alias: {
 				extensions: [".js", ".jsx", ".json", ".ts", ".tsx"],
@@ -69,6 +70,14 @@ module.exports = {
 		"react/no-unescaped-entities": "off",
 		// next/image might not be yet a good move as of NextJs v11.
 		// https://github.com/vercel/next.js/discussions/16832
-		"@next/next/no-img-element": "off"
+		"@next/next/no-img-element": "off",
+		"react/no-invalid-html-attribute": "off",
+		"react/function-component-definition": [
+			"warn",
+			{
+				namedComponents: "arrow-function"
+			}
+		],
+		"no-param-reassign": 0
 	}
 };

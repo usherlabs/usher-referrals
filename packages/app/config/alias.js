@@ -12,7 +12,7 @@ const path = require("path");
  * 	'@tests': 'tests'
  * }
  */
-const createAlias = (mapToFolders = {}, pathSegments) => ({
+const createAlias = (mapToFolders = {}, pathSegments = []) => ({
 	/**
 	 * eg.
 	 * {
