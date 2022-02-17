@@ -1,11 +1,13 @@
 // import Head from "next/head";
 // import Image from "next/image";
+import { Pane } from "evergreen-ui";
+import Header from "@/components/Header";
 
 const Home = () => {
 	return (
-		<div>
-			<h1>Hello world</h1>
-		</div>
+		<Pane display="flex" padding={16}>
+			<Header />
+		</Pane>
 	);
 };
 
