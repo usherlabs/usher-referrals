@@ -8,7 +8,7 @@ import React from "react";
 import NextError from "next/error";
 import handleException from "@/utils/handle-exception";
 
-const Error = ({ statusCode, hasGetInitialPropsRun, err }) => {
+function Error({ statusCode, hasGetInitialPropsRun, err }) {
 	if (!hasGetInitialPropsRun && err) {
 		// getInitialProps is not called in case of
 		// https://github.com/zeit/next.js/issues/8592. As a workaround, we pass
@@ -17,7 +17,7 @@ const Error = ({ statusCode, hasGetInitialPropsRun, err }) => {
 	}
 
 	return <NextError statusCode={statusCode} />;
-};
+}
 
 Error.getInitialProps = async ({ res, err, asPath }) => {
 	const NextErrorInitialProps = await NextError.getInitialProps({ res, err });

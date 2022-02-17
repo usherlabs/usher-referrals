@@ -1,5 +1,5 @@
 {
-	"name": "usher",
+	"name": "@usher/app",
 	"private": true,
 	"scripts": {
 		"dev": "next dev",
@@ -9,14 +9,18 @@
 	},
 	"dependencies": {
 		"@sentry/browser": "^6.17.9",
+		"@sentry/integrations": "^6.17.9",
 		"@sentry/node": "^6.17.9",
 		"lodash": "^4.17.21",
+		"logrocket": "^2.2.0",
+		"logrocket-react": "^5.0.1",
 		"modern-normalize": "^1.1.0",
 		"next": "12.0.10",
 		"next-seo": "^5.1.0",
 		"prop-types": "^15.8.1",
 		"react": "17.0.2",
-		"react-dom": "17.0.2"
+		"react-dom": "17.0.2",
+		"react-ga": "^3.3.0"
 	},
 	"devDependencies": {
 		"@sentry/webpack-plugin": "^1.18.6",

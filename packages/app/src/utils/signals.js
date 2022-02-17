@@ -1,8 +1,8 @@
-import isEmpty from "is-empty";
+import isEmpty from "lodash/isEmpty";
 import ReactGA from "react-ga";
 import Router from "next/router";
-import { isProd, gaTrackingId } from "@/env-config";
-import isUserOperator from "@/utils/is-operator";
+
+import { isProd, gaTrackingId, logrocketAppId } from "@/env-config";
 import { Sentry } from "@/utils/handle-exception";
 
 // Helper to ensure production
@@ -34,17 +34,19 @@ export const setup = mw(async () => {
 		}
 
 		// Setup Log Rocket
-		const LogRocket = await getLogRocket();
-		const setupLogRocketReact = await import("logrocket-react").then(
-			(m) => m.default || m
-		);
-		LogRocket.init("vzsg8h/callsesh");
-		setupLogRocketReact(LogRocket);
-		LogRocket.getSessionURL((sessionURL) => {
-			Sentry.configureScope((scope) => {
-				scope.setExtra("sessionURL", sessionURL);
+		if (!isEmpty(logrocketAppId)) {
+			const LogRocket = await getLogRocket();
+			const setupLogRocketReact = await import("logrocket-react").then(
+				(m) => m.default || m
+			);
+			LogRocket.init(logrocketAppId);
+			setupLogRocketReact(LogRocket);
+			LogRocket.getSessionURL((sessionURL) => {
+				Sentry.configureScope((scope) => {
+					scope.setExtra("sessionURL", sessionURL);
+				});
 			});
-		});
+		}
 	}
 	return true;
 });
@@ -65,20 +67,21 @@ export const identifyUser = mw(async (user) => {
 			ReactGA.set({ userId: user.id });
 		}
 
-		// Identify Log Rocket
-		const LogRocket = await getLogRocket();
-		LogRocket.identify(
-			user.id,
-			isEmpty(user.username)
-				? {}
-				: {
-						name: user.nickname,
-						username: user.username,
-						country: user.country,
-						currency: user.currency,
-						operator: isUserOperator(user)
-				  }
-		);
+		if (!isEmpty(logrocketAppId)) {
+			// Identify Log Rocket
+			const LogRocket = await getLogRocket();
+			LogRocket.identify(
+				user.id,
+				isEmpty(user.username)
+					? {}
+					: {
+							name: user.nickname,
+							username: user.username,
+							country: user.country,
+							currency: user.currency
+					  }
+			);
+		}
 	}
 
 	return user;

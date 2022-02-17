@@ -1,15 +1,15 @@
 {
-  "name": "usher",
-  "version": "1.0.0",
-  "description": "Gangen Alumni Usher Repo",
-  "main": "index.js",
-  "repository": "git@gitlab.com:web-doodle/gangenalumni/usher.git",
-  "author": "Ryan Soury <ryan@gangenalumni.com>",
-  "license": "UNLICENSED",
-  "private": true,
-  "devDependencies": {
-    "lerna": "^4.0.0",
-    "prettier": "^2.5.1"
-  },
-  "dependencies": {}
+	"name": "usher",
+	"version": "1.0.0",
+	"description": "Gangen Alumni Usher Repo",
+	"main": "index.js",
+	"repository": "git@github.com:rsoury/usher.git",
+	"author": "Ryan Soury <ryan@gangenalumni.com>",
+	"license": "MIT",
+	"private": false,
+	"devDependencies": {
+		"lerna": "^4.0.0",
+		"prettier": "^2.5.1"
+	},
+	"dependencies": {}
 }

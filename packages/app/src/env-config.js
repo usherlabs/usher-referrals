@@ -8,6 +8,7 @@ export const sentry = {
 };
 
 export const gaTrackingId = process.env.NEXT_PUBLIC_GA_TRACKING_ID || "";
+export const logrocketAppId = process.env.NEXT_PUBLIC_LOGROCKET_APP_ID || "";
 
 export const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 export const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;

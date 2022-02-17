@@ -1,4 +1,3 @@
-import { toaster } from "baseui/toast";
 import * as Sentry from "@sentry/node"; // will be replaced by @sentry/browser by webpack
 import { Debug as SentryDebug } from "@sentry/integrations";
 import { isProd, sentry } from "@/env-config";
@@ -54,13 +53,6 @@ export const setUser = (user) => {
 	Sentry.configureScope((scope) => {
 		scope.setUser(user);
 	});
-};
-
-export const alerts = {
-	error() {
-		const msg = `Oops! Something went wrong. We've noted this error. Please contact Callsesh support, or refresh and try again.`;
-		toaster.negative(msg);
-	}
 };
 
 const handleException = (err, ctx) => {
