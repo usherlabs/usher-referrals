@@ -69,7 +69,11 @@ module.exports = (phase, ...nextParams) => {
 			return config;
 		},
 		poweredByHeader: !isProd,
-		reactStrictMode: !isProd
+		reactStrictMode: !isProd,
+		serverRuntimeConfig: {
+			// to bypass https://github.com/zeit/next.js/issues/8251
+			PROJECT_ROOT: __dirname
+		}
 	};
 
 	// Next plugins expect a config object and respond with an object.

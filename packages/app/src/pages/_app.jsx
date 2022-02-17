@@ -1,55 +1,33 @@
-import { setup as setupSignals } from "@/utils/signals";
+import { useEffect } from "react";
+import { DefaultSeo } from "next-seo";
+import PropTypes from "prop-types";
 
 import "modern-normalize";
-import "@/styles.css";
 
-function MyApp({ Component, pageProps }) {
-	return <Component {...pageProps} />;
-}
+import { setup as setupSignals } from "@/utils/signals";
 
+import "@/styles/styles.scss";
 
-class App extends NextApp {
-	componentDidMount() {
+function App({ Component, pageProps }) {
+	useEffect(() => {
 		if (typeof window !== "undefined") {
 			setupSignals();
 		}
-	}
+	}, []);
 
-	render() {
-		const { Component, pageProps = {} } = this.props;
+	const { seo = {} } = pageProps;
 
-		const { seo = {} } = pageProps;
-
-		return (
-			<StyletronProvider value={engine} debug={debug} debugAfterHydration>
-				<BaseProvider theme={theme}>
-					<UserProvider>
-						<RouteReferrerProvider>
-							<DefaultSeo {...seoConfig} {...seo} />
-							<ToasterContainer
-								placement={TOOLTIP_PLACEMENT.topRight}
-								autoHideDuration={10000}
-								overrides={{
-									Root: {
-										style: {
-											zIndex: "99999999"
-										}
-									}
-								}}
-							>
-								<Container id="callsesh-app">
-									<Component {...pageProps} />
-								</Container>
-							</ToasterContainer>
-						</RouteReferrerProvider>
-					</UserProvider>
-				</BaseProvider>
-			</StyletronProvider>
-		);
-	}
+	return (
+		<main>
+			<DefaultSeo {...seo} />
+			<Component {...pageProps} />;
+		</main>
+	);
 }
 
+App.propTypes = {
+	Component: PropTypes.func.isRequired,
+	pageProps: PropTypes.object.isRequired
+};
+
 export default App;
-
-
-export default MyApp;
