@@ -3,7 +3,7 @@
 const withSourceMaps = require("@zeit/next-source-maps")();
 const withPlugins = require("next-compose-plugins");
 const SentryWebpackPlugin = require("@sentry/webpack-plugin");
-const filenamify = require("filenamify");
+const sanitizeFilename = require("sanitize-filename");
 
 const { alias } = require("./config/alias");
 const pkg = require("./package.json");
@@ -12,13 +12,9 @@ const isProd = process.env.NODE_ENV === "production";
 
 module.exports = (phase, ...nextParams) => {
 	const nextConfig = {
-		// Explicitly define environment variables to be used at build time.
-		env,
 		webpack: (config, { isServer, webpack, dev }) => {
 			// Sentry release
-			const sentryRelease = filenamify(`${pkg.name}@${pkg.version}`, {
-				replacement: "-"
-			});
+			const sentryRelease = sanitizeFilename(`${pkg.name}@${pkg.version}`);
 			config.plugins.push(
 				new webpack.DefinePlugin({
 					"process.env.NEXT_PUBLIC_SENTRY_RELEASE":
@@ -72,7 +68,6 @@ module.exports = (phase, ...nextParams) => {
 
 			return config;
 		},
-		target: "serverless",
 		poweredByHeader: !isProd,
 		reactStrictMode: !isProd
 	};
