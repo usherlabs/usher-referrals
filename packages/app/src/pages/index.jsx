@@ -10,6 +10,7 @@ import Preloader from "@/components/Preloader";
 const Home = () => {
 	const arconnect = useArConnect();
 	const [address, setAddress] = useState("");
+	// const [user, setUser] = useState({});
 	const [isPreloading, setPreloading] = useState(true);
 
 	useEffect(() => {
@@ -22,20 +23,18 @@ const Home = () => {
 	const makeAddress = useCallback(async () => {
 		if (typeof arconnect === "object") {
 			const a = await arconnect.getActiveAddress();
-			console.log(a);
 			setAddress(a);
 		}
 	}, [arconnect]);
 
 	const connect = useCallback(async () => {
-		const r = await arconnect.connect(["ACCESS_ADDRESS"], {
+		await arconnect.connect(["ACCESS_ADDRESS"], {
 			name: "Usher",
 			logo: "/static/logo/Logo-Icon-Light.png"
 		});
-		console.log(r);
 
 		makeAddress();
-	}, [arconnect]);
+	}, [arconnect, makeAddress]);
 
 	return (
 		<Pane
