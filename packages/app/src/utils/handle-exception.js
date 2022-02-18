@@ -56,6 +56,10 @@ export const setUser = (user) => {
 };
 
 const handleException = (err, ctx) => {
+	if (!sentry.dsn || !isProd) {
+		console.log(err, ctx); // eslint-disable-line
+	}
+
 	Sentry.configureScope((scope) => {
 		if (err.message) {
 			// De-duplication currently doesn't work correctly for SSR / browser errors

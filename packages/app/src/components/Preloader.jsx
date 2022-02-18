@@ -9,7 +9,7 @@ const Preloader = (props) => (
 		display="flex"
 		alignItems="center"
 		justifyContent="center"
-		position="absolute"
+		position="fixed"
 		left="0"
 		right="0"
 		bottom="0"

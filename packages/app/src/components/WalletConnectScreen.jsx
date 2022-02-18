@@ -11,6 +11,7 @@ const WalletConnectScreen = ({ makeAddress, connect }) => {
 	const arconnect = useArConnect();
 	const [isArConnectLoaded, setArConnectLoaded] = useState(false);
 	const [browserName, setBrowserName] = useState("");
+	const [isLoading, setLoading] = useState(false);
 
 	useEffect(() => {
 		if (typeof arconnect === "object") {
@@ -53,7 +54,12 @@ const WalletConnectScreen = ({ makeAddress, connect }) => {
 								height={30}
 							/>
 						}
-						onClick={connect}
+						onClick={(e) => {
+							setLoading(true);
+							connect(e).finally(() => setLoading(false));
+						}}
+						isLoading={isLoading}
+						minWidth={260}
 					>
 						<strong>Connect with ArConnect</strong>
 					</Button>
@@ -76,6 +82,7 @@ const WalletConnectScreen = ({ makeAddress, connect }) => {
 									height={30}
 								/>
 							}
+							minWidth={260}
 						>
 							<strong>Install ArConnect</strong>
 						</Button>

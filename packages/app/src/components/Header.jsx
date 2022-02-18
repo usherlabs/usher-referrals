@@ -95,7 +95,12 @@ const Header = ({
 								isLoading={isLoading}
 							>
 								{!isEmpty(avatarUrl) && (
-									<Avatar src={avatarUrl} size={30} name={username} />
+									<Avatar
+										src={avatarUrl}
+										size={30}
+										name={username}
+										marginRight={8}
+									/>
 								)}
 								<strong>{username}</strong>
 							</Button>

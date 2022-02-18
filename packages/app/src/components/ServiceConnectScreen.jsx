@@ -35,6 +35,7 @@ const ServiceConnectScreen = ({ connect }) => {
 						setLoading(true);
 						connect(e).finally(() => setLoading(false));
 					}}
+					minWidth={260}
 				>
 					<strong>Connect Discord</strong>
 				</Button>

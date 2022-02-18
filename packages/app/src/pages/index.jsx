@@ -2,8 +2,6 @@ import { useState, useCallback, useEffect } from "react";
 import { Pane } from "evergreen-ui";
 import useArConnect from "use-arconnect";
 import isEmpty from "lodash/isEmpty";
-import { parseCookies, setCookie, destroyCookie } from "nookies";
-import Url from "url-parse";
 
 import Header from "@/components/Header";
 import WalletConnectScreen from "@/components/WalletConnectScreen";
@@ -12,12 +10,57 @@ import Preloader from "@/components/Preloader";
 import handleException from "@/utils/handle-exception";
 import * as alerts from "@/utils/alerts";
 import { supabase } from "@/utils/supabase-client";
+import delay from "@/utils/delay";
 
 const Home = () => {
 	const arconnect = useArConnect();
 	const [address, setAddress] = useState("");
 	const [user, setUser] = useState({});
 	const [isPreloading, setPreloading] = useState(true);
+
+	// Listen for auth state change
+	supabase.auth.onAuthStateChange(async (event, session) => {
+		switch (event) {
+			case "SIGNED_IN": {
+				// Set SignedIn User to State.
+				const u = session.user;
+				if (!isEmpty(u)) {
+					if (u.role === "authenticated") {
+						setUser(u);
+
+						// Check if there is a wallet associated to this user.
+						// If not, insert it.
+						// As this is step 2, we're going to update the wallet only once this user connection is established.
+						console.log(u);
+						const { data, error } = await supabase
+							.from("wallets")
+							.select("user_id, id")
+							.eq("user_id", u.id);
+						if (error) {
+							handleException(error);
+							alerts.error();
+							return;
+						}
+						// else{
+						// 	const { data, error } = await supabase
+						// 	.from("wallets")
+						// 	.upsert({ id: a, updated_at: new Date(Date.now()).toISOString() });
+						// console.log(data);
+						// }
+						console.log(data);
+					}
+				}
+				break;
+			}
+			case "SIGNED_OUT": {
+				setUser({});
+				break;
+			}
+			default: {
+				break;
+			}
+		}
+	});
 
 	useEffect(() => {
 		// Cancel preloader
@@ -30,21 +73,8 @@ const Home = () => {
 		if (!isEmpty(u)) {
 			if (u.role === "authenticated") {
 				setUser(u);
-				console.log(u);
-
-				// const { user: u2 } = await supabase.auth.api.getUser(
-				// 	'ACCESS_TOKEN_JWT',
-				// )
 			}
 		}
-
-		// If Awaiting Discord Access Token, read from URL -- Condition should trigger after redirect back from Discord Auth
-		// const cookies = parseCookies();
-		// if(!isEmpty(cookies.awaiting_discord_access_token)){
-		// 	destroyCookie(null, 'awaiting_discord_access_token');
-
-		// 	const
-		// }
 	}, []);
 
 	const makeAddress = useCallback(async () => {
@@ -52,19 +82,26 @@ const Home = () => {
 			try {
 				const a = await arconnect.getActiveAddress();
 				setAddress(a);
+				return a;
 			} catch (e) {
 				// ... ArConnect is loaded but has been disconnected.
 			}
 		}
+		return "";
 	}, [arconnect]);
 
 	const connectWallet = useCallback(async () => {
-		await arconnect.connect(["ACCESS_ADDRESS"], {
-			name: "Usher",
-			logo: "/static/logo/Logo-Icon-Light.png"
-		});
+		try {
+			await arconnect.connect(["ACCESS_ADDRESS", "ACCESS_PUBLIC_KEY"], {
+				name: "Usher",
+				logo: "/static/logo/Logo-Icon-Light.png"
+			});
 
-		makeAddress();
+			await delay(1000);
+			makeAddress();
+		} catch (e) {
+			// Will throw where user cancels.
+		}
 	}, [arconnect, makeAddress]);
 
 	const connectService = useCallback(async () => {
@@ -76,11 +113,6 @@ const Home = () => {
 			handleException(error);
 			alerts.error();
 		}
-		// Use Cookies to store a flag indicating that we're awaiting an Access Token
-		setCookie(null, "awaiting_discord_access_token", Date.now(), {
-			maxAge: 60 * 60, // 1 hour
-			path: "/"
-		});
 	}, []);
 
 	const disconnectService = useCallback(async () => {
@@ -88,15 +120,14 @@ const Home = () => {
 		if (error) {
 			handleException(error);
 			alerts.error();
-			return;
 		}
-
-		setUser({});
+		// State is set in Auth Update.
 	}, []);
 
 	const disconnectWallet = useCallback(async () => {
 		arconnect.disconnect();
 
+		await delay(500);
 		setAddress("");
 	}, [arconnect]);
 
