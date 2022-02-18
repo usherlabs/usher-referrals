@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import PropTypes from "prop-types";
 import isEmpty from "lodash/isEmpty";
@@ -22,6 +22,8 @@ const Header = ({
 	disconnectService,
 	disconnectWallet
 }) => {
+	const [isLoading, setLoading] = useState(false);
+
 	return (
 		<Pane
 			display="flex"
@@ -29,8 +31,8 @@ const Header = ({
 			borderRadius={8}
 			width="100%"
 			alignItems="center"
-			{...flip(isEmpty(walletAddress), {
-				background: ["white", "tint2"],
+			background={isEmpty(walletAddress) ? "white" : "tint2"}
+			{...flip(isEmpty(walletAddress) || isEmpty(username), {
 				position: ["absolute", null],
 				left: [0, null],
 				right: [0, null]
@@ -64,7 +66,13 @@ const Header = ({
 							position={Position.BOTTOM_LEFT}
 							content={
 								<Menu>
-									<Menu.Item icon={LogOutIcon} onClick={disconnectService}>
+									<Menu.Item
+										icon={LogOutIcon}
+										onClick={(e) => {
+											setLoading(true);
+											disconnectService(e).finally(() => setLoading(false));
+										}}
+									>
 										Disconnect
 									</Menu.Item>
 								</Menu>
@@ -82,6 +90,7 @@ const Header = ({
 									/>
 								}
 								iconAfter={ChevronDownIcon}
+								isLoading={isLoading}
 							>
 								<strong>{username}</strong>
 							</Button>
@@ -91,7 +100,13 @@ const Header = ({
 						position={Position.BOTTOM_LEFT}
 						content={
 							<Menu>
-								<Menu.Item icon={LogOutIcon} onClick={disconnectWallet}>
+								<Menu.Item
+									icon={LogOutIcon}
+									onClick={(e) => {
+										setLoading(true);
+										disconnectWallet(e).finally(() => setLoading(false));
+									}}
+								>
 									Disconnect
 								</Menu.Item>
 							</Menu>
@@ -109,6 +124,7 @@ const Header = ({
 								/>
 							}
 							iconAfter={ChevronDownIcon}
+							isLoading={isLoading}
 						>
 							<strong>
 								Account{" "}
