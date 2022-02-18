@@ -2,6 +2,8 @@ import { useState, useCallback, useEffect } from "react";
 import { Pane } from "evergreen-ui";
 import useArConnect from "use-arconnect";
 import isEmpty from "lodash/isEmpty";
+import { parseCookies, setCookie, destroyCookie } from "nookies";
+import Url from "url-parse";
 
 import Header from "@/components/Header";
 import WalletConnectScreen from "@/components/WalletConnectScreen";
@@ -22,12 +24,37 @@ const Home = () => {
 		setTimeout(() => {
 			setPreloading(false);
 		}, 500);
+
+		// Fetch Currently authenticated Discord User from Supabase
+		const u = supabase.auth.user();
+		if (!isEmpty(u)) {
+			if (u.role === "authenticated") {
+				setUser(u);
+				console.log(u);
+
+				// const { user: u2 } = await supabase.auth.api.getUser(
+				// 	'ACCESS_TOKEN_JWT',
+				// )
+			}
+		}
+
+		// If Awaiting Discord Access Token, read from URL -- Condition should trigger after redirect back from Discord Auth
+		// const cookies = parseCookies();
+		// if(!isEmpty(cookies.awaiting_discord_access_token)){
+		// 	destroyCookie(null, 'awaiting_discord_access_token');
+
+		// 	const
+		// }
 	}, []);
 
 	const makeAddress = useCallback(async () => {
 		if (typeof arconnect === "object") {
-			const a = await arconnect.getActiveAddress();
-			setAddress(a);
+			try {
+				const a = await arconnect.getActiveAddress();
+				setAddress(a);
+			} catch (e) {
+				// ... ArConnect is loaded but has been disconnected.
+			}
 		}
 	}, [arconnect]);
 
@@ -42,20 +69,18 @@ const Home = () => {
 
 	const connectService = useCallback(async () => {
 		// Connect to Discord
-		const {
-			user: discordUser,
-			session,
-			error
-		} = await supabase.auth.signIn({
+		const { error } = await supabase.auth.signIn({
 			provider: "discord"
 		});
 		if (error) {
 			handleException(error);
 			alerts.error();
-			return;
 		}
-		console.log(discordUser);
-		console.log(session);
+		// Use Cookies to store a flag indicating that we're awaiting an Access Token
+		setCookie(null, "awaiting_discord_access_token", Date.now(), {
+			maxAge: 60 * 60, // 1 hour
+			path: "/"
+		});
 	}, []);
 
 	const disconnectService = useCallback(async () => {
@@ -63,12 +88,17 @@ const Home = () => {
 		if (error) {
 			handleException(error);
 			alerts.error();
+			return;
 		}
+
+		setUser({});
 	}, []);
 
 	const disconnectWallet = useCallback(async () => {
-		await arconnect.disconnect();
-	}, []);
+		arconnect.disconnect();
+
+		setAddress("");
+	}, [arconnect]);
 
 	return (
 		<Pane
@@ -84,7 +114,8 @@ const Home = () => {
 			{isPreloading && <Preloader />}
 			<Header
 				walletAddress={address}
-				username={user.username}
+				username={user.user_metadata?.name}
+				avatarUrl={user.user_metadata?.avatar_url}
 				disconnectService={disconnectService}
 				disconnectWallet={disconnectWallet}
 			/>
@@ -94,7 +125,7 @@ const Home = () => {
 					connect={connectWallet}
 				/>
 			)}
-			{isEmpty(user.username) && !isEmpty(address) && (
+			{isEmpty(user) && !isEmpty(address) && (
 				<ServiceConnectScreen connect={connectService} />
 			)}
 		</Pane>

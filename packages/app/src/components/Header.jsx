@@ -11,7 +11,8 @@ import {
 	LogOutIcon,
 	Popover,
 	Position,
-	Menu
+	Menu,
+	Avatar
 } from "evergreen-ui";
 
 import flip from "@/utils/props-flip";
@@ -19,6 +20,7 @@ import flip from "@/utils/props-flip";
 const Header = ({
 	walletAddress,
 	username,
+	avatarUrl,
 	disconnectService,
 	disconnectWallet
 }) => {
@@ -92,6 +94,9 @@ const Header = ({
 								iconAfter={ChevronDownIcon}
 								isLoading={isLoading}
 							>
+								{!isEmpty(avatarUrl) && (
+									<Avatar src={avatarUrl} size={30} name={username} />
+								)}
 								<strong>{username}</strong>
 							</Button>
 						</Popover>
@@ -144,6 +149,7 @@ const Header = ({
 Header.propTypes = {
 	walletAddress: PropTypes.string,
 	username: PropTypes.string,
+	avatarUrl: PropTypes.string,
 	disconnectService: PropTypes.func,
 	disconnectWallet: PropTypes.func
 };
@@ -151,6 +157,7 @@ Header.propTypes = {
 Header.defaultProps = {
 	walletAddress: "",
 	username: "",
+	avatarUrl: "",
 	disconnectService() {},
 	disconnectWallet() {}
 };
