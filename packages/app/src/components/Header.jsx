@@ -17,6 +17,10 @@ import {
 
 import flip from "@/utils/props-flip";
 
+import LogoImage from "@/assets/logo/Logo-Icon.png";
+import DiscordIcon from "@/assets/icon/discord-icon.svg";
+import ArConnectIcon from "@/assets/icon/arconnect.svg";
+
 const Header = ({
 	walletAddress,
 	username,
@@ -53,11 +57,7 @@ const Header = ({
 					backgroundColor="white"
 					borderRadius={8}
 				>
-					<Image
-						src="/static/logo/Logo-Icon-Light.png"
-						width={40}
-						height={40}
-					/>
+					<Image src={LogoImage} width={40} height={40} />
 				</Pane>
 				<Heading size={600}>Usher</Heading>
 			</Pane>
@@ -84,13 +84,7 @@ const Header = ({
 								marginRight={16}
 								height={majorScale(5)}
 								borderRadius={40}
-								iconBefore={
-									<Image
-										src="/static/icon/discord-icon.svg"
-										width={20}
-										height={20}
-									/>
-								}
+								iconBefore={<Image src={DiscordIcon} width={20} height={20} />}
 								iconAfter={ChevronDownIcon}
 								isLoading={isLoading}
 							>
@@ -126,13 +120,7 @@ const Header = ({
 							appearance="primary"
 							height={majorScale(5)}
 							borderRadius={40}
-							iconBefore={
-								<Image
-									src="/static/asset/arconnect-logo.svg"
-									width={25}
-									height={25}
-								/>
-							}
+							iconBefore={<Image src={ArConnectIcon} width={25} height={25} />}
 							iconAfter={ChevronDownIcon}
 							isLoading={isLoading}
 						>

@@ -5,7 +5,8 @@
 		"dev": "next dev",
 		"build": "next build",
 		"start": "next start",
-		"lint": "eslint -c ./.eslintrc.js \"./**/*.{js,jsx,ts,tsx,mjs}\""
+		"lint": "eslint -c ./.eslintrc.js \"./**/*.{js,jsx,ts,tsx,mjs}\"",
+		"clean": "rimraf .next out"
 	},
 	"dependencies": {
 		"@sentry/browser": "^6.17.9",
@@ -48,6 +49,7 @@
 		"lint-staged": "^12.3.3",
 		"next-compose-plugins": "^2.2.1",
 		"next-secure-headers": "^2.2.0",
+		"rimraf": "^3.0.2",
 		"sanitize-filename": "^1.6.3"
 	}
 }

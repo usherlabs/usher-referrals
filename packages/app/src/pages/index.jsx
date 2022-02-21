@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect } from "react";
 import { Pane } from "evergreen-ui";
 import useArConnect from "use-arconnect";
 import isEmpty from "lodash/isEmpty";
+import debounce from "lodash/debounce";
 
 import Header from "@/components/Header";
 import WalletConnectScreen from "@/components/WalletConnectScreen";
@@ -11,6 +12,38 @@ import handleException from "@/utils/handle-exception";
 import * as alerts from "@/utils/alerts";
 import { supabase } from "@/utils/supabase-client";
 import delay from "@/utils/delay";
+
+import LogoImage from "@/assets/logo/Logo-Icon.png";
+
+// Debounce to minise duplicate API calls.
+const saveWallet = debounce(async (user, address) => {
+	// Check if there is a wallet associated to this user.
+	// If not, insert it, otherwise check if user_id has been updated (ie. new Discord user)
+	console.log(user.id, address);
+	const { data, error, status } = await supabase
+		.from("wallets")
+		.select("user_id, id")
+		.eq("id", address)
+		.single(); // TODO: Consistently returning no values.... even though there is a value
+	if (error && status !== 406) {
+		throw error;
+	}
+
+	if (isEmpty(data)) {
+		const r = await supabase.from("wallets").insert(
+			// TODO: Need to ensure that auth users cannot remove/update other user's rows.
+			{ id: address, user_id: user.id },
+			{
+				returning: "minimal" // Don't return the value after inserting
+			}
+		);
+		if (r.error && r.status !== 406) {
+			throw error;
+		}
+		// console.log("insert: ", r);
+	}
+	console.log("select:", data);
+}, 500);
 
 const Home = () => {
 	const arconnect = useArConnect();
@@ -28,26 +61,12 @@ const Home = () => {
 					if (u.role === "authenticated") {
 						setUser(u);
 
-						// Check if there is a wallet associated to this user.
-						// If not, insert it.
-						// As this is step 2, we're going to update the wallet only once this user connection is established.
-						console.log(u);
-						const { data, error } = await supabase
-							.from("wallets")
-							.select("user_id, id")
-							.eq("user_id", u.id);
-						if (error) {
+						try {
+							saveWallet(u, address);
+						} catch (error) {
 							handleException(error);
 							alerts.error();
-							return;
 						}
-						// else{
-						// 	const { data, error } = await supabase
-						// 	.from("wallets")
-						// 	.upsert({ id: a, updated_at: new Date(Date.now()).toISOString() });
-						// console.log(data);
-						// }
-						console.log(data);
 					}
 				}
 				break;
@@ -92,17 +111,51 @@ const Home = () => {
 
 	const connectWallet = useCallback(async () => {
 		try {
-			await arconnect.connect(["ACCESS_ADDRESS", "ACCESS_PUBLIC_KEY"], {
+			await arconnect.connect(["ACCESS_ADDRESS"], {
 				name: "Usher",
-				logo: "/static/logo/Logo-Icon-Light.png"
+				logo: LogoImage
 			});
 
 			await delay(1000);
-			makeAddress();
+			const a = await makeAddress();
+
+			// 1. Check if a user is authorised.
+			// 2. Check if there is a wallet associated to this user.
+			// 3. If so, and wallet does not match the authorised user's wallet, insert it.
+			if (!isEmpty(user)) {
+				try {
+					const { data, error, status } = await supabase
+						.from("wallets")
+						.select("id")
+						.eq("id", a)
+						.single();
+					if (error && status !== 406) {
+						throw error;
+					}
+
+					if (!isEmpty(data)) {
+						const r = await supabase.from("wallets").insert(
+							{ user_id: user.id, id: a },
+							{
+								returning: "minimal"
+							}
+						);
+						console.log(r);
+						if (r.error) {
+							throw r.error;
+						}
+						return;
+					}
+					console.log(data);
+				} catch (error) {
+					handleException(error);
+					alerts.error();
+				}
+			}
 		} catch (e) {
 			// Will throw where user cancels.
 		}
-	}, [arconnect, makeAddress]);
+	}, [arconnect, makeAddress, user]);
 
 	const connectService = useCallback(async () => {
 		// Connect to Discord
@@ -145,7 +198,7 @@ const Home = () => {
 			{isPreloading && <Preloader />}
 			<Header
 				walletAddress={address}
-				username={user.user_metadata?.name}
+				username={user.user_metadata?.full_name}
 				avatarUrl={user.user_metadata?.avatar_url}
 				disconnectService={disconnectService}
 				disconnectWallet={disconnectWallet}

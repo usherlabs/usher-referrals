@@ -6,6 +6,7 @@ import Image from "next/image";
 import Bowser from "bowser";
 
 import { arConnectChromeURL, arConnectFirefoxURL } from "@/constants";
+import ArConnectIcon from "@/assets/icon/arconnect.svg";
 
 const WalletConnectScreen = ({ makeAddress, connect }) => {
 	const arconnect = useArConnect();
@@ -27,6 +28,7 @@ const WalletConnectScreen = ({ makeAddress, connect }) => {
 			).getBrowserName();
 			setBrowserName(name);
 		}
+		return () => {};
 	}, []);
 
 	return (
@@ -47,13 +49,7 @@ const WalletConnectScreen = ({ makeAddress, connect }) => {
 					<Button
 						height={majorScale(7)}
 						appearance="primary"
-						iconBefore={
-							<Image
-								src="/static/asset/arconnect-logo.svg"
-								width={30}
-								height={30}
-							/>
-						}
+						iconBefore={<Image src={ArConnectIcon} width={30} height={30} />}
 						onClick={(e) => {
 							setLoading(true);
 							connect(e).finally(() => setLoading(false));
@@ -75,13 +71,7 @@ const WalletConnectScreen = ({ makeAddress, connect }) => {
 					>
 						<Button
 							height={majorScale(7)}
-							iconBefore={
-								<Image
-									src="/static/asset/arconnect-logo.svg"
-									width={30}
-									height={30}
-								/>
-							}
+							iconBefore={<Image src={ArConnectIcon} width={30} height={30} />}
 							minWidth={260}
 						>
 							<strong>Install ArConnect</strong>

@@ -3,6 +3,8 @@ import { Pane, Heading, Text, Button, majorScale } from "evergreen-ui";
 import PropTypes from "prop-types";
 import Image from "next/image";
 
+import DiscordWhiteIcon from "@/assets/icon/discord-white-icon.svg";
+
 const ServiceConnectScreen = ({ connect }) => {
 	const [isLoading, setLoading] = useState(false);
 
@@ -24,13 +26,7 @@ const ServiceConnectScreen = ({ connect }) => {
 					height={majorScale(7)}
 					appearance="primary"
 					isLoading={isLoading}
-					iconBefore={
-						<Image
-							src="/static/icon/discord-white-icon.svg"
-							width={20}
-							height={20}
-						/>
-					}
+					iconBefore={<Image src={DiscordWhiteIcon} width={20} height={20} />}
 					onClick={(e) => {
 						setLoading(true);
 						connect(e).finally(() => setLoading(false));
