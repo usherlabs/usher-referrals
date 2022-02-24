@@ -12,6 +12,7 @@ const handler = getHandler();
 
 handler.use(auth).post(async (req, res) => {
 	console.log(req.user);
+
 	//  const { id: username } = req.query;
 
 	//  const viewUser = await authManager.getUserByUsername(username);

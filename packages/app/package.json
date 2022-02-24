@@ -6,7 +6,8 @@
 		"build": "next build",
 		"start": "next start",
 		"lint": "eslint -c ./.eslintrc.js \"./**/*.{js,jsx,ts,tsx,mjs}\"",
-		"clean": "rimraf .next out"
+		"clean": "rimraf .next out",
+		"init-bot": "dotenv -- bash -c 'open \"https://discord.com/api/oauth2/authorize?client_id=$DISCORD_CLIENT_ID&scope=bot%20applications.commands&permissions=2147486721\"'"
 	},
 	"dependencies": {
 		"@sentry/browser": "^6.17.9",
@@ -16,6 +17,7 @@
 		"axios": "^0.26.0",
 		"axios-retry": "^3.2.4",
 		"bowser": "^2.11.0",
+		"dotenv-cli": "^5.0.0",
 		"evergreen-ui": "^6.8.2",
 		"express-bearer-token": "^2.4.0",
 		"express-pino-logger": "^7.0.0",

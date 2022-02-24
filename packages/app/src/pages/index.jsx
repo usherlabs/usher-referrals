@@ -156,9 +156,14 @@ const Home = () => {
 
 	const connectService = useCallback(async () => {
 		// Connect to Discord
-		const { error } = await supabase.auth.signIn({
-			provider: "discord"
-		});
+		const { error } = await supabase.auth.signIn(
+			{
+				provider: "discord"
+			},
+			{
+				scopes: "identify guilds.join" // https://github.com/supabase/gotrue-js/blob/12d02c35209bbd9f8f51af8d0aeee5e86fcc2a6e/src/GoTrueApi.ts#L68
+			}
+		);
 		if (error) {
 			handleException(error);
 			alerts.error();
