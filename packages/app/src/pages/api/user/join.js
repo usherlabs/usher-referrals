@@ -1,20 +1,17 @@
 /**
- * Endpoint to manage token retrieval.
- * Only token at the moment is Twilio Connection Token
+ * Endpoint to add authorised user to the Discord Server.
  */
-
-// import pick from "lodash/pick";
 
 // import { publicUrl } from "@/env-config";
 // import * as routes from "@/routes";
-// import getHandler, { onNoMatch } from "@/server/middleware";
 import getHandler, { onNoMatch } from "@/server/middleware";
-// import * as authManager from "@/server/auth-manager";
+// import {supabase} from '@/utils/supabase-client';
+import auth from "@/server/middleware/auth";
 
 const handler = getHandler();
 
-handler.post(async (req, res) => {
-	console.log(req.token);
+handler.use(auth).post(async (req, res) => {
+	console.log(req.user);
 	//  const { id: username } = req.query;
 
 	//  const viewUser = await authManager.getUserByUsername(username);
