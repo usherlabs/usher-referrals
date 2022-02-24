@@ -7,7 +7,7 @@
 		"start": "next start",
 		"lint": "eslint -c ./.eslintrc.js \"./**/*.{js,jsx,ts,tsx,mjs}\"",
 		"clean": "rimraf .next out",
-		"init-bot": "dotenv -- bash -c 'open \"https://discord.com/api/oauth2/authorize?client_id=$DISCORD_CLIENT_ID&scope=bot%20applications.commands&permissions=2147486721\"'"
+		"init-bot": "dotenv -- bash -c 'open \"https://discord.com/api/oauth2/authorize?client_id=$DISCORD_CLIENT_ID&scope=bot%20applications.commands&permissions=2147486721&guild_id=$DISCORD_GUILD_ID\"'"
 	},
 	"dependencies": {
 		"@sentry/browser": "^6.17.9",
