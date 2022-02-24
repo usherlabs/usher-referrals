@@ -19,19 +19,17 @@ import LogoImage from "@/assets/logo/Logo-Icon.png";
 const saveWallet = debounce(async (user, address) => {
 	// Check if there is a wallet associated to this user.
 	// If not, insert it, otherwise check if user_id has been updated (ie. new Discord user)
-	console.log(user.id, address);
-	const { data, error, status } = await supabase
+	const getResp = await supabase
 		.from("wallets")
-		.select("user_id, id")
-		.eq("id", address)
-		.single(); // TODO: Consistently returning no values.... even though there is a value
+		.select(`user_id, id`)
+		.eq("id", address);
+	const { data, error, status } = getResp;
 	if (error && status !== 406) {
 		throw error;
 	}
 
 	if (isEmpty(data)) {
 		const r = await supabase.from("wallets").insert(
-			// TODO: Need to ensure that auth users cannot remove/update other user's rows.
 			{ id: address, user_id: user.id },
 			{
 				returning: "minimal" // Don't return the value after inserting
@@ -40,9 +38,18 @@ const saveWallet = debounce(async (user, address) => {
 		if (r.error && r.status !== 406) {
 			throw error;
 		}
-		// console.log("insert: ", r);
+	} else {
+		const [{ user_id: userId }] = data;
+		if (userId !== user.id) {
+			const r = await supabase
+				.from("wallets")
+				.update({ user_id: user.id })
+				.eq("id", address);
+			if (r.error && r.status !== 406) {
+				throw error;
+			}
+		}
 	}
-	console.log("select:", data);
 }, 500);
 
 const Home = () => {
@@ -50,6 +57,13 @@ const Home = () => {
 	const [address, setAddress] = useState("");
 	const [user, setUser] = useState({});
 	const [isPreloading, setPreloading] = useState(true);
+
+	// Testing
+	// useEffect(() => {
+	// 	if (!isEmpty(user) && address) {
+	// 		saveWallet(user, address);
+	// 	}
+	// }, [user, address]);
 
 	// Listen for auth state change
 	supabase.auth.onAuthStateChange(async (event, session) => {
@@ -62,7 +76,7 @@ const Home = () => {
 						setUser(u);
 
 						try {
-							saveWallet(u, address);
+							await saveWallet(u, address);
 						} catch (error) {
 							handleException(error);
 							alerts.error();
@@ -124,29 +138,7 @@ const Home = () => {
 			// 3. If so, and wallet does not match the authorised user's wallet, insert it.
 			if (!isEmpty(user)) {
 				try {
-					const { data, error, status } = await supabase
-						.from("wallets")
-						.select("id")
-						.eq("id", a)
-						.single();
-					if (error && status !== 406) {
-						throw error;
-					}
-
-					if (!isEmpty(data)) {
-						const r = await supabase.from("wallets").insert(
-							{ user_id: user.id, id: a },
-							{
-								returning: "minimal"
-							}
-						);
-						console.log(r);
-						if (r.error) {
-							throw r.error;
-						}
-						return;
-					}
-					console.log(data);
+					await saveWallet(user, a);
 				} catch (error) {
 					handleException(error);
 					alerts.error();
