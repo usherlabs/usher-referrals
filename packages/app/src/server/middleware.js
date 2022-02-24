@@ -1,5 +1,6 @@
 import nextConnect from "next-connect";
 import pino from "express-pino-logger";
+import bearerToken from "express-bearer-token";
 
 import handleException from "@/utils/handle-exception";
 import { isProd, logLevel } from "@/env-config";
@@ -32,6 +33,8 @@ export default function getHandler() {
 		onError,
 		onNoMatch
 	});
+
+	handler.use(bearerToken());
 
 	// Add pino logger
 	handler.use(

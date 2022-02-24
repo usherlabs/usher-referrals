@@ -12,6 +12,7 @@ import handleException from "@/utils/handle-exception";
 import * as alerts from "@/utils/alerts";
 import { supabase } from "@/utils/supabase-client";
 import delay from "@/utils/delay";
+import getRequest from "@/utils/request";
 
 import LogoImage from "@/assets/logo/Logo-Icon.png";
 
@@ -59,11 +60,15 @@ const Home = () => {
 	const [isPreloading, setPreloading] = useState(true);
 
 	// Testing
-	// useEffect(() => {
-	// 	if (!isEmpty(user) && address) {
-	// 		saveWallet(user, address);
-	// 	}
-	// }, [user, address]);
+	useEffect(() => {
+		(async () => {
+			const request = await getRequest();
+			const response = await request
+				.post("/user/join")
+				.then(({ data }) => data);
+			console.log(response);
+		})();
+	}, []);
 
 	// Listen for auth state change
 	supabase.auth.onAuthStateChange(async (event, session) => {
