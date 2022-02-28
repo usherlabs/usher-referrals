@@ -17,9 +17,19 @@ import { isProd } from "@/env-config";
 
 import LogoImage from "@/assets/logo/Logo-Icon.png";
 
+const signIn = () =>
+	supabase.auth.signIn(
+		{
+			provider: "discord"
+		},
+		{
+			scopes: "identify guilds.join" // https://github.com/supabase/gotrue-js/blob/12d02c35209bbd9f8f51af8d0aeee5e86fcc2a6e/src/GoTrueApi.ts#L68
+		}
+	);
+
 const joinDiscordGuild = async () => {
 	const request = await getRequest();
-	const response = await request.post("/user/join").then(({ data }) => data);
+	const response = await request.post("/users").then(({ data }) => data);
 
 	return response;
 };
@@ -63,7 +73,12 @@ const Home = () => {
 		(async () => {
 			// Developer
 			if (!isProd) {
-				console.log(await supabase.auth.session());
+				const session = await supabase.auth.session();
+				console.log("DEVELOPMENT MODE:", session);
+				if (session && !session.provider_token) {
+					console.log("REFRESH_TOKEN");
+					await signIn();
+				}
 			}
 		})();
 	}, []);
@@ -73,6 +88,7 @@ const Home = () => {
 		switch (event) {
 			case "SIGNED_IN": {
 				// Set SignedIn User to State.
+				console.log(session);
 				const u = session.user;
 				if (!isEmpty(u)) {
 					if (u.role === "authenticated") {
@@ -154,14 +170,7 @@ const Home = () => {
 
 	const connectService = useCallback(async () => {
 		// Connect to Discord
-		const { error } = await supabase.auth.signIn(
-			{
-				provider: "discord"
-			},
-			{
-				scopes: "identify guilds.join" // https://github.com/supabase/gotrue-js/blob/12d02c35209bbd9f8f51af8d0aeee5e86fcc2a6e/src/GoTrueApi.ts#L68
-			}
-		);
+		const { error } = await signIn();
 		if (error) {
 			handleException(error);
 			alerts.error();

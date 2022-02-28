@@ -1,5 +1,5 @@
 /**
- * Endpoint to add authorised user to the Discord Server.
+ * Add authorised user to the Discord Server.
  */
 
 import getHandler from "@/server/middleware";
