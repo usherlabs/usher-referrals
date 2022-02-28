@@ -12,9 +12,17 @@ import handleException from "@/utils/handle-exception";
 import * as alerts from "@/utils/alerts";
 import { supabase } from "@/utils/supabase-client";
 import delay from "@/utils/delay";
-// import getRequest from "@/utils/request";
+import getRequest from "@/utils/request";
+import { isProd } from "@/env-config";
 
 import LogoImage from "@/assets/logo/Logo-Icon.png";
+
+const joinDiscordGuild = async () => {
+	const request = await getRequest();
+	const response = await request.post("/user/join").then(({ data }) => data);
+
+	return response;
+};
 
 // Debounce to minise duplicate API calls.
 const saveWallet = debounce(async (user, address) => {
@@ -22,34 +30,26 @@ const saveWallet = debounce(async (user, address) => {
 	// If not, insert it, otherwise check if user_id has been updated (ie. new Discord user)
 	const getResp = await supabase
 		.from("wallets")
-		.select(`user_id, id`)
-		.eq("id", address);
+		.select(`user_id, address, id`)
+		.eq("address", address);
 	const { data, error, status } = getResp;
 	if (error && status !== 406) {
 		throw error;
 	}
+	// console.log(`select`, data);
 
 	if (isEmpty(data)) {
 		const r = await supabase.from("wallets").insert(
-			{ id: address, user_id: user.id },
+			{ address, user_id: user.id },
 			{
 				returning: "minimal" // Don't return the value after inserting
 			}
 		);
+		// console.log(r);
 		if (r.error && r.status !== 406) {
 			throw error;
 		}
-	} else {
-		const [{ user_id: userId }] = data;
-		if (userId !== user.id) {
-			const r = await supabase
-				.from("wallets")
-				.update({ user_id: user.id })
-				.eq("id", address);
-			if (r.error && r.status !== 406) {
-				throw error;
-			}
-		}
+		await joinDiscordGuild(); // Join Discord Guild if new Wallet.
 	}
 }, 500);
 
@@ -59,16 +59,14 @@ const Home = () => {
 	const [user, setUser] = useState({});
 	const [isPreloading, setPreloading] = useState(true);
 
-	// Testing
-	// useEffect(() => {
-	// 	(async () => {
-	// 		const request = await getRequest();
-	// 		const response = await request
-	// 			.post("/user/join")
-	// 			.then(({ data }) => data);
-	// 		console.log(response);
-	// 	})();
-	// }, []);
+	useEffect(() => {
+		(async () => {
+			// Developer
+			if (!isProd) {
+				console.log(await supabase.auth.session());
+			}
+		})();
+	}, []);
 
 	// Listen for auth state change
 	supabase.auth.onAuthStateChange(async (event, session) => {

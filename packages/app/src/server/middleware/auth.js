@@ -8,9 +8,22 @@ const withAuth = nextConnect().use(async (req, res, next) => {
 			success: false
 		});
 	}
+	let payload;
+	try {
+		payload = JSON.parse(Buffer.from(req.token, "base64").toString("utf-8"));
+	} catch (e) {
+		return res.status(403).json({
+			success: false
+		});
+	}
 
-	const user = await supabase.auth.api.getUser(req.token);
+	const { user, error } = await supabase.auth.api.getUser(payload.access_token);
 
+	if (error) {
+		return next(error);
+	}
+
+	req.session = payload;
 	req.user = user;
 
 	return next();

@@ -7,7 +7,7 @@
 		"start": "next start",
 		"lint": "eslint -c ./.eslintrc.js \"./**/*.{js,jsx,ts,tsx,mjs}\"",
 		"clean": "rimraf .next out",
-		"init-bot": "dotenv -- bash -c 'open \"https://discord.com/api/oauth2/authorize?client_id=$DISCORD_CLIENT_ID&scope=bot%20applications.commands&permissions=2147486721&guild_id=$DISCORD_GUILD_ID\"'"
+		"init-bot": "dotenv -- bash -c 'open \"https://discord.com/api/oauth2/authorize?client_id=$DISCORD_CLIENT_ID&scope=bot%20applications.commands&permissions=2147486721&guild_id=$DISCORD_GUILD_ID&disable_guild_select=true\"'"
 	},
 	"dependencies": {
 		"@sentry/browser": "^6.17.9",
@@ -21,6 +21,7 @@
 		"evergreen-ui": "^6.8.2",
 		"express-bearer-token": "^2.4.0",
 		"express-pino-logger": "^7.0.0",
+		"js-base64": "^3.7.2",
 		"lodash": "^4.17.21",
 		"logrocket": "^2.2.0",
 		"logrocket-react": "^5.0.1",

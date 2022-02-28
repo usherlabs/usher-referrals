@@ -3,7 +3,7 @@ import pino from "express-pino-logger";
 import bearerToken from "express-bearer-token";
 
 import handleException from "@/utils/handle-exception";
-import { isProd, logLevel } from "@/env-config";
+import { isProd, logLevel } from "@/server/env-config";
 
 export const onError = (err, req, res) => {
 	handleException(err);

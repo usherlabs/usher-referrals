@@ -2,46 +2,35 @@
  * Endpoint to add authorised user to the Discord Server.
  */
 
-// import { publicUrl } from "@/env-config";
-// import * as routes from "@/routes";
-import getHandler, { onNoMatch } from "@/server/middleware";
-// import {supabase} from '@/utils/supabase-client';
+import getHandler from "@/server/middleware";
 import auth from "@/server/middleware/auth";
+import discord from "@/server/discord";
+import { discord as discordEnv } from "@/server/env-config";
 
 const handler = getHandler();
 
 handler.use(auth).post(async (req, res) => {
-	console.log(req.user);
+	const {
+		user_metadata: { provider_id: providerId }
+	} = req.user;
 
-	//  const { id: username } = req.query;
+	try {
+		const response = await discord
+			.put(`/guilds/${discordEnv.guildId}/members/${providerId}`, {
+				access_token: req.session.provider_token
+			})
+			.then(({ data }) => data);
 
-	//  const viewUser = await authManager.getUserByUsername(username);
-
-	//  const publicViewUser = {
-	// 	 ...pick(viewUser, [
-	// 		 "picture",
-	// 		 "givenName",
-	// 		 "country",
-	// 		 "currency",
-	// 		 "gender",
-	// 		 "hourlyRate",
-	// 		 "isLive",
-	// 		 "messageBroadcast",
-	// 		 "purpose",
-	// 		 "username",
-	// 		 "roles"
-	// 	 ]),
-	// 	 isAvailable: viewUser.isLive && !isEmpty(viewUser.callSession),
-	// 	 url: `${publicUrl}${routes.build.user(viewUser.username)}`
-	//  };
-
-	//  if (isEmpty(viewUser)) {
-	// 	 return onNoMatch(req, res);
-	//  }
-
-	return res.json({
-		success: true
-	});
+		return res.json({
+			success: true,
+			response
+		});
+	} catch (e) {
+		console.log(e);
+		return res.json({
+			success: false
+		});
+	}
 });
 
 export default handler;
