@@ -13,7 +13,7 @@ import handleException from "@/utils/handle-exception";
 import * as alerts from "@/utils/alerts";
 import { supabase } from "@/utils/supabase-client";
 import delay from "@/utils/delay";
-import getRequest from "@/utils/request";
+import getAuthReqeust from "@/utils/request";
 import { isProd } from "@/env-config";
 import events from "@/utils/events";
 
@@ -30,8 +30,8 @@ const signIn = () =>
 	);
 
 const joinDiscordGuild = async () => {
-	const request = await getRequest();
-	const response = await request.post("/users").then(({ data }) => data);
+	const request = await getAuthReqeust();
+	const response = await request.post("/discord").then(({ data }) => data);
 
 	return response;
 };
@@ -95,7 +95,7 @@ const Home = () => {
 	useEffect(() => {
 		const onSignIn = async (u) => {
 			try {
-				console.log(u, address);
+				// console.log(u, address);
 				await saveWallet(u, address);
 			} catch (error) {
 				handleException(error);

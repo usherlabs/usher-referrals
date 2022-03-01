@@ -1,50 +1,101 @@
-import { setCookie } from "nookies";
-import discord from "@/server/discord";
-import { discord as discordEnv } from "@/server/env-config";
+import { useCallback, useState, useEffect } from "react";
+import { Pane } from "evergreen-ui";
+import { useRouter } from "next/router";
+import isEmpty from "lodash/isEmpty";
+
+import useUser from "@/providers/User";
+import { supabase } from "@/utils/supabase-client";
 import handleException from "@/utils/handle-exception";
+import * as alerts from "@/utils/alerts";
+import Preloader from "@/components/Preloader";
+import getAuthReqeust, { getRequest } from "@/utils/request";
+import DicordInviteScreen from "@/components/DicordInviteScreen";
 
-const DiscordInvite = () => null;
+const request = getRequest();
+const signIn = () =>
+	supabase.auth.signIn(
+		{
+			provider: "discord"
+		},
+		{
+			scopes: "identify"
+		}
+	);
 
-/**
- * 1. Create a referrer cookie
- * 2. Redirect to dynamic Discord Invite Link
- *
- * @return  {Object}  props
- */
-export async function getServerSideProps({
-	req,
-	res,
-	query: { wallet: referrerWallet }
-}) {
-	setCookie({ req, res }, "__usher-discord-src", referrerWallet, {
-		maxAge: 7 * 60 * 60, // lasts 7 days
-		path: "/"
-	});
+const DiscordInvite = () => {
+	const [isPreloading, setPreloading] = useState(true);
+	const [usher, setUsher] = useState({});
+	const [user, isUserLoading] = useUser();
+	const router = useRouter();
 
-	// A new invite link will be produced and used effectively immediatley.
-	try {
-		const response = await discord
-			.post(`/channels/${discordEnv.inviteChannelId}/invites`, {
-				max_age: 3600, // 1 hour
-				max_uses: 0,
-				temporary: false,
-				unique: false
-			})
-			.then(({ data }) => data);
+	const { id: usherId } = router.query;
 
-		res.writeHead(302, {
-			Location: `https://discord.gg/${response.code}`
-		});
-	} catch (e) {
-		handleException(e.response);
-		res.writeHead(302, {
-			Location: `/link-error`
-		});
-	}
+	const connectService = useCallback(async () => {
+		// Connect to Discord
+		const { error } = await signIn();
+		if (error) {
+			handleException(error);
+			alerts.error();
+		}
+	}, []);
 
-	res.end();
+	useEffect(() => {
+		(async () => {
+			// Check if Invitee is already authenticated
+			if (!isEmpty(user) && !isUserLoading) {
+				// If so, request an invite link and redirect
+				const authReq = await getAuthReqeust();
+				const resp = authReq
+					.get(`/discord?id=${usherId}`)
+					.then(({ data }) => data);
+				const code = resp.data?.code;
+				if (code) {
+					// Use replace to mitigate users spam visiting the invite link
+					window.location.replace(`https://discord.gg/${code}`);
+				}
+			}
+		})();
+		if (!isUserLoading) {
+			setPreloading(false);
+		}
+	}, [user, isUserLoading]);
 
-	return { props: {} };
-}
+	useEffect(() => {
+		(async () => {
+			// Execute request to fetch Usher details for the given id
+			const response = await request
+				.get(`/usher?id=${usherId}`)
+				.then(({ data }) => data);
+			const { data } = response;
+			setUsher(data);
+			setPreloading(false);
+		})();
+	}, []);
+
+	return (
+		<Pane
+			display="flex"
+			flexDirection="column"
+			padding={16}
+			maxWidth={1280}
+			marginY="0"
+			marginX="auto"
+			minHeight="100vh"
+			position="relative"
+		>
+			{isUserLoading || (isPreloading && <Preloader />)}
+			{isEmpty(user) && !isUserLoading && (
+				<DicordInviteScreen
+					connect={connectService}
+					usherUsername={usher.profile.name}
+					usherAvatar={usher.profile.avatar_url}
+					guildName={usher.guild.name}
+					guildIcon={usher.guild.icon_url}
+					channelName={usher.channel.name}
+				/>
+			)}
+		</Pane>
+	);
+};
 
 export default DiscordInvite;
