@@ -6,8 +6,9 @@
 		"build": "next build",
 		"start": "next start",
 		"lint": "eslint -c ./.eslintrc.js \"./**/*.{js,jsx,ts,tsx,mjs}\"",
+		"format": "prettier --write \"./src/**/*.{js,jsx,mjs,ts,tsx,json,css,scss,md}\"",
 		"clean": "rimraf .next out",
-		"init-bot": "dotenv -- bash -c 'open \"https://discord.com/api/oauth2/authorize?client_id=$DISCORD_CLIENT_ID&scope=bot%20applications.commands&permissions=2147486721&guild_id=$DISCORD_GUILD_ID&disable_guild_select=true\"'"
+		"init-bot": "dotenv -- bash -c 'open \"https://discord.com/api/oauth2/authorize?client_id=$DISCORD_CLIENT_ID&scope=bot%20applications.commands&permissions=2147485713&guild_id=$DISCORD_GUILD_ID&disable_guild_select=true\"'"
 	},
 	"dependencies": {
 		"@sentry/browser": "^6.17.9",
@@ -18,6 +19,7 @@
 		"axios-retry": "^3.2.4",
 		"bowser": "^2.11.0",
 		"dotenv-cli": "^5.0.0",
+		"eventemitter3": "^4.0.7",
 		"evergreen-ui": "^6.8.2",
 		"express-bearer-token": "^2.4.0",
 		"express-pino-logger": "^7.0.0",

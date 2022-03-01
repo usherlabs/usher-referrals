@@ -4,6 +4,7 @@ import PropTypes from "prop-types";
 
 import "modern-normalize";
 
+import UserProvider from "@/providers/User";
 import { setup as setupSignals } from "@/utils/signals";
 
 import "@/styles/styles.scss";
@@ -19,8 +20,10 @@ const App = ({ Component, pageProps }) => {
 
 	return (
 		<main>
-			<DefaultSeo title="Usher" {...seo} />
-			<Component {...pageProps} />
+			<UserProvider>
+				<DefaultSeo title="Usher" {...seo} />
+				<Component {...pageProps} />
+			</UserProvider>
 		</main>
 	);
 };

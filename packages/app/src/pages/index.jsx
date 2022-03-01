@@ -4,6 +4,7 @@ import useArConnect from "use-arconnect";
 import isEmpty from "lodash/isEmpty";
 import debounce from "lodash/debounce";
 
+import useUser from "@/hooks/use-user";
 import Header from "@/components/Header";
 import WalletConnectScreen from "@/components/WalletConnectScreen";
 import ServiceConnectScreen from "@/components/ServiceConnectScreen";
@@ -14,6 +15,7 @@ import { supabase } from "@/utils/supabase-client";
 import delay from "@/utils/delay";
 import getRequest from "@/utils/request";
 import { isProd } from "@/env-config";
+import events from "@/utils/events";
 
 import LogoImage from "@/assets/logo/Logo-Icon.png";
 
@@ -66,7 +68,7 @@ const saveWallet = debounce(async (user, address) => {
 const Home = () => {
 	const arconnect = useArConnect();
 	const [address, setAddress] = useState("");
-	const [user, setUser] = useState({});
+	const [user] = useUser();
 	const [isPreloading, setPreloading] = useState(true);
 
 	useEffect(() => {
@@ -77,57 +79,35 @@ const Home = () => {
 				console.log("DEVELOPMENT MODE:", session);
 				if (session && !session.provider_token) {
 					console.log("REFRESH_TOKEN");
-					await signIn();
+					await signIn(); // TODO: This approach may cause redirect to Provider URL....
 				}
 			}
 		})();
 	}, []);
-
-	// Listen for auth state change
-	supabase.auth.onAuthStateChange(async (event, session) => {
-		switch (event) {
-			case "SIGNED_IN": {
-				// Set SignedIn User to State.
-				console.log(session);
-				const u = session.user;
-				if (!isEmpty(u)) {
-					if (u.role === "authenticated") {
-						setUser(u);
-
-						try {
-							await saveWallet(u, address);
-						} catch (error) {
-							handleException(error);
-							alerts.error();
-						}
-					}
-				}
-				break;
-			}
-			case "SIGNED_OUT": {
-				setUser({});
-				break;
-			}
-			default: {
-				break;
-			}
-		}
-	});
 
 	useEffect(() => {
 		// Cancel preloader
 		setTimeout(() => {
 			setPreloading(false);
 		}, 500);
-
-		// Fetch Currently authenticated Discord User from Supabase
-		const u = supabase.auth.user();
-		if (!isEmpty(u)) {
-			if (u.role === "authenticated") {
-				setUser(u);
-			}
-		}
 	}, []);
+
+	useEffect(() => {
+		const onSignIn = async (u) => {
+			try {
+				console.log(u, address);
+				await saveWallet(u, address);
+			} catch (error) {
+				handleException(error);
+				alerts.error();
+			}
+		};
+		events.on("SIGN_IN", onSignIn);
+
+		return () => {
+			events.off("SIGN_IN", onSignIn);
+		};
+	}, [address]);
 
 	const makeAddress = useCallback(async () => {
 		if (typeof arconnect === "object") {

@@ -78,6 +78,7 @@ module.exports = {
 				namedComponents: "arrow-function"
 			}
 		],
-		"no-param-reassign": 0
+		"no-param-reassign": 0,
+		"react-hooks/exhaustive-deps": 0
 	}
 };
