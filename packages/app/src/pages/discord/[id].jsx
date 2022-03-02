@@ -69,6 +69,12 @@ const DiscordInvite = () => {
 		})();
 	}, [usherId]);
 
+	// useEffect(() => {
+	// 	console.log(
+	// 		supabase.auth.api.getUrlForProvider("discord", { scopes: "identity" })
+	// 	);
+	// }, []);
+
 	return (
 		<Pane
 			display="flex"

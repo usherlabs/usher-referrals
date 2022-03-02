@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Pane, Heading, Text, Button, majorScale } from "evergreen-ui";
+import { Pane, Heading, Text, Button, majorScale, Link } from "evergreen-ui";
 import PropTypes from "prop-types";
 import useArConnect from "use-arconnect";
 import Image from "next/image";
@@ -60,7 +60,7 @@ const WalletConnectScreen = ({ makeAddress, connect }) => {
 						<strong>Connect with ArConnect</strong>
 					</Button>
 				) : (
-					<a
+					<Link
 						href={
 							browserName.toLowerCase().includes("firefox")
 								? arConnectFirefoxURL
@@ -76,7 +76,7 @@ const WalletConnectScreen = ({ makeAddress, connect }) => {
 						>
 							<strong>Install ArConnect</strong>
 						</Button>
-					</a>
+					</Link>
 				)}
 			</Pane>
 		</Pane>

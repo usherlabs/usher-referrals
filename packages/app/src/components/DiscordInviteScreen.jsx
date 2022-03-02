@@ -10,8 +10,7 @@ import {
 	ListItem,
 	TickCircleIcon,
 	useTheme,
-	Tooltip,
-	InlineAlert
+	Tooltip
 } from "evergreen-ui";
 import PropTypes from "prop-types";
 import Image from "next/image";
@@ -111,11 +110,11 @@ const DicordInviteScreen = ({
 				>
 					<Pane
 						display="inline"
-						color={colors.blue600}
+						color={colors.blue500}
 						marginX={6}
 						borderBottom
 						borderBottomStyle="dashed"
-						borderBottomColor={colors.blue600}
+						borderBottomColor={colors.blue500}
 					>
 						{usherName}
 					</Pane>
