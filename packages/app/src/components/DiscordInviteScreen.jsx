@@ -1,5 +1,17 @@
 import React, { useState } from "react";
-import { Pane, Heading, Text, Button, majorScale } from "evergreen-ui";
+import {
+	Pane,
+	Heading,
+	Text,
+	Button,
+	majorScale,
+	Avatar,
+	Badge,
+	UnorderedList,
+	ListItem,
+	TickCircleIcon,
+	useTheme
+} from "evergreen-ui";
 import PropTypes from "prop-types";
 import Image from "next/image";
 
@@ -7,28 +19,98 @@ import DiscordWhiteIcon from "@/assets/icon/discord-white-icon.svg";
 
 const DicordInviteScreen = ({
 	connect,
-	usherUsername,
+	usherName,
 	usherAvatar,
 	guildName,
-	guildIcon,
-	channelName
+	guildIcon
 }) => {
 	const [isLoading, setLoading] = useState(false);
+	const { colors } = useTheme();
 
 	return (
 		<Pane
 			display="flex"
 			flexDirection="column"
 			flex={1}
-			alignItems="center"
+			alignItems="flex-start"
 			justifyContent="center"
-			padding={32}
+			padding={16}
+			maxWidth={800}
+			margin="auto"
+			width="100%"
 		>
-			<Heading is="h1" size={800} marginBottom={12}>
-				Next steps...
+			<Heading
+				is="h1"
+				size={900}
+				display="flex"
+				alignItems="center"
+				flexWrap="wrap"
+				color={colors.gray600}
+			>
+				<Pane color={colors.gray900} marginRight={6}>
+					You've been invited
+				</Pane>
+				<span>to the</span>
+				{/* <Pane
+					display="inline-flex"
+					borderRadius={100}
+					padding={8}
+					paddingRight={16}
+					alignItems="center"
+					justifyContent="center"
+					margin={6}
+				>
+					{guildIcon && (
+						<Avatar
+							src={guildIcon}
+							name={guildName}
+							size={40}
+							marginRight={8}
+						/>
+					)}
+					<Pane color={colors.purple600}>{guildName}</Pane>
+				</Pane> */}
+				<Pane display="inline" color={colors.purple600} marginX={6}>
+					{guildName}
+				</Pane>
+				<span>Discord Server by</span>
+				{/* <Pane
+					display="inline-flex"
+					borderRadius={100}
+					padding={8}
+					paddingRight={16}
+					alignItems="center"
+					justifyContent="center"
+					margin={6}
+				>
+					{usherAvatar && (
+						<Avatar
+							src={usherAvatar}
+							name={usherName}
+							size={40}
+							marginRight={8}
+						/>
+					)}
+					<Pane color={colors.blue600}>{usherName}</Pane>
+				</Pane> */}
+				<Pane display="inline" color={colors.blue600} marginX={6}>
+					{usherName}
+				</Pane>
 			</Heading>
-			<Text size={500}>Connect your Discord account.</Text>
-			<Pane background="tint2" padding={16} margin={12}>
+			<Pane background="tint2" padding={16} marginY={12} width="100%">
+				<Pane marginBottom={16} display="flex" flexDirection="column">
+					<Text marginBottom={6} size={400}>
+						To accept:
+					</Text>
+					<UnorderedList>
+						<ListItem icon={TickCircleIcon} iconColor="success">
+							<Text>Verify your Discord account</Text>
+						</ListItem>
+						<ListItem icon={TickCircleIcon} iconColor="success">
+							<Text>Accept the Discord invite</Text>
+						</ListItem>
+					</UnorderedList>
+				</Pane>
 				<Button
 					height={majorScale(7)}
 					appearance="primary"
@@ -39,8 +121,9 @@ const DicordInviteScreen = ({
 						connect(e).finally(() => setLoading(false));
 					}}
 					minWidth={260}
+					width="100%"
 				>
-					<strong>Connect Discord</strong>
+					<strong>Verify with Discord</strong>
 				</Button>
 			</Pane>
 		</Pane>
@@ -49,7 +132,7 @@ const DicordInviteScreen = ({
 
 DicordInviteScreen.propTypes = {
 	connect: PropTypes.func.isRequired,
-	usherUsername: PropTypes.string.isRequired,
+	usherName: PropTypes.string.isRequired,
 	usherAvatar: PropTypes.string.isRequired,
 	guildName: PropTypes.string.isRequired,
 	guildIcon: PropTypes.string.isRequired,

@@ -80,11 +80,6 @@ const UserContextProvider = ({ children }) => {
 
 UserContextProvider.propTypes = {
 	children: ChildrenProps.isRequired
-	// onSignIn: PropTypes.func
 };
-
-// UserContextProvider.defaultProps = {
-// 	onSignIn() {}
-// };
 
 export default UserContextProvider;

@@ -43,10 +43,11 @@ handler
 		}
 		req.log.info("Discord code successfully created", response);
 
-		const { error, status } = await supabase.from("invitees").insert({
+		// Create a new "invite" between the invitee and the usher/wallet
+		const { error, status } = await supabase.from("invites").insert({
 			user_id: id,
 			wallet_id: walletId,
-			invite_code: response.code
+			provider_code: response.code
 		});
 		if (error && status !== 406) {
 			throw error;

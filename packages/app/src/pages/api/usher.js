@@ -57,7 +57,9 @@ handler.get(async (req, res) => {
 				channel: pick(channel, ["name"]),
 				guild: {
 					name: guild.name,
-					icon_url: `https://cdn.discordapp.com/icons/${discordEnv.guildId}/${guild.icon}.png`
+					icon_url: guild.icon
+						? `https://cdn.discordapp.com/icons/${discordEnv.guildId}/${guild.icon}.png`
+						: ""
 				}
 			}
 		});

@@ -19,12 +19,12 @@ const App = ({ Component, pageProps }) => {
 	const { seo = {} } = pageProps;
 
 	return (
-		<main>
-			<UserProvider>
+		<UserProvider>
+			<main id="usher-app">
 				<DefaultSeo title="Usher" {...seo} />
 				<Component {...pageProps} />
-			</UserProvider>
-		</main>
+			</main>
+		</UserProvider>
 	);
 };
 

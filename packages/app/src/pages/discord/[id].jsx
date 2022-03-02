@@ -3,13 +3,13 @@ import { Pane } from "evergreen-ui";
 import { useRouter } from "next/router";
 import isEmpty from "lodash/isEmpty";
 
-import useUser from "@/providers/User";
+import useUser from "@/hooks/use-user";
 import { supabase } from "@/utils/supabase-client";
 import handleException from "@/utils/handle-exception";
 import * as alerts from "@/utils/alerts";
 import Preloader from "@/components/Preloader";
 import getAuthReqeust, { getRequest } from "@/utils/request";
-import DicordInviteScreen from "@/components/DicordInviteScreen";
+import DiscordInviteScreen from "@/components/DiscordInviteScreen";
 
 const request = getRequest();
 const signIn = () =>
@@ -23,7 +23,6 @@ const signIn = () =>
 	);
 
 const DiscordInvite = () => {
-	const [isPreloading, setPreloading] = useState(true);
 	const [usher, setUsher] = useState({});
 	const [user, isUserLoading] = useUser();
 	const router = useRouter();
@@ -55,22 +54,20 @@ const DiscordInvite = () => {
 				}
 			}
 		})();
-		if (!isUserLoading) {
-			setPreloading(false);
-		}
 	}, [user, isUserLoading]);
 
 	useEffect(() => {
 		(async () => {
-			// Execute request to fetch Usher details for the given id
-			const response = await request
-				.get(`/usher?id=${usherId}`)
-				.then(({ data }) => data);
-			const { data } = response;
-			setUsher(data);
-			setPreloading(false);
+			if (!isEmpty(usherId)) {
+				// Execute request to fetch Usher details for the given id
+				const response = await request
+					.get(`/usher?id=${usherId}`)
+					.then(({ data }) => data);
+				const { data } = response;
+				setUsher(data);
+			}
 		})();
-	}, []);
+	}, [usherId]);
 
 	return (
 		<Pane
@@ -83,11 +80,11 @@ const DiscordInvite = () => {
 			minHeight="100vh"
 			position="relative"
 		>
-			{isUserLoading || (isPreloading && <Preloader />)}
-			{isEmpty(user) && !isUserLoading && (
-				<DicordInviteScreen
+			{(isUserLoading || isEmpty(usher)) && <Preloader />}
+			{isEmpty(user) && !isUserLoading && !isEmpty(usher) && (
+				<DiscordInviteScreen
 					connect={connectService}
-					usherUsername={usher.profile.name}
+					usherName={usher.profile.name}
 					usherAvatar={usher.profile.avatar_url}
 					guildName={usher.guild.name}
 					guildIcon={usher.guild.icon_url}
