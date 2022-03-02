@@ -10,7 +10,8 @@ import {
 	UnorderedList,
 	ListItem,
 	TickCircleIcon,
-	useTheme
+	useTheme,
+	Tooltip
 } from "evergreen-ui";
 import PropTypes from "prop-types";
 import Image from "next/image";
@@ -22,7 +23,8 @@ const DicordInviteScreen = ({
 	usherName,
 	usherAvatar,
 	guildName,
-	guildIcon
+	guildIcon,
+	channelName
 }) => {
 	const [isLoading, setLoading] = useState(false);
 	const { colors } = useTheme();
@@ -51,53 +53,80 @@ const DicordInviteScreen = ({
 					You've been invited
 				</Pane>
 				<span>to the</span>
-				{/* <Pane
-					display="inline-flex"
-					borderRadius={100}
-					padding={8}
-					paddingRight={16}
-					alignItems="center"
-					justifyContent="center"
-					margin={6}
+				<Tooltip
+					content={
+						<Pane
+							display="flex"
+							alignItems="center"
+							justifyContent="center"
+							flexDirection="row"
+						>
+							{guildIcon && (
+								<Avatar src={guildIcon} size={40} marginRight={8} />
+							)}
+							<Text size={400} color="white">
+								The&nbsp;
+								<strong>{channelName}</strong> channel is ready for you
+							</Text>
+						</Pane>
+					}
+					statelessProps={{
+						elevation: 4,
+						borderRadius: 100,
+						paddingLeft: 10
+					}}
 				>
-					{guildIcon && (
-						<Avatar
-							src={guildIcon}
-							name={guildName}
-							size={40}
-							marginRight={8}
-						/>
-					)}
-					<Pane color={colors.purple600}>{guildName}</Pane>
-				</Pane> */}
-				<Pane display="inline" color={colors.purple600} marginX={6}>
-					{guildName}
-				</Pane>
+					<Pane
+						display="inline"
+						color={colors.purple600}
+						marginX={6}
+						borderBottom
+						borderBottomStyle="dashed"
+						borderBottomColor={colors.purple600}
+					>
+						{guildName}
+					</Pane>
+				</Tooltip>
 				<span>Discord Server by</span>
-				{/* <Pane
-					display="inline-flex"
-					borderRadius={100}
-					padding={8}
-					paddingRight={16}
-					alignItems="center"
-					justifyContent="center"
-					margin={6}
+				<Tooltip
+					content={
+						<Pane
+							display="flex"
+							alignItems="center"
+							justifyContent="center"
+							flexDirection="row"
+						>
+							{usherAvatar && (
+								<Avatar src={usherAvatar} size={40} marginRight={8} />
+							)}
+							<Text color="white">👋 👋 See you inside!</Text>
+						</Pane>
+					}
+					statelessProps={{
+						elevation: 4,
+						borderRadius: 100,
+						paddingLeft: 10
+					}}
 				>
-					{usherAvatar && (
-						<Avatar
-							src={usherAvatar}
-							name={usherName}
-							size={40}
-							marginRight={8}
-						/>
-					)}
-					<Pane color={colors.blue600}>{usherName}</Pane>
-				</Pane> */}
-				<Pane display="inline" color={colors.blue600} marginX={6}>
-					{usherName}
-				</Pane>
+					<Pane
+						display="inline"
+						color={colors.blue600}
+						marginX={6}
+						borderBottom
+						borderBottomStyle="dashed"
+						borderBottomColor={colors.blue600}
+					>
+						{usherName}
+					</Pane>
+				</Tooltip>
 			</Heading>
-			<Pane background="tint2" padding={16} marginY={12} width="100%">
+			<Pane
+				background="tint2"
+				padding={16}
+				marginY={12}
+				width="100%"
+				maxWidth={400}
+			>
 				<Pane marginBottom={16} display="flex" flexDirection="column">
 					<Text marginBottom={6} size={400}>
 						To accept:
