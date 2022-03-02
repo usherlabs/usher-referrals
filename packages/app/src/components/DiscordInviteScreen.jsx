@@ -6,12 +6,12 @@ import {
 	Button,
 	majorScale,
 	Avatar,
-	Badge,
 	UnorderedList,
 	ListItem,
 	TickCircleIcon,
 	useTheme,
-	Tooltip
+	Tooltip,
+	InlineAlert
 } from "evergreen-ui";
 import PropTypes from "prop-types";
 import Image from "next/image";
@@ -48,6 +48,7 @@ const DicordInviteScreen = ({
 				alignItems="center"
 				flexWrap="wrap"
 				color={colors.gray600}
+				marginBottom={8}
 			>
 				<Pane color={colors.gray900} marginRight={6}>
 					You've been invited
@@ -126,17 +127,25 @@ const DicordInviteScreen = ({
 				marginY={12}
 				width="100%"
 				maxWidth={400}
+				borderRadius={8}
+				elevation={1}
 			>
 				<Pane marginBottom={16} display="flex" flexDirection="column">
-					<Text marginBottom={6} size={400}>
+					<Text
+						marginBottom={6}
+						size={300}
+						textTransform="uppercase"
+						fontWeight={900}
+						color={colors.gray600}
+					>
 						To accept:
 					</Text>
 					<UnorderedList>
-						<ListItem icon={TickCircleIcon} iconColor="success">
-							<Text>Verify your Discord account</Text>
+						<ListItem icon={TickCircleIcon} iconColor="success" size={500}>
+							Verify your Discord account
 						</ListItem>
-						<ListItem icon={TickCircleIcon} iconColor="success">
-							<Text>Accept the Discord invite</Text>
+						<ListItem icon={TickCircleIcon} iconColor="success" size={500}>
+							Accept the Discord invite
 						</ListItem>
 					</UnorderedList>
 				</Pane>
