@@ -99,7 +99,7 @@ const DicordInviteScreen = ({
 							{usherAvatar && (
 								<Avatar src={usherAvatar} size={40} marginRight={8} />
 							)}
-							<Text color="white">👋 👋 See you inside!</Text>
+							<Text color="white">👋 👋&nbsp;&nbsp;See you inside!</Text>
 						</Pane>
 					}
 					statelessProps={{

@@ -13,14 +13,9 @@ import DiscordInviteScreen from "@/components/DiscordInviteScreen";
 
 const request = getRequest();
 const signIn = () =>
-	supabase.auth.signIn(
-		{
-			provider: "discord"
-		},
-		{
-			scopes: "identify"
-		}
-	);
+	supabase.auth.signIn({
+		provider: "discord"
+	});
 
 const DiscordInvite = () => {
 	const [usher, setUsher] = useState({});
