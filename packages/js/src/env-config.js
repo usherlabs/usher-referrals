@@ -1,5 +1,4 @@
 export const isProd = process.env.NODE_ENV === "production";
-console.log(process.env.NODE_ENV);
 
 export const apiUrl = process.env.API_URL;
 export const satelliteUrl = process.env.SATELLITE_URL;

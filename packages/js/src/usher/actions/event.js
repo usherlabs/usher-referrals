@@ -24,14 +24,16 @@ const action = async ({ id, nativeId, properties } = {}) => {
 		}
 
 		console.log("consuming");
-		const resp = await request.post("consume", {
-			json: {
-				convId,
-				id,
-				nativeId,
-				properties
-			}
-		});
+		const resp = await request
+			.post("consume", {
+				json: {
+					convId,
+					id,
+					nativeId,
+					properties
+				}
+			})
+			.json();
 
 		console.log(resp);
 		bus.emit("consume");
