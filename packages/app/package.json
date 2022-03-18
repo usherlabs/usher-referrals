@@ -24,6 +24,7 @@
 		"evergreen-ui": "^6.8.2",
 		"express-bearer-token": "^2.4.0",
 		"express-pino-logger": "^7.0.0",
+		"framebus": "^5.1.2",
 		"js-base64": "^3.7.2",
 		"lodash": "^4.17.21",
 		"logrocket": "^2.2.0",

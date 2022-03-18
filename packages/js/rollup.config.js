@@ -18,6 +18,15 @@ dotenv.config();
 
 const isProd = process.env.NODE_ENV === "production";
 
+if (!process.env.API_URL) {
+	/* eslint-disable no-console */
+	throw new Error(`No API Url loaded!`);
+}
+if (!process.env.SATELLITE_URL) {
+	/* eslint-disable no-console */
+	throw new Error(`No Satellite Url loaded!`);
+}
+
 const input = "src/index.js";
 const extensions = [".js", ".json"];
 const codes = [
@@ -64,7 +73,8 @@ const plugins = [
 	visualizer(),
 	injectProcessEnv({
 		NODE_ENV: process.env.NODE_ENV || "development",
-		API_URL: process.env.API_URL
+		API_URL: process.env.API_URL,
+		SATELLITE_URL: process.env.SATELLITE_URL
 	})
 ];
 if (!isProd) {

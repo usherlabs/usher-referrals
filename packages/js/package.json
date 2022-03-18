@@ -24,7 +24,7 @@
 	"dependencies": {
 		"@babel/runtime": "^7.17.7",
 		"eventemitter3": "^4.0.7",
-		"js-cookie": "^3.0.1",
+		"framebus": "^5.1.2",
 		"ky": "^0.30.0"
 	},
 	"devDependencies": {
