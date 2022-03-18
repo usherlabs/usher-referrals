@@ -4,7 +4,7 @@
 	"description": "Gangen Alumni Usher Repo",
 	"main": "index.js",
 	"repository": "git@github.com:rsoury/usher.git",
-	"author": "Ryan Soury <ryan@gangenalumni.com>",
+	"author": "Ryan Soury <ryan@usher.so>",
 	"license": "MIT",
 	"private": true,
 	"workspaces": [

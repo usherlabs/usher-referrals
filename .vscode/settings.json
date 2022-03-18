@@ -2,6 +2,8 @@
 	"eslint.workingDirectories": [
 		"./",
 		"./packages/app",
+		"./packages/contracts",
+		"./packages/js",
 	],
 	"eslint.validate": ["javascript", "javascriptreact"],
 	"prettier.configPath": "./.prettierrc",

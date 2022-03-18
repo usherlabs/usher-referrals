@@ -1,0 +1,11 @@
+{
+	"name": "@usher/contracts",
+	"version": "0.0.1",
+	"description": "RedStone SmartWeave Contracts for Usher",
+	"main": "src/index.js",
+	"author": "Ryan Soury <ryan@webdoodle.com.au>",
+	"license": "MIT",
+	"engines": {
+		"node": "^16.5"
+	}
+}
