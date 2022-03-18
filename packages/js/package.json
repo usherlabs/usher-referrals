@@ -19,11 +19,13 @@
 		"lint": "eslint -c ./.eslintrc.js \"src/**/*.{js,ts}\"",
 		"test": "echo \"Error: run tests from root\" && exit 1",
 		"clean": "del ./lib",
-		"local": "serve -d ./lib/ & serve -d ./tools/ -s -p 3005"
+		"local": "serve -d ./lib/ -p 3004 & serve -d ./tools/ -s -p 3005"
 	},
 	"dependencies": {
 		"@babel/runtime": "^7.17.7",
-		"eventemitter3": "^4.0.7"
+		"eventemitter3": "^4.0.7",
+		"js-cookie": "^3.0.1",
+		"ky": "^0.30.0"
 	},
 	"devDependencies": {
 		"@babel/core": "^7.17.7",
@@ -32,7 +34,6 @@
 		"@rollup/plugin-alias": "^3.1.9",
 		"@rollup/plugin-babel": "^5.3.1",
 		"@rollup/plugin-commonjs": "^21.0.2",
-		"@rollup/plugin-html": "^0.2.4",
 		"@rollup/plugin-node-resolve": "^13.1.3",
 		"cross-env": "^7.0.3",
 		"dotenv": "^16.0.0",

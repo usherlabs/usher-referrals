@@ -6,11 +6,15 @@
     <title>Rollup Bundle</title>
   </head>
   <body>
-    <script src="http://localhost:3000/index.js"></script>
+    <script src="http://localhost:3004/index.js"></script>
 		<script>
 			window.Usher('event', {
 				id: "hello",
-				nativeId: "world"
+				nativeId: "world",
+				properties: {
+					hello: "world",
+					"key": "value"
+				}
 			});
 		</script>
   </body>

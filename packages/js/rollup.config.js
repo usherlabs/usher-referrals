@@ -10,7 +10,6 @@ import filesize from "rollup-plugin-filesize";
 import visualizer from "rollup-plugin-visualizer";
 import injectProcessEnv from "rollup-plugin-inject-process-env";
 import sourcemaps from "rollup-plugin-sourcemaps";
-import html from "@rollup/plugin-html";
 import alias from "@rollup/plugin-alias";
 
 import pkg from "./package.json";
