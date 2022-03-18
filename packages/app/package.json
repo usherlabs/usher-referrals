@@ -19,6 +19,7 @@
 		"axios": "^0.26.0",
 		"axios-retry": "^3.2.4",
 		"bowser": "^2.11.0",
+		"cors": "^2.8.5",
 		"dotenv-cli": "^5.0.0",
 		"eventemitter3": "^4.0.7",
 		"evergreen-ui": "^6.8.2",

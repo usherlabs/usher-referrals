@@ -11,7 +11,7 @@ const isProd = process.env.NODE_ENV === "production";
 
 // Example of setting up secure headers
 // @link https://github.com/jagaapple/next-secure-headers
-const secureHeaders = createSecureHeaders({
+const secureHeaderOptions = {
 	contentSecurityPolicy: {
 		directives: {
 			// defaultSrc: "'self'",
@@ -27,13 +27,28 @@ const secureHeaders = createSecureHeaders({
 		  }
 		: {}),
 	referrerPolicy: "same-origin"
-});
+};
 
 // To Transpile Node Modules, refer to https://github.com/belgattitude/nextjs-monorepo-example/blob/main/apps/web-app/next.config.js#L39
-
 module.exports = {
 	async headers() {
-		return [{ source: "/(.*)", headers: secureHeaders }];
+		return [
+			// {
+			// 	source: "/satellite",
+			// 	headers: createSecureHeaders({
+			// 		...secureHeaderOptions,
+			// 		frameGuard: false
+			// 	})
+			// },
+			{
+				source: "/(.*)",
+				// headers: createSecureHeaders(secureHeaderOptions)
+				headers: createSecureHeaders({
+					...secureHeaderOptions,
+					frameGuard: false
+				})
+			}
+		];
 	},
 
 	webpack: (config, { isServer, webpack, dev }) => {

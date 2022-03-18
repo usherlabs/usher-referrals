@@ -12,8 +12,8 @@
 		"/lib"
 	],
 	"scripts": {
-		"start": "rollup -c",
-		"dev": "rollup -c -w",
+		"start": "cross-env NODE_ENV=development rollup -c",
+		"dev": "cross-env NODE_ENV=development rollup -c -w",
 		"build": "cross-env NODE_ENV=production rollup -c",
 		"format": "prettier \"src/**/*.{js,jsx,ts,tsx,json,css,scss,md}\" --write",
 		"lint": "eslint -c ./.eslintrc.js \"src/**/*.{js,ts}\"",
@@ -31,6 +31,7 @@
 		"@babel/core": "^7.17.7",
 		"@babel/plugin-transform-runtime": "^7.17.0",
 		"@babel/preset-env": "^7.16.11",
+		"@gedhean/rollup-plugin-dotenv": "^0.3.1",
 		"@rollup/plugin-alias": "^3.1.9",
 		"@rollup/plugin-babel": "^5.3.1",
 		"@rollup/plugin-commonjs": "^21.0.2",

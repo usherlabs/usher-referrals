@@ -1,14 +1,7 @@
-import { initialize, emit as fEmit, on as fOn } from "framebus";
+import Framebus from "framebus";
 
-const bus = initialize({
+const bus = new Framebus({
 	channel: "usher_sat"
 });
 
-const Bus = {
-	emit: (...params) => fEmit(bus, ...params),
-	on: (...params) => fOn(bus, ...params)
-};
-
-Object.freeze(Bus);
-
-export default Bus;
+export default bus;

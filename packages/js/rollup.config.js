@@ -1,5 +1,4 @@
 import path from "path";
-import dotenv from "dotenv";
 import babel from "@rollup/plugin-babel";
 import commonjs from "@rollup/plugin-commonjs";
 import resolve from "@rollup/plugin-node-resolve";
@@ -11,21 +10,11 @@ import visualizer from "rollup-plugin-visualizer";
 import injectProcessEnv from "rollup-plugin-inject-process-env";
 import sourcemaps from "rollup-plugin-sourcemaps";
 import alias from "@rollup/plugin-alias";
+import dotenv from "@gedhean/rollup-plugin-dotenv";
 
 import pkg from "./package.json";
 
-dotenv.config();
-
 const isProd = process.env.NODE_ENV === "production";
-
-if (!process.env.API_URL) {
-	/* eslint-disable no-console */
-	throw new Error(`No API Url loaded!`);
-}
-if (!process.env.SATELLITE_URL) {
-	/* eslint-disable no-console */
-	throw new Error(`No Satellite Url loaded!`);
-}
 
 const input = "src/index.js";
 const extensions = [".js", ".json"];
@@ -71,10 +60,9 @@ const plugins = [
 	}),
 	filesize(),
 	visualizer(),
+	dotenv(),
 	injectProcessEnv({
-		NODE_ENV: process.env.NODE_ENV || "development",
-		API_URL: process.env.API_URL,
-		SATELLITE_URL: process.env.SATELLITE_URL
+		NODE_ENV: process.env.NODE_ENV || "development"
 	})
 ];
 if (!isProd) {

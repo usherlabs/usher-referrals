@@ -1,26 +1,27 @@
 import { useEffect } from "react";
-import { initialize, emit, on } from "framebus";
+import Framebus from "framebus";
 import { parseCookies, destroyCookie } from "nookies";
 
-const bus = initialize({
+const bus = new Framebus({
 	channel: "usher_sat"
 });
 
 const Satellite = () => {
 	useEffect(() => {
-		on(bus, "ping", () => {
+		bus.on("ping", () => {
 			const cookies = parseCookies();
-			console.log(cookies);
+			console.log(cookies); //! DEV
+			cookies.usher_cid = "123456"; //! DEV
 
-			emit(bus, "cid", {
+			bus.emit("cid", {
 				cid: cookies.usher_cid || ""
 			});
 		});
-		on(bus, "consume", () => {
+		bus.on("consume", () => {
 			destroyCookie(null, "usher_cid");
 		});
 
-		emit(bus, "loaded");
+		bus.emit("loaded");
 	}, []);
 
 	return null;
