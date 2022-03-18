@@ -19,6 +19,8 @@ const Satellite = () => {
 		on(bus, "consume", () => {
 			destroyCookie(null, "usher_cid");
 		});
+
+		emit(bus, "loaded");
 	}, []);
 
 	return null;

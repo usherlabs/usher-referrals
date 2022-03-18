@@ -9,10 +9,15 @@
 import ky from "ky";
 import { apiUrl } from "@/env-config";
 import bus from "@/utils/bus";
+import Satellite from "@/utils/satellite";
 
 const request = ky.create({ prefixUrl: apiUrl });
 
 const action = async ({ id, nativeId, properties } = {}) => {
+	if (!Satellite.isLoaded) {
+		await Satellite.load();
+	}
+
 	bus.on("cid", async ({ cid: convId }) => {
 		if (!convId) {
 			return;
