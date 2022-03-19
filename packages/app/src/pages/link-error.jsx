@@ -1,4 +1,5 @@
 import { Pane, Heading, Text } from "evergreen-ui";
+import { Link } from "next/link";
 
 const LinkError = () => {
 	return (
@@ -16,9 +17,12 @@ const LinkError = () => {
 		>
 			<Pane textAlign="center">
 				<Heading size={800} marginBottom={10}>
-					Oops! There seems to have been an error
+					Oops! You've been sent a bad link!
 				</Heading>
-				<Text size={600}>Please contact your Usher for more information.</Text>
+				<Text size={600}>
+					Need help? Reach out at{" "}
+					<Link href="https://usher.so">https://usher.so</Link>
+				</Text>
 			</Pane>
 		</Pane>
 	);

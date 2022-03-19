@@ -16,6 +16,7 @@
 		"@sentry/integrations": "^6.17.9",
 		"@sentry/node": "^6.17.9",
 		"@supabase/supabase-js": "^1.30.3",
+		"arweave": "^1.10.23",
 		"axios": "^0.26.0",
 		"axios-retry": "^3.2.4",
 		"bowser": "^2.11.0",
@@ -39,9 +40,11 @@
 		"react": "17.0.2",
 		"react-dom": "17.0.2",
 		"react-ga": "^3.3.0",
+		"redstone-smartweave": "^0.4.48",
 		"sass": "^1.49.7",
 		"url-parse": "^1.5.7",
-		"use-arconnect": "^1.0.1"
+		"use-arconnect": "^1.0.1",
+		"yup": "^0.32.11"
 	},
 	"devDependencies": {
 		"@sentry/webpack-plugin": "^1.18.6",

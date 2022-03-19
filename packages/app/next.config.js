@@ -31,22 +31,19 @@ const secureHeaderOptions = {
 
 // To Transpile Node Modules, refer to https://github.com/belgattitude/nextjs-monorepo-example/blob/main/apps/web-app/next.config.js#L39
 module.exports = {
+	// Ignoring single paths in headers https://github.com/vercel/next.js/discussions/16768
 	async headers() {
 		return [
-			// {
-			// 	source: "/satellite",
-			// 	headers: createSecureHeaders({
-			// 		...secureHeaderOptions,
-			// 		frameGuard: false
-			// 	})
-			// },
 			{
-				source: "/(.*)",
-				// headers: createSecureHeaders(secureHeaderOptions)
+				source: "/satellite",
 				headers: createSecureHeaders({
 					...secureHeaderOptions,
 					frameGuard: false
 				})
+			},
+			{
+				source: "/((?!satellite$|satellite/).*)",
+				headers: createSecureHeaders(secureHeaderOptions)
 			}
 		];
 	},

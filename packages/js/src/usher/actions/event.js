@@ -18,16 +18,18 @@ const action = async ({ id, nativeId, properties } = {}) => {
 		await Satellite.load();
 	}
 
-	bus.on("cid", async ({ cid: convId }) => {
-		if (!convId) {
+	// Received the cid (Conversion ID)
+	bus.on("cid", async ({ cid }) => {
+		if (!cid) {
 			return;
 		}
 
-		console.log("consuming");
-		const resp = await request
+		// console.log("consuming");
+		// const resp =
+		await request
 			.post("consume", {
 				json: {
-					convId,
+					cid,
 					id,
 					nativeId,
 					properties
@@ -35,7 +37,7 @@ const action = async ({ id, nativeId, properties } = {}) => {
 			})
 			.json();
 
-		console.log(resp);
+		// console.log(resp);
 		bus.emit("consume");
 	});
 	bus.emit("ping");

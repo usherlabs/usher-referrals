@@ -10,15 +10,14 @@ const Satellite = () => {
 	useEffect(() => {
 		bus.on("ping", () => {
 			const cookies = parseCookies();
-			console.log(cookies); //! DEV
-			cookies.usher_cid = "123456"; //! DEV
+			console.log("SATELLITE:", cookies); //! DEV
 
 			bus.emit("cid", {
 				cid: cookies.usher_cid || ""
 			});
 		});
 		bus.on("consume", () => {
-			destroyCookie(null, "usher_cid");
+			destroyCookie(null, "__usher_cid");
 		});
 
 		bus.emit("loaded");

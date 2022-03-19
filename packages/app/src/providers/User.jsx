@@ -47,7 +47,7 @@ const UserContextProvider = ({ children }) => {
 		const u = supabase.auth.user();
 		if (!isEmpty(u)) {
 			if (u.role === "authenticated") {
-				console.log(u);
+				console.log(u); //! DEV
 				setUser(u);
 				return u;
 			}
