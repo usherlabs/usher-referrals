@@ -3,7 +3,7 @@
  */
 
 import cors from "cors";
-import yup from "yup";
+import * as yup from "yup";
 import isEmpty from "lodash/isEmpty";
 
 import getHandler from "@/server/middleware";
@@ -41,7 +41,8 @@ handler.use(cors()).post(async (req, res) => {
 	const sList = await supabase
 		.from("conversions")
 		.select("id", { count: "exact", head: true })
-		.or(`id.eq.${cid},native_id.eq.${nativeId}`);
+		.or(`id.eq.${cid},native_id.eq.${nativeId}`)
+		.eq(`is_complete`, false);
 	if (sList.error && sList.status !== 406) {
 		throw sList.error;
 	}

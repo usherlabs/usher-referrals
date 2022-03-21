@@ -14,40 +14,41 @@ const Invite = () => null;
  *
  * @return  {Object}  props
  */
-export async function getServerSideProps({ res, query: { id: userId } }) {
-	// Check to make sure user_id exists
-	const sSel = await supabase
-		.from("wallets")
-		.select("id", { count: "exact", head: true })
-		.eq("user_id", userId);
-	console.log(sSel);
+export async function getServerSideProps({ req, res, query: { id } }) {
+	// Check to make sure that the wallet/user_id combination exists
+	const sSel = await supabase.from("wallets").select("user_id").eq("id", id);
 	if ((sSel.error && sSel.status !== 406) || isEmpty(sSel.data)) {
 		res.writeHead(302, {
 			Location: `/link-error`
 		});
+		res.end();
+		return { props: {} };
 	}
 
+	const [{ user_id: userId }] = sSel.data;
+
 	const sIns = await supabase.from("conversions").insert([{ user_id: userId }]);
-	if (sIns.error && sIns.status !== 406) {
+	if ((sIns.error && sIns.status !== 406) || isEmpty(sIns.data)) {
 		handleException(sIns.error);
 		res.writeHead(302, {
 			Location: `/link-error`
 		});
+		res.end();
+		return { props: {} };
 	}
 
 	console.log(sIns);
 
-	// const { id } = sIns.data;
+	const [{ id: convId }] = sIns.data;
 
-	// setCookie({ req, res }, "__usher_cid", id, {
-	// 	maxAge: 7 * 60 * 60, // lasts 7 days
-	// 	path: "/satellite"
-	// });
+	setCookie({ req, res }, "__usher_cid", convId, {
+		maxAge: 30 * 60 * 60, // lasts 30 days
+		path: "/satellite"
+	});
 
-	// res.writeHead(302, {
-	// 	Location: advertiser.affiliateRedirectUrl
-	// });
-
+	res.writeHead(302, {
+		Location: advertiser.affiliateRedirectUrl || `/link-error`
+	});
 	res.end();
 
 	return { props: {} };

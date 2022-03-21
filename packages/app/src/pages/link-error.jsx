@@ -1,5 +1,5 @@
 import { Pane, Heading, Text } from "evergreen-ui";
-import { Link } from "next/link";
+import Link from "next/link";
 
 const LinkError = () => {
 	return (
@@ -21,7 +21,9 @@ const LinkError = () => {
 				</Heading>
 				<Text size={600}>
 					Need help? Reach out at{" "}
-					<Link href="https://usher.so">https://usher.so</Link>
+					<Link href="https://usher.so">
+						<a>https://usher.so</a>
+					</Link>
 				</Text>
 			</Pane>
 		</Pane>
