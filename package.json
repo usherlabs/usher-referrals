@@ -1,15 +1,13 @@
 {
 	"name": "usher",
 	"version": "0.0.1",
-	"description": "Gangen Alumni Usher Repo",
+	"description": "Usher Repo -- Affiliate Marketing for PSCs",
 	"main": "index.js",
 	"repository": "git@github.com:rsoury/usher.git",
+	"homepage": "https://usher.so/",
 	"author": "Ryan Soury <ryan@usher.so>",
 	"license": "MIT",
 	"private": true,
-	"workspaces": [
-		"packages/*"
-	],
 	"devDependencies": {
 		"lerna": "^4.0.0",
 		"prettier": "^2.5.1"
