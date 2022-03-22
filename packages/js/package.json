@@ -17,7 +17,7 @@
 		"build": "cross-env NODE_ENV=production rollup -c",
 		"format": "prettier \"src/**/*.{js,jsx,ts,tsx,json,css,scss,md}\" --write",
 		"lint": "eslint -c ./.eslintrc.js \"src/**/*.{js,ts}\"",
-		"test": "echo \"Error: run tests from root\" && exit 1",
+		"test": "echo \"No tests available\"",
 		"clean": "del ./lib",
 		"local": "serve -d ./lib/ -p 3004 & serve -d ./tools/ -s -p 3005"
 	},
