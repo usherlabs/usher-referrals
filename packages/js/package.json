@@ -19,7 +19,7 @@
 		"lint": "eslint -c ./.eslintrc.js \"src/**/*.{js,ts}\"",
 		"test": "echo \"No tests available\"",
 		"clean": "del ./lib",
-		"local": "serve -d ./lib/ -p 3004 & serve -d ./tools/ -s -p 3005"
+		"local": "symlink ./lib ./tools/lib && serve -d ./tools -p 3001"
 	},
 	"dependencies": {
 		"@babel/runtime": "^7.17.7",
@@ -53,6 +53,7 @@
 		"rollup-plugin-sourcemaps": "^0.6.3",
 		"rollup-plugin-terser": "^7.0.2",
 		"rollup-plugin-uglify": "^6.0.4",
-		"rollup-plugin-visualizer": "^5.6.0"
+		"rollup-plugin-visualizer": "^5.6.0",
+		"symlink-cli": "^1.0.0"
 	}
 }
