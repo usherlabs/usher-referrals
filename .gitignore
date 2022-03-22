@@ -60,6 +60,7 @@ yarn-error.log*
 **/supabase
 
 # Supabase
+**/supabase
 **/supabase/.branches
 **/supabase/.temp
 **/supabase/.env
