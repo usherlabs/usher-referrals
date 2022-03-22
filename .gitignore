@@ -58,3 +58,8 @@ yarn-error.log*
 
 # Supabase
 **/supabase
+
+# Supabase
+**/supabase/.branches
+**/supabase/.temp
+**/supabase/.env
