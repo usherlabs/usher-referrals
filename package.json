@@ -8,6 +8,9 @@
 	"author": "Ryan Soury <ryan@usher.so>",
 	"license": "MIT",
 	"private": true,
+	"scripts": {
+		"migrations:use": "./node_modules/.bin/syncdir ./migrations ./supabase/migrations"
+	},
 	"devDependencies": {
 		"husky": "^7.0.4",
 		"lerna": "^4.0.0",

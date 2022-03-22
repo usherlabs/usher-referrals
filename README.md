@@ -2,11 +2,14 @@
 
 ## Getting Started
 
-1. Set up your Supabase Local Instance `supabase start`
+1. Set up your Supabase Local Instance
+   1. `supabase start`
+   2. `supabase init`
 2. Connect your remote Supabase Database `supabase db remote set postgresql://postgres:[DB_PASSWORD]@db.[PROJECT_ID].supabase.co:5432/postgres`
-3. Push migrations to the remote database `supabase db push`
-4. Copy the `.env.example` to `.env` and apply the environment variables
-5. Build the directory `yarn build`
+3. Sync migrations to Supabase directory `yarn migrations:use`
+4. Push migrations to the remote database `supabase db push`
+5. Copy the `.env.example` to `.env` and apply the environment variables
+6. Build the directory `yarn build`
 
 ## Database Management
 
