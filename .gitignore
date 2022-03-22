@@ -4,8 +4,6 @@
 node_modules
 jspm_packages
 flow-typed
-package-lock.json
-yarn.lock
 !/yarn.lock
 test/node_modules
 vendor
