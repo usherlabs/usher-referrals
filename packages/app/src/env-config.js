@@ -15,6 +15,5 @@ export const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 export const advertiser = {
 	usherContractAddress:
 		process.env.NEXT_PUBLIC_ADVERTISER_USHER_CONTRACT_ADDRESS,
-	affiliateRedirectUrl:
-		process.env.NEXT_PUBLIC_ADVERTISER_AFFILIATE_REDIRECT_URL
+	destinationUrl: process.env.NEXT_PUBLIC_ADVERTISER_DESTINATION_URL
 };

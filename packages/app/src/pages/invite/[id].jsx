@@ -14,9 +14,16 @@ const Invite = () => null;
  *
  * @return  {Object}  props
  */
-export async function getServerSideProps({ req, res, query: { id } }) {
+export async function getServerSideProps({
+	req,
+	res,
+	query: { id: inviteLinkId }
+}) {
 	// Check to make sure that the wallet/user_id combination exists
-	const sSel = await supabase.from("wallets").select("user_id").eq("id", id);
+	const sSel = await supabase
+		.from("invite_links")
+		.select("destination_url")
+		.eq("id", inviteLinkId);
 	if ((sSel.error && sSel.status !== 406) || isEmpty(sSel.data)) {
 		res.writeHead(302, {
 			Location: `/link-error`
@@ -25,9 +32,13 @@ export async function getServerSideProps({ req, res, query: { id } }) {
 		return { props: {} };
 	}
 
-	const [{ user_id: userId }] = sSel.data;
+	console.log(sSel);
 
-	const sIns = await supabase.from("conversions").insert([{ user_id: userId }]);
+	const [{ destination_url: url }] = sSel.data;
+
+	const sIns = await supabase
+		.from("conversions")
+		.insert([{ invite_link_id: inviteLinkId }]);
 	if ((sIns.error && sIns.status !== 406) || isEmpty(sIns.data)) {
 		handleException(sIns.error);
 		res.writeHead(302, {
@@ -47,7 +58,7 @@ export async function getServerSideProps({ req, res, query: { id } }) {
 	});
 
 	res.writeHead(302, {
-		Location: advertiser.affiliateRedirectUrl || `/link-error`
+		Location: url || `/link-error`
 	});
 	res.end();
 

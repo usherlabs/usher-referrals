@@ -31,6 +31,7 @@ handler.use(cors()).post(async (req, res) => {
 	}
 	const { cid, id, nativeId, properties } = body;
 
+	// TODO: Integrate platform fetch for Usher Contract Address
 	if (id !== advertiser.usherContractAddress) {
 		return res.status(400).json({
 			message: "Invalid Id",
@@ -38,18 +39,39 @@ handler.use(cors()).post(async (req, res) => {
 		});
 	}
 
+	if (nativeId) {
+		// First check that there are no conversion ids already using this native_id -- Only if there is not nativeId
+		const sNativeSel = await supabase
+			.from("conversions")
+			.select("id", { count: "exact", head: true })
+			.eq("native_id", nativeId);
+		if (sNativeSel.error && sNativeSel.status !== 406) {
+			throw sNativeSel.error;
+		}
+		req.log.info({ db: sNativeSel }, "Fetch conversions by NativeId");
+		if (sNativeSel.count > 0) {
+			return res.json({
+				cid,
+				success: false
+			});
+		}
+	}
+
+	// Then check to see if there is a conversion that matches the cid and where is_complete is false
 	const sList = await supabase
 		.from("conversions")
 		.select("id", { count: "exact", head: true })
-		.or(`id.eq.${cid},native_id.eq.${nativeId}`)
-		.eq(`is_complete`, false);
+		.match({ id: cid, is_complete: false });
 	if (sList.error && sList.status !== 406) {
 		throw sList.error;
 	}
-	req.log.info(sList.data);
+	req.log.info(
+		{ db: sList },
+		"Fetch conversions where ID matches and is_complete is false"
+	);
 
-	// If no existing cid or nativeId match
-	if (isEmpty(sList.data)) {
+	// If cid exists, or nativeId is null and is_complete is false
+	if (sList.count === 1) {
 		const sUpdate = await supabase
 			.from("conversions")
 			.update({
@@ -65,12 +87,17 @@ handler.use(cors()).post(async (req, res) => {
 		if (sUpdate.error && sUpdate.status !== 406) {
 			throw sUpdate.error;
 		}
-		req.log.info(sUpdate.data);
+		req.log.info({ db: sUpdate }, "Update the conversion to complete it");
+
+		return res.json({
+			cid,
+			success: true
+		});
 	}
 
 	return res.json({
 		cid,
-		success: true
+		success: false
 	});
 });
 
