@@ -55,3 +55,8 @@ yarn-error.log*
 
 # Local certs for development
 *.pem
+
+# Supabase
+**/supabase/.branches
+**/supabase/.temp
+**/supabase/.env
