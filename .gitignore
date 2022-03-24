@@ -57,10 +57,6 @@ yarn-error.log*
 *.pem
 
 # Supabase
-**/supabase
-
-# Supabase
-**/supabase
 **/supabase/.branches
 **/supabase/.temp
 **/supabase/.env

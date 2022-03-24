@@ -4,7 +4,6 @@
 
 import cors from "cors";
 import * as yup from "yup";
-import isEmpty from "lodash/isEmpty";
 
 import getHandler from "@/server/middleware";
 import { supabase } from "@/utils/supabase-client";

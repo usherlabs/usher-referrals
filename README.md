@@ -4,14 +4,20 @@
 
 1. Set up your Supabase Local Instance
    1. `supabase start`
-   2. `supabase init`
-2. Connect your remote Supabase Database `supabase db remote set postgresql://postgres:[DB_PASSWORD]@db.[PROJECT_ID].supabase.co:5432/postgres`
-3. Sync migrations to Supabase directory `yarn migrations:use`
-4. Push migrations to the remote database `supabase db push`
-5. Copy the `.env.example` to `.env` and apply the environment variables
-6. Build the directory `yarn build`
+2. Use migrations `supabase db reset`
+3. Push migrations to the remote database `supabase db push`
+4. Copy the `.env.example` to `.env` and apply the environment variables
+5. Build the directory `yarn build`
 
 ## Database Management
+
+**Note:** Supabase `.branches` and `.kong` are created when `supabase start` is executed.
+
+### Connect to Remote Database
+
+```shell
+supabase db remote set postgresql://postgres:[DB_PASSWORD]@db.[PROJECT_ID].supabase.co:5432/postgres
+```
 
 ### Pull updates from Remote
 

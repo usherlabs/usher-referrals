@@ -6,16 +6,12 @@
 	"repository": "git@github.com:rsoury/usher.git",
 	"homepage": "https://usher.so/",
 	"author": "Ryan Soury <ryan@usher.so>",
-	"license": "MIT",
+	"license": "GPL-3.0",
 	"private": true,
-	"scripts": {
-		"migrations:use": "./node_modules/.bin/syncdir ./migrations ./supabase/migrations"
-	},
+	"scripts": {},
 	"devDependencies": {
-		"husky": "^7.0.4",
 		"lerna": "^4.0.0",
-		"prettier": "^2.5.1",
-		"sync-directory": "^4.0.12"
+		"prettier": "^2.5.1"
 	},
 	"dependencies": {}
 }

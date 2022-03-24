@@ -2,7 +2,6 @@ import { setCookie } from "nookies";
 import { supabase } from "@/utils/supabase-client";
 
 import handleException from "@/utils/handle-exception";
-import { advertiser } from "@/env-config";
 import { isEmpty } from "lodash";
 
 const Invite = () => null;
