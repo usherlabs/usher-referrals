@@ -17,7 +17,7 @@ import {
 
 import flip from "@/utils/props-flip";
 
-import LogoImage from "@/assets/logo/Logo-Icon.png";
+import LogoImage from "@/assets/logo/Logo-Icon.svg";
 import DiscordIcon from "@/assets/icon/discord-icon.svg";
 import ArConnectIcon from "@/assets/icon/arconnect.svg";
 
@@ -52,12 +52,13 @@ const Header = ({
 			>
 				<Pane
 					border
-					padding={8}
 					marginRight={12}
 					backgroundColor="white"
 					borderRadius={8}
+					display="flex"
+					alignItems="center"
 				>
-					<Image src={LogoImage} width={40} height={40} />
+					<Image src={LogoImage} width={56} height={56} />
 				</Pane>
 				<Heading size={600}>Usher</Heading>
 			</Pane>

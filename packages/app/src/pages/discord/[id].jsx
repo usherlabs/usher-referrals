@@ -9,7 +9,7 @@ import handleException from "@/utils/handle-exception";
 import * as alerts from "@/utils/alerts";
 import Preloader from "@/components/Preloader";
 import getAuthReqeust, { getRequest } from "@/utils/request";
-import DiscordInviteScreen from "@/components/DiscordInviteScreen";
+import DiscordInviteScreen from "@/screens/DiscordInvite";
 
 const request = getRequest();
 const signIn = () =>

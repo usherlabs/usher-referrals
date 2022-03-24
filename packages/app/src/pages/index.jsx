@@ -6,8 +6,8 @@ import debounce from "lodash/debounce";
 
 import useUser from "@/hooks/use-user";
 import Header from "@/components/Header";
-import WalletConnectScreen from "@/components/WalletConnectScreen";
-import ServiceConnectScreen from "@/components/ServiceConnectScreen";
+import WalletConnectScreen from "@/screens/WalletConnect";
+import EmailConnectScreen from "@/screens/EmailConnect";
 import Preloader from "@/components/Preloader";
 import handleException from "@/utils/handle-exception";
 import * as alerts from "@/utils/alerts";
@@ -17,17 +17,7 @@ import getAuthReqeust from "@/utils/request";
 import { isProd } from "@/env-config";
 import events from "@/utils/events";
 
-import LogoImage from "@/assets/logo/Logo-Icon.png";
-
-const signIn = () =>
-	supabase.auth.signIn(
-		{
-			provider: "discord"
-		},
-		{
-			scopes: "identify guilds.join" // https://github.com/supabase/gotrue-js/blob/12d02c35209bbd9f8f51af8d0aeee5e86fcc2a6e/src/GoTrueApi.ts#L68
-		}
-	);
+import LogoImage from "@/assets/logo/Logo-Icon.svg";
 
 const joinDiscordGuild = async () => {
 	const request = await getAuthReqeust();
@@ -77,10 +67,6 @@ const Home = () => {
 			if (!isProd) {
 				const session = await supabase.auth.session();
 				console.log("DEVELOPMENT MODE:", session);
-				if (session && !session.provider_token) {
-					console.log("REFRESH_TOKEN");
-					await signIn(); // TODO: This approach may cause redirect to Provider URL....
-				}
 			}
 		})();
 	}, []);
@@ -148,9 +134,27 @@ const Home = () => {
 		}
 	}, [arconnect, makeAddress, user]);
 
-	const connectService = useCallback(async () => {
-		// Connect to Discord
-		const { error } = await signIn();
+	// const connectService = useCallback(async () => {
+	// 	// Connect to Discord
+	// 	const { error } = await supabase.auth.signIn(
+	// 		{
+	// 			provider: "discord"
+	// 		},
+	// 		{
+	// 			scopes: "identify guilds.join" // https://github.com/supabase/gotrue-js/blob/12d02c35209bbd9f8f51af8d0aeee5e86fcc2a6e/src/GoTrueApi.ts#L68
+	// 		}
+	// 	);
+	// 	if (error) {
+	// 		handleException(error);
+	// 		alerts.error();
+	// 	}
+	// }, []);
+
+	const connectEmail = useCallback(async (email) => {
+		// Connect with Email
+		const { error } = await supabase.auth.signIn({
+			email
+		});
 		if (error) {
 			handleException(error);
 			alerts.error();
@@ -199,7 +203,7 @@ const Home = () => {
 				/>
 			)}
 			{isEmpty(user) && !isEmpty(address) && (
-				<ServiceConnectScreen connect={connectService} />
+				<EmailConnectScreen connect={connectEmail} />
 			)}
 		</Pane>
 	);
