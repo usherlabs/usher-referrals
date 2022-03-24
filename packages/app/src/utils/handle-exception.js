@@ -1,5 +1,4 @@
-import * as Sentry from "@sentry/node"; // will be replaced by @sentry/browser by webpack
-import { Debug as SentryDebug } from "@sentry/integrations";
+import * as Sentry from "@sentry/nextjs"; // will be replaced by @sentry/browser by webpack
 import { isProd, sentry } from "@/env-config";
 
 const sentryOptions = {
@@ -14,14 +13,6 @@ const sentryOptions = {
 if (!isProd) {
 	// Don't actually send the errors to Sentry
 	sentryOptions.beforeSend = () => null;
-
-	// Instead, dump the errors to the console
-	sentryOptions.integrations = [
-		new SentryDebug({
-			// Trigger DevTools debugger instead of using console.log
-			debugger: false
-		})
-	];
 	sentryOptions.maxBreadcrumbs = 10;
 } else {
 	sentryOptions.maxBreadcrumbs = 50;

@@ -1,6 +1,4 @@
 /* eslint-disable no-console */
-
-const SentryWebpackPlugin = require("@sentry/webpack-plugin");
 const sanitizeFilename = require("sanitize-filename");
 const { createSecureHeaders } = require("next-secure-headers");
 
@@ -48,7 +46,7 @@ module.exports = {
 		];
 	},
 
-	webpack: (config, { isServer, webpack, dev }) => {
+	webpack: (config, { isServer, webpack }) => {
 		// Sentry release
 		const sentryRelease = sanitizeFilename(`${pkg.name}@${pkg.version}`);
 		config.plugins.push(
@@ -63,39 +61,12 @@ module.exports = {
 			...alias
 		};
 
-		if (!isServer) {
-			// Sentry alias
-			aliasToApply["@sentry/node"] = "@sentry/browser";
-		}
-
 		config.resolve.alias = aliasToApply;
 
 		if (isServer) {
 			// Till undici 4 haven't landed in prisma, we need this for docker/alpine
 			// @see https://github.com/prisma/prisma/issues/6925#issuecomment-905935585
 			config.externals.push("_http_common");
-		}
-
-		// When all the Sentry configuration env variables are available/configured
-		// The Sentry webpack plugin gets pushed to the webpack plugins to build
-		// and upload the source maps to sentry.
-		// This is an alternative to manually uploading the source maps
-		// See: https://github.com/zeit/next.js/blob/canary/examples/with-sentry-simple/next.config.js
-		if (
-			!dev &&
-			process.env.SENTRY_DSN &&
-			process.env.SENTRY_ORG &&
-			process.env.SENTRY_PROJECT &&
-			process.env.SENTRY_AUTH_TOKEN
-		) {
-			config.plugins.push(
-				new SentryWebpackPlugin({
-					release: sentryRelease,
-					include: ".next",
-					ignore: ["node_modules"],
-					urlPrefix: "~/_next"
-				})
-			);
 		}
 
 		// Add markdown loader for legal pages
