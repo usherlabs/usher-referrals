@@ -5,6 +5,7 @@ const { alias } = require("./config/alias");
 const pkg = require("./package.json");
 
 const isProd = process.env.NODE_ENV === "production";
+console.log(`Welcome to Next.js - Node Env: ${process.env.NODE_ENV}`);
 
 // Example of setting up secure headers
 // @link https://github.com/jagaapple/next-secure-headers
