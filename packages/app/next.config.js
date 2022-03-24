@@ -1,5 +1,4 @@
 /* eslint-disable no-console */
-const sanitizeFilename = require("sanitize-filename");
 const { createSecureHeaders } = require("next-secure-headers");
 
 const { alias } = require("./config/alias");
@@ -46,15 +45,7 @@ module.exports = {
 		];
 	},
 
-	webpack: (config, { isServer, webpack }) => {
-		// Sentry release
-		const sentryRelease = sanitizeFilename(`${pkg.name}@${pkg.version}`);
-		config.plugins.push(
-			new webpack.DefinePlugin({
-				"process.env.NEXT_PUBLIC_SENTRY_RELEASE": JSON.stringify(sentryRelease)
-			})
-		);
-
+	webpack: (config, { isServer }) => {
 		// Add alias to Webpack
 		const aliasToApply = {
 			...config.resolve.alias,

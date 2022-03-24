@@ -5,7 +5,7 @@ export const sentry = {
 	dsn: process.env.NEXT_PUBLIC_SENTRY_DSN || "",
 	release:
 		process.env.NEXT_PUBLIC_SENTRY_RELEASE ||
-		`${process.env.APP_NAME}@${process.env.APP_VERSION}--${process.env.BUILD_TIME}`
+		`${process.env.APP_NAME}@${process.env.APP_VERSION}`
 };
 
 export const gaTrackingId = process.env.NEXT_PUBLIC_GA_TRACKING_ID || "";

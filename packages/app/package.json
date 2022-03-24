@@ -64,7 +64,6 @@
 		"next-compose-plugins": "^2.2.1",
 		"next-secure-headers": "^2.2.0",
 		"pino-pretty": "^7.5.1",
-		"rimraf": "^3.0.2",
-		"sanitize-filename": "^1.6.3"
+		"rimraf": "^3.0.2"
 	}
 }
