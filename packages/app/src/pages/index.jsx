@@ -18,6 +18,7 @@ import { isProd } from "@/env-config";
 import events from "@/utils/events";
 
 import LogoImage from "@/assets/logo/Logo-Icon.svg";
+import { MAX_SCREEN_WIDTH } from "@/constants";
 
 const joinDiscordGuild = async () => {
 	const request = await getAuthReqeust();
@@ -181,8 +182,6 @@ const Home = () => {
 		<Pane
 			display="flex"
 			flexDirection="column"
-			padding={16}
-			maxWidth={1280}
 			marginY="0"
 			marginX="auto"
 			minHeight="100vh"
@@ -196,15 +195,17 @@ const Home = () => {
 				disconnectService={disconnectService}
 				disconnectWallet={disconnectWallet}
 			/>
-			{isEmpty(address) && (
-				<WalletConnectScreen
-					makeAddress={makeAddress}
-					connect={connectWallet}
-				/>
-			)}
-			{isEmpty(user) && !isEmpty(address) && (
-				<EmailConnectScreen connect={connectEmail} />
-			)}
+			<Pane maxWidth={MAX_SCREEN_WIDTH} marginX="auto">
+				{isEmpty(address) && (
+					<WalletConnectScreen
+						makeAddress={makeAddress}
+						connect={connectWallet}
+					/>
+				)}
+				{isEmpty(user) && !isEmpty(address) && (
+					<EmailConnectScreen connect={connectEmail} />
+				)}
+			</Pane>
 		</Pane>
 	);
 };

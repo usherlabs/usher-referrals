@@ -20,6 +20,7 @@ import flip from "@/utils/props-flip";
 import LogoImage from "@/assets/logo/Logo-Icon.svg";
 import DiscordIcon from "@/assets/icon/discord-icon.svg";
 import ArConnectIcon from "@/assets/icon/arconnect.svg";
+import { MAX_SCREEN_WIDTH } from "@/constants";
 
 const Header = ({
 	walletAddress,
@@ -32,11 +33,8 @@ const Header = ({
 
 	return (
 		<Pane
-			display="flex"
 			padding={16}
-			borderRadius={8}
 			width="100%"
-			alignItems="center"
 			background={isEmpty(walletAddress) ? "white" : "tint2"}
 			{...flip(isEmpty(walletAddress) || isEmpty(username), {
 				position: ["absolute", null],
@@ -45,26 +43,70 @@ const Header = ({
 			})}
 		>
 			<Pane
-				flex={1}
-				alignItems="center"
+				maxWidth={MAX_SCREEN_WIDTH}
+				marginX="auto"
 				display="flex"
-				justifyContent={isEmpty(walletAddress) ? "center" : "flex-start"}
+				alignItems="center"
 			>
 				<Pane
-					border
-					marginRight={12}
-					backgroundColor="white"
-					borderRadius={8}
-					display="flex"
+					flex={1}
 					alignItems="center"
+					display="flex"
+					justifyContent={isEmpty(walletAddress) ? "center" : "flex-start"}
 				>
-					<Image src={LogoImage} width={56} height={56} />
+					<Pane
+						border
+						marginRight={12}
+						backgroundColor="white"
+						borderRadius={8}
+						display="flex"
+						alignItems="center"
+					>
+						<Image src={LogoImage} width={56} height={56} />
+					</Pane>
+					<Heading size={600}>Usher</Heading>
 				</Pane>
-				<Heading size={600}>Usher</Heading>
-			</Pane>
-			{!isEmpty(walletAddress) && (
-				<Pane>
-					{!isEmpty(username) && (
+				{!isEmpty(walletAddress) && (
+					<Pane>
+						{!isEmpty(username) && (
+							<Popover
+								position={Position.BOTTOM_LEFT}
+								content={
+									<Menu>
+										<Menu.Item
+											icon={LogOutIcon}
+											onClick={(e) => {
+												setLoading(true);
+												disconnectService(e).finally(() => setLoading(false));
+											}}
+										>
+											Disconnect
+										</Menu.Item>
+									</Menu>
+								}
+							>
+								<Button
+									marginRight={16}
+									height={majorScale(5)}
+									borderRadius={40}
+									iconBefore={
+										<Image src={DiscordIcon} width={20} height={20} />
+									}
+									iconAfter={ChevronDownIcon}
+									isLoading={isLoading}
+								>
+									{!isEmpty(avatarUrl) && (
+										<Avatar
+											src={avatarUrl}
+											size={30}
+											name={username}
+											marginRight={8}
+										/>
+									)}
+									<strong>{username}</strong>
+								</Button>
+							</Popover>
+						)}
 						<Popover
 							position={Position.BOTTOM_LEFT}
 							content={
@@ -73,7 +115,7 @@ const Header = ({
 										icon={LogOutIcon}
 										onClick={(e) => {
 											setLoading(true);
-											disconnectService(e).finally(() => setLoading(false));
+											disconnectWallet(e).finally(() => setLoading(false));
 										}}
 									>
 										Disconnect
@@ -82,60 +124,27 @@ const Header = ({
 							}
 						>
 							<Button
-								marginRight={16}
+								appearance="primary"
 								height={majorScale(5)}
 								borderRadius={40}
-								iconBefore={<Image src={DiscordIcon} width={20} height={20} />}
+								iconBefore={
+									<Image src={ArConnectIcon} width={25} height={25} />
+								}
 								iconAfter={ChevronDownIcon}
 								isLoading={isLoading}
 							>
-								{!isEmpty(avatarUrl) && (
-									<Avatar
-										src={avatarUrl}
-										size={30}
-										name={username}
-										marginRight={8}
-									/>
-								)}
-								<strong>{username}</strong>
+								<strong>
+									Account{" "}
+									{walletAddress.substring(
+										walletAddress.length - 4,
+										walletAddress.length
+									)}
+								</strong>
 							</Button>
 						</Popover>
-					)}
-					<Popover
-						position={Position.BOTTOM_LEFT}
-						content={
-							<Menu>
-								<Menu.Item
-									icon={LogOutIcon}
-									onClick={(e) => {
-										setLoading(true);
-										disconnectWallet(e).finally(() => setLoading(false));
-									}}
-								>
-									Disconnect
-								</Menu.Item>
-							</Menu>
-						}
-					>
-						<Button
-							appearance="primary"
-							height={majorScale(5)}
-							borderRadius={40}
-							iconBefore={<Image src={ArConnectIcon} width={25} height={25} />}
-							iconAfter={ChevronDownIcon}
-							isLoading={isLoading}
-						>
-							<strong>
-								Account{" "}
-								{walletAddress.substring(
-									walletAddress.length - 4,
-									walletAddress.length
-								)}
-							</strong>
-						</Button>
-					</Popover>
-				</Pane>
-			)}
+					</Pane>
+				)}
+			</Pane>
 		</Pane>
 	);
 };

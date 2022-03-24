@@ -5,7 +5,7 @@ import useArConnect from "use-arconnect";
 import Image from "next/image";
 import Bowser from "bowser";
 
-import { arConnectChromeURL, arConnectFirefoxURL } from "@/constants";
+import { ARCONNECT_CHROME_URL, ARCONNECT_FIREFOX_URL } from "@/constants";
 import ArConnectIcon from "@/assets/icon/arconnect.svg";
 
 const WalletConnectScreen = ({ makeAddress, connect }) => {
@@ -63,8 +63,8 @@ const WalletConnectScreen = ({ makeAddress, connect }) => {
 					<Link
 						href={
 							browserName.toLowerCase().includes("firefox")
-								? arConnectFirefoxURL
-								: arConnectChromeURL
+								? ARCONNECT_FIREFOX_URL
+								: ARCONNECT_CHROME_URL
 						}
 						target="_blank"
 						rel="nopenner noreferrer"
