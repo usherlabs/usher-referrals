@@ -44,7 +44,7 @@ const EmailConnectScreen = ({ connect }) => {
 			padding={32}
 		>
 			<Heading is="h1" size={800} marginBottom={12}>
-				Sign In
+				🔒&nbsp;&nbsp;Sign In
 			</Heading>
 			<Text size={500}>Connect with your Email.</Text>
 			<Pane background="tint2" padding={16} margin={12}>

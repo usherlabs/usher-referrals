@@ -41,7 +41,7 @@ const WalletConnectScreen = ({ makeAddress, connect }) => {
 			padding={32}
 		>
 			<Heading is="h1" size={800} marginBottom={12}>
-				Welcome!
+				👋&nbsp;&nbsp;Welcome!
 			</Heading>
 			<Text size={500}>To get started, connect your wallet</Text>
 			<Pane background="tint2" padding={16} margin={12}>

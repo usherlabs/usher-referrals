@@ -8,6 +8,7 @@ import useUser from "@/hooks/use-user";
 import Header from "@/components/Header";
 import WalletConnectScreen from "@/screens/WalletConnect";
 import EmailConnectScreen from "@/screens/EmailConnect";
+import DashboardScreen from "@/screens/Dashboard";
 import Preloader from "@/components/Preloader";
 import handleException from "@/utils/handle-exception";
 import * as alerts from "@/utils/alerts";
@@ -18,7 +19,6 @@ import { isProd } from "@/env-config";
 import events from "@/utils/events";
 
 import LogoImage from "@/assets/logo/Logo-Icon.svg";
-import { MAX_SCREEN_WIDTH } from "@/constants";
 
 const joinDiscordGuild = async () => {
 	const request = await getAuthReqeust();
@@ -67,7 +67,7 @@ const Home = () => {
 			// Developer
 			if (!isProd) {
 				const session = await supabase.auth.session();
-				console.log("DEVELOPMENT MODE:", session);
+				console.log("DEVELOPMENT MODE:", session, user);
 			}
 		})();
 	}, []);
@@ -190,22 +190,22 @@ const Home = () => {
 			{isPreloading && <Preloader />}
 			<Header
 				walletAddress={address}
+				userProvider={user.app_metadata?.provider}
 				username={user.user_metadata?.full_name}
 				avatarUrl={user.user_metadata?.avatar_url}
 				disconnectService={disconnectService}
 				disconnectWallet={disconnectWallet}
 			/>
-			<Pane maxWidth={MAX_SCREEN_WIDTH} marginX="auto">
-				{isEmpty(address) && (
-					<WalletConnectScreen
-						makeAddress={makeAddress}
-						connect={connectWallet}
-					/>
-				)}
-				{isEmpty(user) && !isEmpty(address) && (
-					<EmailConnectScreen connect={connectEmail} />
-				)}
-			</Pane>
+			{isEmpty(address) && (
+				<WalletConnectScreen
+					makeAddress={makeAddress}
+					connect={connectWallet}
+				/>
+			)}
+			{isEmpty(user) && !isEmpty(address) && (
+				<EmailConnectScreen connect={connectEmail} />
+			)}
+			{!isEmpty(user) && !isEmpty(address) && <DashboardScreen />}
 		</Pane>
 	);
 };
