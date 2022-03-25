@@ -1,3 +1,5 @@
+/* We cannot alert here because this can run on the Node server */
+
 import * as Sentry from "@sentry/nextjs"; // will be replaced by @sentry/browser by webpack
 import { isProd, sentry } from "@/env-config";
 

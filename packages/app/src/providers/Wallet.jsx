@@ -34,7 +34,6 @@ const WalletContextProvider = ({ children }) => {
 			setLoading(true);
 			if (typeof arconnect === "object") {
 				try {
-					console.log(address);
 					if (shouldConnect) {
 						await arconnect.connect(["ACCESS_ADDRESS"], {
 							name: "Usher",
@@ -45,7 +44,6 @@ const WalletContextProvider = ({ children }) => {
 					}
 
 					const a = await arconnect.getActiveAddress();
-					console.log(a);
 					setAddress(a);
 					return a;
 				} catch (e) {
@@ -62,6 +60,7 @@ const WalletContextProvider = ({ children }) => {
 		if (typeof arconnect === "object") {
 			setArConnectLoaded(true);
 		}
+		return () => {};
 	}, [arconnect]);
 
 	const value = useMemo(

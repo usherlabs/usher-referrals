@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import Image from "next/image";
 import PropTypes from "prop-types";
 import isEmpty from "lodash/isEmpty";
@@ -28,10 +28,16 @@ const Header = ({
 	userProvider,
 	username,
 	avatarUrl,
-	disconnectService,
-	disconnectWallet
+	disconnect,
+	signOut
 }) => {
 	const [isLoading, setLoading] = useState(false);
+	const signOutHandler = useCallback(async () => {
+		setLoading(true);
+		await signOut();
+		setLoading(false);
+		// State is set in Auth Update.
+	}, []);
 
 	return (
 		<Pane
@@ -78,13 +84,7 @@ const Header = ({
 										{userProvider === "email" && (
 											<Menu.Item pointerEvents="none">{username}</Menu.Item>
 										)}
-										<Menu.Item
-											icon={LogOutIcon}
-											onClick={(e) => {
-												setLoading(true);
-												disconnectService(e).finally(() => setLoading(false));
-											}}
-										>
+										<Menu.Item icon={LogOutIcon} onClick={signOutHandler}>
 											Disconnect
 										</Menu.Item>
 									</Menu>
@@ -127,7 +127,7 @@ const Header = ({
 											icon={LogOutIcon}
 											onClick={(e) => {
 												setLoading(true);
-												disconnectWallet(e).finally(() => setLoading(false));
+												disconnect(e).finally(() => setLoading(false));
 											}}
 										>
 											Disconnect
@@ -167,8 +167,8 @@ Header.propTypes = {
 	userProvider: PropTypes.string,
 	username: PropTypes.string,
 	avatarUrl: PropTypes.string,
-	disconnectService: PropTypes.func,
-	disconnectWallet: PropTypes.func
+	disconnect: PropTypes.func,
+	signOut: PropTypes.func
 };
 
 Header.defaultProps = {
@@ -176,8 +176,8 @@ Header.defaultProps = {
 	userProvider: "",
 	username: "",
 	avatarUrl: "",
-	disconnectService() {},
-	disconnectWallet() {}
+	disconnect() {},
+	signOut() {}
 };
 
 export default Header;

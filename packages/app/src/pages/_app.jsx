@@ -1,11 +1,11 @@
 import { useEffect } from "react";
 import { DefaultSeo } from "next-seo";
 import PropTypes from "prop-types";
-import { Provider as SupabaseProvider } from "react-supabase";
 import { supabase } from "@/utils/supabase-client";
 
 import "modern-normalize";
 
+import UserProvider from "@/providers/User";
 import WalletProvider from "@/providers/Wallet";
 import { setup as setupSignals } from "@/utils/signals";
 
@@ -22,12 +22,12 @@ const App = ({ Component, pageProps }) => {
 
 	return (
 		<WalletProvider>
-			<SupabaseProvider value={supabase}>
+			<UserProvider value={supabase}>
 				<main id="usher-app">
 					<DefaultSeo title="Usher" {...seo} />
 					<Component {...pageProps} />
 				</main>
-			</SupabaseProvider>
+			</UserProvider>
 		</WalletProvider>
 	);
 };

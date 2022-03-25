@@ -1,11 +1,9 @@
 import isEmpty from "lodash/isEmpty";
 import { useEffect, useContext } from "react";
-import { useAuthStateChange, useSignIn } from "react-supabase";
 
-import { identifyUser } from "@/utils/signals";
-import { setUser as setErrorTrackingUser } from "@/utils/handle-exception";
 import { WalletContext } from "@/providers/Wallet";
-import saveWallet from "../actions/save-wallet";
+import saveWallet from "@/actions/save-wallet";
+import useUser from "./use-user";
 
 function useWallet() {
 	const {
@@ -16,32 +14,7 @@ function useWallet() {
 		getAddress,
 		setAddress
 	} = useContext(WalletContext);
-	const [{ user }] = useSignIn();
-
-	useAuthStateChange((event, session) => {
-		switch (event) {
-			case "SIGNED_IN": {
-				// Set SignedIn User to State.
-				const u = session.user;
-				if (isEmpty(u)) {
-					return;
-				}
-				if (u.role !== "authenticated") {
-					return;
-				}
-				setErrorTrackingUser(u);
-				identifyUser(u);
-				break;
-			}
-			case "SIGNED_OUT": {
-				window.location.reload();
-				break;
-			}
-			default: {
-				break;
-			}
-		}
-	});
+	const [user] = useUser();
 
 	useEffect(() => {
 		if (!isEmpty(address) && !isEmpty(user)) {

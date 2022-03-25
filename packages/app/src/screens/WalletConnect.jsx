@@ -1,17 +1,17 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Pane, Heading, Text, Button, majorScale, Link } from "evergreen-ui";
-import PropTypes from "prop-types";
 import Image from "next/image";
 import Bowser from "bowser";
 
-import useWallet from "@/hooks/use-wallet";
+import { useWallet } from "@/hooks/";
 import { ARCONNECT_CHROME_URL, ARCONNECT_FIREFOX_URL } from "@/constants";
 import ArConnectIcon from "@/assets/icon/arconnect.svg";
 
-const WalletConnectScreen = ({ connect }) => {
-	const [, , isArConnectLoaded] = useWallet();
+const WalletConnectScreen = () => {
+	const [, isLoading, isArConnectLoaded, { getAddress }] = useWallet();
 	const [browserName, setBrowserName] = useState("");
-	const [isLoading, setLoading] = useState(false);
+
+	const connect = useCallback(async () => getAddress(true), [getAddress]);
 
 	useEffect(() => {
 		if (typeof window !== "undefined") {
@@ -42,10 +42,7 @@ const WalletConnectScreen = ({ connect }) => {
 						height={majorScale(7)}
 						appearance="primary"
 						iconBefore={<Image src={ArConnectIcon} width={30} height={30} />}
-						onClick={(e) => {
-							setLoading(true);
-							connect(e).finally(() => setLoading(false));
-						}}
+						onClick={connect}
 						isLoading={isLoading}
 						minWidth={260}
 					>
@@ -75,8 +72,6 @@ const WalletConnectScreen = ({ connect }) => {
 	);
 };
 
-WalletConnectScreen.propTypes = {
-	connect: PropTypes.func.isRequired
-};
+WalletConnectScreen.propTypes = {};
 
 export default WalletConnectScreen;

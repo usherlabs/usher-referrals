@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 
 import { MAX_SCREEN_WIDTH } from "@/constants";
 
-const DashboardScreen = ({ makeAddress, connect }) => {
+const DashboardScreen = ({}) => {
 	// const [isLoading, setLoading] = useState(false);
 
 	return (
@@ -22,9 +22,6 @@ const DashboardScreen = ({ makeAddress, connect }) => {
 	);
 };
 
-DashboardScreen.propTypes = {
-	makeAddress: PropTypes.func.isRequired,
-	connect: PropTypes.func.isRequired
-};
+DashboardScreen.propTypes = {};
 
 export default DashboardScreen;

@@ -9,29 +9,38 @@ import {
 	ArrowRightIcon,
 	toaster
 } from "evergreen-ui";
-import PropTypes from "prop-types";
+// import PropTypes from "prop-types";
 
-const EmailConnectScreen = ({ connect }) => {
-	const [isLoading, setLoading] = useState(false);
+import { useUser } from "@/hooks/";
+import handleException from "@/utils/handle-exception";
+import * as alerts from "@/utils/alerts";
+
+const EmailConnectScreen = () => {
+	const [, isLoading, { signIn }] = useUser();
 	const [isDisabled, setDisabled] = useState(false);
 	const [value, setValue] = useState("");
-	const connectHandler = useCallback(() => {
-		if (/(\w+\.)*\w+@(\w+\.)+[A-Za-z]+/.test(value)) {
-			setLoading(true);
-			setDisabled(true);
-			connect(value)
-				.then(() => {
-					toaster.notify(
-						"An email with a Magic Link has been sent to you. Click the link in the email to Sign In."
-					);
-					setTimeout(() => {
-						setDisabled(false);
-					}, 10000);
-				})
-				.finally(() => setLoading(false));
-		} else {
+
+	const connect = useCallback(async () => {
+		if (!/(\w+\.)*\w+@(\w+\.)+[A-Za-z]+/.test(value)) {
 			toaster.warning("Input must be a valid email.");
+			return;
 		}
+		setDisabled(true);
+		// Connect with Email
+		const { error } = await signIn({
+			email: value
+		});
+		setTimeout(() => {
+			setDisabled(false);
+		}, 10000);
+		if (error) {
+			handleException(error);
+			alerts.error();
+			return;
+		}
+		toaster.notify(
+			"An email with a Magic Link has been sent to you. Click the link in the email to Sign In."
+		);
 	}, [value]);
 
 	return (
@@ -57,7 +66,7 @@ const EmailConnectScreen = ({ connect }) => {
 						onChange={(e) => setValue(e.target.value)}
 						onKeyPress={(e) => {
 							if (e.which === 13) {
-								connectHandler(e);
+								connect(e);
 							}
 						}}
 						height={48}
@@ -67,7 +76,7 @@ const EmailConnectScreen = ({ connect }) => {
 						minWidth={250}
 					/>
 					<Button
-						onClick={connectHandler}
+						onClick={connect}
 						height={48}
 						appearance="primary"
 						disabled={isDisabled || isLoading || value.length === 0}
@@ -86,8 +95,6 @@ const EmailConnectScreen = ({ connect }) => {
 	);
 };
 
-EmailConnectScreen.propTypes = {
-	connect: PropTypes.func.isRequired
-};
+EmailConnectScreen.propTypes = {};
 
 export default EmailConnectScreen;
