@@ -69,7 +69,7 @@ function useWallet() {
 		loading,
 		isArConnectLoaded,
 		{
-			removeAddress: removeAddress.finally(() => window.location.reload()),
+			removeAddress,
 			getAddress,
 			setAddress
 		}
