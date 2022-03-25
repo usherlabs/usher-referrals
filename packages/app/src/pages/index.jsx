@@ -1,10 +1,9 @@
 import { useState, useCallback, useEffect } from "react";
 import { Pane } from "evergreen-ui";
-import useArConnect from "use-arconnect";
 import isEmpty from "lodash/isEmpty";
-import debounce from "lodash/debounce";
 
 import useUser from "@/hooks/use-user";
+import useWallet from "@/hooks/use-wallet";
 import Header from "@/components/Header";
 import WalletConnectScreen from "@/screens/WalletConnect";
 import EmailConnectScreen from "@/screens/EmailConnect";
@@ -14,51 +13,12 @@ import handleException from "@/utils/handle-exception";
 import * as alerts from "@/utils/alerts";
 import { supabase } from "@/utils/supabase-client";
 import delay from "@/utils/delay";
-import getAuthReqeust from "@/utils/request";
 import { isProd } from "@/env-config";
 import events from "@/utils/events";
-
-import LogoImage from "@/assets/logo/Logo-Icon.svg";
-
-const joinDiscordGuild = async () => {
-	const request = await getAuthReqeust();
-	const response = await request.post("/discord").then(({ data }) => data);
-
-	return response;
-};
-
-// Debounce to minise duplicate API calls.
-const saveWallet = debounce(async (user, address) => {
-	// Check if there is a wallet associated to this user.
-	// If not, insert it, otherwise check if user_id has been updated (ie. new Discord user)
-	const getResp = await supabase
-		.from("wallets")
-		.select(`user_id, address, id`)
-		.eq("address", address);
-	const { data, error, status } = getResp;
-	if (error && status !== 406) {
-		throw error;
-	}
-	// console.log(`select`, data);
-
-	if (isEmpty(data)) {
-		const r = await supabase.from("wallets").insert(
-			{ address, user_id: user.id },
-			{
-				returning: "minimal" // Don't return the value after inserting
-			}
-		);
-		// console.log(r);
-		if (r.error && r.status !== 406) {
-			throw error;
-		}
-		await joinDiscordGuild(); // Join Discord Guild if new Wallet.
-	}
-}, 500);
+import saveWallet from "@/actions/save-wallet";
 
 const Home = () => {
-	const arconnect = useArConnect();
-	const [address, setAddress] = useState("");
+	const [address, { getAddress }] = useWallet();
 	const [user] = useUser();
 	const [isPreloading, setPreloading] = useState(true);
 
@@ -79,45 +39,9 @@ const Home = () => {
 		}, 500);
 	}, []);
 
-	useEffect(() => {
-		const onSignIn = async (u) => {
-			try {
-				// console.log(u, address);
-				await saveWallet(u, address);
-			} catch (error) {
-				handleException(error);
-				alerts.error();
-			}
-		};
-		events.on("SIGN_IN", onSignIn);
-
-		return () => {
-			events.off("SIGN_IN", onSignIn);
-		};
-	}, [address]);
-
-	const makeAddress = useCallback(async () => {
-		if (typeof arconnect === "object") {
-			try {
-				const a = await arconnect.getActiveAddress();
-				setAddress(a);
-				return a;
-			} catch (e) {
-				// ... ArConnect is loaded but has been disconnected.
-			}
-		}
-		return "";
-	}, [arconnect]);
-
 	const connectWallet = useCallback(async () => {
 		try {
-			await arconnect.connect(["ACCESS_ADDRESS"], {
-				name: "Usher",
-				logo: LogoImage
-			});
-
-			await delay(1000);
-			const a = await makeAddress();
+			const a = await getAddress(true);
 
 			// 1. Check if a user is authorised.
 			// 2. Check if there is a wallet associated to this user.
@@ -133,7 +57,7 @@ const Home = () => {
 		} catch (e) {
 			// Will throw where user cancels.
 		}
-	}, [arconnect, makeAddress, user]);
+	}, [user]);
 
 	// const connectService = useCallback(async () => {
 	// 	// Connect to Discord
@@ -196,12 +120,7 @@ const Home = () => {
 				disconnectService={disconnectService}
 				disconnectWallet={disconnectWallet}
 			/>
-			{isEmpty(address) && (
-				<WalletConnectScreen
-					makeAddress={makeAddress}
-					connect={connectWallet}
-				/>
-			)}
+			{isEmpty(address) && <WalletConnectScreen connect={connectWallet} />}
 			{isEmpty(user) && !isEmpty(address) && (
 				<EmailConnectScreen connect={connectEmail} />
 			)}

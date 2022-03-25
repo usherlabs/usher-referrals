@@ -1,25 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { Pane, Heading, Text, Button, majorScale, Link } from "evergreen-ui";
 import PropTypes from "prop-types";
-import useArConnect from "use-arconnect";
 import Image from "next/image";
 import Bowser from "bowser";
 
+import useWallet from "@/hooks/use-wallet";
 import { ARCONNECT_CHROME_URL, ARCONNECT_FIREFOX_URL } from "@/constants";
 import ArConnectIcon from "@/assets/icon/arconnect.svg";
 
-const WalletConnectScreen = ({ makeAddress, connect }) => {
-	const arconnect = useArConnect();
-	const [isArConnectLoaded, setArConnectLoaded] = useState(false);
+const WalletConnectScreen = ({ connect }) => {
+	const [, , isArConnectLoaded] = useWallet();
 	const [browserName, setBrowserName] = useState("");
 	const [isLoading, setLoading] = useState(false);
-
-	useEffect(() => {
-		if (typeof arconnect === "object") {
-			setArConnectLoaded(true);
-			makeAddress();
-		}
-	}, [arconnect, makeAddress]);
 
 	useEffect(() => {
 		if (typeof window !== "undefined") {

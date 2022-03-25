@@ -16,7 +16,7 @@ import { supabase } from "@/utils/supabase-client";
 
 export const UserContext = createContext();
 
-const getUserFromSSR = () => {
+const getFromSSR = () => {
 	if (typeof window === "undefined") {
 		return {};
 	}
@@ -25,9 +25,9 @@ const getUserFromSSR = () => {
 };
 
 const UserContextProvider = ({ children }) => {
-	const userFromSSR = getUserFromSSR();
-	const [user, setUserState] = useState(() => userFromSSR);
-	const [loading, setLoading] = useState(() => !userFromSSR);
+	const fromSSR = getFromSSR();
+	const [user, setUserState] = useState(() => fromSSR);
+	const [loading, setLoading] = useState(() => isEmpty(fromSSR));
 
 	const setUser = useCallback((paramUser) => {
 		if (typeof paramUser !== "object") {
@@ -47,7 +47,7 @@ const UserContextProvider = ({ children }) => {
 		const u = supabase.auth.user();
 		if (!isEmpty(u)) {
 			if (u.role === "authenticated") {
-				console.log(u); //! DEV
+				// console.log(u); //! DEV
 				setUser(u);
 				return u;
 			}
