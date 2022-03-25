@@ -76,7 +76,6 @@ const WalletConnectScreen = ({ connect }) => {
 };
 
 WalletConnectScreen.propTypes = {
-	makeAddress: PropTypes.func.isRequired,
 	connect: PropTypes.func.isRequired
 };
 

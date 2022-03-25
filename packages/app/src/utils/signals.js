@@ -6,12 +6,14 @@ import { isProd, gaTrackingId, logrocketAppId } from "@/env-config";
 import { Sentry } from "@/utils/handle-exception";
 
 // Helper to ensure production
-const mw = (fn) => (...params) => {
-	if (!isProd || typeof window === "undefined") {
-		return false;
-	}
-	return fn(...params);
-};
+const mw =
+	(fn) =>
+	(...params) => {
+		if (!isProd || typeof window === "undefined") {
+			return false;
+		}
+		return fn(...params);
+	};
 
 const getLogRocket = () => import("logrocket").then((m) => m.default || m);
 

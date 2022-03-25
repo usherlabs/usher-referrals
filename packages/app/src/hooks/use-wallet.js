@@ -1,9 +1,11 @@
 import isEmpty from "lodash/isEmpty";
 import { useEffect, useContext } from "react";
+import { useAuthStateChange, useSignIn } from "react-supabase";
 
+import { identifyUser } from "@/utils/signals";
+import { setUser as setErrorTrackingUser } from "@/utils/handle-exception";
 import { WalletContext } from "@/providers/Wallet";
-// import { supabase } from "@/utils/supabase-client";
-// import events from "@/utils/events";
+import saveWallet from "../actions/save-wallet";
 
 function useWallet() {
 	const {
@@ -14,6 +16,38 @@ function useWallet() {
 		getAddress,
 		setAddress
 	} = useContext(WalletContext);
+	const [{ user }] = useSignIn();
+
+	useAuthStateChange((event, session) => {
+		switch (event) {
+			case "SIGNED_IN": {
+				// Set SignedIn User to State.
+				const u = session.user;
+				if (isEmpty(u)) {
+					return;
+				}
+				if (u.role !== "authenticated") {
+					return;
+				}
+				setErrorTrackingUser(u);
+				identifyUser(u);
+				break;
+			}
+			case "SIGNED_OUT": {
+				window.location.reload();
+				break;
+			}
+			default: {
+				break;
+			}
+		}
+	});
+
+	useEffect(() => {
+		if (!isEmpty(address) && !isEmpty(user)) {
+			saveWallet(user, address);
+		}
+	}, [address, user]);
 
 	useEffect(() => {
 		// If user already fetched -- ie fetched from SSR
@@ -34,7 +68,11 @@ function useWallet() {
 		address,
 		loading,
 		isArConnectLoaded,
-		{ removeAddress, getAddress, setAddress }
+		{
+			removeAddress: removeAddress.finally(() => window.location.reload()),
+			getAddress,
+			setAddress
+		}
 	];
 }
 

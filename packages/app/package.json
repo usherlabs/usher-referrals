@@ -20,7 +20,6 @@
 		"bowser": "^2.11.0",
 		"cors": "^2.8.5",
 		"dotenv-cli": "^5.0.0",
-		"eventemitter3": "^4.0.7",
 		"evergreen-ui": "^6.8.2",
 		"express-bearer-token": "^2.4.0",
 		"express-pino-logger": "^7.0.0",
@@ -38,6 +37,7 @@
 		"react": "17.0.2",
 		"react-dom": "17.0.2",
 		"react-ga": "^3.3.0",
+		"react-supabase": "^0.2.0",
 		"redstone-smartweave": "^0.4.48",
 		"sass": "^1.49.7",
 		"url-parse": "^1.5.7",
@@ -46,6 +46,7 @@
 	},
 	"devDependencies": {
 		"babel-jest": "^27.5.1",
+		"babel-plugin-add-react-displayname": "^0.0.5",
 		"commander": "^9.1.0",
 		"dotenv": "^16.0.0",
 		"eslint": "8.8.0",

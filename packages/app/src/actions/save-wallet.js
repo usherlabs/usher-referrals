@@ -1,4 +1,3 @@
-import debounce from "lodash/debounce";
 import isEmpty from "lodash/isEmpty";
 
 import { supabase } from "@/utils/supabase-client";
@@ -6,12 +5,12 @@ import { advertiser } from "@/env-config";
 import joinDiscordGuild from "./join-discord";
 
 // Debounce to minise duplicate API calls.
-const saveWallet = debounce(async (user, address) => {
+const saveWallet = async (user, address) => {
 	// Check if there is a wallet associated to this user.
 	// If not, insert it, otherwise check if user_id has been updated (ie. new Discord user)
 	const sSel = await supabase
 		.from("wallets")
-		.select(`user_id, address, id`)
+		.select(`id`)
 		.eq("address", address);
 	if (sSel.error && sSel.status !== 406) {
 		throw sSel.error;
@@ -39,10 +38,10 @@ const saveWallet = debounce(async (user, address) => {
 			throw sLinkIns.error;
 		}
 		console.log(sLinkIns);
-		if (user.app_metadata?.provider === "discord") {
+		if (user?.app_metadata?.provider === "discord") {
 			await joinDiscordGuild(); // Join Discord Guild if new Wallet.
 		}
 	}
-}, 500);
+};
 
 export default saveWallet;
