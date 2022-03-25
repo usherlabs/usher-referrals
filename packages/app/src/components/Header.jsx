@@ -75,6 +75,9 @@ const Header = ({
 								position={Position.BOTTOM_LEFT}
 								content={
 									<Menu>
+										{userProvider === "email" && (
+											<Menu.Item pointerEvents="none">{username}</Menu.Item>
+										)}
 										<Menu.Item
 											icon={LogOutIcon}
 											onClick={(e) => {
@@ -109,7 +112,9 @@ const Header = ({
 											marginRight={8}
 										/>
 									)}
-									<strong>{username || `Account`}</strong>
+									<strong>
+										{userProvider === "email" ? `Account` : username}
+									</strong>
 								</Button>
 							</Popover>
 						)}
