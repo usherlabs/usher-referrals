@@ -1,5 +1,5 @@
 {
-  "presets": ["next/babel"],
+  "presets": ["next/babel", "@linaria"],
   "plugins": ["add-react-displayname"],
 	"env": {
 		"production": {

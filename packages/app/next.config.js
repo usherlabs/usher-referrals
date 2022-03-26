@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
 const { createSecureHeaders } = require("next-secure-headers");
+const withLinaria = require("next-linaria");
 
 const { alias } = require("./config/alias");
 const pkg = require("./package.json");
@@ -28,7 +29,7 @@ const secureHeaderOptions = {
 };
 
 // To Transpile Node Modules, refer to https://github.com/belgattitude/nextjs-monorepo-example/blob/main/apps/web-app/next.config.js#L39
-module.exports = {
+const nextConfig = {
 	// Ignoring single paths in headers https://github.com/vercel/next.js/discussions/16768
 	async headers() {
 		return [
@@ -81,3 +82,5 @@ module.exports = {
 		PROJECT_ROOT: __dirname
 	}
 };
+
+module.exports = withLinaria(nextConfig);

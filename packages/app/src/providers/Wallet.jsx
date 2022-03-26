@@ -45,6 +45,7 @@ const WalletContextProvider = ({ children }) => {
 
 					const a = await arconnect.getActiveAddress();
 					setWallet({ address: a });
+					setLoading(false);
 					return a;
 				} catch (e) {
 					// ... ArConnect is loaded but has been disconnected.
