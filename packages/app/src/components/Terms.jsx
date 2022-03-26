@@ -15,7 +15,7 @@ import {
 
 const Terms = () => {
 	return (
-		<Alert intent="none" title="Reward Program Terms & Conditions">
+		<Alert intent="none" title="Referral Program Terms & Conditions">
 			<UnorderedList marginBottom={12}>
 				<ListItem>
 					Rewards are paid in <Strong>Usher Alpha Pass (UAP)</Strong>{" "}

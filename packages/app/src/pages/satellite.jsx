@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import Framebus from "framebus";
 import { parseCookies, destroyCookie } from "nookies";
+import { CONVERSION_COOKIE_NAME } from "@/constants";
 
 const bus = new Framebus({
 	channel: "usher_sat"
@@ -8,16 +9,16 @@ const bus = new Framebus({
 
 const Satellite = () => {
 	useEffect(() => {
-		bus.on("ping", () => {
-			const cookies = parseCookies();
-			console.log("SATELLITE:", cookies); //! DEV
+		const cookies = parseCookies();
+		console.log("SATELLITE:", cookies); //! DEV
 
+		bus.on("ping", () => {
 			bus.emit("cid", {
-				cid: cookies.usher_cid || ""
+				cid: cookies[CONVERSION_COOKIE_NAME] || ""
 			});
 		});
 		bus.on("consume", () => {
-			destroyCookie(null, "__usher_cid");
+			destroyCookie(null, CONVERSION_COOKIE_NAME);
 		});
 
 		bus.emit("loaded");

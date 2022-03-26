@@ -1,5 +1,5 @@
 import React from "react";
-import { Pane, Heading } from "evergreen-ui";
+import { Pane, Heading, Paragraph } from "evergreen-ui";
 import { css } from "@linaria/core";
 
 import { useWallet } from "@/hooks/";
@@ -8,12 +8,14 @@ import AffiliateLink from "@/components/AffiliateLink";
 import ValueCard from "@/components/ValueCard";
 import ClaimButton from "@/components/ClaimButton";
 import Terms from "@/components/Terms";
+import Progress from "@/components/Progress";
 
 const getInviteLink = (id = "") => `${window.location.origin}/invite/${id}`;
 
 const DashboardScreen = () => {
 	const [wallet] = useWallet();
 	const linkId = wallet?.link?.id;
+	const linkHits = wallet?.link?.hits;
 	const inviteLink = linkId ? getInviteLink(linkId) : "";
 
 	return (
@@ -46,8 +48,33 @@ const DashboardScreen = () => {
 						borderRadius={8}
 						marginBottom={12}
 					>
+						<Pane display="flex" flexDirection="column">
+							<AffiliateLink link={inviteLink} marginBottom={12} />
+							<Pane
+								display="flex"
+								flexDirection="row"
+								alignItems="center"
+								justifyContent="space-between"
+							>
+								<Paragraph width="100%">
+									👆&nbsp;&nbsp;Share this Affiliate link to earn
+								</Paragraph>
+							</Pane>
+						</Pane>
+					</Pane>
+					<Pane
+						padding={12}
+						marginBottom={12}
+						background="tint2"
+						borderRadius={8}
+					>
 						<Pane display="flex">
-							<AffiliateLink link={inviteLink} />
+							<ValueCard
+								value={linkHits}
+								ticker="hits"
+								id="total-referrals"
+								label="Total Affiliate Link Hits"
+							/>
 						</Pane>
 					</Pane>
 					<Pane padding={12} height={200} background="tint2" borderRadius={8}>
@@ -63,6 +90,15 @@ const DashboardScreen = () => {
 						}
 					`}
 				>
+					<Pane
+						background="tint2"
+						borderRadius={8}
+						padding={12}
+						marginBottom={12}
+					>
+						{/* TODO: Make this configurable -- this block will only show when there's a program limit too */}
+						<Progress value={0} label="0 / 100 NFTs Claimed" showPercentage />
+					</Pane>
 					<Pane
 						padding={12}
 						background="tint2"
