@@ -16,20 +16,20 @@ export const WalletContext = createContext();
 
 const WalletContextProvider = ({ children }) => {
 	const arconnect = useArConnect();
-	const [address, setAddress] = useState("");
+	const [wallet, setWallet] = useState({});
 	const [loading, setLoading] = useState(true);
 	const [isArConnectLoaded, setArConnectLoaded] = useState(false);
 
-	const removeAddress = useCallback(async () => {
+	const removeWallet = useCallback(async () => {
 		if (typeof arconnect === "object") {
 			arconnect.disconnect();
 
 			await delay(500);
-			setAddress("");
+			setWallet({});
 		}
 	}, [arconnect]);
 
-	const getAddress = useCallback(
+	const getWallet = useCallback(
 		async (shouldConnect = false) => {
 			setLoading(true);
 			if (typeof arconnect === "object") {
@@ -44,7 +44,7 @@ const WalletContextProvider = ({ children }) => {
 					}
 
 					const a = await arconnect.getActiveAddress();
-					setAddress(a);
+					setWallet({ address: a });
 					return a;
 				} catch (e) {
 					// ... ArConnect is loaded but has been disconnected.
@@ -65,14 +65,14 @@ const WalletContextProvider = ({ children }) => {
 
 	const value = useMemo(
 		() => ({
-			address,
+			wallet,
 			loading,
 			isArConnectLoaded,
-			setAddress,
-			removeAddress,
-			getAddress
+			setWallet,
+			removeWallet,
+			getWallet
 		}),
-		[address, loading, isArConnectLoaded]
+		[wallet, loading, isArConnectLoaded]
 	);
 
 	return (

@@ -1,4 +1,9 @@
 {
   "presets": ["next/babel"],
-  "plugins": ["add-react-displayname"]
+  "plugins": ["add-react-displayname"],
+	"env": {
+		"production": {
+			"plugins": [["transform-remove-console", {"exclude": ["error", "warn"]}]]
+		}
+	}
 }

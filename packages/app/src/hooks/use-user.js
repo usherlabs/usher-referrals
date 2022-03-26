@@ -5,7 +5,7 @@ import isEmpty from "lodash/isEmpty";
 import { UserContext } from "@/providers/User";
 import { identifyUser } from "@/utils/signals";
 import { setUser as setErrorTrackingUser } from "@/utils/handle-exception";
-import { useAuthStateChange } from "@/hooks/";
+import useAuthStateChange from "./use-auth-state-change";
 
 function useUser() {
 	const { user, loading, removeUser, getUser, setUser, signIn, signOut } =

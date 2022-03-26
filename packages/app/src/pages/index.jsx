@@ -14,7 +14,7 @@ import handleException from "@/utils/handle-exception";
 import * as alerts from "@/utils/alerts";
 
 const Home = () => {
-	const [address, , , { removeAddress }] = useWallet();
+	const [{ address }, , , { removeAddress }] = useWallet();
 	const [user, , { signOut }] = useUser();
 	const [isPreloading, setPreloading] = useState(true);
 

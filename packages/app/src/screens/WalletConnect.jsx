@@ -8,10 +8,10 @@ import { ARCONNECT_CHROME_URL, ARCONNECT_FIREFOX_URL } from "@/constants";
 import ArConnectIcon from "@/assets/icon/arconnect.svg";
 
 const WalletConnectScreen = () => {
-	const [, isLoading, isArConnectLoaded, { getAddress }] = useWallet();
+	const [, isLoading, isArConnectLoaded, { getWallet }] = useWallet();
 	const [browserName, setBrowserName] = useState("");
 
-	const connect = useCallback(async () => getAddress(true), [getAddress]);
+	const connect = useCallback(async () => getWallet(true), [getWallet]);
 
 	useEffect(() => {
 		if (typeof window !== "undefined") {

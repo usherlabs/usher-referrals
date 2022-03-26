@@ -44,8 +44,11 @@
 		"yup": "^0.32.11"
 	},
 	"devDependencies": {
+		"@testing-library/jest-dom": "^5.16.3",
+		"@testing-library/react": "^12.1.4",
 		"babel-jest": "^27.5.1",
 		"babel-plugin-add-react-displayname": "^0.0.5",
+		"babel-plugin-transform-remove-console": "^6.9.4",
 		"commander": "^9.1.0",
 		"dotenv": "^16.0.0",
 		"eslint": "8.8.0",

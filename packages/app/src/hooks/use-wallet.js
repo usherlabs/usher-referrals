@@ -1,50 +1,72 @@
 import isEmpty from "lodash/isEmpty";
 import { useEffect, useContext } from "react";
 
+import { UserContext } from "@/providers/User";
 import { WalletContext } from "@/providers/Wallet";
-import saveWallet from "@/actions/save-wallet";
-import useUser from "./use-user";
+import handleException from "@/utils/handle-exception";
+import saveWallet from "@/actions/wallet";
+import saveInviteLink from "@/actions/invite-link";
+import joinDiscordGuild from "@/actions/join-discord";
+import useQueue from "./use-queue";
 
 function useWallet() {
 	const {
-		address,
+		wallet,
 		loading,
 		isArConnectLoaded,
-		removeAddress,
-		getAddress,
-		setAddress
+		removeWallet,
+		getWallet,
+		setWallet
 	} = useContext(WalletContext);
-	const [user] = useUser();
+	const { user } = useContext(UserContext);
+	const { address } = wallet;
+	const Queue = useQueue();
 
 	useEffect(() => {
 		if (!isEmpty(address) && !isEmpty(user)) {
-			saveWallet(user, address);
+			// This queue ensure that if the function is called many times, it processes the following in sequence.
+			Queue.addJob({
+				task() {
+					(async () => {
+						try {
+							const { id: walletId } = await saveWallet(user, address);
+							const { id: invLinkId } = await saveInviteLink(walletId);
+							setWallet({ ...wallet, id: walletId, invLinkId }); // set ids to state
+							if (user?.app_metadata?.provider === "discord") {
+								await joinDiscordGuild(); // Join Discord Guild if new Wallet.
+							}
+						} catch (e) {
+							handleException(e);
+						}
+					})();
+				}
+			});
 		}
 	}, [address, user]);
 
 	useEffect(() => {
 		// If user already fetched -- ie fetched from SSR
-		if (!loading && !isEmpty(address)) {
+		if (!loading && !isEmpty(wallet)) {
 			return () => {};
 		}
 
 		// Check first if ArConnect has loaded.
 		if (isArConnectLoaded) {
-			// Check if address exists if it does not already exist
-			getAddress();
+			// Check if wallet exists if it does not already exist
+			getWallet();
 		}
 
 		return () => {};
 	}, [isArConnectLoaded]);
 
 	return [
-		address,
+		wallet,
 		loading,
 		isArConnectLoaded,
 		{
-			removeAddress,
-			getAddress,
-			setAddress
+			removeWallet,
+			getWallet,
+			setWallet
 		}
 	];
 }
