@@ -35,10 +35,10 @@ const AffiliateLink = ({ link }) => {
 						}
 					`
 				}}
+				isLoading={!link}
 			>
 				<TextInput
 					placeholder="Loading your shareable link..."
-					disabled={!link}
 					readOnly
 					value={link}
 					height={42}

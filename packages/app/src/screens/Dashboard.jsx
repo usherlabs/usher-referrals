@@ -1,12 +1,12 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { Pane, Heading } from "evergreen-ui";
-// import PropTypes from "prop-types";
-// import { CopyToClipboard } from "react-copy-to-clipboard";
-// import { css } from "@linaria/core";
+import { Pane, Heading, Button } from "evergreen-ui";
+import { css } from "@linaria/core";
 
 import { useWallet } from "@/hooks/";
-import { MAX_SCREEN_WIDTH } from "@/constants";
-import AffiliateLink from "@/components/dashboard/AffiliateLink";
+import { MAX_SCREEN_WIDTH, TABLET_BREAKPOINT } from "@/constants";
+import AffiliateLink from "@/components/AffiliateLink";
+import ValueCard from "@/components/ValueCard";
+import ClaimButton from "@/components/ClaimButton";
 
 const getInviteLink = (id) => `${window.location.origin}/invite/${id}`;
 
@@ -27,7 +27,16 @@ const DashboardScreen = () => {
 			<Heading is="h1" size={900} textAlign="left" width="100%" padding={6}>
 				Let&apos;s get sharing!
 			</Heading>
-			<Pane display="flex" flexDirection="row" width="100%">
+			<Pane
+				display="flex"
+				flexDirection="row"
+				width="100%"
+				className={css`
+					@media (max-width: ${TABLET_BREAKPOINT}px) {
+						flex-direction: column !important;
+					}
+				`}
+			>
 				<Pane flex={1} margin={6}>
 					<Pane
 						padding={12}
@@ -43,8 +52,41 @@ const DashboardScreen = () => {
 						Hello
 					</Pane>
 				</Pane>
-				<Pane width="40%" margin={6}>
-					Hi
+				<Pane
+					width="40%"
+					margin={6}
+					className={css`
+						@media (max-width: ${TABLET_BREAKPOINT}px) {
+							width: 100% !important;
+						}
+					`}
+				>
+					<Pane
+						padding={12}
+						background="tint2"
+						borderRadius={8}
+						marginBottom={12}
+					>
+						<Pane display="flex" marginBottom={12}>
+							<ValueCard
+								ticker="NFT"
+								value={1}
+								id="commission"
+								label="Commission per Referral"
+							/>
+						</Pane>
+						<Pane display="flex" marginBottom={24}>
+							<ValueCard
+								ticker="NFT"
+								value={0}
+								id="claimables"
+								label="Claimable Rewards"
+							/>
+						</Pane>
+						<Pane display="flex">
+							<ClaimButton />
+						</Pane>
+					</Pane>
 				</Pane>
 			</Pane>
 		</Pane>

@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { Pane, Strong, Paragraph } from "evergreen-ui";
+import { Pane, Strong, Paragraph, Spinner } from "evergreen-ui";
 
 import { ElementProps, ChildrenProps } from "@/utils/common-prop-types";
 import ErrorText from "./ErrorText";
@@ -23,6 +23,7 @@ const InputField = ({
 	iconLeft: IconLeft,
 	iconSize,
 	iconProps,
+	isLoading,
 	...props
 }) => {
 	const inputPropsSetup = {
@@ -80,9 +81,9 @@ const InputField = ({
 				padding={2}
 				{...inputContainerProps}
 			>
-				{IconLeft && (
+				{(isLoading || IconLeft) && (
 					<Pane padding={12} display="flex" alignItems="center" {...iconProps}>
-						<IconLeft size={iconSize} />
+						{isLoading ? <Spinner size={24} /> : <IconLeft size={iconSize} />}
 					</Pane>
 				)}
 				<Pane flex={1} width="100%">
@@ -118,7 +119,8 @@ InputField.propTypes = {
 	labelProps: PropTypes.object,
 	descriptionProps: PropTypes.object,
 	errorProps: PropTypes.object,
-	inputContainerProps: PropTypes.object
+	inputContainerProps: PropTypes.object,
+	isLoading: PropTypes.bool
 };
 
 InputField.defaultProps = {
@@ -137,7 +139,8 @@ InputField.defaultProps = {
 	labelProps: {},
 	descriptionProps: {},
 	errorProps: {},
-	inputContainerProps: {}
+	inputContainerProps: {},
+	isLoading: false
 };
 
 export default InputField;

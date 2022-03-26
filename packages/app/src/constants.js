@@ -4,3 +4,5 @@ export const ARCONNECT_FIREFOX_URL =
 	"https://addons.mozilla.org/en-US/firefox/addon/arconnect/";
 
 export const MAX_SCREEN_WIDTH = 1280;
+
+export const TABLET_BREAKPOINT = 767;
