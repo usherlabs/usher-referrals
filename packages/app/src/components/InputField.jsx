@@ -2,6 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import { Pane, Strong, Paragraph } from "evergreen-ui";
 
+import { ElementProps, ChildrenProps } from "@/utils/common-prop-types";
 import ErrorText from "./ErrorText";
 
 const InputField = ({
@@ -21,7 +22,7 @@ const InputField = ({
 	iconRight: IconRight,
 	iconLeft: IconLeft,
 	iconSize,
-	iconPad,
+	iconProps,
 	...props
 }) => {
 	const inputPropsSetup = {
@@ -80,7 +81,7 @@ const InputField = ({
 				{...inputContainerProps}
 			>
 				{IconLeft && (
-					<Pane padding={iconPad} display="flex" alignItems="center">
+					<Pane padding={12} display="flex" alignItems="center" {...iconProps}>
 						<IconLeft size={iconSize} />
 					</Pane>
 				)}
@@ -90,7 +91,7 @@ const InputField = ({
 					)}
 				</Pane>
 				{IconRight && (
-					<Pane padding={iconPad} display="flex" alignItems="center">
+					<Pane padding={12} display="flex" alignItems="center" {...iconProps}>
 						<IconRight size={iconSize} />
 					</Pane>
 				)}
@@ -104,23 +105,15 @@ InputField.propTypes = {
 	id: PropTypes.string.isRequired,
 	label: PropTypes.string,
 	description: PropTypes.string,
-	Description: PropTypes.oneOfType([
-		PropTypes.element,
-		PropTypes.node,
-		PropTypes.func
-	]),
+	Description: ChildrenProps,
 	placeholder: PropTypes.string,
 	error: PropTypes.string,
-	children: PropTypes.oneOfType([
-		PropTypes.string,
-		PropTypes.arrayOf(PropTypes.node),
-		PropTypes.node
-	]),
+	children: ChildrenProps,
 	isRequired: PropTypes.bool,
-	iconLeft: PropTypes.element,
-	iconRight: PropTypes.element,
+	iconLeft: ElementProps,
+	iconRight: ElementProps,
 	iconSize: PropTypes.number,
-	iconPad: PropTypes.number,
+	iconProps: PropTypes.object,
 	labelSize: PropTypes.number,
 	labelProps: PropTypes.object,
 	descriptionProps: PropTypes.object,
@@ -139,7 +132,7 @@ InputField.defaultProps = {
 	iconLeft: null,
 	iconRight: null,
 	iconSize: 16,
-	iconPad: 12,
+	iconProps: {},
 	labelSize: 400,
 	labelProps: {},
 	descriptionProps: {},

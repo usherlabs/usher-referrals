@@ -956,6 +956,18 @@
   resolved "https://registry.yarnpkg.com/@emotion/hash/-/hash-0.7.4.tgz#f14932887422c9056b15a8d222a9074a7dfa2831"
   integrity sha512-fxfMSBMX3tlIbKUdtGKxqB1fyrH6gVrX39Gsv3y8lRYKUqlgDt3UMqQyGnR1bQMa2B8aGnhLZokZgg8vT0Le+A==
 
+"@emotion/is-prop-valid@^0.8.8":
+  version "0.8.8"
+  resolved "https://registry.yarnpkg.com/@emotion/is-prop-valid/-/is-prop-valid-0.8.8.tgz#db28b1c4368a259b60a97311d6a952d4fd01ac1a"
+  integrity sha512-u5WtneEAr5IDG2Wv65yhunPSMLIpuKsbuOktRojfrEiEvRyC85LgPMZI63cr7NUqT8ZIGdSVg8ZKGxIug4lXcA==
+  dependencies:
+    "@emotion/memoize" "0.7.4"
+
+"@emotion/memoize@0.7.4":
+  version "0.7.4"
+  resolved "https://registry.yarnpkg.com/@emotion/memoize/-/memoize-0.7.4.tgz#19bf0f5af19149111c40d98bb0cf82119f5d9eeb"
+  integrity sha512-Ja/Vfqe3HpuzRsG1oBtWTHk2PGZ7GR+2Vz5iYGelAw8dx32K0y7PjVuxK6z1nMpZOqAFsRUPCkK1YjJ56qJlgw==
+
 "@eslint/eslintrc@^1.0.5":
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/@eslint/eslintrc/-/eslintrc-1.2.1.tgz#8b5e1c49f4077235516bc9ec7d41378c0f69b8c6"
@@ -1224,6 +1236,14 @@
   integrity sha512-621wPHry4L4YFRdMXE0wxVKsocFL2KC+RECSdc6Oy4MVtMMeTyps671pV27+kQldWIRvp1ZsdhknNMEug+rKdg==
   dependencies:
     "@linaria/babel-preset" "^3.0.0-beta.15"
+
+"@linaria/react@^3.0.0-beta.15":
+  version "3.0.0-beta.15"
+  resolved "https://registry.yarnpkg.com/@linaria/react/-/react-3.0.0-beta.15.tgz#dbd3d17dc6429d7ba46da492992547ce8ed8da39"
+  integrity sha512-1s/4DM+kAg3AdfAiK8vu6NBe3v+il7C3JjD0GBTUkZBJDOQ/4Vm543+PhlyL9t3tmmu9Xxg+in7PFNr7ODCTTQ==
+  dependencies:
+    "@emotion/is-prop-valid" "^0.8.8"
+    "@linaria/core" "^3.0.0-beta.15"
 
 "@linaria/shaker@^3.0.0-beta.15":
   version "3.0.0-beta.15"

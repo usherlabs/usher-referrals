@@ -13,6 +13,7 @@
 	},
 	"dependencies": {
 		"@linaria/core": "^3.0.0-beta.15",
+		"@linaria/react": "^3.0.0-beta.15",
 		"@sentry/nextjs": "^6.19.2",
 		"@supabase/supabase-js": "^1.30.3",
 		"arweave": "^1.10.23",
