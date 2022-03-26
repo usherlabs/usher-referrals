@@ -25,12 +25,13 @@ function useWallet() {
 	useEffect(() => {
 		if (!isEmpty(address) && !isEmpty(user)) {
 			// This queue ensure that if the function is called many times, it processes the following in sequence.
+			// TODO: This is still running more than once...
 			Queue.addJob({
 				task() {
 					(async () => {
 						try {
 							const { id: walletId } = await saveWallet(user, address);
-							const { id: linkId, hits = 0 } = await saveInviteLink(walletId);
+							const [{ id: linkId }, hits = 0] = await saveInviteLink(walletId);
 							setWallet({
 								...wallet,
 								id: walletId,

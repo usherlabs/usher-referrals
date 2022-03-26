@@ -16,22 +16,35 @@ const saveInviteLink = async (walletId) => {
 	}
 	console.log("invite_links: select", sSel);
 
-	if (!isEmpty(sSel.data)) {
-		return sSel.data[0];
+	let [data] = sSel.data;
+
+	if (isEmpty(data)) {
+		const sIns = await supabase.from("invite_links").insert({
+			wallet_id: walletId,
+			destination_url: advertiser.destinationUrl
+		});
+		console.log("invite_links: insert", sIns);
+		if (sIns.error && sIns.status !== 406) {
+			throw sIns.error;
+		}
+		[data] = sIns.data;
 	}
 
-	const sIns = await supabase.from("invite_links").insert({
-		wallet_id: walletId,
-		destination_url: advertiser.destinationUrl
-	});
-	console.log("invite_links: insert", sIns);
-	if (sIns.error && sIns.status !== 406) {
-		throw sIns.error;
+	let hits = 0;
+	if (!isEmpty(data)) {
+		// This isn't returning anything... but also not throwing...
+		const sConvCountSel = await supabase
+			.from("conversions")
+			.select("id", { count: "exact", head: true })
+			.eq("invite_link_id", data.id);
+		console.log("conversions: select|count", sConvCountSel, data.id);
+		if (sConvCountSel.error && sConvCountSel.status !== 406) {
+			throw sConvCountSel.error;
+		}
+		hits = sConvCountSel.count || 0;
 	}
-	if (!isEmpty(sIns.data)) {
-		return sIns.data[0];
-	}
-	return {};
+
+	return [data, hits];
 };
 
 export default saveInviteLink;
