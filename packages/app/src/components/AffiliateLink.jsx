@@ -6,7 +6,7 @@ import CopyToClipboard from "react-copy-to-clipboard";
 
 import InputField from "@/components/InputField";
 
-const AffiliateLink = ({ link }) => {
+const AffiliateLink = ({ link, ...props }) => {
 	const { colors } = useTheme();
 
 	const onCopy = useCallback(() => {
@@ -36,6 +36,7 @@ const AffiliateLink = ({ link }) => {
 					`
 				}}
 				isLoading={!link}
+				{...props}
 			>
 				<TextInput
 					placeholder="Loading your shareable link..."

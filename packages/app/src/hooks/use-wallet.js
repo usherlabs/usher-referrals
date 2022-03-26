@@ -30,8 +30,12 @@ function useWallet() {
 					(async () => {
 						try {
 							const { id: walletId } = await saveWallet(user, address);
-							const { id: invLinkId } = await saveInviteLink(walletId);
-							setWallet({ ...wallet, id: walletId, invLinkId }); // set ids to state
+							const { id: linkId, hits = 0 } = await saveInviteLink(walletId);
+							setWallet({
+								...wallet,
+								id: walletId,
+								link: { id: linkId, hits }
+							}); // set ids to state
 							if (user?.app_metadata?.provider === "discord") {
 								await joinDiscordGuild(); // Join Discord Guild if new Wallet.
 							}

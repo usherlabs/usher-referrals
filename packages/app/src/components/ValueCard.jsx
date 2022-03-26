@@ -15,7 +15,6 @@ const ValueCard = ({ value, ticker, ...props }) => {
 			label="Affiliate Link"
 			iconSize={18}
 			background="tint2"
-			cursor="pointer"
 			{...props}
 		>
 			<Pane
