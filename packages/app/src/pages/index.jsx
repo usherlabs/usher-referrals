@@ -13,8 +13,6 @@ import handleException from "@/utils/handle-exception";
 import * as alerts from "@/utils/alerts";
 import { hcaptchaSiteKey } from "@/env-config";
 
-console.log(hcaptchaSiteKey);
-
 const Home = () => {
 	const [{ address }, isWalletLoading, , { removeAddress }] = useWallet();
 	const [user, isUserLoading, { signOut }] = useUser();

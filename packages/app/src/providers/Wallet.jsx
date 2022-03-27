@@ -14,7 +14,6 @@ import delay from "@/utils/delay";
 import handleException from "@/utils/handle-exception";
 import saveWallet from "@/actions/wallet";
 import saveInviteLink from "@/actions/invite-link";
-import joinDiscordGuild from "@/actions/join-discord";
 
 import LogoImage from "@/assets/logo/Logo-Icon.svg";
 
@@ -92,9 +91,6 @@ const WalletContextProvider = ({ children }) => {
 						id: walletId,
 						link: { id: linkId, conversions }
 					}); // set ids to state
-					if (user?.app_metadata?.provider === "discord") {
-						await joinDiscordGuild(); // Join Discord Guild if new Wallet.
-					}
 				} catch (e) {
 					handleException(e);
 				}

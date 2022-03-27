@@ -5,8 +5,7 @@ import {
 	Paragraph,
 	Tooltip,
 	HelpIcon,
-	useTheme,
-	Spinner
+	useTheme
 } from "evergreen-ui";
 import { css } from "@linaria/core";
 
