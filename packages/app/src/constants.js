@@ -8,3 +8,9 @@ export const MAX_SCREEN_WIDTH = 1280;
 export const TABLET_BREAKPOINT = 767;
 
 export const CONVERSION_COOKIE_NAME = "__usher_cid";
+
+// export const CONTRACT_STRATEGY = {
+// 	FLAT: "flat",
+// 	PERCENT: "percent",
+// 	EQUITY: "equity"
+// };

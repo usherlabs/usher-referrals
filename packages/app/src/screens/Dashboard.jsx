@@ -5,11 +5,12 @@ import {
 	Paragraph,
 	Tooltip,
 	HelpIcon,
-	useTheme
+	useTheme,
+	Spinner
 } from "evergreen-ui";
 import { css } from "@linaria/core";
 
-import { useWallet } from "@/hooks/";
+import { useWallet, useContract } from "@/hooks/";
 import { MAX_SCREEN_WIDTH, TABLET_BREAKPOINT } from "@/constants";
 import AffiliateLink from "@/components/AffiliateLink";
 import ValueCard from "@/components/ValueCard";
@@ -22,6 +23,13 @@ const getInviteLink = (id = "") => `${window.location.origin}/invite/${id}`;
 const DashboardScreen = () => {
 	const { colors } = useTheme();
 	const [wallet] = useWallet();
+	const [
+		{
+			token: { ticker },
+			limit
+		},
+		isContractLoading
+	] = useContract();
 	const { id: linkId, conversions = { total: 0, pending: 0, success: 0 } } =
 		wallet?.link || {};
 	const inviteLink = linkId ? getInviteLink(linkId) : "";
@@ -156,7 +164,15 @@ const DashboardScreen = () => {
 						marginBottom={12}
 					>
 						{/* TODO: Make this configurable -- this block will only show when there's a program limit too */}
-						<Progress value={0} label="0 / 60 AR Claimed" showPercentage />
+						{isContractLoading ? (
+							<Spinner size={20} />
+						) : (
+							<Progress
+								value={0}
+								label={`0 / ${limit} AR Claimed`}
+								showPercentage
+							/>
+						)}
 					</Pane>
 					<Pane
 						padding={12}
@@ -174,7 +190,8 @@ const DashboardScreen = () => {
 						</Pane> */}
 						<Pane display="flex" marginBottom={24}>
 							<ValueCard
-								ticker="AR"
+								isLoading={isContractLoading}
+								ticker={ticker}
 								value={0}
 								id="claimable-rewards"
 								label="Claimable Rewards"

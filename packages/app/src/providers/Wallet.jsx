@@ -24,7 +24,13 @@ export const WalletContext = createContext();
 
 const WalletContextProvider = ({ children }) => {
 	const arconnect = useArConnect();
-	const [wallet, setWallet] = useState({});
+	const [wallet, setWallet] = useState({
+		address: "",
+		link: {
+			id: "",
+			conversions: { total: 0, pending: 0, success: 0 }
+		}
+	});
 	const [loading, setLoading] = useState(true);
 	const [isArConnectLoaded, setArConnectLoaded] = useState(false);
 	const { user } = useContext(UserContext);

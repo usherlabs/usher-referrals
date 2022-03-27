@@ -6,6 +6,7 @@ import "modern-normalize";
 
 import UserProvider from "@/providers/User";
 import WalletProvider from "@/providers/Wallet";
+import ContractProvider from "@/providers/Contract";
 import { setup as setupSignals } from "@/utils/signals";
 
 import "@/styles/styles.scss";
@@ -22,10 +23,12 @@ const App = ({ Component, pageProps }) => {
 	return (
 		<UserProvider>
 			<WalletProvider>
-				<main id="usher-app">
-					<DefaultSeo title="Usher" {...seo} />
-					<Component {...pageProps} />
-				</main>
+				<ContractProvider>
+					<main id="usher-app">
+						<DefaultSeo title="Usher" {...seo} />
+						<Component {...pageProps} />
+					</main>
+				</ContractProvider>
 			</WalletProvider>
 		</UserProvider>
 	);

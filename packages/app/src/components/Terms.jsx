@@ -1,7 +1,6 @@
 /**
  * This is a configurable Terms & Conditions Alert for Affiliates
  * Affiliates are partnering with Advertisers, so terms are vital for Advertisers to configure and for Affiliates to read
- * TODO: Make this configurable
  */
 
 import React from "react";
@@ -10,24 +9,70 @@ import {
 	UnorderedList,
 	ListItem,
 	Strong,
-	Paragraph
+	Paragraph,
+	Spinner
 } from "evergreen-ui";
+import startCase from "lodash/startCase";
+import { useContract } from "@/hooks/";
 
 const Terms = () => {
+	const [
+		{
+			// strategy,
+			rate,
+			token: { name, ticker, type },
+			limit
+		},
+		isLoading
+	] = useContract();
+
+	let tokenTypeOutput = `Token`;
+	switch (type) {
+		case "nft": {
+			tokenTypeOutput = "NFT";
+			break;
+		}
+		case "pst": {
+			tokenTypeOutput = "PST";
+			break;
+		}
+		default: {
+			break;
+		}
+	}
+
+	const tokentickerOutput = ticker.toUpperCase();
+	const tokenNameOutput = startCase(name);
+
 	return (
 		<Alert intent="none" title="Referral Program Terms & Conditions">
-			<UnorderedList marginBottom={12}>
-				<ListItem>
-					Rewards are paid in <Strong>Arweave (AR)</Strong>{" "}
-					<Strong>Tokens</Strong>
-				</ListItem>
-				<ListItem>
-					Affiliates can earn <Strong>0.15 AR</Strong> per referral
-				</ListItem>
-				<ListItem>
-					The program will end once <Strong>60 AR</Strong> have been claimed
-				</ListItem>
-			</UnorderedList>
+			{isLoading ? (
+				<Spinner size={24} margin={12} />
+			) : (
+				<UnorderedList marginBottom={12}>
+					<ListItem>
+						Rewards are paid in{" "}
+						<Strong>
+							{tokenNameOutput} ({tokentickerOutput})
+						</Strong>{" "}
+						<Strong>{tokenTypeOutput}</Strong>
+					</ListItem>
+					<ListItem>
+						Affiliates can earn{" "}
+						<Strong>
+							{rate} {tokentickerOutput}
+						</Strong>{" "}
+						per referral
+					</ListItem>
+					<ListItem>
+						The program will end once{" "}
+						<Strong>
+							{limit} {tokentickerOutput}
+						</Strong>{" "}
+						have been claimed
+					</ListItem>
+				</UnorderedList>
+			)}
 			<Paragraph size={300}>
 				Usher software is in ALPHA. Please refer responsibly.
 			</Paragraph>
