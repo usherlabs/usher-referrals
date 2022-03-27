@@ -14,9 +14,10 @@ import handleException from "@/utils/handle-exception";
 import * as alerts from "@/utils/alerts";
 
 const Home = () => {
-	const [{ address }, , , { removeAddress }] = useWallet();
-	const [user, , { signOut }] = useUser();
+	const [{ address }, isWalletLoading, , { removeAddress }] = useWallet();
+	const [user, isUserLoading, { signOut }] = useUser();
 	const [isPreloading, setPreloading] = useState(true);
+	const isLoading = isWalletLoading || isUserLoading;
 
 	useEffect(() => {
 		(async () => {
@@ -52,7 +53,7 @@ const Home = () => {
 			minHeight="100vh"
 			position="relative"
 		>
-			{isPreloading && <Preloader />}
+			{(isPreloading || isLoading) && <Preloader />}
 			<Header
 				walletAddress={address}
 				userProvider={user?.app_metadata?.provider}

@@ -27,6 +27,7 @@ const UserContextProvider = ({ children }) => {
 		const u = supabase.auth.user();
 		if (!isEmpty(u)) {
 			if (u.role === "authenticated") {
+				// Here we fetch user verifications
 				setUser(u);
 				return u;
 			}
