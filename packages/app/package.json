@@ -40,6 +40,7 @@
 		"react-copy-to-clipboard": "^5.0.4",
 		"react-dom": "17.0.2",
 		"react-ga": "^3.3.0",
+		"react-share": "^4.4.0",
 		"redstone-smartweave": "^0.4.48",
 		"sass": "^1.49.7",
 		"url-parse": "^1.5.7",

@@ -16,6 +16,7 @@ import ValueCard from "@/components/ValueCard";
 import ClaimButton from "@/components/ClaimButton";
 import Terms from "@/components/Terms";
 import Progress from "@/components/Progress";
+import ShareButtons from "@/components/ShareButtons";
 
 const getInviteLink = (id = "") => `${window.location.origin}/invite/${id}`;
 
@@ -78,6 +79,7 @@ const DashboardScreen = () => {
 								<Paragraph width="100%">
 									👆&nbsp;&nbsp;Share this Affiliate link to earn
 								</Paragraph>
+								{inviteLink && <ShareButtons link={inviteLink} />}
 							</Pane>
 						</Pane>
 					</Pane>
