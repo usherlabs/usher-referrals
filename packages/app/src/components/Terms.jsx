@@ -13,6 +13,7 @@ import {
 	Spinner
 } from "evergreen-ui";
 import startCase from "lodash/startCase";
+
 import { useContract } from "@/hooks/";
 
 const Terms = () => {
@@ -55,7 +56,7 @@ const Terms = () => {
 						<Strong>
 							{tokenNameOutput} ({tokentickerOutput})
 						</Strong>{" "}
-						<Strong>{tokenTypeOutput}</Strong>
+						<Strong>{tokenTypeOutput}s</Strong>
 					</ListItem>
 					<ListItem>
 						Affiliates can earn{" "}
@@ -64,13 +65,15 @@ const Terms = () => {
 						</Strong>{" "}
 						per referral
 					</ListItem>
-					<ListItem>
-						The program will end once{" "}
-						<Strong>
-							{limit} {tokentickerOutput}
-						</Strong>{" "}
-						have been claimed
-					</ListItem>
+					{limit > 0 && (
+						<ListItem>
+							The program will end once{" "}
+							<Strong>
+								{limit} {tokentickerOutput}
+							</Strong>{" "}
+							have been claimed
+						</ListItem>
+					)}
 				</UnorderedList>
 			)}
 			<Paragraph size={300}>

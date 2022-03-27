@@ -157,23 +157,21 @@ const DashboardScreen = () => {
 						}
 					`}
 				>
-					<Pane
-						background="tint2"
-						borderRadius={8}
-						padding={12}
-						marginBottom={12}
-					>
-						{/* TODO: Make this configurable -- this block will only show when there's a program limit too */}
-						{isContractLoading ? (
-							<Spinner size={20} />
-						) : (
+					{limit > 0 && !isContractLoading && (
+						<Pane
+							background="tint2"
+							borderRadius={8}
+							padding={12}
+							marginBottom={12}
+						>
+							{/* TODO: Make this configurable -- this block will only show when there's a program limit too */}
 							<Progress
 								value={0}
 								label={`0 / ${limit} AR Claimed`}
 								showPercentage
 							/>
-						)}
-					</Pane>
+						</Pane>
+					)}
 					<Pane
 						padding={12}
 						background="tint2"
