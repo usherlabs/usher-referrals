@@ -31,11 +31,13 @@ function useWallet() {
 					(async () => {
 						try {
 							const { id: walletId } = await saveWallet(user, address);
-							const [{ id: linkId }, hits = 0] = await saveInviteLink(walletId);
+							const [{ id: linkId }, conversions] = await saveInviteLink(
+								walletId
+							);
 							setWallet({
 								...wallet,
 								id: walletId,
-								link: { id: linkId, hits }
+								link: { id: linkId, conversions }
 							}); // set ids to state
 							if (user?.app_metadata?.provider === "discord") {
 								await joinDiscordGuild(); // Join Discord Guild if new Wallet.

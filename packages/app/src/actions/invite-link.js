@@ -30,21 +30,49 @@ const saveInviteLink = async (walletId) => {
 		[data] = sIns.data;
 	}
 
-	let hits = 0;
+	const convOverview = { total: 0, pending: 0, success: 0 };
 	if (!isEmpty(data)) {
 		// This isn't returning anything... but also not throwing...
 		const sConvCountSel = await supabase
 			.from("conversions")
 			.select("id", { count: "exact", head: true })
 			.eq("invite_link_id", data.id);
-		console.log("conversions: select|count", sConvCountSel, data.id);
+		console.log("conversions total: select|count", sConvCountSel, data.id);
 		if (sConvCountSel.error && sConvCountSel.status !== 406) {
 			throw sConvCountSel.error;
 		}
-		hits = sConvCountSel.count || 0;
+		convOverview.total = sConvCountSel.count || 0;
+
+		const sPendingConvCountSel = await supabase
+			.from("conversions")
+			.select("id", { count: "exact", head: true })
+			.match({ invite_link_id: data.id, is_complete: true, is_bundled: false });
+		console.log(
+			"conversions pending: select|count",
+			sPendingConvCountSel,
+			data.id
+		);
+		if (sPendingConvCountSel.error && sPendingConvCountSel.status !== 406) {
+			throw sPendingConvCountSel.error;
+		}
+		convOverview.pending = sPendingConvCountSel.count || 0;
+
+		const sSuccessConvCountSel = await supabase
+			.from("conversions")
+			.select("id", { count: "exact", head: true })
+			.match({ invite_link_id: data.id, is_complete: true, is_bundled: true });
+		console.log(
+			"conversions success: select|count",
+			sSuccessConvCountSel,
+			data.id
+		);
+		if (sSuccessConvCountSel.error && sSuccessConvCountSel.status !== 406) {
+			throw sSuccessConvCountSel.error;
+		}
+		convOverview.success = sSuccessConvCountSel.count || 0;
 	}
 
-	return [data, hits];
+	return [data, convOverview];
 };
 
 export default saveInviteLink;

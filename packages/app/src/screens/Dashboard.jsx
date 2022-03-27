@@ -1,5 +1,12 @@
-import React from "react";
-import { Pane, Heading, Paragraph } from "evergreen-ui";
+import React, { useCallback } from "react";
+import {
+	Pane,
+	Heading,
+	Paragraph,
+	Tooltip,
+	HelpIcon,
+	useTheme
+} from "evergreen-ui";
 import { css } from "@linaria/core";
 
 import { useWallet } from "@/hooks/";
@@ -13,10 +20,22 @@ import Progress from "@/components/Progress";
 const getInviteLink = (id = "") => `${window.location.origin}/invite/${id}`;
 
 const DashboardScreen = () => {
+	const { colors } = useTheme();
 	const [wallet] = useWallet();
-	const linkId = wallet?.link?.id;
-	const linkHits = wallet?.link?.hits;
+	const { id: linkId, conversions = { total: 0, pending: 0, success: 0 } } =
+		wallet?.link || {};
 	const inviteLink = linkId ? getInviteLink(linkId) : "";
+
+	// "Users converted by the Advertiser that are pending for processing."
+	const ConvHelpIcon = (content) =>
+		useCallback(
+			(props) => (
+				<Tooltip content={content}>
+					<HelpIcon {...props} />
+				</Tooltip>
+			),
+			[]
+		);
 
 	return (
 		<Pane
@@ -64,7 +83,7 @@ const DashboardScreen = () => {
 					</Pane>
 					<Pane>
 						<Heading size={500} paddingY={12}>
-							Performance
+							Overview
 						</Heading>
 						<Pane
 							padding={12}
@@ -74,7 +93,7 @@ const DashboardScreen = () => {
 						>
 							<Pane display="flex" marginBottom={24}>
 								<ValueCard
-									value={linkHits}
+									value={conversions.total}
 									ticker="hits"
 									id="total-referrals"
 									label="Affiliate Link Hits"
@@ -92,17 +111,29 @@ const DashboardScreen = () => {
 							>
 								<Pane display="flex" flex={1}>
 									<ValueCard
-										value={0}
+										value={conversions.pending}
 										id="pending-conv-count"
 										label="Pending Conversions"
+										iconRight={ConvHelpIcon(
+											"Referrals enter a pending status for processing and verification."
+										)}
+										iconProps={{
+											color: colors.gray500
+										}}
 									/>
 								</Pane>
 								<Pane width={20} />
 								<Pane display="flex" flex={1}>
 									<ValueCard
-										value={0}
+										value={conversions.success}
 										id="success-conv-count"
 										label="Successful Conversions"
+										iconRight={ConvHelpIcon(
+											"Once referrals have been processed, rewards for these referrals can be claimed."
+										)}
+										iconProps={{
+											color: colors.gray500
+										}}
 									/>
 								</Pane>
 							</Pane>
@@ -133,14 +164,14 @@ const DashboardScreen = () => {
 						borderRadius={8}
 						marginBottom={24}
 					>
-						<Pane display="flex" marginBottom={12}>
+						{/* <Pane display="flex" marginBottom={12}>
 							<ValueCard
 								ticker="AR"
 								value={0}
 								id="pending-rewards"
 								label="Pending Rewards"
 							/>
-						</Pane>
+						</Pane> */}
 						<Pane display="flex" marginBottom={24}>
 							<ValueCard
 								ticker="AR"
