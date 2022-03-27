@@ -3,14 +3,22 @@ import React, {
 	useState,
 	useMemo,
 	useCallback,
-	useEffect
+	useEffect,
+	useContext
 } from "react";
 import useArConnect from "use-arconnect";
+import isEmpty from "lodash/isEmpty";
 
 import { ChildrenProps } from "@/utils/common-prop-types";
 import delay from "@/utils/delay";
+import handleException from "@/utils/handle-exception";
+import saveWallet from "@/actions/wallet";
+import saveInviteLink from "@/actions/invite-link";
+import joinDiscordGuild from "@/actions/join-discord";
 
 import LogoImage from "@/assets/logo/Logo-Icon.svg";
+
+import { UserContext } from "./User";
 
 export const WalletContext = createContext();
 
@@ -19,6 +27,9 @@ const WalletContextProvider = ({ children }) => {
 	const [wallet, setWallet] = useState({});
 	const [loading, setLoading] = useState(true);
 	const [isArConnectLoaded, setArConnectLoaded] = useState(false);
+	const { user } = useContext(UserContext);
+	const { address } = wallet;
+	const { id: userId } = user;
 
 	const removeWallet = useCallback(async () => {
 		if (typeof arconnect === "object") {
@@ -63,6 +74,42 @@ const WalletContextProvider = ({ children }) => {
 		}
 		return () => {};
 	}, [arconnect]);
+
+	useEffect(() => {
+		if (!isEmpty(address) && !isEmpty(userId)) {
+			(async () => {
+				try {
+					const { id: walletId } = await saveWallet(user, address);
+					const [{ id: linkId }, conversions] = await saveInviteLink(walletId);
+					setWallet({
+						...wallet,
+						id: walletId,
+						link: { id: linkId, conversions }
+					}); // set ids to state
+					if (user?.app_metadata?.provider === "discord") {
+						await joinDiscordGuild(); // Join Discord Guild if new Wallet.
+					}
+				} catch (e) {
+					handleException(e);
+				}
+			})();
+		}
+	}, [address, userId]);
+
+	useEffect(() => {
+		// If user already fetched -- ie fetched from SSR
+		if (!loading && !isEmpty(wallet)) {
+			return () => {};
+		}
+
+		// Check first if ArConnect has loaded.
+		if (isArConnectLoaded) {
+			// Check if wallet exists if it does not already exist
+			getWallet();
+		}
+
+		return () => {};
+	}, [isArConnectLoaded]);
 
 	const value = useMemo(
 		() => ({

@@ -1,14 +1,23 @@
-import React, { createContext, useState, useMemo, useCallback } from "react";
+import React, {
+	createContext,
+	useEffect,
+	useState,
+	useMemo,
+	useCallback
+} from "react";
 import isEmpty from "lodash/isEmpty";
 
 import { ChildrenProps } from "@/utils/common-prop-types";
 import { supabase } from "@/utils/supabase-client";
+import { identifyUser } from "@/utils/signals";
+import { setUser as setErrorTrackingUser } from "@/utils/handle-exception";
+import useAuthStateChange from "@/hooks/use-auth-state-change";
 
 export const UserContext = createContext();
 
 const UserContextProvider = ({ children }) => {
-	const [user, setUser] = useState(() => {});
-	const [loading, setLoading] = useState(() => true);
+	const [user, setUser] = useState({});
+	const [loading, setLoading] = useState(true);
 
 	const removeUser = useCallback(() => setUser({}), []);
 
@@ -41,6 +50,36 @@ const UserContextProvider = ({ children }) => {
 		const r = await supabase.auth.signOut();
 		setLoading(false);
 		return r;
+	}, []);
+
+	useAuthStateChange((event, session) => {
+		switch (event) {
+			case "SIGNED_IN": {
+				// Set SignedIn User to State.
+				const u = session.user;
+				if (isEmpty(u)) {
+					return;
+				}
+				if (u.role !== "authenticated") {
+					return;
+				}
+				setErrorTrackingUser(u);
+				identifyUser(u);
+				break;
+			}
+			case "SIGNED_OUT": {
+				window.location.reload();
+				break;
+			}
+			default: {
+				break;
+			}
+		}
+	});
+
+	// On render, fetch user from session
+	useEffect(() => {
+		getUser();
 	}, []);
 
 	const value = useMemo(

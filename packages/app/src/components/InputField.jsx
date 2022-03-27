@@ -35,6 +35,7 @@ const InputField = ({
 	if (error) {
 		inputPropsSetup.isInvalid = true;
 	}
+
 	return (
 		<Pane width="100%" {...props}>
 			<Pane width="100%">

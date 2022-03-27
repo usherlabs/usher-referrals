@@ -9,5 +9,6 @@ export const ChildrenProps = PropTypes.oneOfType([
 
 export const ElementProps = PropTypes.oneOfType([
 	PropTypes.element,
-	PropTypes.object
+	PropTypes.object,
+	PropTypes.func
 ]);

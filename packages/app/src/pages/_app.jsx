@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import { DefaultSeo } from "next-seo";
 import PropTypes from "prop-types";
-import { supabase } from "@/utils/supabase-client";
 
 import "modern-normalize";
 
@@ -21,14 +20,14 @@ const App = ({ Component, pageProps }) => {
 	const { seo = {} } = pageProps;
 
 	return (
-		<WalletProvider>
-			<UserProvider value={supabase}>
+		<UserProvider>
+			<WalletProvider>
 				<main id="usher-app">
 					<DefaultSeo title="Usher" {...seo} />
 					<Component {...pageProps} />
 				</main>
-			</UserProvider>
-		</WalletProvider>
+			</WalletProvider>
+		</UserProvider>
 	);
 };
 
