@@ -1,13 +1,22 @@
 import React from "react";
-import { Pane, useTheme, Label, Text } from "evergreen-ui";
+import { Pane, useTheme, Label, Text, Strong } from "evergreen-ui";
 import PropTypes from "prop-types";
+import isEmpty from "lodash/isEmpty";
 
 /**
  * Progess Bar
  *
  * @param   {Number}  value  value between 1 and 100
  */
-const Progress = ({ value, height, label, showPercentage }) => {
+const Progress = ({
+	value,
+	height,
+	label,
+	showPercentage,
+	message,
+	step,
+	totalSteps
+}) => {
 	const { colors } = useTheme();
 
 	const barProps = {
@@ -49,6 +58,21 @@ const Progress = ({ value, height, label, showPercentage }) => {
 					zIndex={5}
 				/>
 			</Pane>
+			{!isEmpty(message) && (
+				<Pane display="flex" alignItems="center" justifyContent="flex-end">
+					<Text size={300}>{message}</Text>
+				</Pane>
+			)}
+			{step > 0 && (
+				<Pane display="flex" alignItems="center" justifyContent="flex-end">
+					<Text size={300}>
+						<Strong>
+							Step {step}
+							{totalSteps > 0 ? ` of ${totalSteps}` : ""}
+						</Strong>
+					</Text>
+				</Pane>
+			)}
 			{showPercentage && (
 				<Pane display="flex" alignItems="center" justifyContent="flex-end">
 					<Text size={300}>{v}%</Text>
@@ -62,14 +86,20 @@ Progress.propTypes = {
 	label: PropTypes.string,
 	value: PropTypes.number,
 	height: PropTypes.number,
-	showPercentage: PropTypes.bool
+	showPercentage: PropTypes.bool,
+	step: PropTypes.number,
+	totalSteps: PropTypes.number,
+	message: PropTypes.string
 };
 
 Progress.defaultProps = {
 	label: "",
 	value: 0,
 	height: 5,
-	showPercentage: false
+	showPercentage: false,
+	step: 0,
+	totalSteps: 0,
+	message: ""
 };
 
 export default Progress;

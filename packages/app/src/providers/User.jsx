@@ -29,6 +29,7 @@ const UserContextProvider = ({ children }) => {
 			if (u.role === "authenticated") {
 				// Here we fetch user verifications
 				setUser(u);
+				setLoading(false);
 				return u;
 			}
 		}
