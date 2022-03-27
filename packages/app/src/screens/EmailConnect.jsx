@@ -32,7 +32,7 @@ const EmailConnectScreen = () => {
 		});
 		setTimeout(() => {
 			setDisabled(false);
-		}, 10000);
+		}, 5000);
 		if (error) {
 			handleException(error);
 			alerts.error();
@@ -56,7 +56,7 @@ const EmailConnectScreen = () => {
 				🔒&nbsp;&nbsp;Sign In
 			</Heading>
 			<Text size={500}>Connect with your Email.</Text>
-			<Pane background="tint2" padding={16} margin={12}>
+			<Pane background="tint2" padding={16} margin={12} borderRadius={8}>
 				<Pane display="flex" alignItems="center" border>
 					<TextInput
 						name="email"

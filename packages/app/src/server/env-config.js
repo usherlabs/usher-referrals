@@ -11,3 +11,5 @@ export const discord = {
 	inviteChannelId: process.env.DISCORD_INVITE_CHANNEL_ID || "",
 	botToken: process.env.DISCORD_BOT_TOKEN || ""
 };
+
+export const hcaptchaSecretKey = process.env.HCAPTCHA_SECRET_KEY;

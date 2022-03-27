@@ -19,3 +19,5 @@ export const advertiser = {
 		process.env.NEXT_PUBLIC_ADVERTISER_USHER_CONTRACT_ADDRESS,
 	destinationUrl: process.env.NEXT_PUBLIC_ADVERTISER_DESTINATION_URL
 };
+
+export const hcaptchaSiteKey = process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY;

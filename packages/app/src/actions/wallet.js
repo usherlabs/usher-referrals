@@ -2,7 +2,6 @@ import isEmpty from "lodash/isEmpty";
 
 import { supabase } from "@/utils/supabase-client";
 
-// Debounce to minise duplicate API calls.
 const saveWallet = async (user, address) => {
 	// Check if there is a wallet associated to this user.
 	// If not, insert it, otherwise check if user_id has been updated (ie. new Discord user)

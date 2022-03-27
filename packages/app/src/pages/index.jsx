@@ -6,34 +6,33 @@ import { useWallet, useUser } from "@/hooks/";
 import Header from "@/components/Header";
 import WalletConnectScreen from "@/screens/WalletConnect";
 import EmailConnectScreen from "@/screens/EmailConnect";
+import CaptchaScreen from "@/screens/Captcha";
 import DashboardScreen from "@/screens/Dashboard";
 import Preloader from "@/components/Preloader";
-import { supabase } from "@/utils/supabase-client";
-import { isProd } from "@/env-config";
 import handleException from "@/utils/handle-exception";
 import * as alerts from "@/utils/alerts";
+import { hcaptchaSiteKey } from "@/env-config";
+
+console.log(hcaptchaSiteKey);
 
 const Home = () => {
 	const [{ address }, isWalletLoading, , { removeAddress }] = useWallet();
 	const [user, isUserLoading, { signOut }] = useUser();
 	const [isPreloading, setPreloading] = useState(true);
 	const isLoading = isWalletLoading || isUserLoading;
-
-	useEffect(() => {
-		(async () => {
-			// Developer
-			if (!isProd) {
-				const session = await supabase.auth.session();
-				console.log("DEVELOPMENT USER:", session, user);
-			}
-		})();
-	}, []);
+	const isCaptchaVerified = isEmpty(hcaptchaSiteKey)
+		? true
+		: user?.verifications?.captcha === true;
 
 	useEffect(() => {
 		// Cancel preloader
-		setTimeout(() => {
+		const timeout = setTimeout(() => {
 			setPreloading(false);
 		}, 500);
+
+		return () => {
+			clearTimeout(timeout);
+		};
 	}, []);
 
 	const signOutHandler = useCallback(async () => {
@@ -68,7 +67,12 @@ const Home = () => {
 			/>
 			{isEmpty(address) && <WalletConnectScreen />}
 			{isEmpty(user) && !isEmpty(address) && <EmailConnectScreen />}
-			{!isEmpty(user) && !isEmpty(address) && <DashboardScreen />}
+			{!isEmpty(user) && !isEmpty(address) && !isCaptchaVerified && (
+				<CaptchaScreen />
+			)}
+			{!isEmpty(user) && !isEmpty(address) && isCaptchaVerified && (
+				<DashboardScreen />
+			)}
 		</Pane>
 	);
 };

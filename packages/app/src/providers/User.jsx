@@ -12,6 +12,7 @@ import { supabase } from "@/utils/supabase-client";
 import { identifyUser } from "@/utils/signals";
 import { setUser as setErrorTrackingUser } from "@/utils/handle-exception";
 import useAuthStateChange from "@/hooks/use-auth-state-change";
+import { checkCaptcha } from "@/actions/user";
 
 export const UserContext = createContext();
 
@@ -21,16 +22,18 @@ const UserContextProvider = ({ children }) => {
 
 	const removeUser = useCallback(() => setUser({}), []);
 
-	const getUser = useCallback(() => {
+	const getUser = useCallback(async () => {
 		setLoading(true);
 		// Fetch Currently authenticated Discord User from Supabase
 		const u = supabase.auth.user();
 		if (!isEmpty(u)) {
 			if (u.role === "authenticated") {
 				// Here we fetch user verifications
-				setUser(u);
+				const captcha = await checkCaptcha(u);
+				const checkedUser = { ...u, verifications: { captcha } };
+				setUser(checkedUser);
 				setLoading(false);
-				return u;
+				return checkedUser;
 			}
 		}
 		setLoading(false);
@@ -81,6 +84,7 @@ const UserContextProvider = ({ children }) => {
 
 	// On render, fetch user from session
 	useEffect(() => {
+		//* Because the system uses OTP -- this is the only point where the User State is set.
 		getUser();
 	}, []);
 
