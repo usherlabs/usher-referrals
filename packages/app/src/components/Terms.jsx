@@ -18,17 +18,14 @@ const Terms = () => {
 		<Alert intent="none" title="Referral Program Terms & Conditions">
 			<UnorderedList marginBottom={12}>
 				<ListItem>
-					Rewards are paid in <Strong>Usher Alpha Pass (UAP)</Strong>{" "}
-					<Strong>NFTs</Strong>
+					Rewards are paid in <Strong>Arweave (AR)</Strong>{" "}
+					<Strong>Tokens</Strong>
 				</ListItem>
 				<ListItem>
-					Affiliates can earn <Strong>1 NFT</Strong> per referral
+					Affiliates can earn <Strong>0.15 AR</Strong> per referral
 				</ListItem>
 				<ListItem>
-					The program is limited to reward <Strong>1 NFT</Strong> per Affiliate
-				</ListItem>
-				<ListItem>
-					The program will end once <Strong>100 NFTs</Strong> have been claimed
+					The program will end once <Strong>60 AR</Strong> have been claimed
 				</ListItem>
 			</UnorderedList>
 			<Paragraph size={300}>

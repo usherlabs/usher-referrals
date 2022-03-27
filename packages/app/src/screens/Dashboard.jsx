@@ -62,23 +62,51 @@ const DashboardScreen = () => {
 							</Pane>
 						</Pane>
 					</Pane>
-					<Pane
-						padding={12}
-						marginBottom={12}
-						background="tint2"
-						borderRadius={8}
-					>
-						<Pane display="flex">
-							<ValueCard
-								value={linkHits}
-								ticker="hits"
-								id="total-referrals"
-								label="Total Affiliate Link Hits"
-							/>
+					<Pane>
+						<Heading size={500} paddingY={12}>
+							Performance
+						</Heading>
+						<Pane
+							padding={12}
+							marginBottom={12}
+							background="tint2"
+							borderRadius={8}
+						>
+							<Pane display="flex" marginBottom={24}>
+								<ValueCard
+									value={linkHits}
+									ticker="hits"
+									id="total-referrals"
+									label="Affiliate Link Hits"
+								/>
+							</Pane>
+							<Pane
+								display="flex"
+								flexDirection="row"
+								width="100%"
+								className={css`
+									@media (max-width: 767px) {
+										flexdirection: column !important;
+									}
+								`}
+							>
+								<Pane display="flex" flex={1}>
+									<ValueCard
+										value={0}
+										id="pending-conv-count"
+										label="Pending Conversions"
+									/>
+								</Pane>
+								<Pane width={20} />
+								<Pane display="flex" flex={1}>
+									<ValueCard
+										value={0}
+										id="success-conv-count"
+										label="Successful Conversions"
+									/>
+								</Pane>
+							</Pane>
 						</Pane>
-					</Pane>
-					<Pane padding={12} height={200} background="tint2" borderRadius={8}>
-						Hello
 					</Pane>
 				</Pane>
 				<Pane
@@ -97,7 +125,7 @@ const DashboardScreen = () => {
 						marginBottom={12}
 					>
 						{/* TODO: Make this configurable -- this block will only show when there's a program limit too */}
-						<Progress value={0} label="0 / 100 NFTs Claimed" showPercentage />
+						<Progress value={0} label="0 / 60 AR Claimed" showPercentage />
 					</Pane>
 					<Pane
 						padding={12}
@@ -105,11 +133,19 @@ const DashboardScreen = () => {
 						borderRadius={8}
 						marginBottom={24}
 					>
+						<Pane display="flex" marginBottom={12}>
+							<ValueCard
+								ticker="AR"
+								value={0}
+								id="pending-rewards"
+								label="Pending Rewards"
+							/>
+						</Pane>
 						<Pane display="flex" marginBottom={24}>
 							<ValueCard
-								ticker="NFT"
+								ticker="AR"
 								value={0}
-								id="claimables"
+								id="claimable-rewards"
 								label="Claimable Rewards"
 							/>
 						</Pane>
