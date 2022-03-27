@@ -1,3 +1,8 @@
+/* eslint-disable */
+/**
+ * TODO: WIP -- Add Share Buttons -- requires Icons -- https://github.com/nygardk/react-share/blob/master/demo/Demo.tsx
+ */
+
 import React, { useState, showDialog, useCallback } from "react";
 import PropTypes from "prop-types";
 import { Pane, MoreIcon, CornerDialog, Button } from "evergreen-ui";
