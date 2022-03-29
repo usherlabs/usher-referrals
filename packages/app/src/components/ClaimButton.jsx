@@ -12,7 +12,7 @@ const ClaimButton = ({ ...props }) => {
 		<Tooltip
 			content="This feature is in development. Referrals are still recorded for when this feature is ready!"
 			statelessProps={{
-				minWidth: 300
+				minWidth: 340
 			}}
 		>
 			<Button
