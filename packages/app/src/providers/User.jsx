@@ -26,12 +26,15 @@ const UserContextProvider = ({ children }) => {
 		setLoading(true);
 		// Fetch Currently authenticated Discord User from Supabase
 		const u = supabase.auth.user();
+		console.log("getUser: ", u);
 		if (!isEmpty(u)) {
 			if (u.role === "authenticated") {
 				// Here we fetch user verifications
 				const captcha = await checkCaptcha(u);
 				const checkedUser = { ...u, verifications: { captcha } };
 				setUser(checkedUser);
+				setErrorTrackingUser(checkedUser);
+				identifyUser(checkedUser);
 				setLoading(false);
 				return checkedUser;
 			}
@@ -57,19 +60,11 @@ const UserContextProvider = ({ children }) => {
 		return r;
 	}, []);
 
-	useAuthStateChange((event, session) => {
+	useAuthStateChange((event) => {
 		switch (event) {
 			case "SIGNED_IN": {
-				// Set SignedIn User to State.
-				const u = session.user;
-				if (isEmpty(u)) {
-					return;
-				}
-				if (u.role !== "authenticated") {
-					return;
-				}
-				setErrorTrackingUser(u);
-				identifyUser(u);
+				// Re-fetch user on sign in
+				getUser();
 				break;
 			}
 			case "SIGNED_OUT": {
