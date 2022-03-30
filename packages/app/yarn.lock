@@ -7001,10 +7001,10 @@ use-subscription@1.5.1:
   dependencies:
     object-assign "^4.1.1"
 
-usher-js@^0.0.5:
-  version "0.0.5"
-  resolved "https://registry.yarnpkg.com/usher-js/-/usher-js-0.0.5.tgz#d6df43ab85aa4dc3de945a156c8f286b011e511c"
-  integrity sha512-0kTg1T05ZetJkE/Tv9diLMZ6VEkEImhr7jIB83UKOLQ1n98ZIj35hIKYJugPE11+ROhPodNqQbwu373fZEuDvw==
+usher-js@^0.0.6:
+  version "0.0.6"
+  resolved "https://registry.yarnpkg.com/usher-js/-/usher-js-0.0.6.tgz#b8d6d3a3695f0ca0fd6efee0781f564622e56ee9"
+  integrity sha512-K/07pmLSG/qfGaNGRx2CYEmWlXL35pz8wi9YYW4ZgttrWzqAacFfQ5hgjtyumn8orQdHNHQnx8JmSNWo8PlHKA==
   dependencies:
     "@babel/runtime" "^7.17.7"
     eventemitter3 "^4.0.7"

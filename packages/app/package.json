@@ -47,7 +47,7 @@
 		"sass": "^1.49.7",
 		"url-parse": "^1.5.7",
 		"use-arconnect": "^1.0.1",
-		"usher-js": "^0.0.5",
+		"usher-js": "^0.0.6",
 		"yup": "^0.32.11"
 	},
 	"devDependencies": {
