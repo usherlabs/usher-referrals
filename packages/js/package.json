@@ -1,6 +1,6 @@
 {
 	"name": "usher-js",
-	"version": "0.0.5",
+	"version": "0.0.6",
 	"description": "Usher Satellite JS Library used for Conversion Tracking",
 	"author": "Ryan Soury <ryan@usher.so>",
 	"license": "MIT",
