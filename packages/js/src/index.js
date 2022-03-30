@@ -1,5 +1,9 @@
 // Entrance
 
-import Usher from "./usher";
+import usher from "./usher";
 
-window.Usher = Usher;
+if (typeof window !== "undefined") {
+	window.Usher = usher;
+}
+
+export const Usher = usher;
