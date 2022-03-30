@@ -14,7 +14,7 @@ import { hcaptchaSiteKey } from "@/env-config";
 import { ChildrenProps } from "@/utils/common-prop-types";
 
 const DashboardContainer = ({ children }) => {
-	const [{ address }, isWalletLoading, , { removeAddress }] = useWallet();
+	const [{ address }, isWalletLoading, , { removeWallet }] = useWallet();
 	const [user, isUserLoading, { signOut }] = useUser();
 	const [isPreloading, setPreloading] = useState(true);
 	const [isMounted, setMounted] = useState(false);
@@ -65,7 +65,7 @@ const DashboardContainer = ({ children }) => {
 				}
 				avatarUrl={user?.user_metadata?.avatar_url}
 				signOut={signOutHandler}
-				disconnect={removeAddress}
+				disconnect={removeWallet}
 			/>
 			{isEmpty(address) && <WalletConnectScreen />}
 			{isEmpty(user) && !isEmpty(address) && <EmailConnectScreen />}
