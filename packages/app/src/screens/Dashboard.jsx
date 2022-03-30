@@ -5,7 +5,8 @@ import {
 	Paragraph,
 	Tooltip,
 	HelpIcon,
-	useTheme
+	useTheme,
+	Alert
 } from "evergreen-ui";
 import { css } from "@linaria/core";
 
@@ -24,6 +25,7 @@ const DashboardScreen = () => {
 	const [wallet] = useWallet();
 	const [
 		{
+			rate,
 			token: { ticker },
 			limit
 		},
@@ -32,12 +34,13 @@ const DashboardScreen = () => {
 	const { id: linkId, conversions = { total: 0, pending: 0, success: 0 } } =
 		wallet?.link || {};
 	const inviteLink = linkId ? getInviteLink(linkId) : "";
+	const claimableRewards = rate * conversions.pending;
 
 	// "Users converted by the Advertiser that are pending for processing."
 	const ConvHelpIcon = (content) =>
 		useCallback(
 			(props) => (
-				<Tooltip content={content}>
+				<Tooltip content={content} statelessProps={{ minWidth: 340 }}>
 					<HelpIcon {...props} />
 				</Tooltip>
 			),
@@ -122,7 +125,7 @@ const DashboardScreen = () => {
 										id="pending-conv-count"
 										label="Pending Conversions"
 										iconRight={ConvHelpIcon(
-											"Referrals enter a pending status for processing and verification."
+											"Pending Conversions are referrals that have been converted to users on the advertising partner's application. These are considered pending as conversions are yet to have associated rewards allocated."
 										)}
 										iconProps={{
 											color: colors.gray500
@@ -136,7 +139,7 @@ const DashboardScreen = () => {
 										id="success-conv-count"
 										label="Successful Conversions"
 										iconRight={ConvHelpIcon(
-											"Once referrals have been processed, rewards for these referrals can be claimed."
+											"Successful Conversions are converted referrals where rewards are guaranteed for the Affiliate."
 										)}
 										iconProps={{
 											color: colors.gray500
@@ -177,19 +180,11 @@ const DashboardScreen = () => {
 						borderRadius={8}
 						marginBottom={24}
 					>
-						{/* <Pane display="flex" marginBottom={12}>
-							<ValueCard
-								ticker="AR"
-								value={0}
-								id="pending-rewards"
-								label="Pending Rewards"
-							/>
-						</Pane> */}
 						<Pane display="flex" marginBottom={24}>
 							<ValueCard
 								isLoading={isContractLoading}
 								ticker={ticker}
-								value={0}
+								value={claimableRewards}
 								id="claimable-rewards"
 								label="Claimable Rewards"
 							/>
@@ -197,6 +192,20 @@ const DashboardScreen = () => {
 						<Pane display="flex">
 							<ClaimButton />
 						</Pane>
+					</Pane>
+					<Pane marginBottom={12}>
+						<Tooltip
+							content="This feature is still in development."
+							statelessProps={{
+								minWidth: 280
+							}}
+						>
+							<Alert intent="warning" title="Unlock Claims">
+								<Paragraph>
+									Verify your personhood to unlock the ability to submit claims.
+								</Paragraph>
+							</Alert>
+						</Tooltip>
 					</Pane>
 					<Pane marginBottom={12}>
 						<Terms />

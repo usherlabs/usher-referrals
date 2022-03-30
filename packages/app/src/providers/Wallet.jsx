@@ -30,7 +30,7 @@ const WalletContextProvider = ({ children }) => {
 			conversions: { total: 0, pending: 0, success: 0 }
 		}
 	});
-	const [loading, setLoading] = useState(true);
+	const [loading, setLoading] = useState(false);
 	const [isArConnectLoaded, setArConnectLoaded] = useState(false);
 	const { user } = useContext(UserContext);
 	const { address } = wallet;
@@ -99,11 +99,6 @@ const WalletContextProvider = ({ children }) => {
 	}, [address, userId]);
 
 	useEffect(() => {
-		// If user already fetched -- ie fetched from SSR
-		if (!loading && !isEmpty(wallet)) {
-			return () => {};
-		}
-
 		// Check first if ArConnect has loaded.
 		if (isArConnectLoaded) {
 			// Check if wallet exists if it does not already exist

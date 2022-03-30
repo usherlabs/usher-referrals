@@ -1,11 +1,5 @@
 import React from "react";
-import {
-	Button,
-	majorScale,
-	DoubleChevronDownIcon,
-	Tooltip,
-	Strong
-} from "evergreen-ui";
+import { Button, majorScale, LockIcon, Tooltip, Strong } from "evergreen-ui";
 
 const ClaimButton = ({ ...props }) => {
 	return (
@@ -19,7 +13,7 @@ const ClaimButton = ({ ...props }) => {
 				height={majorScale(6)}
 				intent="success"
 				appearance="primary"
-				iconBefore={DoubleChevronDownIcon}
+				iconBefore={LockIcon}
 				minWidth={260}
 				width="100%"
 				{...props}
