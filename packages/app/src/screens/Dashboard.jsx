@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect } from "react";
 import {
 	Pane,
 	Heading,
@@ -9,14 +9,16 @@ import {
 	Alert
 } from "evergreen-ui";
 import { css } from "@linaria/core";
+import { Usher } from "usher-js";
 
-import { useWallet, useContract } from "@/hooks/";
+import { useUser, useWallet, useContract } from "@/hooks/";
 import { MAX_SCREEN_WIDTH, TABLET_BREAKPOINT } from "@/constants";
 import AffiliateLink from "@/components/AffiliateLink";
 import ValueCard from "@/components/ValueCard";
 import ClaimButton from "@/components/ClaimButton";
 import Terms from "@/components/Terms";
 import Progress from "@/components/Progress";
+import { advertiser } from "@/env-config";
 
 const getInviteLink = (id = "") => `${window.location.origin}/invite/${id}`;
 
@@ -31,6 +33,7 @@ const DashboardScreen = () => {
 		},
 		isContractLoading
 	] = useContract();
+	const [user] = useUser();
 	const { id: linkId, conversions = { total: 0, pending: 0, success: 0 } } =
 		wallet?.link || {};
 	const inviteLink = linkId ? getInviteLink(linkId) : "";
@@ -46,6 +49,17 @@ const DashboardScreen = () => {
 			),
 			[]
 		);
+
+	useEffect(() => {
+		const eventPayload = {
+			id: advertiser.usherContractAddress,
+			nativeId: user.id,
+			properties: {
+				walletAddress: wallet.address
+			}
+		};
+		Usher("event", eventPayload);
+	}, []);
 
 	return (
 		<Pane
