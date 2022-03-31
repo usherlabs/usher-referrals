@@ -27,19 +27,27 @@ const EmailConnectScreen = () => {
 		}
 		setDisabled(true);
 		// Connect with Email
-		const { error } = await signIn({
+		const { error, status } = await signIn({
 			email: value
 		});
 		setTimeout(() => {
 			setDisabled(false);
 		}, 5000);
 		if (error) {
+			if (status === 429) {
+				toaster.notify(
+					"An email with a Magic Link has already been sent to you!",
+					{ id: "magic-link-sent", duration: 10 }
+				);
+				return;
+			}
 			handleException(error);
 			alerts.error();
 			return;
 		}
-		toaster.notify(
-			"An email with a Magic Link has been sent to you. Click the link in the email to Sign In."
+		toaster.success(
+			"An email with a Magic Link has been sent to you. Click the link in the email to Sign In.",
+			{ duration: 10 }
 		);
 	}, [value]);
 
