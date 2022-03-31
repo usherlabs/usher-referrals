@@ -15,3 +15,5 @@ export const discord = {
 export const hcaptchaSecretKey = process.env.HCAPTCHA_SECRET_KEY;
 
 export const inviteProtect = process.env.INVITE_PROTECT;
+
+export const botdSecretKey = process.env.BOTD_SECRET_KEY;

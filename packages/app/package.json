@@ -12,7 +12,6 @@
 		"init-bot": "dotenv -- bash -c 'open \"https://discord.com/api/oauth2/authorize?client_id=$DISCORD_CLIENT_ID&scope=bot%20applications.commands&permissions=2147485713&guild_id=$DISCORD_GUILD_ID&disable_guild_select=true\"'"
 	},
 	"dependencies": {
-		"@fingerprintjs/fingerprintjs-pro": "^3.6.0",
 		"@fpjs-incubator/botd-agent": "^0.1.24",
 		"@hcaptcha/react-hcaptcha": "^1.1.1",
 		"@linaria/core": "^3.0.0-beta.15",

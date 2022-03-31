@@ -17,6 +17,7 @@ const Preloader = ({ message, ...props }) => (
 		top="0"
 		background="tint1"
 		zIndex={99}
+		flexDirection="column"
 		{...props}
 	>
 		<Spinner size={38} />

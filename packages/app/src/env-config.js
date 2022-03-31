@@ -32,4 +32,6 @@ if (fingerprintEndpoint) {
 	fingerprint.endpoint = fingerprintEndpoint;
 }
 
+export const botdPublicKey = process.env.NEXT_PUBLIC_BOTD_PUBLIC_KEY;
+
 export { fingerprint };
