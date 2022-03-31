@@ -27,14 +27,14 @@ const EmailConnectScreen = () => {
 		}
 		setDisabled(true);
 		// Connect with Email
-		const { error, status } = await signIn({
+		const { error } = await signIn({
 			email: value
 		});
 		setTimeout(() => {
 			setDisabled(false);
 		}, 5000);
 		if (error) {
-			if (status === 429) {
+			if (error.status === 429) {
 				toaster.notify(
 					"An email with a Magic Link has already been sent to you!",
 					{ id: "magic-link-sent", duration: 10 }
