@@ -8,6 +8,7 @@ import React, {
 } from "react";
 import useArConnect from "use-arconnect";
 import isEmpty from "lodash/isEmpty";
+import once from "lodash/once";
 
 import { ChildrenProps } from "@/utils/common-prop-types";
 import delay from "@/utils/delay";
@@ -20,6 +21,9 @@ import LogoImage from "@/assets/logo/Logo-Icon.svg";
 import { UserContext } from "./User";
 
 export const WalletContext = createContext();
+
+const saveWalletOnce = once(saveWallet);
+const saveInviteLinkOnce = once(saveInviteLink);
 
 const WalletContextProvider = ({ children }) => {
 	const arconnect = useArConnect();
@@ -84,8 +88,10 @@ const WalletContextProvider = ({ children }) => {
 		if (!isEmpty(address) && !isEmpty(userId)) {
 			(async () => {
 				try {
-					const { id: walletId } = await saveWallet(user, address);
-					const [{ id: linkId }, conversions] = await saveInviteLink(walletId);
+					const { id: walletId } = await saveWalletOnce(user, address);
+					const [{ id: linkId }, conversions] = await saveInviteLinkOnce(
+						walletId
+					);
 					setWallet({
 						...wallet,
 						id: walletId,
