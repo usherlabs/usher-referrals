@@ -1,11 +1,55 @@
+import { useEffect, useState } from "react";
 import { setCookie } from "nookies";
-import { supabase } from "@/utils/supabase-client";
+import isEmpty from "lodash/isEmpty";
+import { Pane } from "evergreen-ui";
+// import FingerprintJS from "@fingerprintjs/fingerprintjs-pro";
+import Botd from "@fpjs-incubator/botd-agent";
+import PropTypes from "prop-types";
 
+import { supabase } from "@/utils/supabase-client";
 import handleException from "@/utils/handle-exception";
 import { CONVERSION_COOKIE_NAME } from "@/constants";
-import { isEmpty } from "lodash";
+import { fingerprint } from "@/env-config";
+import Preloader from "@/components/Preloader";
 
-const Invite = () => null;
+// pP2EEs2tey9HliQd45m0EmXQ
+
+const Invite = ({ url }) => {
+	const [showCaptcha, setShowCaptcha] = useState(false);
+
+	useEffect(() => {
+		(async () => {
+			// Initialize an agent at application startup.
+			// const fp = await FingerprintJS.load(fingerprint);
+			const botd = await Botd.load({ publicKey: "Q6fKMRWM0H78YDm63as236SM" });
+
+			// Get the visitor identifier when you need it.
+			// const result = await fp.get();
+			const result = await botd.detect();
+			console.log(result);
+
+			// window.location.href = url;
+			console.log(url);
+		})();
+	}, []);
+
+	return (
+		<Pane
+			display="flex"
+			flexDirection="column"
+			marginY="0"
+			marginX="auto"
+			minHeight="100vh"
+			position="relative"
+		>
+			<Preloader message={`You've been invited...`} />
+		</Pane>
+	);
+};
+
+Invite.propTypes = {
+	url: PropTypes.string.isRequired
+};
 
 /**
  * 1. Create a pending conversion
@@ -58,12 +102,7 @@ export async function getServerSideProps(ctx) {
 		path: "/satellite"
 	});
 
-	res.writeHead(302, {
-		Location: url || `/link-error`
-	});
-	res.end();
-
-	return { props: {} };
+	return { props: { success: true, url } };
 }
 
 export default Invite;
