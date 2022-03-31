@@ -6,6 +6,7 @@ import React, {
 	useCallback
 } from "react";
 import isEmpty from "lodash/isEmpty";
+import { request } from "@/utils/browser-request";
 
 import { ChildrenProps } from "@/utils/common-prop-types";
 import { supabase } from "@/utils/supabase-client";
@@ -47,6 +48,14 @@ const UserContextProvider = ({ children }) => {
 		async (options = {}) => {
 			setLoading(true);
 			const r = await supabase.auth.signIn(options);
+			const response = await request
+				.post("send-email", {
+					json: {
+						email: options.email
+					}
+				})
+				.json();
+			console.log(response);
 			setLoading(false);
 			return r;
 		},
