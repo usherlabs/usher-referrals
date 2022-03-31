@@ -35,10 +35,10 @@ handler.use(cors()).post(async (req, res) => {
 	req.log.info({ botd: { requestId: token, response } }, "Botd response");
 
 	if (
-		response.bot.automationTool.probability < 0.3 &&
-		response.bot.browserSpoofing.probability < 0.3 &&
-		response.bot.searchEngine.probability < 0.4 &&
-		response.vm.probability < 0.4
+		response.bot.automationTool.probability < 0.2 &&
+		response.bot.browserSpoofing.probability < 0.2 &&
+		response.bot.searchEngine.probability < 0.3 &&
+		response.vm.probability < 0.3
 	) {
 		return res.json({
 			success: true
