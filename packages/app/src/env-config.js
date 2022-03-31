@@ -21,3 +21,5 @@ export const advertiser = {
 };
 
 export const hcaptchaSiteKey = process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY;
+
+export const inviteOrigin = process.env.NEXT_PUBLIC_INVITE_ORIGIN;

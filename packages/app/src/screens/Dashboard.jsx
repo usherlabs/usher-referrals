@@ -19,8 +19,7 @@ import ClaimButton from "@/components/ClaimButton";
 import Terms from "@/components/Terms";
 import Progress from "@/components/Progress";
 import { advertiser } from "@/env-config";
-
-const getInviteLink = (id = "") => `${window.location.origin}/invite/${id}`;
+import getInviteLink from "@/utils/get-invite-link";
 
 const DashboardScreen = () => {
 	const { colors } = useTheme();
