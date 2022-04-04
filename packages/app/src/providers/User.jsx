@@ -13,7 +13,7 @@ import { supabase } from "@/utils/supabase-client";
 import { identifyUser } from "@/utils/signals";
 import { setUser as setErrorTrackingUser } from "@/utils/handle-exception";
 import useAuthStateChange from "@/hooks/use-auth-state-change";
-import { checkCaptcha } from "@/actions/user";
+import { checkCaptcha, authorise } from "@/actions/user";
 
 export const UserContext = createContext();
 
@@ -47,15 +47,7 @@ const UserContextProvider = ({ children }) => {
 	const signIn = useCallback(
 		async (options = {}) => {
 			setLoading(true);
-			const r = await supabase.auth.signIn(options);
-			const response = await request
-				.post("send-email", {
-					json: {
-						email: options.email
-					}
-				})
-				.json();
-			console.log(response);
+			const r = await authorise(options);
 			setLoading(false);
 			return r;
 		},

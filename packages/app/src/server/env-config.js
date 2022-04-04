@@ -17,3 +17,12 @@ export const hcaptchaSecretKey = process.env.HCAPTCHA_SECRET_KEY;
 export const inviteProtect = process.env.INVITE_PROTECT;
 
 export const botdSecretKey = process.env.BOTD_SECRET_KEY;
+
+export const postmarkApiKey = process.env.POSTMARK_API_KEY;
+
+export const postmarkTemplates = {
+	signIn: process.env.POSTMARK_TEMPLATE_ID_SIGN_IN,
+	signUp: process.env.POSTMARK_TEMPLATE_ID_SIGN_UP
+};
+
+export const emailFrom = process.env.EMAIL_FROM;

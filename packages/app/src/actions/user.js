@@ -1,5 +1,5 @@
 import { supabase } from "@/utils/supabase-client";
-import { getAuthRequest } from "@/utils/browser-request";
+import { request, getAuthRequest } from "@/utils/browser-request";
 
 export const checkCaptcha = async (user) => {
 	// Check if the user has completed a captcha previously
@@ -24,11 +24,24 @@ export const checkCaptcha = async (user) => {
 
 export const submitCaptcha = async (token) => {
 	// Submit token to endpoint that requires auth
-	const request = await getAuthRequest();
-	const response = await request
+	const req = await getAuthRequest();
+	const response = await req
 		.post("user/captcha", {
 			json: {
 				token
+			}
+		})
+		.json();
+	console.log(response);
+
+	return response.success;
+};
+
+export const authorise = async ({ email }) => {
+	const response = await request
+		.post("auth", {
+			json: {
+				email
 			}
 		})
 		.json();
