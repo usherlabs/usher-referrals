@@ -33,6 +33,7 @@ handler.post(async (req, res) => {
 	const { email } = body;
 
 	// create user first if user does not exist -- will throw if user exists
+	// Alternative approach -- https://github.com/supabase/supabase/discussions/1282
 	let isNewUser = true;
 	try {
 		const sNewUser = await supabase.auth.api.createUser({

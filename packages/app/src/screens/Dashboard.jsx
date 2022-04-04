@@ -99,7 +99,8 @@ const DashboardScreen = () => {
 								justifyContent="space-between"
 							>
 								<Paragraph width="100%">
-									👆&nbsp;&nbsp;Share this Affiliate link to earn
+									👆&nbsp;&nbsp;Click and Copy to share this Affiliate link and
+									earn
 								</Paragraph>
 							</Pane>
 						</Pane>
