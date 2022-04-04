@@ -13,6 +13,14 @@ import * as alerts from "@/utils/alerts";
 import { hcaptchaSiteKey } from "@/env-config";
 import { ChildrenProps } from "@/utils/common-prop-types";
 
+const loadingMessages = [
+	"Hold tight...",
+	"Dashboard engines ready...",
+	"Off we go..."
+];
+
+let loadingMessageIndex = 0;
+
 const DashboardContainer = ({ children }) => {
 	const [{ address }, isWalletLoading, , { removeWallet }] = useWallet();
 	const [user, isUserLoading, { signOut }] = useUser();
@@ -22,6 +30,9 @@ const DashboardContainer = ({ children }) => {
 	const isCaptchaVerified = isEmpty(hcaptchaSiteKey)
 		? true
 		: user?.verifications?.captcha === true;
+	const [loadingMessage, setLoadingMessage] = useState(
+		loadingMessages[loadingMessageIndex]
+	);
 
 	useEffect(() => {
 		// Cancel preloader
@@ -45,6 +56,17 @@ const DashboardContainer = ({ children }) => {
 		}
 	}, []);
 
+	useEffect(() => {
+		const loadingMessageInterval = setInterval(() => {
+			if (loadingMessageIndex > loadingMessages.length) {
+				clearInterval(loadingMessageInterval);
+			} else {
+				setLoadingMessage(loadingMessages[loadingMessageIndex]);
+				loadingMessageIndex += 1;
+			}
+		}, 750);
+	}, []);
+
 	return (
 		<Pane
 			display="flex"
@@ -54,7 +76,9 @@ const DashboardContainer = ({ children }) => {
 			minHeight="100vh"
 			position="relative"
 		>
-			{(isPreloading || (isLoading && !isMounted)) && <Preloader />}
+			{(isPreloading || (isLoading && !isMounted)) && (
+				<Preloader message={loadingMessage} />
+			)}
 			<Header
 				walletAddress={address}
 				userProvider={user?.app_metadata?.provider}
