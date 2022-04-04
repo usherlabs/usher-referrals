@@ -1,9 +1,0 @@
-{
-  "presets": ["next/babel", "@linaria"],
-  "plugins": ["add-react-displayname"],
-	"env": {
-		"production": {
-			"plugins": [["transform-remove-console", {"exclude": ["error", "warn"]}]]
-		}
-	}
-}

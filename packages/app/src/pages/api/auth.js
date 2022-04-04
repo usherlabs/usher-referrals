@@ -68,23 +68,25 @@ handler.post(async (req, res) => {
 	if (isNewUser && postmarkTemplates.signUp) {
 		templateId = postmarkTemplates.signUp;
 	}
-	const response = await got
-		.post("https://api.postmarkapp.com/email/withTemplate", {
-			json: {
-				from: emailFrom,
-				To: email,
-				TemplateId: templateId,
-				TemplateModel: {
-					action_url: link
+	if (postmarkApiKey && emailFrom && postmarkTemplates.signIn) {
+		const response = await got
+			.post("https://api.postmarkapp.com/email/withTemplate", {
+				json: {
+					from: emailFrom,
+					To: email,
+					TemplateId: templateId,
+					TemplateModel: {
+						action_url: link
+					}
+				},
+				headers: {
+					"X-Postmark-Server-Token": postmarkApiKey
 				}
-			},
-			headers: {
-				"X-Postmark-Server-Token": postmarkApiKey
-			}
-		})
-		.json();
+			})
+			.json();
 
-	req.log.info({ email: { response } }, "Email Auth Response");
+		req.log.info({ email: { response } }, "Email Auth Response");
+	}
 
 	return res.json({
 		success: true // assume all visitors are bots
