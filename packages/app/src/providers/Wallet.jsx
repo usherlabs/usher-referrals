@@ -13,7 +13,7 @@ import once from "lodash/once";
 import { ChildrenProps } from "@/utils/common-prop-types";
 import delay from "@/utils/delay";
 import handleException from "@/utils/handle-exception";
-import { saveWallet } from "@/actions/wallet";
+import { saveWallet, getSkippedWallet } from "@/actions/wallet";
 import { saveInviteLink } from "@/actions/invite";
 
 import LogoImage from "@/assets/logo/Logo-Icon.svg";
@@ -24,6 +24,7 @@ export const WalletContext = createContext();
 
 const saveWalletOnce = once(saveWallet);
 const saveInviteLinkOnce = once(saveInviteLink);
+const getSkippedWalletOnce = once(getSkippedWallet);
 
 const WalletContextProvider = ({ children }) => {
 	const arconnect = useArConnect();
@@ -65,7 +66,7 @@ const WalletContextProvider = ({ children }) => {
 					}
 
 					const a = await arconnect.getActiveAddress();
-					setWallet({ address: a });
+					setWallet({ address: a, ...wallet });
 					setLoading(false);
 					return a;
 				} catch (e) {
@@ -86,6 +87,7 @@ const WalletContextProvider = ({ children }) => {
 	}, [arconnect]);
 
 	useEffect(() => {
+<<<<<<< HEAD
 		if (isMounted) {
 			return () => {};
 		}
@@ -106,6 +108,38 @@ const WalletContextProvider = ({ children }) => {
 					handleException(e);
 				}
 			})();
+=======
+		if (!isEmpty(userId)) {
+			if (isEmpty(address)) {
+				// Check if the address is skipped
+				(async () => {
+					const { id: walletId, address: a } = await getSkippedWalletOnce(user);
+					if (walletId) {
+						setWallet({
+							...wallet,
+							address: a,
+							id: walletId
+						});
+					}
+				})();
+			} else {
+				(async () => {
+					try {
+						const { id: walletId } = await saveWalletOnce(user, address);
+						const [{ id: linkId }, conversions] = await saveInviteLinkOnce(
+							walletId
+						);
+						setWallet({
+							...wallet,
+							id: walletId,
+							link: { id: linkId, conversions }
+						}); // set ids to state
+					} catch (e) {
+						handleException(e);
+					}
+				})();
+			}
+>>>>>>> fbb8b5e (skipped wallet fetch from database)
 		}
 		return () => {};
 	}, [address, userId, isMounted]);
