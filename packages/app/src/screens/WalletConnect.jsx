@@ -4,14 +4,23 @@ import Image from "next/image";
 import Bowser from "bowser";
 
 import { useWallet } from "@/hooks/";
-import { ARCONNECT_CHROME_URL, ARCONNECT_FIREFOX_URL } from "@/constants";
+import {
+	ARCONNECT_CHROME_URL,
+	ARCONNECT_FIREFOX_URL,
+	SKIPPED_WALLET_ADDRESS
+} from "@/constants";
 import ArConnectIcon from "@/assets/icon/arconnect.svg";
 
 const WalletConnectScreen = () => {
-	const [, isLoading, isArConnectLoaded, { getWallet }] = useWallet();
+	const [, isLoading, isArConnectLoaded, { getWallet, setWallet }] =
+		useWallet();
 	const [browserName, setBrowserName] = useState("");
 
-	const connect = useCallback(async () => getWallet(true), [getWallet]);
+	const connect = useCallback(() => getWallet(true), [getWallet]);
+	const skipConnect = useCallback(
+		() => setWallet({ address: SKIPPED_WALLET_ADDRESS }),
+		[]
+	);
 
 	useEffect(() => {
 		if (typeof window !== "undefined") {
@@ -36,7 +45,14 @@ const WalletConnectScreen = () => {
 				👋&nbsp;&nbsp;Welcome!
 			</Heading>
 			<Text size={500}>To get started, connect your wallet</Text>
-			<Pane background="tint2" padding={16} margin={12}>
+			<Pane
+				background="tint2"
+				padding={16}
+				margin={12}
+				borderRadius={8}
+				display="flex"
+				flexDirection="column"
+			>
 				{isArConnectLoaded ? (
 					<Button
 						height={majorScale(7)}
@@ -68,6 +84,14 @@ const WalletConnectScreen = () => {
 					</Link>
 				)}
 			</Pane>
+			<Button
+				height={majorScale(5)}
+				minWidth={260}
+				appearance="minimal"
+				onClick={skipConnect}
+			>
+				<strong>Connect Wallet Later</strong>
+			</Button>
 		</Pane>
 	);
 };

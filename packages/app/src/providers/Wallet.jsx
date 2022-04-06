@@ -13,7 +13,7 @@ import once from "lodash/once";
 import { ChildrenProps } from "@/utils/common-prop-types";
 import delay from "@/utils/delay";
 import handleException from "@/utils/handle-exception";
-import saveWallet from "@/actions/wallet";
+import { saveWallet } from "@/actions/wallet";
 import { saveInviteLink } from "@/actions/invite";
 
 import LogoImage from "@/assets/logo/Logo-Icon.svg";

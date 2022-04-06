@@ -19,3 +19,5 @@ export const CONTRACT_INVITE_CONFLICT_STRATEGY = {
 	OVERWRITE: "overwrite",
 	PASSTHROUGH: "passthrough"
 };
+
+export const SKIPPED_WALLET_ADDRESS = "__SKIPPED__";

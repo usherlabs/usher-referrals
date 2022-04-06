@@ -21,7 +21,7 @@ import flip from "@/utils/props-flip";
 import LogoImage from "@/assets/logo/Logo-Icon.svg";
 import DiscordIcon from "@/assets/icon/discord-icon.svg";
 import ArConnectIcon from "@/assets/icon/arconnect.svg";
-import { MAX_SCREEN_WIDTH } from "@/constants";
+import { MAX_SCREEN_WIDTH, SKIPPED_WALLET_ADDRESS } from "@/constants";
 
 const Header = ({
 	walletAddress,
@@ -118,7 +118,20 @@ const Header = ({
 								</Button>
 							</Popover>
 						)}
-						{!isEmpty(walletAddress) && (
+						{walletAddress === SKIPPED_WALLET_ADDRESS ? (
+							<Button
+								appearance="primary"
+								intent="danger"
+								height={majorScale(5)}
+								borderRadius={40}
+								iconBefore={
+									<Image src={ArConnectIcon} width={25} height={25} />
+								}
+								isLoading={isLoading}
+							>
+								<strong>Connect your Wallet</strong>
+							</Button>
+						) : (
 							<Popover
 								position={Position.BOTTOM_LEFT}
 								content={
