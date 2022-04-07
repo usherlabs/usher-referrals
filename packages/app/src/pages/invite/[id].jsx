@@ -27,7 +27,6 @@ const Invite = () => {
 	const processInvite = useCallback(async () => {
 		const cookies = parseCookies();
 		const cid = cookies[CONVERSION_COOKIE_NAME];
-		console.log(cookies);
 
 		const {
 			success,
@@ -68,7 +67,7 @@ const Invite = () => {
 
 	const onCaptchaSuccess = useCallback(
 		async (token) => {
-			console.log(token);
+			// console.log(token);
 			const isSuccess = await submitCaptcha(token);
 			if (isSuccess) {
 				processInvite();
