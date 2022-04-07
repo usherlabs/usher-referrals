@@ -14,3 +14,8 @@ export const CONVERSION_COOKIE_NAME = "__usher_cid";
 // 	PERCENT: "percent",
 // 	EQUITY: "equity"
 // };
+
+export const CONTRACT_INVITE_CONFLICT_STRATEGY = {
+	OVERWRITE: "overwrite",
+	PASSTHROUGH: "passthrough"
+};

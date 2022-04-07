@@ -69,7 +69,10 @@ const UserContextProvider = ({ children }) => {
 				break;
 			}
 			case "SIGNED_OUT": {
-				window.location.reload();
+				(async () => {
+					await delay(1000);
+					window.location.reload();
+				})();
 				break;
 			}
 			default: {

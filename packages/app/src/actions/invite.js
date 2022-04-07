@@ -2,15 +2,16 @@ import isEmpty from "lodash/isEmpty";
 
 import { supabase } from "@/utils/supabase-client";
 import { advertiser } from "@/env-config";
+import { request } from "@/utils/browser-request";
 
-// Debounce to minise duplicate API calls.
-const saveInviteLink = async (walletId) => {
+export const saveInviteLink = async (walletId) => {
 	// Check if there is a wallet associated to this user.
 	// If not, insert it, otherwise check if user_id has been updated (ie. new Discord user)
 	const sSel = await supabase
 		.from("invite_links")
 		.select(`id`)
-		.eq("wallet_id", walletId);
+		.eq("wallet_id", walletId)
+		.order("created_at", { ascending: false });
 	if (sSel.error && sSel.status !== 406) {
 		throw sSel.error;
 	}
@@ -75,4 +76,18 @@ const saveInviteLink = async (walletId) => {
 	return [data, convOverview];
 };
 
-export default saveInviteLink;
+export const getDestinationUrl = async (inviteLinkId, cid) => {
+	const response = await request
+		.get(`invite/${inviteLinkId}${cid ? `?cid=${cid}` : ""}`)
+		.json();
+	console.log("getDestinationUrl: ", response);
+
+	return response;
+};
+
+export const createConversion = async (inviteLinkId) => {
+	const response = await request.post(`invite/${inviteLinkId}`).json();
+	console.log("createConversion: ", response);
+
+	return response;
+};

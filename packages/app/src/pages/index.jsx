@@ -1,11 +1,17 @@
 import DashboardScreen from "@/screens/Dashboard";
 import DashboardContainer from "@/containers/Dashboard";
+import UserProvider from "@/providers/User";
+import WalletProvider from "@/providers/Wallet";
 
 const Overview = () => {
 	return (
-		<DashboardContainer>
-			<DashboardScreen />
-		</DashboardContainer>
+		<UserProvider>
+			<WalletProvider>
+				<DashboardContainer>
+					<DashboardScreen />
+				</DashboardContainer>
+			</WalletProvider>
+		</UserProvider>
 	);
 };
 
