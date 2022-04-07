@@ -63,7 +63,7 @@ const Invite = () => {
 		}
 
 		// Redirect to Advertiser Affiliate Referral URL
-		// window.location.replace(url);
+		window.location.replace(url);
 	}, [id]);
 
 	const onCaptchaSuccess = useCallback(
