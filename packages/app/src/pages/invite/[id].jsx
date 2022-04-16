@@ -31,6 +31,7 @@ const Invite = () => {
 		const {
 			success,
 			url,
+			isInviteActive,
 			convId: existingConvId,
 			isRelated // Determines whether the existing ConvID is related to the Invite Link Id
 		} = await getDestinationUrl(id, cid);
@@ -39,11 +40,13 @@ const Invite = () => {
 			return;
 		}
 
+		// Only apply conversion creation/maintenance logic if Invite IS Active
 		// If the Smart Contract has NOT defined that new Affiliate Links will overwrite the conversion
 		// The default behaviour is to simply skip replacing the conversion cookie if a valid one exists
 		if (
-			inviteConflictStrategy === CONTRACT_INVITE_CONFLICT_STRATEGY.OVERWRITE ||
-			!existingConvId
+			isInviteActive &&
+			(inviteConflictStrategy === CONTRACT_INVITE_CONFLICT_STRATEGY.OVERWRITE ||
+				!existingConvId)
 		) {
 			// If a valid converison tracking id is NOT already in cookie
 			const { convId } = await createConversion(id);

@@ -38,7 +38,7 @@ handler
 		// Check to make sure that the invite Link exists exists
 		const sSel = await supabase
 			.from("invite_links")
-			.select("destination_url")
+			.select("destination_url, active")
 			.eq("id", inviteLinkId);
 		if ((sSel.error && sSel.status !== 406) || isEmpty(sSel.data)) {
 			return res.status(400).json({
@@ -50,7 +50,7 @@ handler
 			"Fetch Destination URL for Invite Link ID"
 		);
 
-		const [{ destination_url: url }] = sSel.data;
+		const [{ destination_url: url, active: isInviteActive }] = sSel.data;
 
 		let convId = "";
 		let isRelated = false;
@@ -83,6 +83,7 @@ handler
 		return res.json({
 			success: true,
 			url,
+			isInviteActive,
 			convId,
 			isRelated
 		});
