@@ -3,7 +3,6 @@
  * POST: Create a new Conversion ID against the Invite Link ID
  */
 
-import cors from "cors";
 import * as yup from "yup";
 import isEmpty from "lodash/isEmpty";
 import ono from "@jsdevtools/ono";
@@ -20,7 +19,6 @@ const querySchema = yup.object({
 });
 
 handler
-	.use(cors())
 	.get(async (req, res) => {
 		let { query } = req;
 		try {
