@@ -36,6 +36,7 @@ const WalletContextProvider = ({ children }) => {
 	});
 	const [loading, setLoading] = useState(false);
 	const [isArConnectLoaded, setArConnectLoaded] = useState(false);
+	const [isMounted, setMounted] = useState(false);
 	const { user } = useContext(UserContext);
 	const { address } = wallet;
 	const { id: userId } = user;
@@ -85,7 +86,11 @@ const WalletContextProvider = ({ children }) => {
 	}, [arconnect]);
 
 	useEffect(() => {
+		if (isMounted) {
+			return () => {};
+		}
 		if (!isEmpty(address) && !isEmpty(userId)) {
+			setMounted(true);
 			(async () => {
 				try {
 					const { id: walletId } = await saveWalletOnce(user, address);
@@ -102,7 +107,8 @@ const WalletContextProvider = ({ children }) => {
 				}
 			})();
 		}
-	}, [address, userId]);
+		return () => {};
+	}, [address, userId, isMounted]);
 
 	useEffect(() => {
 		// Check first if ArConnect has loaded.

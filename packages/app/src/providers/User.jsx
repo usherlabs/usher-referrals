@@ -62,7 +62,7 @@ const UserContextProvider = ({ children }) => {
 	useAuthStateChange((event) => {
 		switch (event) {
 			case "SIGNED_IN": {
-				// Re-fetch user on sign in
+				// Fetch user on sign in
 				getUser().finally(() => {
 					setLoading(false);
 				});
