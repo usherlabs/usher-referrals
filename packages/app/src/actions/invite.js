@@ -10,7 +10,7 @@ export const saveInviteLink = async (walletId) => {
 	const sSel = await supabase
 		.from("invite_links")
 		.select(`id`)
-		.eq("wallet_id", walletId)
+		.match({ wallet_id: walletId, active: true })
 		.order("created_at", { ascending: false });
 	if (sSel.error && sSel.status !== 406) {
 		throw sSel.error;
