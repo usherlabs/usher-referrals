@@ -39,32 +39,31 @@ const Invite = () => {
 			window.location.replace(`/link-error`);
 			return;
 		}
-		// Only apply conversion creation/maintenance logic if Invite IS Active
-		if (!isInviteActive) {
-			// Redirect to Advertiser Affiliate Referral URL
-			window.location.replace(url);
-		}
 
-		// If the Smart Contract has NOT defined that new Affiliate Links will overwrite the conversion
-		// The default behaviour is to simply skip replacing the conversion cookie if a valid one exists
-		if (
-			inviteConflictStrategy === CONTRACT_INVITE_CONFLICT_STRATEGY.OVERWRITE ||
-			!existingConvId
-		) {
-			// If a valid converison tracking id is NOT already in cookie
-			const { convId } = await createConversion(id);
-			if (convId) {
-				setCookie(null, CONVERSION_COOKIE_NAME, convId, {
+		// Only apply conversion creation/maintenance logic if Invite IS Active
+		if (isInviteActive) {
+			// If the Smart Contract has NOT defined that new Affiliate Links will overwrite the conversion
+			// The default behaviour is to simply skip replacing the conversion cookie if a valid one exists
+			if (
+				inviteConflictStrategy ===
+					CONTRACT_INVITE_CONFLICT_STRATEGY.OVERWRITE ||
+				!existingConvId
+			) {
+				// If a valid converison tracking id is NOT already in cookie
+				const { convId } = await createConversion(id);
+				if (convId) {
+					setCookie(null, CONVERSION_COOKIE_NAME, convId, {
+						maxAge: 30 * 60 * 60, // lasts 30 days -- //* This can be configured ...eventually.
+						path: "/"
+					});
+				}
+			} else if (existingConvId && isRelated) {
+				// Extend the duration of the Cookie if the Invite Link ID is related to the Conversion ID in the Cookie
+				setCookie(null, CONVERSION_COOKIE_NAME, existingConvId, {
 					maxAge: 30 * 60 * 60, // lasts 30 days -- //* This can be configured ...eventually.
 					path: "/"
 				});
 			}
-		} else if (existingConvId && isRelated) {
-			// Extend the duration of the Cookie if the Invite Link ID is related to the Conversion ID in the Cookie
-			setCookie(null, CONVERSION_COOKIE_NAME, existingConvId, {
-				maxAge: 30 * 60 * 60, // lasts 30 days -- //* This can be configured ...eventually.
-				path: "/"
-			});
 		}
 
 		// Redirect to Advertiser Affiliate Referral URL
