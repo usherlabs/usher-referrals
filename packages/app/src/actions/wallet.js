@@ -37,7 +37,8 @@ export const getSkippedWallet = async (user) => {
 	const sSel = await supabase
 		.from("wallets")
 		.select(`id, address`)
-		.match({ address: SKIPPED_WALLET_ADDRESS, user_id: user.id });
+		.match({ address: SKIPPED_WALLET_ADDRESS, user_id: user.id })
+		.order("created_at", { ascending: false });
 	if (sSel.error && sSel.status !== 406) {
 		throw sSel.error;
 	}

@@ -87,59 +87,39 @@ const WalletContextProvider = ({ children }) => {
 	}, [arconnect]);
 
 	useEffect(() => {
-<<<<<<< HEAD
 		if (isMounted) {
 			return () => {};
 		}
-		if (!isEmpty(address) && !isEmpty(userId)) {
+		if (!isEmpty(userId)) {
 			setMounted(true);
 			(async () => {
 				try {
-					const { id: walletId } = await saveWalletOnce(user, address);
+					let walletId = "";
+					let walletAddress = "";
+					if (isEmpty(address)) {
+						// Check if the address is skipped
+						const { id: wid, address: a } = await getSkippedWalletOnce(user);
+						walletAddress = a;
+						walletId = wid;
+					} else {
+						// This conditional block will be hit when a user clicks the "Connect Wallet Later"
+						const { id: wid } = await saveWalletOnce(user, address);
+						walletAddress = address;
+						walletId = wid;
+					}
 					const [{ id: linkId }, conversions] = await saveInviteLinkOnce(
 						walletId
 					);
 					setWallet({
 						...wallet,
 						id: walletId,
+						address: walletAddress,
 						link: { id: linkId, conversions }
 					}); // set ids to state
 				} catch (e) {
 					handleException(e);
 				}
 			})();
-=======
-		if (!isEmpty(userId)) {
-			if (isEmpty(address)) {
-				// Check if the address is skipped
-				(async () => {
-					const { id: walletId, address: a } = await getSkippedWalletOnce(user);
-					if (walletId) {
-						setWallet({
-							...wallet,
-							address: a,
-							id: walletId
-						});
-					}
-				})();
-			} else {
-				(async () => {
-					try {
-						const { id: walletId } = await saveWalletOnce(user, address);
-						const [{ id: linkId }, conversions] = await saveInviteLinkOnce(
-							walletId
-						);
-						setWallet({
-							...wallet,
-							id: walletId,
-							link: { id: linkId, conversions }
-						}); // set ids to state
-					} catch (e) {
-						handleException(e);
-					}
-				})();
-			}
->>>>>>> fbb8b5e (skipped wallet fetch from database)
 		}
 		return () => {};
 	}, [address, userId, isMounted]);
