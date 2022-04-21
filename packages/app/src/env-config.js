@@ -21,3 +21,17 @@ export const advertiser = {
 };
 
 export const hcaptchaSiteKey = process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY;
+
+export const inviteOrigin = process.env.NEXT_PUBLIC_INVITE_ORIGIN;
+
+const fingerprint = {
+	apiKey: process.env.NEXT_PUBLIC_FINGERPRINT_API_KEY
+};
+const fingerprintEndpoint = process.env.NEXT_PUBLIC_FINGERPRINT_ENDPOINT;
+if (fingerprintEndpoint) {
+	fingerprint.endpoint = fingerprintEndpoint;
+}
+
+export const botdPublicKey = process.env.NEXT_PUBLIC_BOTD_PUBLIC_KEY;
+
+export { fingerprint };

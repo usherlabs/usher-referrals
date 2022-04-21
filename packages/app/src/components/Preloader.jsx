@@ -1,7 +1,8 @@
 import React from "react";
-import { Pane, Spinner } from "evergreen-ui";
+import { Pane, Label, Spinner } from "evergreen-ui";
+import PropTypes from "prop-types";
 
-const Preloader = (props) => (
+const Preloader = ({ message, ...props }) => (
 	<Pane
 		height="100%"
 		width="100%"
@@ -16,10 +17,24 @@ const Preloader = (props) => (
 		top="0"
 		background="tint1"
 		zIndex={99}
+		flexDirection="column"
 		{...props}
 	>
 		<Spinner size={38} />
+		{message && (
+			<Pane marginTop={24}>
+				<Label>{message}</Label>
+			</Pane>
+		)}
 	</Pane>
 );
+
+Preloader.propTypes = {
+	message: PropTypes.string
+};
+
+Preloader.defaultProps = {
+	message: ""
+};
 
 export default Preloader;

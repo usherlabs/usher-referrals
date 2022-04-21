@@ -1,69 +1,135 @@
-import { setCookie } from "nookies";
-import { supabase } from "@/utils/supabase-client";
+import { useCallback, useEffect, useState } from "react";
+import { setCookie, parseCookies } from "nookies";
+import { Pane } from "evergreen-ui";
+import Botd from "@fpjs-incubator/botd-agent";
+import Image from "next/image";
+import { useRouter } from "next/router";
 
-import handleException from "@/utils/handle-exception";
-import { CONVERSION_COOKIE_NAME } from "@/constants";
-import { isEmpty } from "lodash";
+import {
+	CONVERSION_COOKIE_NAME,
+	CONTRACT_INVITE_CONFLICT_STRATEGY
+} from "@/constants";
+import { botdPublicKey } from "@/env-config";
+import Preloader from "@/components/Preloader";
+import { checkBotDetect, submitCaptcha } from "@/actions/bot";
+import Captcha from "@/components/Captcha";
+import { getDestinationUrl, createConversion } from "@/actions/invite";
+import { useContract } from "@/hooks/";
 
-const Invite = () => null;
+import LogoImage from "@/assets/logo/Logo.png";
 
-/**
- * 1. Create a pending conversion
- * 2. Store that conversion id in the cookie
- * 3. Redirect to Advertiser Affiliate Referral URL
- *
- * @return  {Object}  props
- */
-export async function getServerSideProps(ctx) {
-	const {
-		res,
-		query: { id: inviteLinkId }
-	} = ctx;
+const Invite = () => {
+	const [showCaptcha, setShowCaptcha] = useState(false);
+	const router = useRouter();
+	const { id } = router.query;
+	const [{ inviteConflictStrategy }, isContractLoading] = useContract(); // TODO: Pass in the id here to determine the correct Contract to fetch
 
-	// Check to make sure that the wallet/user_id combination exists
-	const sSel = await supabase
-		.from("invite_links")
-		.select("destination_url")
-		.eq("id", inviteLinkId);
-	if ((sSel.error && sSel.status !== 406) || isEmpty(sSel.data)) {
-		res.writeHead(302, {
-			Location: `/link-error`
-		});
-		res.end();
-		return { props: {} };
-	}
+	const processInvite = useCallback(async () => {
+		const cookies = parseCookies();
+		const cid = cookies[CONVERSION_COOKIE_NAME];
 
-	console.log(sSel);
+		const {
+			success,
+			url,
+			isInviteActive,
+			convId: existingConvId,
+			isRelated // Determines whether the existing ConvID is related to the Invite Link Id
+		} = await getDestinationUrl(id, cid);
+		if (!success || !url) {
+			window.location.replace(`/link-error`);
+			return;
+		}
 
-	const [{ destination_url: url }] = sSel.data;
+		// Only apply conversion creation/maintenance logic if Invite IS Active
+		if (isInviteActive) {
+			// If the Smart Contract has NOT defined that new Affiliate Links will overwrite the conversion
+			// The default behaviour is to simply skip replacing the conversion cookie if a valid one exists
+			if (
+				inviteConflictStrategy ===
+					CONTRACT_INVITE_CONFLICT_STRATEGY.OVERWRITE ||
+				!existingConvId
+			) {
+				// If a valid converison tracking id is NOT already in cookie
+				const { convId } = await createConversion(id);
+				if (convId) {
+					setCookie(null, CONVERSION_COOKIE_NAME, convId, {
+						maxAge: 30 * 60 * 60, // lasts 30 days -- //* This can be configured ...eventually.
+						path: "/"
+					});
+				}
+			} else if (existingConvId && isRelated) {
+				// Extend the duration of the Cookie if the Invite Link ID is related to the Conversion ID in the Cookie
+				setCookie(null, CONVERSION_COOKIE_NAME, existingConvId, {
+					maxAge: 30 * 60 * 60, // lasts 30 days -- //* This can be configured ...eventually.
+					path: "/"
+				});
+			}
+		}
 
-	const sIns = await supabase
-		.from("conversions")
-		.insert([{ invite_link_id: inviteLinkId }]);
-	if ((sIns.error && sIns.status !== 406) || isEmpty(sIns.data)) {
-		handleException(sIns.error);
-		res.writeHead(302, {
-			Location: `/link-error`
-		});
-		res.end();
-		return { props: {} };
-	}
+		// Redirect to Advertiser Affiliate Referral URL
+		window.location.replace(url);
+	}, [id]);
 
-	console.log(sIns);
+	const onCaptchaSuccess = useCallback(
+		async (token) => {
+			// console.log(token);
+			const isSuccess = await submitCaptcha(token);
+			if (isSuccess) {
+				processInvite();
+			}
+		},
+		[id]
+	);
 
-	const [{ id: convId }] = sIns.data;
+	useEffect(() => {
+		if (!id) {
+			return () => {};
+		}
+		(async () => {
+			// Initialize an agent at application startup.
+			const botd = await Botd.load({ publicKey: botdPublicKey });
 
-	setCookie(ctx, CONVERSION_COOKIE_NAME, convId, {
-		maxAge: 30 * 60 * 60, // lasts 30 days -- //* This can be configured ...eventually.
-		path: "/satellite"
-	});
+			// Get the visitor identifier when you need it.
+			const { requestId } = await botd.detect();
+			const result = await checkBotDetect(requestId);
+			if (!result) {
+				setShowCaptcha(true);
+				return;
+			}
 
-	res.writeHead(302, {
-		Location: url || `/link-error`
-	});
-	res.end();
+			processInvite();
+		})();
+		return () => {};
+	}, [id]);
 
-	return { props: {} };
-}
+	return (
+		<Pane
+			display="flex"
+			flexDirection="column"
+			marginY="0"
+			marginX="auto"
+			minHeight="100vh"
+			position="relative"
+		>
+			{!isContractLoading && showCaptcha ? (
+				<Captcha onSuccess={onCaptchaSuccess} />
+			) : (
+				<Preloader message={`You've been invited...`} />
+			)}
+			<Pane
+				zIndex={100}
+				position="fixed"
+				bottom={20}
+				left={0}
+				right={0}
+				display="flex"
+				alignItems="center"
+				justifyContent="center"
+			>
+				<Image src={LogoImage} width={150} objectFit="contain" />
+			</Pane>
+		</Pane>
+	);
+};
 
 export default Invite;

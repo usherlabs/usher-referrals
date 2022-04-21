@@ -8,18 +8,22 @@ import React, {
 } from "react";
 import useArConnect from "use-arconnect";
 import isEmpty from "lodash/isEmpty";
+import once from "lodash/once";
 
 import { ChildrenProps } from "@/utils/common-prop-types";
 import delay from "@/utils/delay";
 import handleException from "@/utils/handle-exception";
 import saveWallet from "@/actions/wallet";
-import saveInviteLink from "@/actions/invite-link";
+import { saveInviteLink } from "@/actions/invite";
 
 import LogoImage from "@/assets/logo/Logo-Icon.svg";
 
 import { UserContext } from "./User";
 
 export const WalletContext = createContext();
+
+const saveWalletOnce = once(saveWallet);
+const saveInviteLinkOnce = once(saveInviteLink);
 
 const WalletContextProvider = ({ children }) => {
 	const arconnect = useArConnect();
@@ -32,6 +36,7 @@ const WalletContextProvider = ({ children }) => {
 	});
 	const [loading, setLoading] = useState(false);
 	const [isArConnectLoaded, setArConnectLoaded] = useState(false);
+	const [isMounted, setMounted] = useState(false);
 	const { user } = useContext(UserContext);
 	const { address } = wallet;
 	const { id: userId } = user;
@@ -81,11 +86,17 @@ const WalletContextProvider = ({ children }) => {
 	}, [arconnect]);
 
 	useEffect(() => {
+		if (isMounted) {
+			return () => {};
+		}
 		if (!isEmpty(address) && !isEmpty(userId)) {
+			setMounted(true);
 			(async () => {
 				try {
-					const { id: walletId } = await saveWallet(user, address);
-					const [{ id: linkId }, conversions] = await saveInviteLink(walletId);
+					const { id: walletId } = await saveWalletOnce(user, address);
+					const [{ id: linkId }, conversions] = await saveInviteLinkOnce(
+						walletId
+					);
 					setWallet({
 						...wallet,
 						id: walletId,
@@ -96,7 +107,8 @@ const WalletContextProvider = ({ children }) => {
 				}
 			})();
 		}
-	}, [address, userId]);
+		return () => {};
+	}, [address, userId, isMounted]);
 
 	useEffect(() => {
 		// Check first if ArConnect has loaded.

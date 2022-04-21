@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect } from "react";
 import {
 	Pane,
 	Heading,
@@ -9,16 +9,17 @@ import {
 	Alert
 } from "evergreen-ui";
 import { css } from "@linaria/core";
+import { Usher } from "usher-js";
 
-import { useWallet, useContract } from "@/hooks/";
+import { useUser, useWallet, useContract } from "@/hooks/";
 import { MAX_SCREEN_WIDTH, TABLET_BREAKPOINT } from "@/constants";
 import AffiliateLink from "@/components/AffiliateLink";
 import ValueCard from "@/components/ValueCard";
 import ClaimButton from "@/components/ClaimButton";
 import Terms from "@/components/Terms";
 import Progress from "@/components/Progress";
-
-const getInviteLink = (id = "") => `${window.location.origin}/invite/${id}`;
+import { advertiser } from "@/env-config";
+import getInviteLink from "@/utils/get-invite-link";
 
 const DashboardScreen = () => {
 	const { colors } = useTheme();
@@ -31,6 +32,7 @@ const DashboardScreen = () => {
 		},
 		isContractLoading
 	] = useContract();
+	const [user] = useUser();
 	const { id: linkId, conversions = { total: 0, pending: 0, success: 0 } } =
 		wallet?.link || {};
 	const inviteLink = linkId ? getInviteLink(linkId) : "";
@@ -46,6 +48,17 @@ const DashboardScreen = () => {
 			),
 			[]
 		);
+
+	useEffect(() => {
+		const eventPayload = {
+			id: advertiser.usherContractAddress,
+			nativeId: user.id,
+			properties: {
+				walletAddress: wallet.address
+			}
+		};
+		Usher("event", eventPayload);
+	}, []);
 
 	return (
 		<Pane
@@ -86,7 +99,8 @@ const DashboardScreen = () => {
 								justifyContent="space-between"
 							>
 								<Paragraph width="100%">
-									👆&nbsp;&nbsp;Share this Affiliate link to earn
+									👆&nbsp;&nbsp;Click and Copy to share this Affiliate link and
+									earn
 								</Paragraph>
 							</Pane>
 						</Pane>

@@ -12,7 +12,8 @@ import { supabase } from "@/utils/supabase-client";
 import { identifyUser } from "@/utils/signals";
 import { setUser as setErrorTrackingUser } from "@/utils/handle-exception";
 import useAuthStateChange from "@/hooks/use-auth-state-change";
-import { checkCaptcha } from "@/actions/user";
+import { checkCaptcha, authorise } from "@/actions/user";
+import delay from "@/utils/delay";
 
 export const UserContext = createContext();
 
@@ -35,18 +36,16 @@ const UserContextProvider = ({ children }) => {
 				setUser(checkedUser);
 				setErrorTrackingUser(checkedUser);
 				identifyUser(checkedUser);
-				setLoading(false);
 				return checkedUser;
 			}
 		}
-		setLoading(false);
 		return {};
 	}, []);
 
 	const signIn = useCallback(
 		async (options = {}) => {
 			setLoading(true);
-			const r = await supabase.auth.signIn(options);
+			const r = await authorise(options);
 			setLoading(false);
 			return r;
 		},
@@ -63,12 +62,17 @@ const UserContextProvider = ({ children }) => {
 	useAuthStateChange((event) => {
 		switch (event) {
 			case "SIGNED_IN": {
-				// Re-fetch user on sign in
-				getUser();
+				// Fetch user on sign in
+				getUser().finally(() => {
+					setLoading(false);
+				});
 				break;
 			}
 			case "SIGNED_OUT": {
-				window.location.reload();
+				(async () => {
+					await delay(1000);
+					window.location.reload();
+				})();
 				break;
 			}
 			default: {
@@ -78,10 +82,30 @@ const UserContextProvider = ({ children }) => {
 	});
 
 	// On render, fetch user from session
+	let interval;
 	useEffect(() => {
+		if (user.id) {
+			clearInterval(interval);
+			setLoading(false);
+			return () => {};
+		}
 		//* Because the system uses OTP -- this is the only point where the User State is set.
-		getUser();
-	}, []);
+		(async () => {
+			// Fetch user on an interval
+			interval = setInterval(async () => {
+				const respUser = await getUser();
+				if (respUser.id) {
+					clearInterval(interval);
+					setLoading(false);
+				}
+			}, 500);
+			// Clear the interval after two seconds -- will ensure that the authorised should always be fetched regardless of if supabase event fires.
+			await delay(2000);
+			clearInterval(interval);
+			setLoading(false);
+		})();
+		return () => {};
+	}, [user]);
 
 	const value = useMemo(
 		() => ({

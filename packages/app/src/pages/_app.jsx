@@ -4,8 +4,6 @@ import PropTypes from "prop-types";
 
 import "modern-normalize";
 
-import UserProvider from "@/providers/User";
-import WalletProvider from "@/providers/Wallet";
 import ContractProvider from "@/providers/Contract";
 import { setup as setupSignals } from "@/utils/signals";
 
@@ -21,16 +19,12 @@ const App = ({ Component, pageProps }) => {
 	const { seo = {} } = pageProps;
 
 	return (
-		<UserProvider>
-			<WalletProvider>
-				<ContractProvider>
-					<main id="usher-app">
-						<DefaultSeo title="Usher" {...seo} />
-						<Component {...pageProps} />
-					</main>
-				</ContractProvider>
-			</WalletProvider>
-		</UserProvider>
+		<ContractProvider>
+			<main id="usher-app">
+				<DefaultSeo title="Usher" {...seo} />
+				<Component {...pageProps} />
+			</main>
+		</ContractProvider>
 	);
 };
 

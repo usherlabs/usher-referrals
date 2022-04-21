@@ -8,7 +8,8 @@ const saveWallet = async (user, address) => {
 	const sSel = await supabase
 		.from("wallets")
 		.select(`id`)
-		.eq("address", address);
+		.eq("address", address)
+		.order("created_at", { ascending: false });
 	if (sSel.error && sSel.status !== 406) {
 		throw sSel.error;
 	}
