@@ -11,12 +11,13 @@ import {
 } from "evergreen-ui";
 // import PropTypes from "prop-types";
 
-import { useUser } from "@/hooks/";
+import { useUser, useWallet } from "@/hooks/";
 import handleException from "@/utils/handle-exception";
 import * as alerts from "@/utils/alerts";
 
 const EmailConnectScreen = () => {
 	const [, isLoading, { signIn }] = useUser();
+	const [wallet] = useWallet();
 	const [isDisabled, setDisabled] = useState(false);
 	const [value, setValue] = useState("");
 
@@ -28,7 +29,8 @@ const EmailConnectScreen = () => {
 		setDisabled(true);
 		// Connect with Email
 		const { error } = await signIn({
-			email: value
+			email: value,
+			wallet: wallet.address
 		});
 		setTimeout(() => {
 			setDisabled(false);

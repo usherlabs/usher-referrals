@@ -5,6 +5,7 @@
 
 import * as yup from "yup";
 import got from "got";
+import { URL } from "url";
 
 import { supabase } from "@/utils/supabase-client";
 import getHandler from "@/server/middleware";
@@ -13,6 +14,7 @@ import {
 	postmarkTemplates,
 	emailFrom
 } from "@/server/env-config";
+import { SKIPPED_WALLET_ADDRESS } from "@/constants";
 
 const handler = getHandler();
 
@@ -30,7 +32,7 @@ handler.post(async (req, res) => {
 			success: false
 		});
 	}
-	const { email } = body;
+	const { email, wallet } = body;
 
 	// create user first if user does not exist -- will throw if user exists
 	// Alternative approach -- https://github.com/supabase/supabase/discussions/1282
@@ -58,11 +60,21 @@ handler.post(async (req, res) => {
 	if (sResp.error && sResp.status !== 406) {
 		throw sResp.error;
 	}
-	const { action_link: link } = sResp.data;
 	req.log.info(
 		{ email: { sResp } },
 		`${isNewUser ? "Sign Up" : "Existing"} Magic link`
 	);
+
+	let { action_link: link } = sResp.data;
+	// Keep wallet skip logic even after the magic link auth process
+	if (wallet === SKIPPED_WALLET_ADDRESS) {
+		const linkUrl = new URL(link);
+		const redirectTo = linkUrl.searchParams.get("redirect_to");
+		const redirectToUrl = new URL(redirectTo);
+		redirectToUrl.searchParams.set("skip_wallet", true);
+		linkUrl.searchParams.set("redirect_to", redirectToUrl.href);
+		link = linkUrl.href;
+	}
 
 	let templateId = postmarkTemplates.signIn;
 	if (isNewUser && postmarkTemplates.signUp) {

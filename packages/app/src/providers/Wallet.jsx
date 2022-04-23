@@ -51,6 +51,19 @@ const WalletContextProvider = ({ children }) => {
 		}
 	}, [arconnect]);
 
+	const skipWallet = useCallback(() => {
+		// ...
+	}, []);
+
+	const getWalletFromQuery = useCallback(() => {
+		const searchParams = new URLSearchParams(window.location.search);
+		const skipWalletVal = searchParams.get("skip_wallet");
+		const shouldSkipWallet = skipWalletVal === true || skipWalletVal === "true";
+		if (shouldSkipWallet && !address) {
+			skipWallet();
+		}
+	}, [address]);
+
 	const getWallet = useCallback(
 		async (shouldConnect = false) => {
 			setLoading(true);
@@ -130,6 +143,8 @@ const WalletContextProvider = ({ children }) => {
 			// Check if wallet exists if it does not already exist
 			getWallet();
 		}
+
+		getWalletFromQuery();
 
 		return () => {};
 	}, [isArConnectLoaded]);

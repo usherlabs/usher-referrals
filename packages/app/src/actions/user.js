@@ -37,11 +37,12 @@ export const submitCaptcha = async (token) => {
 	return response.success;
 };
 
-export const authorise = async ({ email }) => {
+export const authorise = async ({ email, wallet }) => {
 	const response = await request
 		.post("auth", {
 			json: {
-				email
+				email,
+				wallet
 			}
 		})
 		.json();
