@@ -1,8 +1,7 @@
 {
 	"name": "usher",
-	"version": "0.0.2",
+	"version": "0.0.3",
 	"description": "Usher Core Repo -- Affiliate Marketing for PSCs",
-	"main": "index.js",
 	"repository": "git@gitlab.com:usherlabs/core.git",
 	"homepage": "https://usher.so/",
 	"author": "Ryan Soury <ryan@usher.so>",
@@ -10,10 +9,11 @@
 	"private": true,
 	"scripts": {},
 	"devDependencies": {
-		"lerna": "^4.0.0",
-		"prettier": "^2.5.1"
+		"prettier": "^2.5.1",
+		"turbo": "^1.2.5"
 	},
-	"dependencies": {
-		"@prisma/client": "3.12.0"
-	}
+	"dependencies": {},
+	"workspaces": [
+		"packages/*"
+	]
 }

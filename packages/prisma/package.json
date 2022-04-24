@@ -1,16 +1,16 @@
 {
-  "name": "@usher/prisma",
-  "version": "0.0.2",
-  "description": "Usher Prisma Package",
-  "main": "index.js",
-  "repository": "git@gitlab.com:usherlabs/core.git",
-  "author": "Ryan Soury <ryan@usher.so>",
-  "license": "UNLICENSED",
-  "private": true,
-  "devDependencies": {
-    "prisma": "^3.12.0"
-  },
-  "dependencies": {
-    "@prisma/client": "^3.12.0"
-  }
+	"name": "@usher/prisma",
+	"version": "0.0.3",
+	"description": "Usher Prisma Package",
+	"main": "index.js",
+	"repository": "git@gitlab.com:usherlabs/core.git",
+	"author": "Ryan Soury <ryan@usher.so>",
+	"license": "UNLICENSED",
+	"private": true,
+	"devDependencies": {
+		"prisma": "^3.12.0"
+	},
+	"dependencies": {
+		"@prisma/client": "^3.12.0"
+	}
 }

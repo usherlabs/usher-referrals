@@ -1,0 +1,46 @@
+[35m@usher/app:build: [0mcache hit, replaying output [2m90d13470b0741de0[0m
+[35m@usher/app:build: [0m$ next build
+[35m@usher/app:build: [0minfo  - Loaded env from /Users/ryansoury/dev/usher/core/packages/app/.env
+[35m@usher/app:build: [0mWelcome to Next.js - Node Env: production
+[35m@usher/app:build: [0minfo  - Checking validity of types...
+[35m@usher/app:build: [0m
+[35m@usher/app:build: [0m./src/pages/satellite.jsx
+[35m@usher/app:build: [0m13:3  Warning: Unexpected console statement.  no-console
+[35m@usher/app:build: [0m
+[35m@usher/app:build: [0minfo  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/basic-features/eslint#disabling-rules
+[35m@usher/app:build: [0minfo  - Creating an optimized production build...
+[35m@usher/app:build: [0minfo  - Disabled SWC as replacement for Babel because of custom Babel configuration "babel.config.js" https://nextjs.org/docs/messages/swc-disabled
+[35m@usher/app:build: [0minfo  - Using external babel configuration from /Users/ryansoury/dev/usher/core/packages/app/babel.config.js
+[35m@usher/app:build: [0minfo  - Compiled successfully
+[35m@usher/app:build: [0minfo  - Collecting page data...
+[35m@usher/app:build: [0minfo  - Generating static pages (0/4)
+[35m@usher/app:build: [0minfo  - Generating static pages (1/4)
+[35m@usher/app:build: [0minfo  - Generating static pages (2/4)
+[35m@usher/app:build: [0minfo  - Generating static pages (3/4)
+[35m@usher/app:build: [0minfo  - Generating static pages (4/4)
+[35m@usher/app:build: [0minfo  - Finalizing page optimization...
+[35m@usher/app:build: [0m
+[35m@usher/app:build: [0mPage                                       Size     First Load JS
+[35m@usher/app:build: [0m┌ ○ /                                      41.6 kB         244 kB
+[35m@usher/app:build: [0m├   └ css/44fb6f01acc67a13.css             175 B
+[35m@usher/app:build: [0m├   /_app                                  0 B             159 kB
+[35m@usher/app:build: [0m├ λ /404                                   1.76 kB         161 kB
+[35m@usher/app:build: [0m├ λ /api/auth                              0 B             159 kB
+[35m@usher/app:build: [0m├ λ /api/bot                               0 B             159 kB
+[35m@usher/app:build: [0m├ λ /api/captcha                           0 B             159 kB
+[35m@usher/app:build: [0m├ λ /api/invite/[id]                       0 B             159 kB
+[35m@usher/app:build: [0m├ λ /api/satellite/consume                 0 B             159 kB
+[35m@usher/app:build: [0m├ λ /api/user/captcha                      0 B             159 kB
+[35m@usher/app:build: [0m├ ○ /invite/[id]                           10.4 kB         213 kB
+[35m@usher/app:build: [0m├ ○ /link-error (569 ms)                   2.48 kB         162 kB
+[35m@usher/app:build: [0m└ ○ /satellite                             4.81 kB         164 kB
+[35m@usher/app:build: [0m+ First Load JS shared by all              159 kB
+[35m@usher/app:build: [0m  ├ chunks/framework-71b7ac9748a53568.js   42 kB
+[35m@usher/app:build: [0m  ├ chunks/main-10b1fde5779f39fd.js        24.9 kB
+[35m@usher/app:build: [0m  ├ chunks/pages/_app-33a262788493b561.js  90.5 kB
+[35m@usher/app:build: [0m  ├ chunks/webpack-6032943bff31255e.js     1.92 kB
+[35m@usher/app:build: [0m  └ css/dcce9477497551fc.css               797 B
+[35m@usher/app:build: [0m
+[35m@usher/app:build: [0mλ  (Server)  server-side renders at runtime (uses getInitialProps or getServerSideProps)
+[35m@usher/app:build: [0m○  (Static)  automatically rendered as static HTML (uses no initial props)
+[35m@usher/app:build: [0m
