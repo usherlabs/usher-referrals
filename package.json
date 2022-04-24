@@ -14,5 +14,7 @@
 		"prettier": "^2.5.1",
 		"prisma": "^3.12.0"
 	},
-	"dependencies": {}
+	"dependencies": {
+		"@prisma/client": "3.12.0"
+	}
 }
