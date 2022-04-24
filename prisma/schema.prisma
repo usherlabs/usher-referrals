@@ -8,7 +8,7 @@ datasource db {
 }
 
 model Affiliates {
-  id              String        @id(map: "invite_links_pkey") @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id              String        @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   created_at      DateTime?     @default(now()) @db.Timestamptz(6)
   active          Boolean?      @default(true)
   destination_url String?       @db.VarChar
@@ -27,7 +27,7 @@ model Campaigns {
 }
 
 model Conversions {
-  id             String      @id(map: "conversions_pkey1") @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id             String      @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   created_at     DateTime?   @default(now()) @db.Timestamptz(6)
   native_id      String?     @db.VarChar
   properties     Json?       @db.Json
@@ -52,7 +52,7 @@ model Referrals {
 }
 
 model UserCaptchaLogEntries {
-  id         BigInt    @id(map: "user_captcha_pkey") @default(autoincrement())
+  id         BigInt    @id @default(autoincrement())
   created_at DateTime? @default(now()) @db.Timestamptz(6)
   token      String?   @db.VarChar
   is_success Boolean?

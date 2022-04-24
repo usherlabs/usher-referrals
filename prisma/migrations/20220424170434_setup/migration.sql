@@ -6,7 +6,7 @@ CREATE TABLE "Affiliates" (
     "destination_url" VARCHAR,
     "campaign_id" BIGINT,
 
-    CONSTRAINT "invite_links_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Affiliates_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -27,7 +27,7 @@ CREATE TABLE "Conversions" (
     "properties" JSON,
     "referral_id" UUID,
 
-    CONSTRAINT "conversions_pkey1" PRIMARY KEY ("id")
+    CONSTRAINT "Conversions_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -58,7 +58,7 @@ CREATE TABLE "UserCaptchaLogEntries" (
     "response" JSON,
     "user_id" UUID,
 
-    CONSTRAINT "user_captcha_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "UserCaptchaLogEntries_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
