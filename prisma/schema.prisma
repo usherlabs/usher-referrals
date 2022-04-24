@@ -1,0 +1,72 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Affiliates {
+  id              String        @id(map: "invite_links_pkey") @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  created_at      DateTime?     @default(now()) @db.Timestamptz(6)
+  active          Boolean?      @default(true)
+  destination_url String?       @db.VarChar
+  campaign_id     BigInt?
+  conversions     Conversions[]
+  profiles        Profiles[]
+  referrals       Referrals[]
+  campaigns       Campaigns?    @relation(fields: [campaign_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model Campaigns {
+  id          BigInt       @id @default(autoincrement())
+  created_at  DateTime?    @default(now()) @db.Timestamptz(6)
+  campaign_id String?      @db.VarChar
+  network     String?      @db.VarChar
+  affiliates  Affiliates[]
+}
+
+model Conversions {
+  id               String      @id(map: "conversions_pkey1") @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  created_at       DateTime?   @default(now()) @db.Timestamptz(6)
+  native_id        String?     @db.VarChar
+  properties       Json?       @db.Json
+  invite_link_id   String?     @db.Uuid
+  referral_id      String?     @db.Uuid
+  affiliates       Affiliates? @relation(fields: [invite_link_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  referrals        Referrals?  @relation(fields: [referral_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model Profiles {
+  id           BigInt      @id @default(autoincrement())
+  created_at   DateTime?   @default(now()) @db.Timestamptz(6)
+  user_id      String?     @db.Uuid
+  affiliate_id String?     @db.Uuid
+  affiliates   Affiliates? @relation(fields: [affiliate_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model Referrals {
+  id           String        @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  created_at   DateTime?     @default(now()) @db.Timestamptz(6)
+  affiliate_id String?       @db.Uuid
+  conversions  Conversions[]
+  affiliates   Affiliates?   @relation(fields: [affiliate_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model UserCaptchaLogEntries {
+  id         BigInt    @id(map: "user_captcha_pkey") @default(autoincrement())
+  created_at DateTime? @default(now()) @db.Timestamptz(6)
+  token      String?   @db.VarChar
+  is_success Boolean?
+  response   Json?     @db.Json
+  user_id    String?   @db.Uuid
+}
+
+model Wallets {
+  address    String
+  created_at DateTime?    @default(now()) @db.Timestamp(6)
+  updated_at DateTime?    @db.Timestamp(6)
+  user_id    String?      @db.Uuid
+  id         String       @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+}
