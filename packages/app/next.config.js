@@ -2,7 +2,6 @@
 const { createSecureHeaders } = require("next-secure-headers");
 const withLinaria = require("next-linaria");
 
-const { alias } = require("./config/alias");
 const pkg = require("./package.json");
 
 const isProd = process.env.NODE_ENV === "production";
@@ -48,14 +47,6 @@ const nextConfig = {
 	},
 
 	webpack: (config, { isServer }) => {
-		// Add alias to Webpack
-		const aliasToApply = {
-			...config.resolve.alias,
-			...alias
-		};
-
-		config.resolve.alias = aliasToApply;
-
 		if (isServer) {
 			// Till undici 4 haven't landed in prisma, we need this for docker/alpine
 			// @see https://github.com/prisma/prisma/issues/6925#issuecomment-905935585
