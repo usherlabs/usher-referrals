@@ -1,13 +1,11 @@
-import { AppProps } from "next/app";
 // import { useEffect } from "react";
 // import { DefaultSeo } from "next-seo";
-
 import "modern-normalize";
-
 // import ContractProvider from "@/providers/Contract";
 // import { setup as setupSignals } from "@/utils/signals";
-
 import "@/styles/styles.scss";
+
+import { AppProps } from "next/app";
 
 const App = ({ Component, pageProps }: AppProps) => {
 	// useEffect(() => {
@@ -28,7 +26,9 @@ const App = ({ Component, pageProps }: AppProps) => {
 	// );
 
 	return (
-		<main id="usher-app"><Component {...pageProps} /></main>
+		<main id="usher-app">
+			<Component {...pageProps} />
+		</main>
 	);
 };
 
