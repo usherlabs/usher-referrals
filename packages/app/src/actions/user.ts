@@ -3,7 +3,7 @@ import { User } from "@/types";
 import { supabase } from "@/utils/supabase-client";
 import { request, getAuthRequest } from "@/utils/browser-request";
 
-export const checkCaptcha = async (user: User) => {
+export const checkCaptcha = async (user: User): Promise<boolean> => {
 	// Check if the user has completed a captcha previously
 	//* This check subject to change depending on how rigorous bot prevention at auth becomes.
 	const sSel = await supabase
@@ -24,10 +24,10 @@ export const checkCaptcha = async (user: User) => {
 	return false;
 };
 
-export const submitCaptcha = async (token: string) => {
+export const submitCaptcha = async (token: string): Promise<boolean> => {
 	// Submit token to endpoint that requires auth
 	const req = await getAuthRequest();
-	const response = await req
+	const response: { success: boolean } = await req
 		.post("user/captcha", {
 			json: {
 				token
@@ -45,8 +45,8 @@ export const authorise = async ({
 }: {
 	email: string;
 	wallet: string;
-}) => {
-	const response = await request
+}): Promise<boolean> => {
+	const response: { success: boolean } = await request
 		.post("auth", {
 			json: {
 				email,

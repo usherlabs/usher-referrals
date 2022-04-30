@@ -6,6 +6,7 @@ import React, {
 	useMemo,
 	useState
 } from "react";
+import { ApiError } from "@supabase/supabase-js";
 
 import { User } from "@/types";
 import { authorise, checkCaptcha } from "@/actions/user";
@@ -24,9 +25,10 @@ type ContextType = {
 	setUser: (user: User | null) => void;
 	removeUser: () => void;
 	getUser: () => Promise<User | null>;
-	signIn: () => Promise<void>;
-	signOut: () => Promise<void>;
+	signIn: (options: SignInOptions) => Promise<boolean>;
+	signOut: () => Promise<{ error: ApiError | null }>;
 };
+type SignInOptions = { email: string; wallet: string };
 
 export const UserContext = createContext<ContextType>({
 	user: null,
@@ -37,10 +39,10 @@ export const UserContext = createContext<ContextType>({
 		return null;
 	},
 	async signIn() {
-		return undefined;
+		return false;
 	},
 	async signOut() {
-		return undefined;
+		return { error: null };
 	}
 });
 
@@ -55,7 +57,7 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 		// Fetch Currently authenticated Discord User from Supabase
 		const u = supabase.auth.user();
 		console.log("getUser: ", u);
-		if (!isEmpty(u)) {
+		if (!isEmpty(u) && u !== null) {
 			if (u.role === "authenticated") {
 				// Here we fetch user verifications
 				const captcha = await checkCaptcha(u);
@@ -66,11 +68,11 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 				return checkedUser;
 			}
 		}
-		return {};
+		return null;
 	}, []);
 
 	const signIn = useCallback(
-		async (options = {}) => {
+		async (options: SignInOptions) => {
 			setLoading(true);
 			const r = await authorise(options);
 			setLoading(false);
@@ -123,9 +125,11 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 			// Fetch user on an interval
 			interval = setInterval(async () => {
 				const respUser = await getUser();
-				if (respUser.id) {
-					clearInterval(interval);
-					setLoading(false);
+				if (respUser !== null && !isEmpty(respUser)) {
+					if (respUser.id) {
+						clearInterval(interval);
+						setLoading(false);
+					}
 				}
 			}, 500);
 			// Clear the interval after two seconds -- will ensure that the authorised should always be fetched regardless of if supabase event fires.
