@@ -9,7 +9,7 @@ export type Props = PaneProps & {
 	description?: string | React.ElementType;
 	placeholder?: string;
 	error?: string;
-	children: React.ReactNode;
+	children?: React.ReactNode;
 	isRequired?: boolean;
 	iconLeft?: React.ElementType;
 	iconRight?: React.ElementType;

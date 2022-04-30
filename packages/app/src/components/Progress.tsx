@@ -5,11 +5,11 @@ import isEmpty from "lodash/isEmpty";
 export type Props = {
 	label: string;
 	value: number;
-	height: number;
-	showPercentage: boolean;
-	step: number;
-	totalSteps: number;
-	message: string;
+	height?: number;
+	showPercentage?: boolean;
+	step?: number;
+	totalSteps?: number;
+	message?: string;
 };
 
 /**

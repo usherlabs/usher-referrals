@@ -5,17 +5,16 @@
 import React from "react";
 import { Text, Pane } from "evergreen-ui";
 
-import InputField from "@/components/InputField";
+import InputField, { Props as InputFieldProps } from "@/components/InputField";
 
-type Props = {
+type Props = InputFieldProps & {
 	value: string | number;
-	ticker: string;
+	ticker?: string;
 };
 
 const ValueCard: React.FC<Props> = ({ value, ticker, ...props }) => {
 	return (
 		<InputField
-			id="affiliate-link"
 			label="Affiliate Link"
 			iconSize={18}
 			background="tint2"

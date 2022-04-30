@@ -6,31 +6,13 @@ import React, {
 	useCallback
 } from "react";
 
+import { Contract, IContractContext, ContractConflictStrategy } from "@/types";
 import handleException from "@/utils/handle-exception";
 import * as alerts from "@/utils/alerts";
 import { getContract as getContractState } from "@/utils/contract";
 
 type Props = {
 	children: React.ReactNode;
-};
-
-type Token = {
-	name: string;
-	ticker: string;
-	type: string;
-};
-
-type Contract = {
-	strategy: string;
-	rate: number;
-	token: Token;
-	limit: number;
-};
-
-type ContextType = {
-	contract: Contract;
-	loading: boolean;
-	getContract: () => Promise<Contract>;
 };
 
 const defaultContractValues = {
@@ -41,10 +23,11 @@ const defaultContractValues = {
 		ticker: "",
 		type: ""
 	},
-	limit: 0
+	limit: 0,
+	conflictStrategy: ContractConflictStrategy.PASSTHROUGH
 } as const;
 
-export const ContractContext = createContext<ContextType>({
+export const ContractContext = createContext<IContractContext>({
 	contract: defaultContractValues,
 	loading: false,
 	async getContract() {

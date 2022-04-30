@@ -9,15 +9,4 @@ export const TABLET_BREAKPOINT = 767 as const;
 
 export const CONVERSION_COOKIE_NAME = "__usher_cid" as const;
 
-// export const CONTRACT_STRATEGY = {
-// 	FLAT: "flat",
-// 	PERCENT: "percent",
-// 	EQUITY: "equity"
-// };
-
-export const CONTRACT_INVITE_CONFLICT_STRATEGY = {
-	OVERWRITE: "overwrite",
-	PASSTHROUGH: "passthrough"
-} as const;
-
 export const SKIPPED_WALLET_ADDRESS = "__SKIPPED__" as const;

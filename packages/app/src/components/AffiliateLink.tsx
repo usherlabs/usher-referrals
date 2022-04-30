@@ -1,13 +1,18 @@
 import React, { useCallback } from "react";
 import { css } from "@linaria/core";
-import { toaster, TextInput, ClipboardIcon, useTheme } from "evergreen-ui";
+import {
+	toaster,
+	TextInput,
+	ClipboardIcon,
+	useTheme,
+	PaneProps
+} from "evergreen-ui";
 import CopyToClipboard from "react-copy-to-clipboard";
 
 import InputField from "@/components/InputField";
 
-export type Props = {
+export type Props = PaneProps & {
 	link?: string;
-	props: Record<string, any>;
 };
 
 const AffiliateLink: React.FC<Props> = ({ link, ...props }) => {

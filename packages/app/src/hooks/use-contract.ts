@@ -5,13 +5,13 @@ import { ContractContext } from "@/providers/Contract";
 function useContract() {
 	const { contract, loading, getContract } = useContext(ContractContext);
 
-	return [
+	return {
 		contract,
-		loading,
-		{
+		isLoading: loading,
+		actions: {
 			getContract
 		}
-	];
+	};
 }
 
 export default useContract;

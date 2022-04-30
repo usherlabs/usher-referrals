@@ -1,34 +1,28 @@
-// import { useEffect } from "react";
-// import { DefaultSeo } from "next-seo";
+import React, { useEffect } from "react";
+import { DefaultSeo } from "next-seo";
 import "modern-normalize";
-// import ContractProvider from "@/providers/Contract";
-// import { setup as setupSignals } from "@/utils/signals";
+import ContractProvider from "@/providers/Contract";
+import { setup as setupSignals } from "@/utils/signals";
 import "@/styles/styles.scss";
 
 import { AppProps } from "next/app";
 
 const App = ({ Component, pageProps }: AppProps) => {
-	// useEffect(() => {
-	// 	if (typeof window !== "undefined") {
-	// 		setupSignals();
-	// 	}
-	// }, []);
+	useEffect(() => {
+		if (typeof window !== "undefined") {
+			setupSignals();
+		}
+	}, []);
 
-	// const { seo = {} } = pageProps;
-
-	// return (
-	// 	<ContractProvider>
-	// 		<main id="usher-app">
-	// 			<DefaultSeo title="Usher" {...seo} />
-	// 			<Component {...pageProps} />
-	// 		</main>
-	// 	</ContractProvider>
-	// );
+	const { seo = {} } = pageProps;
 
 	return (
-		<main id="usher-app">
-			<Component {...pageProps} />
-		</main>
+		<ContractProvider>
+			<main id="usher-app">
+				<DefaultSeo title="Usher" {...seo} />
+				<Component {...pageProps} />
+			</main>
+		</ContractProvider>
 	);
 };
 

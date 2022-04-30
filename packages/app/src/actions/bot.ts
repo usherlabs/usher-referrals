@@ -1,8 +1,8 @@
 import { request } from "@/utils/browser-request";
 
-export const checkBotDetect = async (token: string) => {
+export const checkBotDetect = async (token: string): Promise<boolean> => {
 	// Submit token to endpoint that requires auth
-	const response = await request
+	const response: { success: boolean } = await request
 		.post("bot", {
 			json: {
 				token
@@ -14,9 +14,9 @@ export const checkBotDetect = async (token: string) => {
 	return response.success;
 };
 
-export const submitCaptcha = async (token: string) => {
+export const submitCaptcha = async (token: string): Promise<boolean> => {
 	// Submit token to endpoint that requires auth
-	const response = await request
+	const response: { success: boolean } = await request
 		.post("captcha", {
 			json: {
 				token

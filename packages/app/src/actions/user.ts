@@ -1,3 +1,4 @@
+import { ApiError } from "@supabase/supabase-js";
 import ono from "@jsdevtools/ono";
 import { User } from "@/types";
 import { supabase } from "@/utils/supabase-client";
@@ -45,7 +46,7 @@ export const authorise = async ({
 }: {
 	email: string;
 	wallet: string;
-}): Promise<boolean> => {
+}): Promise<{ error: ApiError | null }> => {
 	const response: { success: boolean } = await request
 		.post("auth", {
 			json: {
@@ -56,5 +57,5 @@ export const authorise = async ({
 		.json();
 	console.log(response);
 
-	return response.success;
+	return response;
 };

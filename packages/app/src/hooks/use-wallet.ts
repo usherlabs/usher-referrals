@@ -12,16 +12,16 @@ function useWallet() {
 		setWallet
 	} = useContext(WalletContext);
 
-	return [
+	return {
 		wallet,
-		loading,
+		isLoading: loading,
 		isArConnectLoaded,
-		{
+		actions: {
 			removeWallet,
 			getWallet,
 			setWallet
 		}
-	];
+	};
 }
 
 export default useWallet;

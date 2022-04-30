@@ -10,7 +10,7 @@ import useArConnect from "use-arconnect";
 import isEmpty from "lodash/isEmpty";
 import once from "lodash/once";
 
-import { User } from "@/types";
+import { User, Wallet, IWalletContext } from "@/types";
 import delay from "@/utils/delay";
 import handleException from "@/utils/handle-exception";
 import { saveWallet, getSkippedWallet } from "@/actions/wallet";
@@ -22,29 +22,6 @@ import { UserContext } from "./User";
 
 type Props = {
 	children: React.ReactNode;
-};
-
-type PartnershipLink = {
-	id: string;
-	conversions: {
-		total: number;
-		pending: number;
-		success: number;
-	};
-};
-
-type Wallet = {
-	address: string;
-	link: PartnershipLink;
-};
-
-type ContextType = {
-	wallet: Wallet;
-	loading: boolean;
-	isArConnectLoaded: boolean;
-	setWallet: (state: Wallet) => void;
-	removeWallet: () => void;
-	getWallet: (shouldConnect: boolean) => Promise<string>;
 };
 
 type ArConnectConnect = (
@@ -60,7 +37,7 @@ const defaultWalletValues = {
 	}
 };
 
-export const WalletContext = createContext<ContextType>({
+export const WalletContext = createContext<IWalletContext>({
 	wallet: defaultWalletValues,
 	loading: false,
 	isArConnectLoaded: false,

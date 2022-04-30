@@ -6,9 +6,8 @@ import React, {
 	useMemo,
 	useState
 } from "react";
-import { ApiError } from "@supabase/supabase-js";
 
-import { User } from "@/types";
+import { User, IUserContext, SignInOptions } from "@/types";
 import { authorise, checkCaptcha } from "@/actions/user";
 import useAuthStateChange from "@/hooks/use-auth-state-change";
 import delay from "@/utils/delay";
@@ -19,18 +18,8 @@ import { supabase } from "@/utils/supabase-client";
 type Props = {
 	children: React.ReactNode;
 };
-type ContextType = {
-	user: User | null;
-	loading: boolean;
-	setUser: (user: User | null) => void;
-	removeUser: () => void;
-	getUser: () => Promise<User | null>;
-	signIn: (options: SignInOptions) => Promise<boolean>;
-	signOut: () => Promise<{ error: ApiError | null }>;
-};
-type SignInOptions = { email: string; wallet: string };
 
-export const UserContext = createContext<ContextType>({
+export const UserContext = createContext<IUserContext>({
 	user: null,
 	loading: false,
 	setUser() {},
@@ -39,7 +28,7 @@ export const UserContext = createContext<ContextType>({
 		return null;
 	},
 	async signIn() {
-		return false;
+		return { error: null };
 	},
 	async signOut() {
 		return { error: null };

@@ -6,17 +6,17 @@ function useUser() {
 	const { user, loading, removeUser, getUser, setUser, signIn, signOut } =
 		useContext(UserContext);
 
-	return [
+	return {
 		user,
-		loading,
-		{
+		isLoading: loading,
+		actions: {
 			removeUser,
 			getUser,
 			setUser,
 			signIn,
 			signOut
 		}
-	];
+	};
 }
 
 export default useUser;

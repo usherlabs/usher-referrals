@@ -24,10 +24,10 @@ import { MAX_SCREEN_WIDTH, SKIPPED_WALLET_ADDRESS } from "@/constants";
 
 export type Props = {
 	walletAddress: string;
-	userProvider: string;
+	userProvider?: string;
 	username: string;
 	avatarUrl?: string;
-	disconnect: (e?: React.MouseEvent<HTMLElement>) => Promise<void>;
+	disconnect: () => void;
 	signOut: () => Promise<void>;
 };
 
@@ -146,9 +146,10 @@ const Header: React.FC<Props> = ({
 									<Menu>
 										<Menu.Item
 											icon={LogOutIcon}
-											onClick={(e: React.MouseEvent<HTMLElement>) => {
+											onClick={() => {
 												setLoading(true);
-												disconnect(e).finally(() => setLoading(false));
+												disconnect();
+												setLoading(false);
 											}}
 										>
 											Disconnect
