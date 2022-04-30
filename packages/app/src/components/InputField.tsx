@@ -1,19 +1,18 @@
 import React from "react";
-import { Pane, Strong, Paragraph, Spinner } from "evergreen-ui";
+import { Pane, Strong, Paragraph, Spinner, PaneProps } from "evergreen-ui";
 
 import ErrorText from "./ErrorText";
 
-export type Props = React.ComponentProps<typeof Pane> & {
+export type Props = PaneProps & {
 	id: string;
 	label?: string;
-	description?: string;
-	Description: React.ElementType;
+	description?: string | React.ElementType;
 	placeholder?: string;
 	error?: string;
 	children: React.ReactNode;
 	isRequired?: boolean;
-	iconLeft: React.ElementType;
-	iconRight: React.ElementType;
+	iconLeft?: React.ElementType;
+	iconRight?: React.ElementType;
 	iconSize?: number;
 	iconProps?: Record<string, any>;
 	labelSize?: number;
@@ -28,7 +27,6 @@ const InputField: React.FC<Props> = ({
 	id,
 	label,
 	description,
-	Description,
 	placeholder,
 	error,
 	children,
@@ -51,6 +49,11 @@ const InputField: React.FC<Props> = ({
 		id,
 		background: "inherit"
 	};
+
+	let Description: React.ElementType | undefined;
+	if (typeof description !== "string" && React.isValidElement(description)) {
+		Description = description;
+	}
 
 	return (
 		<Pane width="100%" {...props}>
@@ -75,15 +78,16 @@ const InputField: React.FC<Props> = ({
 					)}
 					<Strong size={labelSize}>{label}</Strong>
 				</Pane>
-				{description && (
+				{typeof description === "string" && description ? (
 					<Paragraph marginBottom={12} width="100%" {...descriptionProps}>
 						{description}
 					</Paragraph>
-				)}
-				{Description && (
-					<Pane marginBottom={12} width="100%" {...descriptionProps}>
-						<Description />
-					</Pane>
+				) : (
+					Description && (
+						<Pane marginBottom={12} width="100%" {...descriptionProps}>
+							<Description />
+						</Pane>
+					)
 				)}
 			</Pane>
 			<Pane
@@ -124,7 +128,6 @@ const InputField: React.FC<Props> = ({
 InputField.defaultProps = {
 	label: "",
 	description: "",
-	Description: undefined,
 	placeholder: "",
 	error: "",
 	children: undefined,
