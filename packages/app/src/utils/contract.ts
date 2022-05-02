@@ -1,5 +1,6 @@
 import isEmpty from "lodash/isEmpty";
 import delay from "@/utils/delay";
+import { ContractConflictStrategy } from "@/types";
 
 let ContractState = {};
 
@@ -15,7 +16,8 @@ export const getContract = async () => {
 				ticker: "AR",
 				type: "token"
 			},
-			limit: 60
+			limit: 60,
+			conflictStrategy: ContractConflictStrategy.PASSTHROUGH
 		}
 	};
 	// const contractAddress = advertiser.usherContractAddress;

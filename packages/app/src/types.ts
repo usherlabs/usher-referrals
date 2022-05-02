@@ -2,10 +2,18 @@ import { NextPageContext, NextApiRequest, NextApiResponse } from "next";
 import { User as UserType, Session, ApiError } from "@supabase/supabase-js";
 import { BaseLogger } from "express-pino-logger";
 
+/**
+ * ###### ENUMS ######
+ */
+
 export enum ContractConflictStrategy {
 	OVERWRITE = "OVERWRITE",
 	PASSTHROUGH = "PASSTHROUGH"
 }
+
+/**
+ * ###### TYPES ######
+ */
 
 export type User = UserType & {
 	verifications?: {
@@ -52,7 +60,7 @@ export type Contract = {
 	rate: number;
 	token: Token;
 	limit: number;
-	conflictStrategy: ContractInviteStrategy;
+	conflictStrategy: ContractConflictStrategy;
 };
 
 // Server Types
@@ -64,7 +72,7 @@ export interface ApiRequest extends NextApiRequest {
 export interface AuthApiRequest extends ApiRequest {
 	token: string;
 	session: Session;
-	user: User | null;
+	user: User;
 }
 
 export interface ApiResponse extends NextApiResponse {}

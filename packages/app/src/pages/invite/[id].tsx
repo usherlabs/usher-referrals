@@ -4,17 +4,17 @@ import { Pane } from "evergreen-ui";
 import Botd from "@fpjs-incubator/botd-agent";
 import Image from "next/image";
 import { useRouter } from "next/router";
+import ono from "@jsdevtools/ono";
 
-import {
-	CONVERSION_COOKIE_NAME,
-	CONTRACT_INVITE_CONFLICT_STRATEGY
-} from "@/constants";
+import { CONVERSION_COOKIE_NAME } from "@/constants";
 import { botdPublicKey } from "@/env-config";
 import Preloader from "@/components/Preloader";
 import { checkBotDetect, submitCaptcha } from "@/actions/bot";
 import Captcha from "@/components/Captcha";
 import { getDestinationUrl, createConversion } from "@/actions/invite";
 import { useContract } from "@/hooks/";
+import handleException from "@/utils/handle-exception";
+import { ContractConflictStrategy } from "@/types";
 
 import LogoImage from "@/assets/logo/Logo.png";
 
@@ -23,7 +23,7 @@ const Invite = () => {
 	const router = useRouter();
 	const { id } = router.query;
 	const {
-		contract: { inviteConflictStrategy },
+		contract: { conflictStrategy },
 		isLoading: isContractLoading
 	} = useContract(); // TODO: Pass in the id here to determine the correct Contract to fetch
 
@@ -48,12 +48,11 @@ const Invite = () => {
 			// If the Smart Contract has NOT defined that new Affiliate Links will overwrite the conversion
 			// The default behaviour is to simply skip replacing the conversion cookie if a valid one exists
 			if (
-				inviteConflictStrategy ===
-					CONTRACT_INVITE_CONFLICT_STRATEGY.OVERWRITE ||
+				conflictStrategy === ContractConflictStrategy.OVERWRITE ||
 				!existingConvId
 			) {
 				// If a valid converison tracking id is NOT already in cookie
-				const { convId } = await createConversion(id);
+				const { convId } = await createConversion(id as string);
 				if (convId) {
 					setCookie(null, CONVERSION_COOKIE_NAME, convId, {
 						maxAge: 30 * 60 * 60, // lasts 30 days -- //* This can be configured ...eventually.
@@ -74,12 +73,14 @@ const Invite = () => {
 	}, [id]);
 
 	const onCaptchaSuccess = useCallback(
-		async (token) => {
+		async (token: string) => {
 			// console.log(token);
 			const isSuccess = await submitCaptcha(token);
 			if (isSuccess) {
 				processInvite();
+				return true;
 			}
+			return false;
 		},
 		[id]
 	);
@@ -93,9 +94,16 @@ const Invite = () => {
 			const botd = await Botd.load({ publicKey: botdPublicKey });
 
 			// Get the visitor identifier when you need it.
-			const { requestId } = await botd.detect();
-			const result = await checkBotDetect(requestId);
-			if (!result) {
+			let shouldShowCaptcha = true;
+			const response = await botd.detect();
+			if ("error" in response) {
+				const { error } = response;
+				handleException(ono(error), null);
+			} else if ("requestId" in response) {
+				const { requestId } = response;
+				shouldShowCaptcha = await checkBotDetect(requestId);
+			}
+			if (shouldShowCaptcha) {
 				setShowCaptcha(true);
 				return;
 			}
