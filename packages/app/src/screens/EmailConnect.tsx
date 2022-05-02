@@ -12,7 +12,6 @@ import {
 // import PropTypes from "prop-types";
 
 import { useUser, useWallet } from "@/hooks/";
-import handleException from "@/utils/handle-exception";
 import * as alerts from "@/utils/alerts";
 
 const EmailConnectScreen = () => {
@@ -31,22 +30,14 @@ const EmailConnectScreen = () => {
 		}
 		setDisabled(true);
 		// Connect with Email
-		const { error } = await signIn({
+		const { success } = await signIn({
 			email: value,
 			wallet: wallet.address
 		});
 		setTimeout(() => {
 			setDisabled(false);
 		}, 5000);
-		if (error) {
-			if (error.status === 429) {
-				toaster.notify(
-					"An email with a Magic Link has already been sent to you!",
-					{ id: "magic-link-sent", duration: 10 }
-				);
-				return;
-			}
-			handleException(error, null);
+		if (!success) {
 			alerts.error();
 			return;
 		}

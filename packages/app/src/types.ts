@@ -106,7 +106,7 @@ export interface IUserActions {
 	setUser: (user: User | null) => void;
 	removeUser: () => void;
 	getUser: () => Promise<User | null>;
-	signIn: (options: SignInOptions) => Promise<{ error: ApiError | null }>;
+	signIn: (options: SignInOptions) => Promise<{ success: boolean }>;
 	signOut: () => Promise<{ error: ApiError | null }>;
 }
 

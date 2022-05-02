@@ -46,7 +46,7 @@ export const authorise = async ({
 }: {
 	email: string;
 	wallet: string;
-}): Promise<{ error: ApiError | null }> => {
+}): Promise<{ success: boolean }> => {
 	const response: { success: boolean } = await request
 		.post("auth", {
 			json: {
