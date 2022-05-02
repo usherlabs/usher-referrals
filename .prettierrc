@@ -9,6 +9,12 @@
 			"options": {
 				"useTabs": false
 			}
+		},
+		{
+			"files": ["*.ts", "*.tsx"],
+			"options": {
+				"parser": "typescript"
+			}
 		}
 	]
 }
