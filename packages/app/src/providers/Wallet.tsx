@@ -135,29 +135,29 @@ const WalletContextProvider: React.FC<Props> = ({ children }) => {
 			setMounted(true);
 			(async () => {
 				try {
-					let walletId = "";
-					let walletAddress = "";
-					if (isEmpty(address)) {
-						// Check if the address is skipped
-						const { id: wid, address: a } = await getSkippedWalletOnce(
-							user as User
-						);
-						walletAddress = a;
-						walletId = wid;
-					} else {
-						// This conditional block will be hit when a user clicks the "Connect Wallet Later"
-						const { id: wid } = await saveWalletOnce(user as User, address);
-						walletAddress = address;
-						walletId = wid;
-					}
-					const [{ id: linkId }, conversions] = await saveInviteLinkOnce(
-						walletId
-					);
-					setWallet({
-						...wallet,
-						address: walletAddress,
-						link: { id: linkId, conversions }
-					}); // set ids to state
+					// let walletId = "";
+					// let walletAddress = "";
+					// if (isEmpty(address)) {
+					// 	// Check if the address is skipped
+					// 	const { id: wid, address: a } = await getSkippedWalletOnce(
+					// 		user as User
+					// 	);
+					// 	walletAddress = a;
+					// 	walletId = wid;
+					// } else {
+					// 	// This conditional block will be hit when a user clicks the "Connect Wallet Later"
+					// 	const { id: wid } = await saveWalletOnce(user as User, address);
+					// 	walletAddress = address;
+					// 	walletId = wid;
+					// }
+					// const [{ id: linkId }, conversions] = await saveInviteLinkOnce(
+					// 	walletId
+					// );
+					// setWallet({
+					// 	...wallet,
+					// 	address: walletAddress,
+					// 	link: { id: linkId, conversions }
+					// }); // set ids to state
 				} catch (e) {
 					if (e instanceof Error) {
 						handleException(e, null);

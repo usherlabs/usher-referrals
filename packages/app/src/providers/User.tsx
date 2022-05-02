@@ -8,12 +8,12 @@ import React, {
 } from "react";
 
 import { User, IUserContext, SignInOptions } from "@/types";
-import { authorise, checkCaptcha } from "@/actions/user";
+import { authorise, checkCaptcha, getProfile } from "@/actions/user";
 import useAuthStateChange from "@/hooks/use-auth-state-change";
 import delay from "@/utils/delay";
 import { setUser as setErrorTrackingUser } from "@/utils/handle-exception";
 import { identifyUser } from "@/utils/signals";
-import { supabase } from "@/utils/supabase-client";
+import auth from "@/utils/auth-client";
 
 type Props = {
 	children: React.ReactNode;
@@ -28,7 +28,7 @@ export const UserContext = createContext<IUserContext>({
 		return null;
 	},
 	async signIn() {
-		return { error: null };
+		return { success: false };
 	},
 	async signOut() {
 		return { error: null };
@@ -44,13 +44,14 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 	const getUser = useCallback(async () => {
 		setLoading(true);
 		// Fetch Currently authenticated Discord User from Supabase
-		const u = supabase.auth.user();
+		const u = auth.user();
 		console.log("getUser: ", u);
 		if (!isEmpty(u) && u !== null) {
 			if (u.role === "authenticated") {
 				// Here we fetch user verifications
-				const captcha = await checkCaptcha(u);
-				const checkedUser = { ...u, verifications: { captcha } };
+				const profile = await getProfile();
+				const captcha = await checkCaptcha();
+				const checkedUser = { ...u, profile, verifications: { captcha } };
 				setUser(checkedUser);
 				setErrorTrackingUser(checkedUser);
 				identifyUser(checkedUser);
@@ -72,7 +73,7 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 
 	const signOut = useCallback(async () => {
 		setLoading(true);
-		const r = await supabase.auth.signOut();
+		const r = await auth.signOut();
 		setLoading(false);
 		return r;
 	}, []);

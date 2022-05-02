@@ -1,10 +1,10 @@
 import { useEffect } from "react";
 
-import { supabase } from "@/utils/supabase-client";
+import auth from "@/utils/auth-client";
 
 const useAuthStateChange = (callback: (event: string) => void) => {
 	useEffect(() => {
-		const { data: authListener } = supabase.auth.onAuthStateChange(callback);
+		const { data: authListener } = auth.onAuthStateChange(callback);
 		return () => {
 			authListener?.unsubscribe();
 		};

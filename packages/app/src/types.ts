@@ -1,6 +1,6 @@
 import { NextPageContext, NextApiRequest, NextApiResponse } from "next";
 import { User as UserType, Session, ApiError } from "@supabase/supabase-js";
-import { BaseLogger } from "express-pino-logger";
+import { BaseLogger } from "pino";
 
 /**
  * ###### ENUMS ######
@@ -15,7 +15,12 @@ export enum ContractConflictStrategy {
  * ###### TYPES ######
  */
 
+export type Profile = {
+	id: string;
+};
+
 export type User = UserType & {
+	profile: Profile;
 	verifications?: {
 		captcha: boolean;
 	};

@@ -9,7 +9,7 @@ import { URL } from "url";
 import ono from "@jsdevtools/ono";
 
 import { ApiRequest, ApiResponse } from "@/types";
-import { supabase } from "@/utils/supabase-client";
+import auth from "@/utils/auth-client";
 import getHandler from "@/server/middleware";
 import {
 	postmarkApiKey,
@@ -41,7 +41,7 @@ handler.post(async (req: ApiRequest, res: ApiResponse) => {
 	// Alternative approach -- https://github.com/supabase/supabase/discussions/1282
 	let isNewUser = true;
 	try {
-		const sNewUser = await supabase.auth.api.createUser({
+		const sNewUser = await auth.api.createUser({
 			email,
 			email_confirm: false,
 			phone_confirm: false
@@ -56,7 +56,7 @@ handler.post(async (req: ApiRequest, res: ApiResponse) => {
 		req.log.error(e);
 	}
 
-	const sResp = await supabase.auth.api.generateLink(
+	const sResp = await auth.api.generateLink(
 		isNewUser ? "signup" : "magiclink",
 		email
 	);

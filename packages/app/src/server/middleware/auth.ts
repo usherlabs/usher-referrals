@@ -1,5 +1,6 @@
 import nextConnect from "next-connect";
 import { NextApiResponse } from "next";
+import { prisma } from "@usher/prisma";
 
 import { AuthApiRequest } from "@/types";
 import { supabase } from "@/utils/supabase-client";
@@ -27,9 +28,28 @@ const withAuth = nextConnect().use(
 		if (error) {
 			return next(error);
 		}
+		if (user === null) {
+			return next(new Error("User not found"));
+		}
+
+		let profile = await prisma.profiles.findUnique({
+			where: {
+				user_id: user.id
+			},
+			select: {
+				id: true
+			}
+		});
+		if (!profile) {
+			profile = await prisma.profiles.create({
+				data: {
+					user_id: user.id
+				}
+			});
+		}
 
 		req.session = payload;
-		req.user = user;
+		req.user = { ...user, profile };
 
 		return next();
 	}

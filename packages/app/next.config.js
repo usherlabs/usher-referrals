@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 const { createSecureHeaders } = require("next-secure-headers");
 const withLinaria = require("next-linaria");
+const withTM = require("next-transpile-modules")(["@usher/prisma"]);
 
 const pkg = require("./package.json");
 
@@ -74,4 +75,4 @@ const nextConfig = {
 	}
 };
 
-module.exports = withLinaria(nextConfig);
+module.exports = withTM(withLinaria(nextConfig));
