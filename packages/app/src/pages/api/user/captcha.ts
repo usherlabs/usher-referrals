@@ -11,7 +11,6 @@ import auth from "@/server/middleware/auth";
 import { hcaptchaSecretKey } from "@/server/env-config";
 import { AuthApiRequest, ApiResponse } from "@/types";
 import { prisma } from "@usher/prisma";
-import handleException from "@/utils/handle-exception";
 
 const handler = getHandler();
 

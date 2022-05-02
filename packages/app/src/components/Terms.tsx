@@ -17,29 +17,19 @@ import startCase from "lodash/startCase";
 import { useContract } from "@/hooks/";
 
 const Terms: React.FC = () => {
-	const [
-		{
+	const {
+		contract: {
 			// strategy,
 			rate,
 			token: { name, ticker, type },
 			limit
 		},
 		isLoading
-	] = useContract();
+	} = useContract();
 
 	let tokenTypeOutput = `Token`;
-	switch (type) {
-		case "nft": {
-			tokenTypeOutput = "NFT";
-			break;
-		}
-		case "pst": {
-			tokenTypeOutput = "PST";
-			break;
-		}
-		default: {
-			break;
-		}
+	if (["nft", "pst"].includes(type)) {
+		tokenTypeOutput = type.toUpperCase();
 	}
 
 	const tokentickerOutput = ticker.toUpperCase();
