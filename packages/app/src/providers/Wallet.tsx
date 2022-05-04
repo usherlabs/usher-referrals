@@ -8,13 +8,14 @@ import React, {
 } from "react";
 import useArConnect from "use-arconnect";
 import isEmpty from "lodash/isEmpty";
-import once from "lodash/once";
+// import once from "lodash/once";
 
 import { User, Wallet, IWalletContext } from "@/types";
 import delay from "@/utils/delay";
 import handleException from "@/utils/handle-exception";
-import { saveWallet, getSkippedWallet } from "@/actions/wallet";
-import { saveInviteLink } from "@/actions/invite";
+// import { saveWallet, getSkippedWallet } from "@/actions/wallet";
+// import { saveInviteLink } from "@/actions/invite";
+import { getGunInstance } from "@/utils/gun-client";
 
 import LogoImage from "@/assets/logo/Logo-Icon.svg";
 
@@ -48,9 +49,9 @@ export const WalletContext = createContext<IWalletContext>({
 	}
 });
 
-const saveWalletOnce = once(saveWallet);
-const saveInviteLinkOnce = once(saveInviteLink);
-const getSkippedWalletOnce = once(getSkippedWallet);
+// const saveWalletOnce = once(saveWallet);
+// const saveInviteLinkOnce = once(saveInviteLink);
+// const getSkippedWalletOnce = once(getSkippedWallet);
 
 const WalletContextProvider: React.FC<Props> = ({ children }) => {
 	const arconnect = useArConnect();
@@ -60,9 +61,9 @@ const WalletContextProvider: React.FC<Props> = ({ children }) => {
 	const [isMounted, setMounted] = useState(false);
 	const { user } = useContext(UserContext);
 	const { address } = wallet;
-	let userId = "";
+	let profileId = "";
 	if (user !== null) {
-		userId = user.id;
+		profileId = user.profile.id;
 	}
 
 	const setWallet = useCallback(async (state: Wallet) => {
@@ -131,7 +132,7 @@ const WalletContextProvider: React.FC<Props> = ({ children }) => {
 		if (isMounted) {
 			return () => {};
 		}
-		if (!isEmpty(userId)) {
+		if (!isEmpty(profileId)) {
 			setMounted(true);
 			(async () => {
 				try {
@@ -158,6 +159,13 @@ const WalletContextProvider: React.FC<Props> = ({ children }) => {
 					// 	address: walletAddress,
 					// 	link: { id: linkId, conversions }
 					// }); // set ids to state
+
+					const gun = getGunInstance();
+					const node = await gun.get(`profile/${profileId}`).then();
+					// if (isEmpty(address)) {
+					// } else {
+					// }
+					console.log(node);
 				} catch (e) {
 					if (e instanceof Error) {
 						handleException(e, null);
@@ -166,7 +174,7 @@ const WalletContextProvider: React.FC<Props> = ({ children }) => {
 			})();
 		}
 		return () => {};
-	}, [address, userId, isMounted]);
+	}, [address, profileId, isMounted]);
 
 	useEffect(() => {
 		// Check first if ArConnect has loaded.
