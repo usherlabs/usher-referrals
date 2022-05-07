@@ -8,15 +8,12 @@ import Gun from "gun/gun";
 import { gunPeers } from "@/env-config";
 import "gun/lib/then";
 
-if (gunPeers.length === 0) {
-	throw new Error("No Gun Peers passed to environment!");
-}
-
 export type GunRoot = ReturnType<typeof createGun> & {
 	off?: () => void;
 };
 
 let gun: GunRoot | undefined;
+let peers: string[] = gunPeers;
 
 export const OnCloseEvent = new Set<Function>();
 
@@ -76,7 +73,7 @@ function createGun() {
 	}
 
 	const g = new Gun({
-		peers: [...gunPeers],
+		peers,
 		localStorage: false,
 		radisk: true, // Will used IndexedDB
 		WebSocket
@@ -91,4 +88,13 @@ export function getGunInstance(): GunRoot {
 	}
 	gun = createGun();
 	return gun;
+}
+
+export async function initPeers(): Promise<string[]> {
+	if (peers.length > 0) {
+		return peers;
+	}
+	peers = [...peers];
+	// peers = kyve.get()
+	return peers;
 }

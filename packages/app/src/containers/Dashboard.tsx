@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect } from "react";
 import { Pane } from "evergreen-ui";
 import isEmpty from "lodash/isEmpty";
 
-import { useWallet, useUser } from "@/hooks/";
+import { useWallet, useUser, useGunLoading } from "@/hooks/";
 import Header from "@/components/Header";
 import WalletConnectScreen from "@/screens/WalletConnect";
 import EmailConnectScreen from "@/screens/EmailConnect";
@@ -35,9 +35,10 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 		isLoading: isUserLoading,
 		actions: { signOut }
 	} = useUser();
+	const isGunLoading = useGunLoading();
 	const [isPreloading, setPreloading] = useState(true);
 	const [isMounted, setMounted] = useState(false);
-	const isLoading = isWalletLoading || isUserLoading;
+	const isLoading = isGunLoading || isWalletLoading || isUserLoading;
 	const isCaptchaVerified = isEmpty(hcaptchaSiteKey)
 		? true
 		: user?.verifications?.captcha === true;

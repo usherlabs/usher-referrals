@@ -1,6 +1,7 @@
 import { NextPageContext, NextApiRequest, NextApiResponse } from "next";
 import { User as UserType, Session, ApiError } from "@supabase/supabase-js";
 import { BaseLogger } from "pino";
+import { GunRoot } from "@/utils/gun-client";
 
 /**
  * ###### ENUMS ######
@@ -117,5 +118,9 @@ export interface IUserActions {
 
 export interface IUserContext extends IUserActions {
 	user: User | null;
+	loading: boolean;
+}
+
+export interface IGunContext {
 	loading: boolean;
 }
