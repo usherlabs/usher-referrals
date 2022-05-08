@@ -15,7 +15,6 @@ import delay from "@/utils/delay";
 import handleException from "@/utils/handle-exception";
 // import { saveWallet, getSkippedWallet } from "@/actions/wallet";
 // import { saveInviteLink } from "@/actions/invite";
-import { getGunInstance } from "@/utils/gun-client";
 
 import LogoImage from "@/assets/logo/Logo-Icon.svg";
 
@@ -26,7 +25,7 @@ type Props = {
 };
 
 type ArConnectConnect = (
-	permissions: [string],
+	permissions: string[],
 	options: { name: string; logo: string }
 ) => Promise<void>;
 
@@ -79,27 +78,28 @@ const WalletContextProvider: React.FC<Props> = ({ children }) => {
 		}
 	}, [arconnect]);
 
-	const skipWallet = useCallback(() => {
-		// ...
-	}, []);
+	// const skipWallet = useCallback(() => {
+	// 	// ...
+	// }, []);
 
-	const getWalletFromQuery = useCallback(() => {
-		const searchParams = new URLSearchParams(window.location.search);
-		const skipWalletVal = searchParams.get("skip_wallet");
-		const shouldSkipWallet = skipWalletVal === "true";
-		if (shouldSkipWallet && !address) {
-			skipWallet();
-		}
-	}, [address]);
+	// const getWalletFromQuery = useCallback(() => {
+	// 	const searchParams = new URLSearchParams(window.location.search);
+	// 	const skipWalletVal = searchParams.get("skip_wallet");
+	// 	const shouldSkipWallet = skipWalletVal === "true";
+	// 	if (shouldSkipWallet && !address) {
+	// 		skipWallet();
+	// 	}
+	// }, [address]);
 
 	const getWallet = useCallback(
 		async (shouldConnect = false) => {
 			setLoading(true);
+			let a = "";
 			if (typeof arconnect === "object") {
 				try {
 					if (shouldConnect) {
 						const connect = arconnect.connect as ArConnectConnect;
-						await connect(["ACCESS_ADDRESS"], {
+						await connect(["ACCESS_ADDRESS", "ENCRYPT", "DECRYPT"], {
 							name: "Usher",
 							logo: LogoImage
 						});
@@ -107,16 +107,20 @@ const WalletContextProvider: React.FC<Props> = ({ children }) => {
 						await delay(1000);
 					}
 
-					const a = await arconnect.getActiveAddress();
-					setWallet({ ...wallet, address: a });
-					setLoading(false);
-					return a;
+					a = await arconnect.getActiveAddress();
 				} catch (e) {
 					// ... ArConnect is loaded but has been disconnected.
 				}
 			}
+			// try {
+			// } catch (e) {
+			// 	console.error(e);
+			// }
+			if (!a) {
+				setWallet({ ...wallet, address: a });
+			}
 			setLoading(false);
-			return "";
+			return a;
 		},
 		[arconnect, wallet]
 	);
@@ -128,53 +132,53 @@ const WalletContextProvider: React.FC<Props> = ({ children }) => {
 		return () => {};
 	}, [arconnect]);
 
-	useEffect(() => {
-		if (isMounted) {
-			return () => {};
-		}
-		if (!isEmpty(profileId)) {
-			setMounted(true);
-			(async () => {
-				try {
-					// let walletId = "";
-					// let walletAddress = "";
-					// if (isEmpty(address)) {
-					// 	// Check if the address is skipped
-					// 	const { id: wid, address: a } = await getSkippedWalletOnce(
-					// 		user as User
-					// 	);
-					// 	walletAddress = a;
-					// 	walletId = wid;
-					// } else {
-					// 	// This conditional block will be hit when a user clicks the "Connect Wallet Later"
-					// 	const { id: wid } = await saveWalletOnce(user as User, address);
-					// 	walletAddress = address;
-					// 	walletId = wid;
-					// }
-					// const [{ id: linkId }, conversions] = await saveInviteLinkOnce(
-					// 	walletId
-					// );
-					// setWallet({
-					// 	...wallet,
-					// 	address: walletAddress,
-					// 	link: { id: linkId, conversions }
-					// }); // set ids to state
+	// useEffect(() => {
+	// 	if (isMounted) {
+	// 		return () => {};
+	// 	}
+	// 	if (!isEmpty(profileId)) {
+	// 		setMounted(true);
+	// 		(async () => {
+	// 			try {
+	// 				// let walletId = "";
+	// 				// let walletAddress = "";
+	// 				// if (isEmpty(address)) {
+	// 				// 	// Check if the address is skipped
+	// 				// 	const { id: wid, address: a } = await getSkippedWalletOnce(
+	// 				// 		user as User
+	// 				// 	);
+	// 				// 	walletAddress = a;
+	// 				// 	walletId = wid;
+	// 				// } else {
+	// 				// 	// This conditional block will be hit when a user clicks the "Connect Wallet Later"
+	// 				// 	const { id: wid } = await saveWalletOnce(user as User, address);
+	// 				// 	walletAddress = address;
+	// 				// 	walletId = wid;
+	// 				// }
+	// 				// const [{ id: linkId }, conversions] = await saveInviteLinkOnce(
+	// 				// 	walletId
+	// 				// );
+	// 				// setWallet({
+	// 				// 	...wallet,
+	// 				// 	address: walletAddress,
+	// 				// 	link: { id: linkId, conversions }
+	// 				// }); // set ids to state
 
-					const gun = getGunInstance();
-					const node = await gun.get(`profile/${profileId}`).then();
-					// if (isEmpty(address)) {
-					// } else {
-					// }
-					console.log(node);
-				} catch (e) {
-					if (e instanceof Error) {
-						handleException(e, null);
-					}
-				}
-			})();
-		}
-		return () => {};
-	}, [address, profileId, isMounted]);
+	// 				const gun = getGunInstance();
+	// 				const node = await gun.get(`profile/${profileId}`).then();
+	// 				// if (isEmpty(address)) {
+	// 				// } else {
+	// 				// }
+	// 				console.log(node);
+	// 			} catch (e) {
+	// 				if (e instanceof Error) {
+	// 					handleException(e, null);
+	// 				}
+	// 			}
+	// 		})();
+	// 	}
+	// 	return () => {};
+	// }, [address, profileId, isMounted]);
 
 	useEffect(() => {
 		// Check first if ArConnect has loaded.
@@ -183,7 +187,7 @@ const WalletContextProvider: React.FC<Props> = ({ children }) => {
 			getWallet();
 		}
 
-		getWalletFromQuery();
+		// getWalletFromQuery();
 
 		return () => {};
 	}, [isArConnectLoaded]);

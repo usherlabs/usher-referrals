@@ -4,9 +4,43 @@
  * It's also to establish new connections when connections fail or are aborted
  */
 
+import {
+	GunSchema,
+	IGunInstanceRoot,
+	GunSoul,
+	GunCallbackPut,
+	GunOptionsPut
+} from "gun";
 import Gun from "gun/gun";
 import { gunPeers } from "@/env-config";
 import "gun/lib/then";
+import "gun/lib/time";
+import "gun/sea";
+
+// See: https://github.com/amark/gun/blob/master/types/gun/IGunChain.d.ts
+// Add type for time
+declare module "gun" {
+	export interface IGunChain<
+		TNode extends GunSchema,
+		TChainParent extends
+			| IGunChain<any, any, any, any>
+			| IGunInstanceRoot<any, any> = any,
+		TGunInstance extends IGunInstanceRoot<any, any> = any,
+		TKey extends string = any
+	> {
+		time<
+			V extends
+				| (TNode extends object ? Partial<TNode> : TNode)
+				| GunSoul<TNode>
+				| IGunChain<TNode, any, any, any>
+				| IGunChain<NonNullable<TNode>, any, any, any>
+		>(
+			value: V,
+			callback?: GunCallbackPut,
+			options?: GunOptionsPut
+		): IGunChain<TNode, TChainParent, TGunInstance, TKey>;
+	}
+}
 
 export type GunRoot = ReturnType<typeof createGun> & {
 	off?: () => void;
@@ -82,14 +116,6 @@ function createGun() {
 	return g;
 }
 
-export function getGunInstance(): GunRoot {
-	if (gun) {
-		return gun;
-	}
-	gun = createGun();
-	return gun;
-}
-
 export async function initPeers(): Promise<string[]> {
 	if (peers.length > 0) {
 		return peers;
@@ -98,3 +124,22 @@ export async function initPeers(): Promise<string[]> {
 	// peers = kyve.get()
 	return peers;
 }
+
+export async function initGun(withRoot = true): Promise<Function> {
+	await initPeers();
+
+	return () => {
+		if (gun) {
+			return gun.get("usher");
+		}
+		gun = createGun();
+
+		if (withRoot) {
+			return gun.get("usher");
+		}
+
+		return gun;
+	};
+}
+
+export { Gun };
