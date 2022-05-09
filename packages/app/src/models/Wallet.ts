@@ -1,6 +1,6 @@
 import { initGun, Gun } from "@/utils/gun-client";
 
-enum SupportedChains {
+export enum SupportedChains {
 	ARWEAVE = "ar"
 }
 
@@ -29,13 +29,13 @@ class Wallet {
 	protected key: { pub: string; epub: string; data: Uint8Array } | undefined;
 
 	constructor(
-		chainId: SupportedChains,
 		address: string,
-		provider: IWalletProvider
+		provider: IWalletProvider,
+		chainId: SupportedChains = SupportedChains.ARWEAVE
 	) {
-		this.chainId = chainId;
 		this.address = address;
 		this.provider = provider;
+		this.chainId = chainId;
 	}
 
 	public getAddress() {
@@ -55,9 +55,9 @@ class Wallet {
 
 	public async get() {
 		const gun = (await initGun())();
-		const data = await gun.get(`wallet/${this.chainId}/${this.address}`).then();
+		const data = await gun.get(this.getNamespace()).then();
 		if (data) {
-			console.log(gun);
+			console.log(data);
 			this.active = data.active;
 			return true;
 		}
@@ -75,8 +75,8 @@ class Wallet {
 		});
 		const key = { pub, epub, data: encPair };
 		const data = await gun
-			.get(`wallet/${this.chainId}/${this.address}`)
-			.time({ active: true, key })
+			.get(this.getNamespace())
+			.put({ active: true, key })
 			.then();
 		if (data) {
 			this.active = data.active;
@@ -84,6 +84,14 @@ class Wallet {
 			return true;
 		}
 		return false;
+	}
+
+	// public async link(wallet: Wallet) {
+
+	// }
+
+	protected getNamespace() {
+		return `wallet/${this.chainId}/${this.address}`;
 	}
 }
 

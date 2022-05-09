@@ -3,22 +3,27 @@ import React, {
 	useState,
 	useMemo,
 	useCallback,
-	useEffect,
-	useContext
+	useEffect
+	// useContext
 } from "react";
 import useArConnect from "use-arconnect";
-import isEmpty from "lodash/isEmpty";
+// import isEmpty from "lodash/isEmpty";
 // import once from "lodash/once";
 
-import { User, Wallet, IWalletContext } from "@/types";
+import {
+	// User,
+	Wallet,
+	IWalletContext
+} from "@/types";
 import delay from "@/utils/delay";
-import handleException from "@/utils/handle-exception";
+// import handleException from "@/utils/handle-exception";
 // import { saveWallet, getSkippedWallet } from "@/actions/wallet";
 // import { saveInviteLink } from "@/actions/invite";
+import WalletModel from "@/models/Wallet";
 
 import LogoImage from "@/assets/logo/Logo-Icon.svg";
 
-import { UserContext } from "./User";
+// import { UserContext } from "./User";
 
 type Props = {
 	children: React.ReactNode;
@@ -57,13 +62,13 @@ const WalletContextProvider: React.FC<Props> = ({ children }) => {
 	const [wallet, setWalletState] = useState(defaultWalletValues);
 	const [loading, setLoading] = useState(false);
 	const [isArConnectLoaded, setArConnectLoaded] = useState(false);
-	const [isMounted, setMounted] = useState(false);
-	const { user } = useContext(UserContext);
-	const { address } = wallet;
-	let profileId = "";
-	if (user !== null) {
-		profileId = user.profile.id;
-	}
+	// const [isMounted, setMounted] = useState(false);
+	// const { user } = useContext(UserContext);
+	// const { address } = wallet;
+	// let profileId = "";
+	// if (user !== null) {
+	// 	profileId = user.profile.id;
+	// }
 
 	const setWallet = useCallback(async (state: Wallet) => {
 		setWalletState(state);
@@ -112,12 +117,15 @@ const WalletContextProvider: React.FC<Props> = ({ children }) => {
 					// ... ArConnect is loaded but has been disconnected.
 				}
 			}
-			// try {
-			// } catch (e) {
-			// 	console.error(e);
-			// }
 			if (!a) {
-				setWallet({ ...wallet, address: a });
+				const w = new WalletModel(a, arconnect);
+				await w.setup();
+				if (w.isActive()) {
+					setWallet({ ...wallet, address: a });
+					console.log(w.getAddress());
+				} else {
+					console.log(`Wallet ${a} is not active!`);
+				}
 			}
 			setLoading(false);
 			return a;
@@ -131,54 +139,6 @@ const WalletContextProvider: React.FC<Props> = ({ children }) => {
 		}
 		return () => {};
 	}, [arconnect]);
-
-	// useEffect(() => {
-	// 	if (isMounted) {
-	// 		return () => {};
-	// 	}
-	// 	if (!isEmpty(profileId)) {
-	// 		setMounted(true);
-	// 		(async () => {
-	// 			try {
-	// 				// let walletId = "";
-	// 				// let walletAddress = "";
-	// 				// if (isEmpty(address)) {
-	// 				// 	// Check if the address is skipped
-	// 				// 	const { id: wid, address: a } = await getSkippedWalletOnce(
-	// 				// 		user as User
-	// 				// 	);
-	// 				// 	walletAddress = a;
-	// 				// 	walletId = wid;
-	// 				// } else {
-	// 				// 	// This conditional block will be hit when a user clicks the "Connect Wallet Later"
-	// 				// 	const { id: wid } = await saveWalletOnce(user as User, address);
-	// 				// 	walletAddress = address;
-	// 				// 	walletId = wid;
-	// 				// }
-	// 				// const [{ id: linkId }, conversions] = await saveInviteLinkOnce(
-	// 				// 	walletId
-	// 				// );
-	// 				// setWallet({
-	// 				// 	...wallet,
-	// 				// 	address: walletAddress,
-	// 				// 	link: { id: linkId, conversions }
-	// 				// }); // set ids to state
-
-	// 				const gun = getGunInstance();
-	// 				const node = await gun.get(`profile/${profileId}`).then();
-	// 				// if (isEmpty(address)) {
-	// 				// } else {
-	// 				// }
-	// 				console.log(node);
-	// 			} catch (e) {
-	// 				if (e instanceof Error) {
-	// 					handleException(e, null);
-	// 				}
-	// 			}
-	// 		})();
-	// 	}
-	// 	return () => {};
-	// }, [address, profileId, isMounted]);
 
 	useEffect(() => {
 		// Check first if ArConnect has loaded.

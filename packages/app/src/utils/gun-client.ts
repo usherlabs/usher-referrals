@@ -13,9 +13,9 @@ import {
 } from "gun";
 import Gun from "gun/gun";
 import { gunPeers } from "@/env-config";
-import "gun/lib/then";
-import "gun/lib/time";
 import "gun/sea";
+import "gun/lib/then";
+// import "gun/lib/time";
 
 // See: https://github.com/amark/gun/blob/master/types/gun/IGunChain.d.ts
 // Add type for time

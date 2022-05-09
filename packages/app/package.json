@@ -59,6 +59,7 @@
 		"zod": "^3.14.4"
 	},
 	"devDependencies": {
+		"@babel/preset-typescript": "^7.16.7",
 		"@linaria/babel-preset": "^3.0.0-beta.15",
 		"@linaria/shaker": "^3.0.0-beta.15",
 		"@linaria/webpack-loader": "^3.0.0-beta.16",
