@@ -60,7 +60,14 @@ const nextConfig = {
 			use: "raw-loader"
 		});
 
-		return config;
+		return {
+			...config,
+			ignoreWarnings: [
+				{
+					module: /gun/
+				}
+			]
+		};
 	},
 	env: {
 		APP_NAME: pkg.name,

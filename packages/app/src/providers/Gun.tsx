@@ -2,7 +2,6 @@ import React, { createContext, useEffect, useState, useMemo } from "react";
 
 import handleException from "@/utils/handle-exception";
 import * as alerts from "@/utils/alerts";
-import { initPeers } from "@/utils/gun-client";
 import { IGunContext } from "@/types";
 
 type Props = {
@@ -21,7 +20,7 @@ const GunContextProvider: React.FC<Props> = ({ children }) => {
 		(async () => {
 			// eslint-disable-line
 			try {
-				await initPeers();
+				// await initPeers();
 				setLoading(false);
 			} catch (e) {
 				if (e instanceof Error) {

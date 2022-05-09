@@ -6,6 +6,7 @@ import React, {
 	useEffect
 	// useContext
 } from "react";
+// import isEqual from "lodash/isEqual";
 import useArConnect from "use-arconnect";
 // import isEmpty from "lodash/isEmpty";
 // import once from "lodash/once";
@@ -28,11 +29,6 @@ import LogoImage from "@/assets/logo/Logo-Icon.svg";
 type Props = {
 	children: React.ReactNode;
 };
-
-type ArConnectConnect = (
-	permissions: string[],
-	options: { name: string; logo: string }
-) => Promise<void>;
 
 const defaultWalletValues = {
 	address: "",
@@ -101,10 +97,11 @@ const WalletContextProvider: React.FC<Props> = ({ children }) => {
 			setLoading(true);
 			let a = "";
 			if (typeof arconnect === "object") {
+				const permissions = ["ACCESS_ADDRESS", "ENCRYPT", "DECRYPT"];
 				try {
 					if (shouldConnect) {
-						const connect = arconnect.connect as ArConnectConnect;
-						await connect(["ACCESS_ADDRESS", "ENCRYPT", "DECRYPT"], {
+						// @ts-ignore
+						await arconnect.connect(permissions, {
 							name: "Usher",
 							logo: LogoImage
 						});
@@ -114,10 +111,11 @@ const WalletContextProvider: React.FC<Props> = ({ children }) => {
 
 					a = await arconnect.getActiveAddress();
 				} catch (e) {
+					console.error(e);
 					// ... ArConnect is loaded but has been disconnected.
 				}
 			}
-			if (!a) {
+			if (a) {
 				const w = new WalletModel(a, arconnect);
 				await w.setup();
 				if (w.isActive()) {

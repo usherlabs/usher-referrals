@@ -5,6 +5,8 @@
  */
 
 import {
+	IGun,
+	IGunChain,
 	GunSchema,
 	IGunInstanceRoot,
 	GunSoul,
@@ -12,13 +14,15 @@ import {
 	GunOptionsPut
 } from "gun";
 import Gun from "gun/gun";
-import { gunPeers } from "@/env-config";
+import "gun/lib/radix";
+import "gun/lib/radisk";
+import "gun/lib/store";
+import "gun/lib/rindexed";
 import "gun/sea";
-import "gun/lib/then";
-// import "gun/lib/time";
+import { gunPeers } from "@/env-config";
 
 // See: https://github.com/amark/gun/blob/master/types/gun/IGunChain.d.ts
-// Add type for time
+// Add type for then and time
 declare module "gun" {
 	export interface IGunChain<
 		TNode extends GunSchema,
@@ -39,8 +43,20 @@ declare module "gun" {
 			callback?: GunCallbackPut,
 			options?: GunOptionsPut
 		): IGunChain<TNode, TChainParent, TGunInstance, TKey>;
+
+		then<D>(): Promise<[D, string]>;
 	}
 }
+
+// Replacment for .once -- return a promise for the data
+Gun.chain.then = function gunThen() {
+	const gun = this;
+	return new Promise((res) => {
+		gun.once((data, key) => {
+			res([data, key]);
+		});
+	});
+};
 
 export type GunRoot = ReturnType<typeof createGun> & {
 	off?: () => void;
@@ -116,7 +132,7 @@ function createGun() {
 	return g;
 }
 
-export async function initPeers(): Promise<string[]> {
+async function initPeers(): Promise<string[]> {
 	if (peers.length > 0) {
 		return peers;
 	}
@@ -125,21 +141,28 @@ export async function initPeers(): Promise<string[]> {
 	return peers;
 }
 
-export async function initGun(withRoot = true): Promise<Function> {
+async function initGun() {
 	await initPeers();
-
-	return () => {
-		if (gun) {
-			return gun.get("usher");
-		}
-		gun = createGun();
-
-		if (withRoot) {
-			return gun.get("usher");
-		}
-
-		return gun;
-	};
+	try {
+		/* @ts-ignore */
+		await import("gun/lib/time");
+	} catch (e) {
+		console.error(e);
+	}
 }
 
-export { Gun };
+export async function connectGunBase(): Promise<[GunRoot, IGun]> {
+	await initGun();
+
+	if (!gun) {
+		gun = createGun();
+	}
+
+	return [gun, Gun];
+}
+
+export async function connectGun(): Promise<[IGunChain<any>, IGun]> {
+	const [gunV, GunV] = await connectGunBase();
+
+	return [gunV.get("usher"), GunV];
+}

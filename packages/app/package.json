@@ -19,6 +19,7 @@
 		"@linaria/react": "^3.0.0-beta.15",
 		"@sentry/nextjs": "^6.19.2",
 		"@supabase/supabase-js": "^1.34.0",
+		"@usher/gun": "*",
 		"@usher/prisma": "*",
 		"arweave": "^1.10.23",
 		"bowser": "^2.11.0",

@@ -1,7 +1,6 @@
 import { NextPageContext, NextApiRequest, NextApiResponse } from "next";
 import { User as UserType, Session, ApiError } from "@supabase/supabase-js";
 import { BaseLogger } from "pino";
-import { GunRoot } from "@/utils/gun-client";
 
 /**
  * ###### ENUMS ######

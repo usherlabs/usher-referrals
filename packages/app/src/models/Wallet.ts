@@ -1,4 +1,4 @@
-import { initGun, Gun } from "@/utils/gun-client";
+import { connectGun } from "@/utils/gun-client";
 
 export enum SupportedChains {
 	ARWEAVE = "ar"
@@ -54,8 +54,8 @@ class Wallet {
 	}
 
 	public async get() {
-		const gun = (await initGun())();
-		const data = await gun.get(this.getNamespace()).then();
+		const [gun] = await connectGun();
+		const [data] = await gun.get(this.getNamespace()).then<Wallet>();
 		if (data) {
 			console.log(data);
 			this.active = data.active;
@@ -65,8 +65,7 @@ class Wallet {
 	}
 
 	public async create() {
-		const sea = Gun.SEA;
-		const gun = (await initGun())();
+		const [gun, { SEA: sea }] = await connectGun();
 		const pair = await sea.pair();
 		const { pub, epub, ...pairData } = pair;
 		const encPair = await this.provider.encrypt(JSON.stringify(pairData), {
@@ -74,10 +73,10 @@ class Wallet {
 			hash: this.HASH
 		});
 		const key = { pub, epub, data: encPair };
-		const data = await gun
+		const [data] = await gun
 			.get(this.getNamespace())
 			.put({ active: true, key })
-			.then();
+			.then<Wallet>();
 		if (data) {
 			this.active = data.active;
 			this.key = data.key;
