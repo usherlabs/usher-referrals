@@ -11,7 +11,6 @@ import Preloader from "@/components/Preloader";
 import handleException from "@/utils/handle-exception";
 import * as alerts from "@/utils/alerts";
 import { hcaptchaSiteKey } from "@/env-config";
-import { connectGun } from "@/utils/gun-client";
 
 type Props = {
 	children: React.ReactNode;
@@ -45,17 +44,6 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 	const [loadingMessage, setLoadingMessage] = useState(
 		loadingMessages[loadingMessageIndex]
 	);
-
-	// useEffect(() => {
-	// 	(async () => {
-	// 		const [gun] = await connectGun();
-	// 		const [data, key] = await gun
-	// 			.get("profile/hello-world")
-	// 			.put({ active: true })
-	// 			.then<any>();
-	// 		console.log(data, key);
-	// 	})();
-	// }, []);
 
 	useEffect(() => {
 		// Cancel preloader

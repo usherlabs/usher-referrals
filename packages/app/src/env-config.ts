@@ -37,6 +37,4 @@ if (fingerprintEndpoint) {
 
 export const botdPublicKey = process.env.NEXT_PUBLIC_BOTD_PUBLIC_KEY;
 
-export const gunPeers = (process.env.NEXT_PUBLIC_GUN_PEERS || "").split(",");
-
 export { fingerprint };

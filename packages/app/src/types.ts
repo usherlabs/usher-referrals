@@ -119,7 +119,3 @@ export interface IUserContext extends IUserActions {
 	user: User | null;
 	loading: boolean;
 }
-
-export interface IGunContext {
-	loading: boolean;
-}

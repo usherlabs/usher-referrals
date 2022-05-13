@@ -20,7 +20,6 @@ import delay from "@/utils/delay";
 // import handleException from "@/utils/handle-exception";
 // import { saveWallet, getSkippedWallet } from "@/actions/wallet";
 // import { saveInviteLink } from "@/actions/invite";
-import WalletModel from "@/models/Wallet";
 
 import LogoImage from "@/assets/logo/Logo-Icon.svg";
 
@@ -115,16 +114,16 @@ const WalletContextProvider: React.FC<Props> = ({ children }) => {
 					// ... ArConnect is loaded but has been disconnected.
 				}
 			}
-			if (a) {
-				const w = new WalletModel(a, arconnect);
-				await w.setup();
-				if (w.isActive()) {
-					setWallet({ ...wallet, address: a });
-					console.log(w.getAddress());
-				} else {
-					console.log(`Wallet ${a} is not active!`);
-				}
-			}
+			// if (a) {
+			// 	const w = new WalletModel(a, arconnect);
+			// 	await w.setup();
+			// 	if (w.isActive()) {
+			// 		setWallet({ ...wallet, address: a });
+			// 		console.log(w.getAddress());
+			// 	} else {
+			// 		console.log(`Wallet ${a} is not active!`);
+			// 	}
+			// }
 			setLoading(false);
 			return a;
 		},
