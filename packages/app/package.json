@@ -67,6 +67,7 @@
 		"@testing-library/react": "^12.1.4",
 		"@types/express-pino-logger": "^4.0.3",
 		"@types/lodash": "^4.14.182",
+		"@types/logrocket-react": "^3.0.0",
 		"@types/node": "^17.0.26",
 		"@types/react": "18.0.1",
 		"autoprefixer": "^10.4.5",
