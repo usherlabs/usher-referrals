@@ -1,5 +1,4 @@
 import { NextPageContext, NextApiRequest, NextApiResponse } from "next";
-import { User as UserType, Session, ApiError } from "@supabase/supabase-js";
 import { BaseLogger } from "pino";
 
 /**
@@ -15,20 +14,30 @@ export enum ContractConflictStrategy {
  * ###### TYPES ######
  */
 
-export type Profile = {
-	id: string;
+export type Wallet = {
+	network: string;
+	address: string;
 };
 
-export type User = UserType & {
-	profile: Profile;
-	verifications?: {
+export type Partnerships = {
+	id: string;
+	records: {
+		id: number;
+		hits: number;
+		conversions: { pending: number; successful: number };
+	}[];
+};
+
+export type User = {
+	id: string;
+	wallet: Wallet;
+	partnerships: Partnerships;
+	verifications: {
 		captcha: boolean;
 	};
 };
 
-export type SignInOptions = { email: string; wallet: string };
-
-export type Exception = (ApiError | Error) & {
+export type Exception = Error & {
 	statusCode?: number;
 };
 
@@ -39,20 +48,6 @@ export type ExceptionContext =
 			errorInfo?: Record<string, any> | null;
 	  })
 	| null;
-
-export type PartnershipLink = {
-	id: string;
-	conversions: {
-		total: number;
-		pending: number;
-		success: number;
-	};
-};
-
-export type Wallet = {
-	address: string;
-	link: PartnershipLink;
-};
 
 export type Token = {
 	name: string;
@@ -76,7 +71,6 @@ export interface ApiRequest extends NextApiRequest {
 
 export interface AuthApiRequest extends ApiRequest {
 	token: string;
-	session: Session;
 	user: User;
 }
 
@@ -111,11 +105,9 @@ export interface IUserActions {
 	setUser: (user: User | null) => void;
 	removeUser: () => void;
 	getUser: () => Promise<User | null>;
-	signIn: (options: SignInOptions) => Promise<{ success: boolean }>;
-	signOut: () => Promise<{ error: ApiError | null }>;
 }
 
 export interface IUserContext extends IUserActions {
-	user: User | null;
+	user: User;
 	loading: boolean;
 }

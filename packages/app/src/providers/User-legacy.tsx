@@ -1,10 +1,3 @@
-/**
- * User provider
- * Uses 3id to authorise access to Affiliate Streams.
- * Network is required to track all affiliates in their own Stream
- * https://developers.ceramic.network/reference/accounts/3id-did/
- */
-
 import isEmpty from "lodash/isEmpty";
 import React, {
 	createContext,
@@ -14,8 +7,9 @@ import React, {
 	useState
 } from "react";
 
-import { User, IUserContext } from "@/types";
+import { User, IUserContext, SignInOptions } from "@/types";
 import { authorise, checkCaptcha, getProfile } from "@/actions/user";
+import useAuthStateChange from "@/hooks/use-auth-state-change";
 import delay from "@/utils/delay";
 import { setUser as setErrorTrackingUser } from "@/utils/handle-exception";
 import { identifyUser } from "@/utils/signals";
@@ -25,38 +19,27 @@ type Props = {
 	children: React.ReactNode;
 };
 
-const defaultValues = {
-	id: "",
-	wallets: {
-		network: "",
-		address: "",
-		native: false,
-		active: false
-	}[],
-	partnerships: {
-		id: "",
-		records: []
-	},
-	verifications: {
-		captcha: false
-	}
-};
-
 export const UserContext = createContext<IUserContext>({
-	user: defaultValues,
+	user: null,
 	loading: false,
 	setUser() {},
 	removeUser() {},
 	async getUser() {
 		return null;
+	},
+	async signIn() {
+		return { success: false };
+	},
+	async signOut() {
+		return { error: null };
 	}
 });
 
 const UserContextProvider: React.FC<Props> = ({ children }) => {
-	const [user, setUser] = useState<User>(defaultValues);
+	const [user, setUser] = useState<User | null>(null);
 	const [loading, setLoading] = useState(true);
 
-	const removeUser = useCallback(() => setUser(defaultValues), []);
+	const removeUser = useCallback(() => setUser(null), []);
 
 	const getUser = useCallback(async () => {
 		setLoading(true);

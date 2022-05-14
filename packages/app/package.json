@@ -8,10 +8,12 @@
 		"start": "next start",
 		"lint": "next lint",
 		"lint:fix": "next lint --fix",
-		"clean": "rimraf .turbo .next out",
-		"init-bot": "dotenv -- bash -c 'open \"https://discord.com/api/oauth2/authorize?client_id=$DISCORD_CLIENT_ID&scope=bot%20applications.commands&permissions=2147485713&guild_id=$DISCORD_GUILD_ID&disable_guild_select=true\"'"
+		"clean": "rimraf .turbo .next out"
 	},
 	"dependencies": {
+		"@3id/connect": "^0.4.1",
+		"@ceramicnetwork/3id-did-resolver": "^2.0.0",
+		"@ceramicnetwork/http-client": "^2.0.0",
 		"@fpjs-incubator/botd-agent": "^0.1.24",
 		"@hcaptcha/react-hcaptcha": "^1.1.1",
 		"@jsdevtools/ono": "^7.1.3",
@@ -23,6 +25,7 @@
 		"arweave": "^1.10.23",
 		"bowser": "^2.11.0",
 		"cors": "^2.8.5",
+		"dids": "^3.1.0",
 		"dotenv-cli": "^5.0.0",
 		"evergreen-ui": "^6.8.2",
 		"express-bearer-token": "^2.4.0",
@@ -32,6 +35,7 @@
 		"got": "^12.0.3",
 		"gun": "^0.2020.1237",
 		"js-base64": "^3.7.2",
+		"key-did-resolver": "^2.0.0",
 		"ky": "^0.30.0",
 		"lodash": "^4.17.21",
 		"logrocket": "^2.2.0",
