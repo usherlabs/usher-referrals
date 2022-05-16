@@ -13,13 +13,40 @@ import React, {
 	useMemo,
 	useState
 } from "react";
+import { CeramicClient } from "@ceramicnetwork/http-client";
+import { DID } from "dids";
+import { getResolver as getKeyResolver } from "key-did-resolver";
+import { getResolver as get3IDResolver } from "@ceramicnetwork/3id-did-resolver";
+import { ThreeIdConnect } from "@3id/connect";
 
-import { User, IUserContext } from "@/types";
+import useArConnect from "@/hooks/use-arconnect";
+import { User, IUserContext, Wallet } from "@/types";
 import { authorise, checkCaptcha, getProfile } from "@/actions/user";
 import delay from "@/utils/delay";
 import { setUser as setErrorTrackingUser } from "@/utils/handle-exception";
 import { identifyUser } from "@/utils/signals";
 import auth from "@/utils/auth-client";
+
+// TODO: Think we need to use the CAIP-10 link mechanism for this... it's a dedicated stream type for verified blockchain linking.
+// https://developers.ceramic.network/reference/stream-programs/caip10-link/
+// https://github.com/ceramicnetwork/js-ceramic/blob/develop/packages/blockchain-utils-linking/src/filecoin.ts
+
+// Create a ThreeIdConnect connect instance as soon as possible in your app to start loading assets
+const threeID = new ThreeIdConnect();
+
+class Authenticate {
+	static async withArConnect(
+		walletAddress: string,
+		arConnectProvider: typeof window.arweaveWallet
+	) {
+		const ceramic = new CeramicClient();
+		const encoder = new TextEncoder();
+		const data = encoder.encode(walletAddress);
+		const sig = await arConnectProvider.signature(data, "RSASSA-PKCS1-v1_5");
+
+		console.log(sig);
+	}
+}
 
 type Props = {
 	children: React.ReactNode;
@@ -27,17 +54,13 @@ type Props = {
 
 const defaultValues = {
 	id: "",
-	wallets: {
-		network: "",
-		address: "",
-		native: false,
-		active: false
-	}[],
+	wallets: [],
 	partnerships: {
 		id: "",
 		records: []
 	},
 	verifications: {
+		personhood: false,
 		captcha: false
 	}
 };
@@ -55,12 +78,22 @@ export const UserContext = createContext<IUserContext>({
 const UserContextProvider: React.FC<Props> = ({ children }) => {
 	const [user, setUser] = useState<User>(defaultValues);
 	const [loading, setLoading] = useState(true);
+	const [getArConnect, isArConnectLoading] = useArConnect();
 
 	const removeUser = useCallback(() => setUser(defaultValues), []);
 
 	const getUser = useCallback(async () => {
 		setLoading(true);
-		// Fetch Currently authenticated Discord User from Supabase
+		// Fetch Currently authenticated User by referring to their connect wallet.
+		let arweaveWalletAddress;
+		const arconnect = getArConnect();
+		try {
+			arweaveWalletAddress = await arconnect.getActiveAddress();
+		} catch (e) {
+			// ...
+		}
+		await Authenticate.withArConnect(arweaveWalletAddress, arconnect);
+
 		const u = auth.user();
 		console.log("getUser: ", u);
 		if (!isEmpty(u) && u !== null) {

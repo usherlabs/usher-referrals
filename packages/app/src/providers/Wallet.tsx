@@ -14,7 +14,8 @@ import useArConnect from "use-arconnect";
 import {
 	// User,
 	Wallet,
-	IWalletContext
+	IWalletContext,
+	Networks
 } from "@/types";
 import delay from "@/utils/delay";
 // import handleException from "@/utils/handle-exception";
@@ -30,11 +31,10 @@ type Props = {
 };
 
 const defaultWalletValues = {
+	network: "",
 	address: "",
-	link: {
-		id: "",
-		conversions: { total: 0, pending: 0, success: 0 }
-	}
+	managed: false,
+	active: false
 };
 
 export const WalletContext = createContext<IWalletContext>({
@@ -48,22 +48,11 @@ export const WalletContext = createContext<IWalletContext>({
 	}
 });
 
-// const saveWalletOnce = once(saveWallet);
-// const saveInviteLinkOnce = once(saveInviteLink);
-// const getSkippedWalletOnce = once(getSkippedWallet);
-
 const WalletContextProvider: React.FC<Props> = ({ children }) => {
 	const arconnect = useArConnect();
 	const [wallet, setWalletState] = useState(defaultWalletValues);
 	const [loading, setLoading] = useState(false);
 	const [isArConnectLoaded, setArConnectLoaded] = useState(false);
-	// const [isMounted, setMounted] = useState(false);
-	// const { user } = useContext(UserContext);
-	// const { address } = wallet;
-	// let profileId = "";
-	// if (user !== null) {
-	// 	profileId = user.profile.id;
-	// }
 
 	const setWallet = useCallback(async (state: Wallet) => {
 		setWalletState(state);
@@ -78,25 +67,17 @@ const WalletContextProvider: React.FC<Props> = ({ children }) => {
 		}
 	}, [arconnect]);
 
-	// const skipWallet = useCallback(() => {
-	// 	// ...
-	// }, []);
-
-	// const getWalletFromQuery = useCallback(() => {
-	// 	const searchParams = new URLSearchParams(window.location.search);
-	// 	const skipWalletVal = searchParams.get("skip_wallet");
-	// 	const shouldSkipWallet = skipWalletVal === "true";
-	// 	if (shouldSkipWallet && !address) {
-	// 		skipWallet();
-	// 	}
-	// }, [address]);
-
 	const getWallet = useCallback(
 		async (shouldConnect = false) => {
 			setLoading(true);
 			let a = "";
 			if (typeof arconnect === "object") {
-				const permissions = ["ACCESS_ADDRESS", "ENCRYPT", "DECRYPT"];
+				const permissions = [
+					"ACCESS_ADDRESS",
+					"ENCRYPT",
+					"DECRYPT",
+					"SIGNATURE"
+				];
 				try {
 					if (shouldConnect) {
 						// @ts-ignore

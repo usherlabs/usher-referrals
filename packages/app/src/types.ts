@@ -10,6 +10,12 @@ export enum ContractConflictStrategy {
 	PASSTHROUGH = "PASSTHROUGH"
 }
 
+export enum Networks {
+	ARWEAVE = "arweave"
+	// ETHEREUM = "ethereum",
+	// POLYGON = "polygon"
+}
+
 /**
  * ###### TYPES ######
  */
@@ -17,6 +23,8 @@ export enum ContractConflictStrategy {
 export type Wallet = {
 	network: string;
 	address: string;
+	managed: boolean; // Whether the wallet is managed on behalf of the user -- ie. Magic.
+	active: boolean; // Whether the wallet is the actively connected wallet
 };
 
 export type Partnerships = {
@@ -29,10 +37,11 @@ export type Partnerships = {
 };
 
 export type User = {
-	id: string;
-	wallet: Wallet;
+	id: string; // Affiliate DID
+	wallets: Wallet[];
 	partnerships: Partnerships;
 	verifications: {
+		personhood: boolean;
 		captcha: boolean;
 	};
 };

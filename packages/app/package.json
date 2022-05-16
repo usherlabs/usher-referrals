@@ -58,7 +58,6 @@
 		"redstone-smartweave": "^0.4.48",
 		"sass": "^1.49.7",
 		"url-join": "^5.0.0",
-		"use-arconnect": "^1.0.1",
 		"usher-js": "^0.0.6",
 		"zod": "^3.14.4"
 	},
@@ -74,6 +73,7 @@
 		"@types/logrocket-react": "^3.0.0",
 		"@types/node": "^17.0.26",
 		"@types/react": "18.0.1",
+		"arconnect": "^0.4.2",
 		"autoprefixer": "^10.4.5",
 		"babel-jest": "^27.5.1",
 		"babel-plugin-add-react-displayname": "^0.0.5",
