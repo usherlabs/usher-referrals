@@ -3,7 +3,10 @@
  */
 import { useEffect, useState, useCallback } from "react";
 
-const useArConnect = () => {
+const useArConnect = (): [
+	() => typeof window.arweaveWallet | null,
+	boolean
+] => {
 	const [isLoading, setLoading] = useState(true);
 	const getWallet = useCallback(() => {
 		if (!isLoading) {

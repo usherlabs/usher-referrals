@@ -5,7 +5,6 @@
  * https://developers.ceramic.network/reference/accounts/3id-did/
  */
 
-import isEmpty from "lodash/isEmpty";
 import React, {
 	createContext,
 	useCallback,
@@ -13,40 +12,18 @@ import React, {
 	useMemo,
 	useState
 } from "react";
-import { CeramicClient } from "@ceramicnetwork/http-client";
-import { DID } from "dids";
-import { getResolver as getKeyResolver } from "key-did-resolver";
-import { getResolver as get3IDResolver } from "@ceramicnetwork/3id-did-resolver";
-import { ThreeIdConnect } from "@3id/connect";
 
 import useArConnect from "@/hooks/use-arconnect";
-import { User, IUserContext, Wallet } from "@/types";
-import { authorise, checkCaptcha, getProfile } from "@/actions/user";
+import { User, IUserContext, Wallet, Networks } from "@/types";
+import { checkCaptcha } from "@/actions";
 import delay from "@/utils/delay";
-import { setUser as setErrorTrackingUser } from "@/utils/handle-exception";
+import handleException, {
+	setUser as setErrorTrackingUser
+} from "@/utils/handle-exception";
 import { identifyUser } from "@/utils/signals";
-import auth from "@/utils/auth-client";
+import Authenticate from "@/modules/auth";
 
-// TODO: Think we need to use the CAIP-10 link mechanism for this... it's a dedicated stream type for verified blockchain linking.
-// https://developers.ceramic.network/reference/stream-programs/caip10-link/
-// https://github.com/ceramicnetwork/js-ceramic/blob/develop/packages/blockchain-utils-linking/src/filecoin.ts
-
-// Create a ThreeIdConnect connect instance as soon as possible in your app to start loading assets
-const threeID = new ThreeIdConnect();
-
-class Authenticate {
-	static async withArConnect(
-		walletAddress: string,
-		arConnectProvider: typeof window.arweaveWallet
-	) {
-		const ceramic = new CeramicClient();
-		const encoder = new TextEncoder();
-		const data = encoder.encode(walletAddress);
-		const sig = await arConnectProvider.signature(data, "RSASSA-PKCS1-v1_5");
-
-		console.log(sig);
-	}
-}
+import LogoImage from "@/assets/logo/Logo-Icon.svg";
 
 type Props = {
 	children: React.ReactNode;
@@ -55,10 +32,7 @@ type Props = {
 const defaultValues = {
 	id: "",
 	wallets: [],
-	partnerships: {
-		id: "",
-		records: []
-	},
+	partnerships: [],
 	verifications: {
 		personhood: false,
 		captcha: false
@@ -68,7 +42,6 @@ const defaultValues = {
 export const UserContext = createContext<IUserContext>({
 	user: defaultValues,
 	loading: false,
-	setUser() {},
 	removeUser() {},
 	async getUser() {
 		return null;
@@ -78,117 +51,104 @@ export const UserContext = createContext<IUserContext>({
 const UserContextProvider: React.FC<Props> = ({ children }) => {
 	const [user, setUser] = useState<User>(defaultValues);
 	const [loading, setLoading] = useState(true);
+	const [isUserFetched, setUserFetched] = useState(false);
 	const [getArConnect, isArConnectLoading] = useArConnect();
+	const walletsLoaded = isArConnectLoading;
 
 	const removeUser = useCallback(() => setUser(defaultValues), []);
 
 	const getUser = useCallback(async () => {
-		setLoading(true);
-		// Fetch Currently authenticated User by referring to their connect wallet.
-		let arweaveWalletAddress;
+		// Fetch Currently authenticated User by referring to their connected wallets.
+		let id = "";
+		const wallets = [];
+		const auth = Authenticate.getInstance();
 		const arconnect = getArConnect();
-		try {
-			arweaveWalletAddress = await arconnect.getActiveAddress();
-		} catch (e) {
-			// ...
-		}
-		await Authenticate.withArConnect(arweaveWalletAddress, arconnect);
-
-		const u = auth.user();
-		console.log("getUser: ", u);
-		if (!isEmpty(u) && u !== null) {
-			if (u.role === "authenticated") {
-				// Here we fetch user verifications
-				const profile = await getProfile();
-				const captcha = await checkCaptcha();
-				const checkedUser = { ...u, profile, verifications: { captcha } };
-				setUser(checkedUser);
-				setErrorTrackingUser(checkedUser);
-				identifyUser(checkedUser);
-				return checkedUser;
+		if (arconnect !== null) {
+			try {
+				const arweaveWalletAddress = await arconnect.getActiveAddress();
+				const did = await auth.withArweave(arweaveWalletAddress, arconnect);
+				id = did.id;
+				const wallet: Wallet = {
+					network: Networks.ARWEAVE,
+					address: arweaveWalletAddress,
+					managed: false,
+					active: true
+				};
+				wallets.push(wallet);
+			} catch (e) {
+				if (e instanceof Error) {
+					handleException(e, null);
+				}
 			}
 		}
+
+		if (!id) {
+			return null;
+		}
+
+		// Authenticated
+		const captcha = await checkCaptcha(id);
+		// const personhood = await checkPersonhood(did.id);
+		// Fetch inactive wallets
+		// Fetch Partnerships
+
+		const fetchedUser = {
+			id,
+			wallets,
+			partnerships: [],
+			verifications: { captcha, personhood: false }
+		};
+
+		setUser(fetchedUser);
+		setErrorTrackingUser(fetchedUser);
+		identifyUser(fetchedUser);
+
 		return null;
 	}, []);
 
-	const signIn = useCallback(
-		async (options: SignInOptions) => {
-			setLoading(true);
-			const r = await authorise(options);
-			setLoading(false);
-			return r;
-		},
-		[user]
-	);
+	const connect = useCallback(async () => {
+		const permissions = ["ACCESS_ADDRESS", "ENCRYPT", "DECRYPT", "SIGNATURE"];
+		// @ts-ignore
+		await arconnect.connect(permissions, {
+			name: "Usher",
+			logo: LogoImage
+		});
 
-	const signOut = useCallback(async () => {
-		setLoading(true);
-		const r = await auth.signOut();
-		setLoading(false);
-		return r;
+		await delay(1000);
+
+		return getUser();
 	}, []);
 
-	useAuthStateChange((event: string) => {
-		switch (event) {
-			case "SIGNED_IN": {
-				// Fetch user on sign in
-				getUser().finally(() => {
-					setLoading(false);
-				});
-				break;
-			}
-			case "SIGNED_OUT": {
-				(async () => {
-					await delay(1000);
-					window.location.reload();
-				})();
-				break;
-			}
-			default: {
-				break;
+	const disconnectAll = useCallback(async () => {
+		if (walletsLoaded) {
+			const arconnect = getArConnect();
+			if (arconnect !== null) {
+				await arconnect.disconnect();
+				await delay(500);
 			}
 		}
-	});
 
-	// On render, fetch user from session
-	let interval: NodeJS.Timer;
+		removeUser();
+	}, [walletsLoaded]);
+
 	useEffect(() => {
-		if (user) {
-			if (user.id) {
-				clearInterval(interval);
+		if (walletsLoaded && !user.id && !isUserFetched) {
+			setLoading(true);
+			getUser().finally(() => {
 				setLoading(false);
-				return () => {};
-			}
+			});
+			setUserFetched(true);
 		}
-		//* Because the system uses OTP -- this is the only point where the User State is set.
-		(async () => {
-			// Fetch user on an interval
-			interval = setInterval(async () => {
-				const respUser = await getUser();
-				if (respUser !== null && !isEmpty(respUser)) {
-					if (respUser.id) {
-						clearInterval(interval);
-						setLoading(false);
-					}
-				}
-			}, 500);
-			// Clear the interval after two seconds -- will ensure that the authorised should always be fetched regardless of if supabase event fires.
-			await delay(2000);
-			clearInterval(interval);
-			setLoading(false);
-		})();
 		return () => {};
-	}, [user]);
+	}, [user, isUserFetched, walletsLoaded]);
 
 	const value = useMemo(
 		() => ({
 			user,
 			loading,
-			setUser,
-			removeUser,
 			getUser,
-			signIn,
-			signOut
+			connect,
+			disconnectAll
 		}),
 		[user, loading]
 	);

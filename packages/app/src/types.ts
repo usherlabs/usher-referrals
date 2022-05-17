@@ -21,25 +21,22 @@ export enum Networks {
  */
 
 export type Wallet = {
-	network: string;
+	network: Networks;
 	address: string;
 	managed: boolean; // Whether the wallet is managed on behalf of the user -- ie. Magic.
 	active: boolean; // Whether the wallet is the actively connected wallet
 };
 
-export type Partnerships = {
-	id: string;
-	records: {
-		id: number;
-		hits: number;
-		conversions: { pending: number; successful: number };
-	}[];
+export type Partnership = {
+	id: number;
+	hits: number;
+	conversions: { pending: number; successful: number };
 };
 
 export type User = {
 	id: string; // Affiliate DID
 	wallets: Wallet[];
-	partnerships: Partnerships;
+	partnerships: Partnership[];
 	verifications: {
 		personhood: boolean;
 		captcha: boolean;
@@ -111,7 +108,6 @@ export interface IContractContext extends IContractActions {
 }
 
 export interface IUserActions {
-	setUser: (user: User | null) => void;
 	removeUser: () => void;
 	getUser: () => Promise<User | null>;
 }
