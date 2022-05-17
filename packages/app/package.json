@@ -13,6 +13,7 @@
 	"dependencies": {
 		"@3id/connect": "^0.4.1",
 		"@ceramicnetwork/3id-did-resolver": "^2.0.0",
+		"@ceramicnetwork/blockchain-utils-linking": "^2.0.0",
 		"@ceramicnetwork/http-client": "^2.0.0",
 		"@fpjs-incubator/botd-agent": "^0.1.24",
 		"@hcaptcha/react-hcaptcha": "^1.1.1",
@@ -24,6 +25,7 @@
 		"@usher/prisma": "*",
 		"arweave": "^1.10.23",
 		"bowser": "^2.11.0",
+		"caip": "~1.0.0",
 		"cors": "^2.8.5",
 		"dids": "^3.1.0",
 		"dotenv-cli": "^5.0.0",
@@ -57,6 +59,7 @@
 		"react-share": "^4.4.0",
 		"redstone-smartweave": "^0.4.48",
 		"sass": "^1.49.7",
+		"uint8arrays": "^3.0.0",
 		"url-join": "^5.0.0",
 		"usher-js": "^0.0.6",
 		"zod": "^3.14.4"
