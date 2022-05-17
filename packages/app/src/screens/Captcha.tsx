@@ -1,6 +1,6 @@
 import React, { useCallback } from "react";
 
-import { submitCaptcha } from "@/actions/user";
+import * as api from "@/api";
 import { useUser } from "@/hooks/";
 import delay from "@/utils/delay";
 import Captcha from "@/components/Captcha";
@@ -8,12 +8,12 @@ import Captcha from "@/components/Captcha";
 const CaptchaScreen = () => {
 	const {
 		user,
-		actions: { setUser }
+		actions: { setUser } // Replace this with setCaptcha?
 	} = useUser();
 
 	const onSuccess = useCallback(
 		async (token: string) => {
-			const isSuccess = await submitCaptcha(token);
+			const { success: isSuccess } = await api.captcha().post(token, user.id);
 			if (isSuccess && user !== null) {
 				const checkedUser = {
 					...user,

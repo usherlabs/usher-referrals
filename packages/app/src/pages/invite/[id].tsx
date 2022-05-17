@@ -9,9 +9,10 @@ import ono from "@jsdevtools/ono";
 import { CONVERSION_COOKIE_NAME } from "@/constants";
 import { botdPublicKey } from "@/env-config";
 import Preloader from "@/components/Preloader";
-import { checkBotDetect, submitCaptcha } from "@/actions/bot";
+// import { checkBotDetect, submitCaptcha } from "@/actions/bot";
+import * as api from "@/api";
 import Captcha from "@/components/Captcha";
-import { getDestinationUrl, createConversion } from "@/actions/invite";
+// import { getDestinationUrl, createConversion } from "@/actions/invite";
 import { useContract } from "@/hooks/";
 import handleException from "@/utils/handle-exception";
 import { ContractConflictStrategy } from "@/types";
@@ -75,7 +76,7 @@ const Invite = () => {
 	const onCaptchaSuccess = useCallback(
 		async (token: string) => {
 			// console.log(token);
-			const isSuccess = await submitCaptcha(token);
+			const { success: isSuccess } = await api.captcha().post(token);
 			if (isSuccess) {
 				processInvite();
 				return true;
@@ -101,7 +102,8 @@ const Invite = () => {
 				handleException(ono(error), null);
 			} else if ("requestId" in response) {
 				const { requestId } = response;
-				shouldShowCaptcha = await checkBotDetect(requestId);
+				const { success: isSuccess } = await api.bot().post(requestId);
+				shouldShowCaptcha = isSuccess;
 			}
 			if (shouldShowCaptcha) {
 				setShowCaptcha(true);

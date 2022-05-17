@@ -15,13 +15,13 @@ import React, {
 
 import useArConnect from "@/hooks/use-arconnect";
 import { User, IUserContext, Wallet, Networks } from "@/types";
-import { checkCaptcha } from "@/actions";
 import delay from "@/utils/delay";
 import handleException, {
 	setUser as setErrorTrackingUser
 } from "@/utils/handle-exception";
 import { identifyUser } from "@/utils/signals";
 import Authenticate from "@/modules/auth";
+import * as api from "@/api";
 
 import LogoImage from "@/assets/logo/Logo-Icon.svg";
 
@@ -29,7 +29,7 @@ type Props = {
 	children: React.ReactNode;
 };
 
-const defaultValues = {
+const defaultValues: User = {
 	id: "",
 	wallets: [],
 	partnerships: [],
@@ -42,9 +42,14 @@ const defaultValues = {
 export const UserContext = createContext<IUserContext>({
 	user: defaultValues,
 	loading: false,
-	removeUser() {},
 	async getUser() {
-		return null;
+		return defaultValues;
+	},
+	async connect() {
+		// ...
+	},
+	async disconnectAll() {
+		// ...
 	}
 });
 
@@ -53,7 +58,7 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 	const [loading, setLoading] = useState(true);
 	const [isUserFetched, setUserFetched] = useState(false);
 	const [getArConnect, isArConnectLoading] = useArConnect();
-	const walletsLoaded = isArConnectLoading;
+	const walletsLoading = isArConnectLoading;
 
 	const removeUser = useCallback(() => setUser(defaultValues), []);
 
@@ -87,7 +92,7 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 		}
 
 		// Authenticated
-		const captcha = await checkCaptcha(id);
+		const { success: captcha } = await api.captcha().get(id);
 		// const personhood = await checkPersonhood(did.id);
 		// Fetch inactive wallets
 		// Fetch Partnerships
@@ -120,7 +125,7 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 	}, []);
 
 	const disconnectAll = useCallback(async () => {
-		if (walletsLoaded) {
+		if (!walletsLoading) {
 			const arconnect = getArConnect();
 			if (arconnect !== null) {
 				await arconnect.disconnect();
@@ -129,10 +134,10 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 		}
 
 		removeUser();
-	}, [walletsLoaded]);
+	}, [walletsLoading]);
 
 	useEffect(() => {
-		if (walletsLoaded && !user.id && !isUserFetched) {
+		if (!walletsLoading && !user.id && !isUserFetched) {
 			setLoading(true);
 			getUser().finally(() => {
 				setLoading(false);
@@ -140,12 +145,12 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 			setUserFetched(true);
 		}
 		return () => {};
-	}, [user, isUserFetched, walletsLoaded]);
+	}, [user, isUserFetched, walletsLoading]);
 
 	const value = useMemo(
 		() => ({
 			user,
-			loading,
+			loading: loading || walletsLoading,
 			getUser,
 			connect,
 			disconnectAll

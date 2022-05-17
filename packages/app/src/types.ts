@@ -108,8 +108,9 @@ export interface IContractContext extends IContractActions {
 }
 
 export interface IUserActions {
-	removeUser: () => void;
-	getUser: () => Promise<User | null>;
+	getUser: () => Promise<User>;
+	connect: () => Promise<void>;
+	disconnectAll: () => Promise<void>;
 }
 
 export interface IUserContext extends IUserActions {

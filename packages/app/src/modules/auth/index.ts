@@ -1,15 +1,16 @@
-import { CeramicClient } from "@ceramicnetwork/http-client";
 import { DID } from "dids";
 import { getResolver as getKeyResolver } from "key-did-resolver";
 import { getResolver as get3IDResolver } from "@ceramicnetwork/3id-did-resolver";
 import { AuthProvider, ThreeIdConnect } from "@3id/connect";
 import { Caip10Link } from "@ceramicnetwork/stream-caip10-link";
+import { ceramicNetwork } from "@/env-config";
+import getCeramicClientInstance from "@/utils/ceramic-client";
 
 import { ArweaveAuthProvider } from "./3id-arweave-auth-provider";
 
 // Create a ThreeIdConnect connect instance as soon as possible in your app to start loading assets
-const threeID = new ThreeIdConnect();
-const ceramic = new CeramicClient();
+const threeID = new ThreeIdConnect(ceramicNetwork);
+const ceramic = getCeramicClientInstance();
 
 class Authenticate {
 	protected did: DID | null;
