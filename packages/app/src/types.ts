@@ -26,7 +26,7 @@ export enum Connections {
  */
 
 export type Wallet = {
-	chain: Chains;
+	chains: Chains[]; // Some wallets can belong to more than one Blockchain
 	connection: Connections;
 	address: string;
 	active: boolean; // Whether the wallet is the actively connected wallet

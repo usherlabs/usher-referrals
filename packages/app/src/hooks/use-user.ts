@@ -1,10 +1,10 @@
 import { useContext } from "react";
 
-import { Chains, Connections, Wallet } from "@/types";
+import { Connections, Wallet } from "@/types";
 import { UserContext } from "@/providers/User";
 
 const defaultWallet: Wallet = {
-	chain: Chains.ARWEAVE,
+	chains: [],
 	connection: Connections.ARCONNECT,
 	address: "",
 	active: false

@@ -97,7 +97,7 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 						const did = await auth.withArweave(arweaveWalletAddress, arconnect);
 						id = did.id;
 						const wallet: Wallet = {
-							chain: Chains.ARWEAVE,
+							chains: [Chains.ARWEAVE],
 							connection: Connections.ARCONNECT,
 							address: arweaveWalletAddress,
 							active: true
