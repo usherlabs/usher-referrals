@@ -12,9 +12,17 @@ import React, {
 	useMemo,
 	useState
 } from "react";
+import useLocalStorage from "react-use-localstorage";
 
 import useArConnect from "@/hooks/use-arconnect";
-import { User, IUserContext, Wallet, Networks } from "@/types";
+import {
+	User,
+	IUserContext,
+	Wallet,
+	Chains,
+	Connections,
+	Profile
+} from "@/types";
 import delay from "@/utils/delay";
 import handleException, {
 	setUser as setErrorTrackingUser
@@ -36,6 +44,9 @@ const defaultValues: User = {
 	verifications: {
 		personhood: false,
 		captcha: false
+	},
+	profile: {
+		email: ""
 	}
 };
 
@@ -46,9 +57,15 @@ export const UserContext = createContext<IUserContext>({
 		return defaultValues;
 	},
 	async connect() {
+		return defaultValues;
+	},
+	async disconnect() {
 		// ...
 	},
-	async disconnectAll() {
+	setCaptcha() {
+		// ...
+	},
+	setProfile() {
 		// ...
 	}
 });
@@ -57,95 +74,166 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 	const [user, setUser] = useState<User>(defaultValues);
 	const [loading, setLoading] = useState(true);
 	const [isUserFetched, setUserFetched] = useState(false);
+	const [lastConnection, setLastConnection] = useLocalStorage(
+		"last-connection",
+		""
+	);
 	const [getArConnect, isArConnectLoading] = useArConnect();
 	const walletsLoading = isArConnectLoading;
 
 	const removeUser = useCallback(() => setUser(defaultValues), []);
 
-	const getUser = useCallback(async () => {
+	const getUser = useCallback(async (type: Connections) => {
 		// Fetch Currently authenticated User by referring to their connected wallets.
 		let id = "";
 		const wallets = [];
 		const auth = Authenticate.getInstance();
-		const arconnect = getArConnect();
-		if (arconnect !== null) {
-			try {
-				const arweaveWalletAddress = await arconnect.getActiveAddress();
-				const did = await auth.withArweave(arweaveWalletAddress, arconnect);
-				id = did.id;
-				const wallet: Wallet = {
-					network: Networks.ARWEAVE,
-					address: arweaveWalletAddress,
-					managed: false,
-					active: true
-				};
-				wallets.push(wallet);
-			} catch (e) {
-				if (e instanceof Error) {
-					handleException(e, null);
+		switch (type) {
+			case Connections.ARCONNECT: {
+				const arconnect = getArConnect();
+				if (arconnect !== null) {
+					try {
+						const arweaveWalletAddress = await arconnect.getActiveAddress();
+						const did = await auth.withArweave(arweaveWalletAddress, arconnect);
+						id = did.id;
+						const wallet: Wallet = {
+							chain: Chains.ARWEAVE,
+							connection: Connections.ARCONNECT,
+							address: arweaveWalletAddress,
+							active: true
+						};
+						wallets.push(wallet);
+					} catch (e) {
+						if (e instanceof Error) {
+							handleException(e, null);
+						}
+					}
 				}
+				break;
+			}
+			case Connections.MAGIC: {
+				// Authorise Magic Wallet here...
+				break;
+			}
+			default: {
+				break;
 			}
 		}
 
 		if (!id) {
-			return null;
+			return defaultValues;
 		}
 
 		// Authenticated
 		const { success: captcha } = await api.captcha().get(id);
 		// const personhood = await checkPersonhood(did.id);
-		// Fetch inactive wallets
+		// Fetch inactive wallets -- filter the existing wallet.
 		// Fetch Partnerships
 
 		const fetchedUser = {
 			id,
 			wallets,
 			partnerships: [],
-			verifications: { captcha, personhood: false }
+			verifications: { captcha, personhood: false },
+			profile: {
+				email: ""
+			}
 		};
 
 		setUser(fetchedUser);
 		setErrorTrackingUser(fetchedUser);
 		identifyUser(fetchedUser);
+		setLastConnection(type);
 
-		return null;
+		return fetchedUser;
 	}, []);
 
-	const connect = useCallback(async () => {
-		const permissions = ["ACCESS_ADDRESS", "ENCRYPT", "DECRYPT", "SIGNATURE"];
-		// @ts-ignore
-		await arconnect.connect(permissions, {
-			name: "Usher",
-			logo: LogoImage
-		});
+	const connect = useCallback(async (type: Connections) => {
+		switch (type) {
+			case Connections.ARCONNECT: {
+				const permissions = [
+					"ACCESS_ADDRESS",
+					"ENCRYPT",
+					"DECRYPT",
+					"SIGNATURE"
+				];
+				// @ts-ignore
+				await arconnect.connect(permissions, {
+					name: "Usher",
+					logo: LogoImage
+				});
 
-		await delay(1000);
+				await delay(1000);
 
-		return getUser();
-	}, []);
-
-	const disconnectAll = useCallback(async () => {
-		if (!walletsLoading) {
-			const arconnect = getArConnect();
-			if (arconnect !== null) {
-				await arconnect.disconnect();
-				await delay(500);
+				return getUser(type);
+			}
+			default: {
+				break;
 			}
 		}
 
-		removeUser();
-	}, [walletsLoading]);
+		return defaultValues;
+	}, []);
+
+	const disconnect = useCallback(
+		async (type: Connections) => {
+			if (!walletsLoading) {
+				switch (type) {
+					case Connections.ARCONNECT: {
+						const arconnect = getArConnect();
+						if (arconnect !== null) {
+							await arconnect.disconnect();
+							await delay(500);
+						}
+						break;
+					}
+					case Connections.MAGIC: {
+						// Open Magic Link Dialog Here...
+						break;
+					}
+					default: {
+						break;
+					}
+				}
+			}
+
+			removeUser();
+		},
+		[walletsLoading]
+	);
+
+	const setCaptcha = useCallback(
+		(value: boolean) => {
+			const { verifications } = user;
+			verifications.captcha = value;
+			setUser({
+				...user,
+				verifications
+			});
+		},
+		[user]
+	);
+
+	const setProfile = useCallback(
+		(profile: Profile) => {
+			setUser({
+				...user,
+				profile
+			});
+		},
+		[user]
+	);
 
 	useEffect(() => {
-		if (!walletsLoading && !user.id && !isUserFetched) {
+		if (!walletsLoading && !user.id && !isUserFetched && lastConnection) {
 			setLoading(true);
-			getUser().finally(() => {
+			getUser(lastConnection as Connections).finally(() => {
 				setLoading(false);
 			});
 			setUserFetched(true);
 		}
 		return () => {};
-	}, [user, isUserFetched, walletsLoading]);
+	}, [user, isUserFetched, walletsLoading, lastConnection]);
 
 	const value = useMemo(
 		() => ({
@@ -153,7 +241,9 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 			loading: loading || walletsLoading,
 			getUser,
 			connect,
-			disconnectAll
+			disconnect,
+			setCaptcha,
+			setProfile
 		}),
 		[user, loading]
 	);

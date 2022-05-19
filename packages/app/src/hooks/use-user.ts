@@ -1,20 +1,36 @@
 import { useContext } from "react";
 
+import { Chains, Connections, Wallet } from "@/types";
 import { UserContext } from "@/providers/User";
 
+const defaultWallet: Wallet = {
+	chain: Chains.ARWEAVE,
+	connection: Connections.ARCONNECT,
+	address: "",
+	active: false
+};
+
 function useUser() {
-	const { user, loading, removeUser, getUser, setUser, signIn, signOut } =
-		useContext(UserContext);
+	const {
+		user,
+		loading,
+		getUser,
+		connect,
+		disconnect,
+		setCaptcha,
+		setProfile
+	} = useContext(UserContext);
 
 	return {
 		user,
+		wallet: user.wallets.find(({ active }) => !!active) || defaultWallet,
 		isLoading: loading,
 		actions: {
-			removeUser,
 			getUser,
-			setUser,
-			signIn,
-			signOut
+			connect,
+			disconnect,
+			setCaptcha,
+			setProfile
 		}
 	};
 }

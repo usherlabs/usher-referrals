@@ -1,5 +1,5 @@
 import { NextPageContext, NextApiRequest, NextApiResponse } from "next";
-import { BaseLogger } from "pino";
+// import { BaseLogger } from "pino";
 
 /**
  * ###### ENUMS ######
@@ -10,10 +10,15 @@ export enum ContractConflictStrategy {
 	PASSTHROUGH = "PASSTHROUGH"
 }
 
-export enum Networks {
+export enum Chains {
 	ARWEAVE = "arweave"
 	// ETHEREUM = "ethereum",
 	// POLYGON = "polygon"
+}
+
+export enum Connections {
+	MAGIC = "magic",
+	ARCONNECT = "arconnect"
 }
 
 /**
@@ -21,16 +26,22 @@ export enum Networks {
  */
 
 export type Wallet = {
-	network: Networks;
+	chain: Chains;
+	connection: Connections;
 	address: string;
-	managed: boolean; // Whether the wallet is managed on behalf of the user -- ie. Magic.
 	active: boolean; // Whether the wallet is the actively connected wallet
 };
 
 export type Partnership = {
 	id: number;
-	hits: number;
-	conversions: { pending: number; successful: number };
+	campaign: {
+		network: Chains;
+		address: string;
+	};
+};
+
+export type Profile = {
+	email: string;
 };
 
 export type User = {
@@ -41,6 +52,7 @@ export type User = {
 		personhood: boolean;
 		captcha: boolean;
 	};
+	profile: Profile;
 };
 
 export type Exception = Error & {
@@ -72,7 +84,7 @@ export type Contract = {
 // Server Types
 
 export interface ApiRequest extends NextApiRequest {
-	log: BaseLogger;
+	// log: BaseLogger;
 }
 
 export interface AuthApiRequest extends ApiRequest {
@@ -86,18 +98,6 @@ export interface ApiResponse extends NextApiResponse {}
  * ###### INTERFACES ######
  */
 
-export interface IWalletActions {
-	setWallet: (state: Wallet) => void;
-	removeWallet: () => void;
-	getWallet: (shouldConnect: boolean) => Promise<string>;
-}
-
-export interface IWalletContext extends IWalletActions {
-	wallet: Wallet;
-	loading: boolean;
-	isArConnectLoaded: boolean;
-}
-
 export interface IContractActions {
 	getContract: () => Promise<Contract>;
 }
@@ -108,9 +108,11 @@ export interface IContractContext extends IContractActions {
 }
 
 export interface IUserActions {
-	getUser: () => Promise<User>;
-	connect: () => Promise<void>;
-	disconnectAll: () => Promise<void>;
+	getUser: (type: Connections) => Promise<User>;
+	connect: (type: Connections) => Promise<User>;
+	disconnect: (type: Connections) => Promise<void>;
+	setCaptcha: (value: boolean) => void;
+	setProfile: (value: Profile) => void;
 }
 
 export interface IUserContext extends IUserActions {

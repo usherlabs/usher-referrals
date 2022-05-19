@@ -8,19 +8,15 @@ import Captcha from "@/components/Captcha";
 const CaptchaScreen = () => {
 	const {
 		user,
-		actions: { setUser } // Replace this with setCaptcha?
+		actions: { setCaptcha }
 	} = useUser();
 
 	const onSuccess = useCallback(
 		async (token: string) => {
 			const { success: isSuccess } = await api.captcha().post(token, user.id);
-			if (isSuccess && user !== null) {
-				const checkedUser = {
-					...user,
-					verifications: { ...(user?.verifications || {}), captcha: true }
-				};
+			if (isSuccess) {
 				await delay(1000);
-				setUser(checkedUser);
+				setCaptcha(true);
 				return true;
 			}
 			return false;
@@ -28,7 +24,7 @@ const CaptchaScreen = () => {
 		[user]
 	);
 
-	return user !== null ? <Captcha onSuccess={onSuccess} /> : null;
+	return <Captcha onSuccess={onSuccess} />;
 };
 
 export default CaptchaScreen;

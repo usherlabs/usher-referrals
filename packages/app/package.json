@@ -58,6 +58,7 @@
 		"react-dom": "17.0.2",
 		"react-ga": "^3.3.0",
 		"react-share": "^4.4.0",
+		"react-use-localstorage": "^3.5.3",
 		"redstone-smartweave": "^0.4.48",
 		"sass": "^1.49.7",
 		"uint8arrays": "^3.0.0",

@@ -1,9 +1,18 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { Pane, Heading, Text, Button, majorScale, Link } from "evergreen-ui";
+import {
+	Pane,
+	Heading,
+	Text,
+	Button,
+	majorScale,
+	Link,
+	EnvelopeIcon
+} from "evergreen-ui";
 import Image from "next/image";
 import Bowser from "bowser";
 
-import { useWallet } from "@/hooks/";
+import { Connections } from "@/types";
+import { useUser, useArConnect } from "@/hooks/";
 import {
 	ARCONNECT_CHROME_URL,
 	ARCONNECT_FIREFOX_URL
@@ -11,17 +20,29 @@ import {
 } from "@/constants";
 import ArConnectIcon from "@/assets/icon/arconnect.svg";
 
-const WalletConnectScreen = () => {
+export type Props = {
+	onConnect: (type: Connections) => void;
+};
+
+const WalletConnectScreen: React.FC<Props> = ({ onConnect }) => {
 	const {
 		isLoading,
-		isArConnectLoaded,
-		actions: { getWallet }
-	} = useWallet();
+		actions: { connect }
+	} = useUser();
+	const [, isArConnectLoading] = useArConnect();
 	const [browserName, setBrowserName] = useState("");
 
-	const connect = useCallback(() => getWallet(true), [getWallet]);
-	const skipConnect = useCallback(() => {
-		// setWallet({ address: SKIPPED_WALLET_ADDRESS })
+	const connectArConnect = useCallback(() => {
+		connect(Connections.ARCONNECT).then(() => {
+			onConnect(Connections.ARCONNECT);
+		});
+	}, []);
+
+	const connectMagic = useCallback(() => {
+		connect(Connections.MAGIC).then(() => {
+			// TODO: This will trigger Email Capture if the connect function doesn't wait for authorisation...
+			onConnect(Connections.MAGIC);
+		});
 	}, []);
 
 	useEffect(() => {
@@ -55,45 +76,53 @@ const WalletConnectScreen = () => {
 				display="flex"
 				flexDirection="column"
 			>
-				{isArConnectLoaded ? (
+				<Pane marginBottom={16}>
+					{!isArConnectLoading ? (
+						<Button
+							height={majorScale(6)}
+							appearance="primary"
+							iconBefore={<Image src={ArConnectIcon} width={30} height={30} />}
+							onClick={connectArConnect}
+							isLoading={isLoading}
+							minWidth={260}
+						>
+							<strong>Connect with ArConnect</strong>
+						</Button>
+					) : (
+						<Link
+							href={
+								browserName.toLowerCase().includes("firefox")
+									? ARCONNECT_FIREFOX_URL
+									: ARCONNECT_CHROME_URL
+							}
+							target="_blank"
+							rel="nopenner noreferrer"
+						>
+							<Button
+								height={majorScale(6)}
+								iconBefore={
+									<Image src={ArConnectIcon} width={30} height={30} />
+								}
+								minWidth={260}
+							>
+								<strong>Install ArConnect</strong>
+							</Button>
+						</Link>
+					)}
+				</Pane>
+				<Pane marginBottom={16}>
 					<Button
-						height={majorScale(7)}
+						height={majorScale(6)}
 						appearance="primary"
-						iconBefore={<Image src={ArConnectIcon} width={30} height={30} />}
-						onClick={connect}
+						iconBefore={EnvelopeIcon}
+						onClick={connectMagic}
 						isLoading={isLoading}
 						minWidth={260}
 					>
-						<strong>Connect with ArConnect</strong>
+						<strong>Connect with Email</strong>
 					</Button>
-				) : (
-					<Link
-						href={
-							browserName.toLowerCase().includes("firefox")
-								? ARCONNECT_FIREFOX_URL
-								: ARCONNECT_CHROME_URL
-						}
-						target="_blank"
-						rel="nopenner noreferrer"
-					>
-						<Button
-							height={majorScale(7)}
-							iconBefore={<Image src={ArConnectIcon} width={30} height={30} />}
-							minWidth={260}
-						>
-							<strong>Install ArConnect</strong>
-						</Button>
-					</Link>
-				)}
+				</Pane>
 			</Pane>
-			<Button
-				height={majorScale(5)}
-				minWidth={260}
-				appearance="minimal"
-				onClick={skipConnect}
-			>
-				<strong>Connect Wallet Later</strong>
-			</Button>
 		</Pane>
 	);
 };

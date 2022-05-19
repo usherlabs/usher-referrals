@@ -1,49 +1,52 @@
 import React, { useState, useCallback, useEffect } from "react";
 import { Pane } from "evergreen-ui";
 import isEmpty from "lodash/isEmpty";
+import useLocalStorage from "react-use-localstorage";
 
-import { useWallet, useUser } from "@/hooks/";
+import { useUser } from "@/hooks/";
 import Header from "@/components/Header";
 import WalletConnectScreen from "@/screens/WalletConnect";
-import EmailConnectScreen from "@/screens/EmailConnect";
+import EmailCaptureScreen from "@/screens/EmailCapture";
 import CaptchaScreen from "@/screens/Captcha";
 import Preloader from "@/components/Preloader";
-import handleException from "@/utils/handle-exception";
-import * as alerts from "@/utils/alerts";
+// import handleException from "@/utils/handle-exception";
+// import * as alerts from "@/utils/alerts";
 import { hcaptchaSiteKey } from "@/env-config";
 
 type Props = {
 	children: React.ReactNode;
 };
 
-const loadingMessages = [
-	"Hold tight...",
-	"Dashboard engines ready...",
-	"Off we go..."
-];
+// const loadingMessages = [
+// 	"Hold tight...",
+// 	"Dashboard engines ready...",
+// 	"Off we go..."
+// ];
 
-let loadingMessageIndex = 0;
+// let loadingMessageIndex = 0;
 
 const DashboardContainer: React.FC<Props> = ({ children }) => {
 	const {
+		user: {
+			id: userId,
+			profile,
+			verifications: { captcha }
+		},
 		wallet: { address },
-		isLoading: isWalletLoading,
-		actions: { removeWallet }
-	} = useWallet();
-	const {
-		user,
-		isLoading: isUserLoading,
-		actions: { signOut }
+		isLoading,
+		actions: { disconnect, setProfile }
 	} = useUser();
 	const [isPreloading, setPreloading] = useState(true);
 	const [isMounted, setMounted] = useState(false);
-	const isLoading = isWalletLoading || isUserLoading;
-	const isCaptchaVerified = isEmpty(hcaptchaSiteKey)
-		? true
-		: user?.verifications?.captcha === true;
-	const [loadingMessage, setLoadingMessage] = useState(
-		loadingMessages[loadingMessageIndex]
+	const [captureEmailValue, setCaptureEmail] = useLocalStorage(
+		"get-notified",
+		""
 	);
+	const captureEmail = captureEmailValue === "yes";
+	const isCaptchaVerified = isEmpty(hcaptchaSiteKey) ? true : captcha;
+	// const [loadingMessage, setLoadingMessage] = useState(
+	// 	loadingMessages[loadingMessageIndex]
+	// );
 
 	useEffect(() => {
 		// Cancel preloader
@@ -59,23 +62,36 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 		};
 	}, [isLoading]);
 
-	const signOutHandler = useCallback(async () => {
-		const { error } = await signOut();
-		if (error) {
-			handleException(error, null);
-			alerts.error();
-		}
-	}, []);
+	// useEffect(() => {
+	// 	const loadingMessageInterval = setInterval(() => {
+	// 		if (loadingMessageIndex > loadingMessages.length) {
+	// 			clearInterval(loadingMessageInterval);
+	// 		} else {
+	// 			setLoadingMessage(loadingMessages[loadingMessageIndex]);
+	// 			loadingMessageIndex += 1;
+	// 		}
+	// 	}, 750);
+	// }, []);
 
-	useEffect(() => {
-		const loadingMessageInterval = setInterval(() => {
-			if (loadingMessageIndex > loadingMessages.length) {
-				clearInterval(loadingMessageInterval);
-			} else {
-				setLoadingMessage(loadingMessages[loadingMessageIndex]);
-				loadingMessageIndex += 1;
-			}
-		}, 750);
+	const onConnect = useCallback(() => {
+		if (!profile.email) {
+			setCaptureEmail("yes");
+		}
+	}, [profile]);
+
+	const onEmailCapture = useCallback(
+		(email: string) => {
+			setProfile({
+				...profile,
+				email
+			});
+			setCaptureEmail("");
+		},
+		[profile]
+	);
+
+	const onEmailCaptureSkip = useCallback(() => {
+		setCaptureEmail("");
 	}, []);
 
 	return (
@@ -88,26 +104,20 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 			position="relative"
 		>
 			{(isPreloading || (isLoading && !isMounted)) && (
-				<Preloader message={loadingMessage} />
+				<Preloader message={`Hold tight...`} />
 			)}
-			<Header
-				walletAddress={address}
-				userProvider={user?.app_metadata?.provider}
-				username={
-					user?.app_metadata?.provider === "email"
-						? user?.email
-						: user?.user_metadata?.full_name
-				}
-				avatarUrl={user?.user_metadata?.avatar_url}
-				signOut={signOutHandler}
-				disconnect={removeWallet}
-			/>
-			{isEmpty(address) && <WalletConnectScreen />}
-			{isEmpty(user) && !isEmpty(address) && <EmailConnectScreen />}
-			{!isEmpty(user) && !isEmpty(address) && !isCaptchaVerified && (
+			<Header walletAddress={address} disconnect={disconnect} />
+			{isEmpty(userId) && <WalletConnectScreen onConnect={onConnect} />}
+			{isEmpty(profile.email) && !isEmpty(userId) && captureEmail && (
+				<EmailCaptureScreen
+					onSkip={onEmailCaptureSkip}
+					onCapture={onEmailCapture}
+				/>
+			)}
+			{!isEmpty(userId) && !isCaptchaVerified && !captureEmail && (
 				<CaptchaScreen />
 			)}
-			{!isEmpty(user) && !isEmpty(address) && isCaptchaVerified && children}
+			{!isEmpty(userId) && isCaptchaVerified && !captureEmail && children}
 		</Pane>
 	);
 };

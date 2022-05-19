@@ -9,22 +9,19 @@ import {
 	Alert
 } from "evergreen-ui";
 import { css } from "@linaria/core";
-import { Usher } from "usher-js";
+// import { Usher } from "usher-js";
 
-import { Wallet } from "@/types";
-import { useUser, useWallet, useContract } from "@/hooks/";
+import { useUser, useContract } from "@/hooks/";
 import { MAX_SCREEN_WIDTH, TABLET_BREAKPOINT } from "@/constants";
 import AffiliateLink from "@/components/AffiliateLink";
 import ValueCard from "@/components/ValueCard";
 import ClaimButton from "@/components/ClaimButton";
 import Terms from "@/components/Terms";
 import Progress from "@/components/Progress";
-import { advertiser } from "@/env-config";
 import getInviteLink from "@/utils/get-invite-link";
 
 const DashboardScreen = () => {
 	const { colors } = useTheme();
-	const { wallet } = useWallet();
 	const {
 		contract: {
 			rate,
@@ -33,12 +30,9 @@ const DashboardScreen = () => {
 		},
 		isLoading: isContractLoading
 	} = useContract();
-	const { user } = useUser();
-	const {
-		link: { id: linkId, conversions }
-	} = wallet as Wallet;
-	const inviteLink = linkId ? getInviteLink(linkId) : "";
-	const claimableRewards = rate * conversions.pending;
+	const { user, partnerships } = useUser();
+	// const inviteLink = linkId ? getInviteLink(linkId) : "";
+	// const claimableRewards = rate * conversions.pending;
 
 	// "Users converted by the Advertiser that are pending for processing."
 	const ConvHelpIcon = (content: string) =>
@@ -51,18 +45,18 @@ const DashboardScreen = () => {
 			[]
 		);
 
-	useEffect(() => {
-		if (user !== null) {
-			const eventPayload = {
-				id: advertiser.usherContractAddress,
-				nativeId: user.id,
-				properties: {
-					walletAddress: wallet.address
-				}
-			};
-			Usher("event", eventPayload);
-		}
-	}, []);
+	// useEffect(() => {
+	// 	if (user !== null) {
+	// 		const eventPayload = {
+	// 			id: advertiser.usherContractAddress,
+	// 			nativeId: user.id,
+	// 			properties: {
+	// 				walletAddress: wallet.address
+	// 			}
+	// 		};
+	// 		Usher("event", eventPayload);
+	// 	}
+	// }, []);
 
 	return (
 		<Pane
