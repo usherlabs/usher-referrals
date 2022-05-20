@@ -4,7 +4,7 @@ import isEmpty from "lodash/isEmpty";
 import useLocalStorage from "react-use-localstorage";
 
 import { useUser } from "@/hooks/";
-import Header from "@/components/Header";
+// import Header from "@/components/Header";
 import WalletConnectScreen from "@/screens/WalletConnect";
 import EmailCaptureScreen from "@/screens/EmailCapture";
 import CaptchaScreen from "@/screens/Captcha";
@@ -27,14 +27,9 @@ type Props = {
 
 const DashboardContainer: React.FC<Props> = ({ children }) => {
 	const {
-		user: {
-			id: userId,
-			profile,
-			verifications: { captcha }
-		},
-		wallet: { address },
+		user,
 		isLoading,
-		actions: { disconnect, setProfile }
+		actions: { setProfile }
 	} = useUser();
 	const [isPreloading, setPreloading] = useState(true);
 	const [isMounted, setMounted] = useState(false);
@@ -43,6 +38,11 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 		""
 	);
 	const captureEmail = captureEmailValue === "yes";
+	const {
+		id: userId,
+		profile,
+		verifications: { captcha }
+	} = user;
 	const isCaptchaVerified = isEmpty(hcaptchaSiteKey) ? true : captcha;
 	// const [loadingMessage, setLoadingMessage] = useState(
 	// 	loadingMessages[loadingMessageIndex]
@@ -106,7 +106,7 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 			{(isPreloading || (isLoading && !isMounted)) && (
 				<Preloader message={`Hold tight...`} />
 			)}
-			<Header walletAddress={address} disconnect={disconnect} />
+			{/* <Header user={user} disconnect={disconnect} /> */}
 			{isEmpty(userId) && <WalletConnectScreen onConnect={onConnect} />}
 			{isEmpty(profile.email) && !isEmpty(userId) && captureEmail && (
 				<EmailCaptureScreen

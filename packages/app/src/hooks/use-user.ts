@@ -1,14 +1,7 @@
 import { useContext } from "react";
 
-import { Connections, Wallet } from "@/types";
 import { UserContext } from "@/providers/User";
-
-const defaultWallet: Wallet = {
-	chains: [],
-	connection: Connections.ARCONNECT,
-	address: "",
-	active: false
-};
+import getActiveWallet from "@/utils/get-active-wallet";
 
 function useUser() {
 	const {
@@ -23,7 +16,7 @@ function useUser() {
 
 	return {
 		user,
-		wallet: user.wallets.find(({ active }) => !!active) || defaultWallet,
+		wallet: getActiveWallet(user.wallets),
 		isLoading: loading,
 		actions: {
 			getUser,
