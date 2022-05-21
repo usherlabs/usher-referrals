@@ -92,7 +92,9 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 				if (arconnect !== null) {
 					try {
 						const arweaveWalletAddress = await arconnect.getActiveAddress();
+						console.log(arweaveWalletAddress);
 						const did = await auth.withArweave(arweaveWalletAddress, arconnect);
+						console.log(did);
 						id = did.id;
 						const wallet: Wallet = {
 							chains: [Chains.ARWEAVE],
@@ -102,6 +104,7 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 						};
 						wallets.push(wallet);
 					} catch (e) {
+						console.error(e);
 						if (e instanceof Error) {
 							handleException(e, null);
 						}
@@ -137,6 +140,7 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 				email: ""
 			}
 		};
+		console.log(fetchedUser);
 
 		setUser(fetchedUser);
 		setErrorTrackingUser(fetchedUser);
@@ -149,21 +153,24 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 	const connect = useCallback(async (type: Connections) => {
 		switch (type) {
 			case Connections.ARCONNECT: {
-				const permissions = [
-					"ACCESS_ADDRESS",
-					"ENCRYPT",
-					"DECRYPT",
-					"SIGNATURE"
-				];
-				// @ts-ignore
-				await arconnect.connect(permissions, {
-					name: "Usher",
-					logo: LogoImage
-				});
+				const arconnect = getArConnect();
+				if (arconnect !== null) {
+					const permissions = [
+						"ACCESS_ADDRESS",
+						"ENCRYPT",
+						"DECRYPT",
+						"SIGNATURE"
+					];
+					// @ts-ignore
+					await arconnect.connect(permissions, {
+						name: "Usher",
+						logo: LogoImage
+					});
 
-				await delay(1000);
-
-				return getUser(type);
+					await delay(1000);
+					return getUser(type);
+				}
+				break;
 			}
 			default: {
 				break;
@@ -223,14 +230,16 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 	);
 
 	useEffect(() => {
-		if (!walletsLoading && !user.id && !isUserFetched && lastConnection) {
-			setLoading(true);
-			getUser(lastConnection).finally(() => {
+		if (!walletsLoading) {
+			if (!user.id && !isUserFetched && lastConnection) {
+				setLoading(true);
+				getUser(lastConnection).finally(() => {
+					setLoading(false);
+				});
+				setUserFetched(true);
+			} else {
 				setLoading(false);
-			});
-			setUserFetched(true);
-		} else {
-			setLoading(false);
+			}
 		}
 		return () => {};
 	}, [user, isUserFetched, walletsLoading, lastConnection]);

@@ -8,12 +8,9 @@ const useArConnect = (): [
 	boolean
 ] => {
 	const [isLoading, setLoading] = useState(true);
-	const getWallet = useCallback(() => {
-		if (!isLoading) {
-			return window.arweaveWallet;
-		}
-		return null;
-	}, [isLoading]);
+	const getProvider = useCallback(() => {
+		return window.arweaveWallet;
+	}, []);
 
 	useEffect(() => {
 		if (window.arweaveWallet) {
@@ -22,10 +19,16 @@ const useArConnect = (): [
 			window.addEventListener("arweaveWalletLoaded", () => {
 				setLoading(false);
 			});
+			const interval = setInterval(() => {
+				if (window.arweaveWallet) {
+					clearInterval(interval);
+					setLoading(false);
+				}
+			}, 500);
 		}
 	}, []);
 
-	return [getWallet, isLoading];
+	return [getProvider, isLoading];
 };
 
 export default useArConnect;

@@ -12,6 +12,8 @@
 	},
 	"dependencies": {
 		"@3id/connect": "^0.4.1",
+		"@3id/did-provider": "^0.4.1",
+		"@aws-crypto/sha256-browser": "^2.0.1",
 		"@ceramicnetwork/3id-did-resolver": "^2.0.0",
 		"@ceramicnetwork/blockchain-utils-linking": "^2.0.0",
 		"@ceramicnetwork/http-client": "^2.0.0",

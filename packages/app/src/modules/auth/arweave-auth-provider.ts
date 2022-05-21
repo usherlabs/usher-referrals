@@ -4,14 +4,16 @@ import {
 	getConsentMessage,
 	LinkProof
 } from "@ceramicnetwork/blockchain-utils-linking";
-
 import { AccountId } from "caip";
 import * as uint8arrays from "uint8arrays";
 
 export class ArweaveAuthProvider implements AuthProvider {
 	readonly isAuthProvider = true;
 
-	readonly algorithm = "RSASSA-PKCS1-v1_5";
+	readonly algorithm = {
+		name: "RSA-PSS",
+		saltLength: 0
+	};
 
 	constructor(
 		private readonly provider: typeof window.arweaveWallet,
@@ -19,7 +21,7 @@ export class ArweaveAuthProvider implements AuthProvider {
 	) {}
 
 	async accountId(): Promise<AccountId> {
-		const chainId = `ar:`;
+		const chainId = `ar:1`;
 		return new AccountId({ address: this.address, chainId });
 	}
 

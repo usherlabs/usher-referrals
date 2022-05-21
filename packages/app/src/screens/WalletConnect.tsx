@@ -26,23 +26,35 @@ export type Props = {
 
 const WalletConnectScreen: React.FC<Props> = ({ onConnect }) => {
 	const {
-		isLoading,
+		isLoading: isUserLoading,
 		actions: { connect }
 	} = useUser();
 	const [, isArConnectLoading] = useArConnect();
 	const [browserName, setBrowserName] = useState("");
+	const [isConnecting, setConnecting] = useState(false);
+	const isLoading = isUserLoading || isConnecting;
 
 	const connectArConnect = useCallback(() => {
-		connect(Connections.ARCONNECT).then(() => {
-			onConnect(Connections.ARCONNECT);
-		});
+		setConnecting(true);
+		connect(Connections.ARCONNECT)
+			.then(() => {
+				onConnect(Connections.ARCONNECT);
+			})
+			.finally(() => {
+				setConnecting(false);
+			});
 	}, []);
 
 	const connectMagic = useCallback(() => {
-		connect(Connections.MAGIC).then(() => {
-			// TODO: This will trigger Email Capture if the connect function doesn't wait for authorisation...
-			onConnect(Connections.MAGIC);
-		});
+		setConnecting(true);
+		connect(Connections.MAGIC)
+			.then(() => {
+				// TODO: This will trigger Email Capture if the connect function doesn't wait for authorisation...
+				onConnect(Connections.MAGIC);
+			})
+			.finally(() => {
+				setConnecting(false);
+			});
 	}, []);
 
 	useEffect(() => {
@@ -63,6 +75,7 @@ const WalletConnectScreen: React.FC<Props> = ({ onConnect }) => {
 			alignItems="center"
 			justifyContent="center"
 			padding={32}
+			marginBottom={32}
 		>
 			<Heading is="h1" size={800} marginBottom={12}>
 				👋&nbsp;&nbsp;Welcome!
@@ -76,15 +89,14 @@ const WalletConnectScreen: React.FC<Props> = ({ onConnect }) => {
 				display="flex"
 				flexDirection="column"
 			>
-				<Pane marginBottom={16}>
+				<Pane marginBottom={8}>
 					{!isArConnectLoading ? (
 						<Button
-							height={majorScale(6)}
-							appearance="primary"
+							height={majorScale(7)}
 							iconBefore={<Image src={ArConnectIcon} width={30} height={30} />}
 							onClick={connectArConnect}
 							isLoading={isLoading}
-							minWidth={260}
+							minWidth={300}
 						>
 							<strong>Connect with ArConnect</strong>
 						</Button>
@@ -103,21 +115,20 @@ const WalletConnectScreen: React.FC<Props> = ({ onConnect }) => {
 								iconBefore={
 									<Image src={ArConnectIcon} width={30} height={30} />
 								}
-								minWidth={260}
+								minWidth={300}
 							>
 								<strong>Install ArConnect</strong>
 							</Button>
 						</Link>
 					)}
 				</Pane>
-				<Pane marginBottom={16}>
+				<Pane>
 					<Button
-						height={majorScale(6)}
-						appearance="primary"
+						height={majorScale(7)}
 						iconBefore={EnvelopeIcon}
 						onClick={connectMagic}
 						isLoading={isLoading}
-						minWidth={260}
+						minWidth={300}
 					>
 						<strong>Connect with Email</strong>
 					</Button>
