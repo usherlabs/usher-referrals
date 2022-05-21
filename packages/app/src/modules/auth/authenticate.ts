@@ -1,18 +1,26 @@
 import { DID } from "dids";
 import { getResolver as getKeyResolver } from "key-did-resolver";
 import { getResolver as get3IDResolver } from "@ceramicnetwork/3id-did-resolver";
-import { AuthProvider, ThreeIdConnect } from "@3id/connect";
+import {
+	AuthProvider,
+	ThreeIdConnect,
+	EthereumAuthProvider
+} from "@3id/connect";
 import { Caip10Link } from "@ceramicnetwork/stream-caip10-link";
-import { ceramicNetwork } from "@/env-config";
-import getCeramicClientInstance from "@/utils/ceramic-client";
-import { ThreeIdProvider } from "@3id/did-provider";
+// import { ThreeIdProvider } from "@3id/did-provider";
 import * as uint8arrays from "uint8arrays";
 import { Sha256 } from "@aws-crypto/sha256-browser";
+import { ethers } from "ethers";
+
 import { Chains } from "@/types";
+import getMagicClient from "@/utils/magic-client";
+import { ceramicNetwork } from "@/env-config";
+import getCeramicClientInstance from "@/utils/ceramic-client";
 
 // Create a ThreeIdConnect connect instance as soon as possible in your app to start loading assets
 const threeID = new ThreeIdConnect(ceramicNetwork);
 const ceramic = getCeramicClientInstance();
+const magic = getMagicClient();
 
 class Authenticate {
 	protected did: DID | null;
@@ -75,6 +83,9 @@ class Authenticate {
 		return this.did;
 	}
 
+	/**
+	 * Deterministically produced a eip115 wallet for use with ThreeID
+	 */
 	public async withArweave(
 		walletAddress: string,
 		arConnectProvider: typeof window.arweaveWallet
@@ -87,34 +98,51 @@ class Authenticate {
 
 		const hash = new Sha256();
 		hash.update(uint8arrays.toString(sig));
-		const res = await hash.digest();
+		const entropy = await hash.digest();
 
-		const threeIDAuth = await ThreeIdProvider.create({
-			ceramic,
-			authId: walletAddress,
-			authSecret: res,
-			getPermission: (request: any) => Promise.resolve(request.payload.paths)
-		});
+		const mnemonic = ethers.utils.entropyToMnemonic(entropy);
+		const caipWallet = ethers.Wallet.fromMnemonic(mnemonic);
+		// @ts-ignore
+		// const provider = new ethers.providers.Web3Provider(magic.rpcProvider);
+		// const provider = new ethers.providers.StaticJsonRpcProvider(
+		// 	"https://eth-mainnet.alchemyapi.io/v2/Vr62QipjNeuLST97u1AKQAeDWxUJ2zKl",
+		// 	"homestead"
+		// );
+		const provider = new ethers.providers.AlchemyProvider(
+			"homestead",
+			"Vr62QipjNeuLST97u1AKQAeDWxUJ2zKl"
+		);
+		// "https://eth-mainnet.alchemyapi.io/v2/Vr62QipjNeuLST97u1AKQAeDWxUJ2zKl"
+		const authProvider = new EthereumAuthProvider(provider, caipWallet.address);
 
-		const did = new DID({
-			// Get the DID provider from the 3ID Connect instance
-			provider: threeIDAuth.getDidProvider(),
-			resolver: {
-				...get3IDResolver(ceramic),
-				...getKeyResolver()
-			}
-		});
-		// Authenticate the DID using the 3ID provider from 3ID Connect, this will trigger the
-		// authentication flow using 3ID Connect and the Ethereum provider
-		await did.authenticate();
+		return this.connect(authProvider);
 
-		// The Ceramic client can create and update streams using the authenticated DID
-		ceramic.did = did;
+		// const threeIDAuth = await ThreeIdProvider.create({
+		// 	ceramic,
+		// 	authId: walletAddress,
+		// 	authSecret: res,
+		// 	getPermission: (request: any) => Promise.resolve(request.payload.paths)
+		// });
 
-		this.did = did;
-		this.chains.push(Chains.ARWEAVE);
+		// const did = new DID({
+		// 	// Get the DID provider from the 3ID Connect instance
+		// 	provider: threeIDAuth.getDidProvider(),
+		// 	resolver: {
+		// 		...get3IDResolver(ceramic),
+		// 		...getKeyResolver()
+		// 	}
+		// });
+		// // Authenticate the DID using the 3ID provider from 3ID Connect, this will trigger the
+		// // authentication flow using 3ID Connect and the Ethereum provider
+		// await did.authenticate();
 
-		return did;
+		// // The Ceramic client can create and update streams using the authenticated DID
+		// ceramic.did = did;
+
+		// this.did = did;
+		// this.chains.push(Chains.ARWEAVE);
+
+		// return "";
 	}
 
 	// /**

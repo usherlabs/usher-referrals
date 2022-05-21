@@ -23,6 +23,8 @@ export const ceramicNetwork = process.env.NEXT_PUBLIC_CERAMIC_NETWORK;
 
 export const hcaptchaSiteKey = process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY;
 
+export const magicPublicKey = process.env.NEXT_PUBLIC_MAGIC_KEY;
+
 /* ========== SECURITY ========== */
 export const inviteOrigin = process.env.NEXT_PUBLIC_INVITE_ORIGIN;
 

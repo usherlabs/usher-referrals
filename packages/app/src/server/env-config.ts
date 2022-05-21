@@ -26,3 +26,5 @@ export const postmarkTemplates = {
 };
 
 export const emailFrom = process.env.EMAIL_FROM;
+
+export const magicSecretKey = process.env.MAGIC_SECRET_KEY;
