@@ -5,9 +5,9 @@ import UserProvider from "@/providers/User";
 const Overview = () => {
 	return (
 		<UserProvider>
-			{/* <DashboardContainer>
+			<DashboardContainer>
 				<DashboardScreen />
-			</DashboardContainer> */}
+			</DashboardContainer>
 		</UserProvider>
 	);
 };

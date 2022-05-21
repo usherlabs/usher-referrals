@@ -229,6 +229,8 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 				setLoading(false);
 			});
 			setUserFetched(true);
+		} else {
+			setLoading(false);
 		}
 		return () => {};
 	}, [user, isUserFetched, walletsLoading, lastConnection]);

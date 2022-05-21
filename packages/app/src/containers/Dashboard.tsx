@@ -25,8 +25,8 @@ type Props = {
 
 // let loadingMessageIndex = 0;
 
-const SIDEBAR_WIDTH = 50 as const;
-const HEADER_HEIGHT = 50 as const;
+const SIDEBAR_WIDTH = 90 as const;
+const HEADER_HEIGHT = 70 as const;
 
 const DashboardContainer: React.FC<Props> = ({ children }) => {
 	const { colors } = useTheme();
@@ -118,8 +118,8 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 				right={0}
 				top={0}
 				height={HEADER_HEIGHT}
-				borderBottomWidth={1}
-				borderBottomColor={colors.gray800}
+				borderBottomWidth={2}
+				borderBottomColor={colors.gray300}
 				borderBottomStyle="solid"
 			>
 				{/* <Header height={HEADER_HEIGHT} user={user} disconnect={disconnect} /> */}
