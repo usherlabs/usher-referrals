@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect } from "react";
-import { Pane } from "evergreen-ui";
+import { Pane, useTheme } from "evergreen-ui";
 import isEmpty from "lodash/isEmpty";
-import useLocalStorage from "react-use-localstorage";
+import useLocalStorage from "use-local-storage";
 
 import { useUser } from "@/hooks/";
 // import Header from "@/components/Header";
@@ -25,7 +25,11 @@ type Props = {
 
 // let loadingMessageIndex = 0;
 
+const SIDEBAR_WIDTH = 50 as const;
+const HEADER_HEIGHT = 50 as const;
+
 const DashboardContainer: React.FC<Props> = ({ children }) => {
+	const { colors } = useTheme();
 	const {
 		user,
 		isLoading,
@@ -33,11 +37,10 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 	} = useUser();
 	const [isPreloading, setPreloading] = useState(true);
 	const [isMounted, setMounted] = useState(false);
-	const [captureEmailValue, setCaptureEmail] = useLocalStorage(
+	const [captureEmail, setCaptureEmail] = useLocalStorage<boolean | null>(
 		"get-notified",
-		""
+		null
 	);
-	const captureEmail = captureEmailValue === "yes";
 	const {
 		id: userId,
 		profile,
@@ -75,7 +78,7 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 
 	const onConnect = useCallback(() => {
 		if (!profile.email) {
-			setCaptureEmail("yes");
+			setCaptureEmail(true);
 		}
 	}, [profile]);
 
@@ -85,39 +88,70 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 				...profile,
 				email
 			});
-			setCaptureEmail("");
+			setCaptureEmail(false);
 		},
 		[profile]
 	);
 
 	const onEmailCaptureSkip = useCallback(() => {
-		setCaptureEmail("");
+		setCaptureEmail(false);
 	}, []);
 
 	return (
-		<Pane
-			display="flex"
-			flexDirection="column"
-			marginY="0"
-			marginX="auto"
-			minHeight="100vh"
-			position="relative"
-		>
+		<Pane>
 			{(isPreloading || (isLoading && !isMounted)) && (
 				<Preloader message={`Hold tight...`} />
 			)}
-			{/* <Header user={user} disconnect={disconnect} /> */}
-			{isEmpty(userId) && <WalletConnectScreen onConnect={onConnect} />}
-			{isEmpty(profile.email) && !isEmpty(userId) && captureEmail && (
-				<EmailCaptureScreen
-					onSkip={onEmailCaptureSkip}
-					onCapture={onEmailCapture}
-				/>
-			)}
-			{!isEmpty(userId) && !isCaptchaVerified && !captureEmail && (
-				<CaptchaScreen />
-			)}
-			{!isEmpty(userId) && isCaptchaVerified && !captureEmail && children}
+			<Pane
+				position="fixed"
+				bottom={0}
+				left={0}
+				top={0}
+				width={SIDEBAR_WIDTH}
+				backgroundColor={colors.gray900}
+			>
+				{/* <Sidebar /> */}
+			</Pane>
+			<Pane
+				position="fixed"
+				left={SIDEBAR_WIDTH}
+				right={0}
+				top={0}
+				height={HEADER_HEIGHT}
+				borderBottomWidth={1}
+				borderBottomColor={colors.gray800}
+				borderBottomStyle="solid"
+			>
+				{/* <Header height={HEADER_HEIGHT} user={user} disconnect={disconnect} /> */}
+			</Pane>
+			<Pane
+				position="fixed"
+				bottom={0}
+				right={0}
+				left={SIDEBAR_WIDTH}
+				top={HEADER_HEIGHT}
+			>
+				<Pane
+					display="flex"
+					flexDirection="column"
+					marginY="0"
+					marginX="auto"
+					minHeight="100vh"
+					position="relative"
+				>
+					{isEmpty(userId) && <WalletConnectScreen onConnect={onConnect} />}
+					{isEmpty(profile.email) && !isEmpty(userId) && captureEmail && (
+						<EmailCaptureScreen
+							onSkip={onEmailCaptureSkip}
+							onCapture={onEmailCapture}
+						/>
+					)}
+					{!isEmpty(userId) && !isCaptchaVerified && !captureEmail && (
+						<CaptchaScreen />
+					)}
+					{!isEmpty(userId) && isCaptchaVerified && !captureEmail && children}
+				</Pane>
+			</Pane>
 		</Pane>
 	);
 };

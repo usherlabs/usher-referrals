@@ -89,7 +89,7 @@ const DashboardScreen = () => {
 						marginBottom={12}
 					>
 						<Pane display="flex" flexDirection="column">
-							<AffiliateLink link={inviteLink} marginBottom={12} />
+							{/* <AffiliateLink link={inviteLink} marginBottom={12} /> */}
 							<Pane
 								display="flex"
 								flexDirection="row"
@@ -114,12 +114,12 @@ const DashboardScreen = () => {
 							borderRadius={8}
 						>
 							<Pane display="flex" marginBottom={24}>
-								<ValueCard
+								{/* <ValueCard
 									value={conversions.total}
 									ticker="hits"
 									id="total-referrals"
 									label="Affiliate Link Hits"
-								/>
+								/> */}
 							</Pane>
 							<Pane
 								display="flex"
@@ -132,7 +132,7 @@ const DashboardScreen = () => {
 								`}
 							>
 								<Pane display="flex" flex={1}>
-									<ValueCard
+									{/* <ValueCard
 										value={conversions.pending}
 										id="pending-conv-count"
 										label="Pending Conversions"
@@ -142,11 +142,11 @@ const DashboardScreen = () => {
 										iconProps={{
 											color: colors.gray500
 										}}
-									/>
+									/> */}
 								</Pane>
 								<Pane width={20} />
 								<Pane display="flex" flex={1}>
-									<ValueCard
+									{/* <ValueCard
 										value={conversions.success}
 										id="success-conv-count"
 										label="Successful Conversions"
@@ -156,7 +156,7 @@ const DashboardScreen = () => {
 										iconProps={{
 											color: colors.gray500
 										}}
-									/>
+									/> */}
 								</Pane>
 							</Pane>
 						</Pane>
@@ -193,13 +193,13 @@ const DashboardScreen = () => {
 						marginBottom={24}
 					>
 						<Pane display="flex" marginBottom={24}>
-							<ValueCard
+							{/* <ValueCard
 								isLoading={isContractLoading as boolean}
 								ticker={ticker}
 								value={claimableRewards}
 								id="claimable-rewards"
 								label="Claimable Rewards"
-							/>
+							/> */}
 						</Pane>
 						<Pane display="flex">
 							<ClaimButton />

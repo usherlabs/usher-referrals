@@ -12,7 +12,7 @@ import React, {
 	useMemo,
 	useState
 } from "react";
-import useLocalStorage from "react-use-localstorage";
+import useLocalStorage from "use-local-storage";
 
 import useArConnect from "@/hooks/use-arconnect";
 import {
@@ -74,10 +74,8 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 	const [user, setUser] = useState<User>(defaultValues);
 	const [loading, setLoading] = useState(true);
 	const [isUserFetched, setUserFetched] = useState(false);
-	const [lastConnection, setLastConnection] = useLocalStorage(
-		"last-connection",
-		""
-	);
+	const [lastConnection, setLastConnection] =
+		useLocalStorage<Connections | null>("last-connection", null);
 	const [getArConnect, isArConnectLoading] = useArConnect();
 	const walletsLoading = isArConnectLoading;
 
@@ -227,7 +225,7 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 	useEffect(() => {
 		if (!walletsLoading && !user.id && !isUserFetched && lastConnection) {
 			setLoading(true);
-			getUser(lastConnection as Connections).finally(() => {
+			getUser(lastConnection).finally(() => {
 				setLoading(false);
 			});
 			setUserFetched(true);

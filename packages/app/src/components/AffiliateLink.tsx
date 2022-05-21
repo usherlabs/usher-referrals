@@ -25,7 +25,7 @@ const AffiliateLink: React.FC<Props> = ({ link, ...props }) => {
 	}, []);
 
 	return (
-		<CopyToClipboard text={link} onCopy={onCopy}>
+		<CopyToClipboard text={link || ""} onCopy={onCopy}>
 			<InputField
 				id="affiliate-link"
 				label="Affiliate Link"
