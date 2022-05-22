@@ -1,26 +1,22 @@
 import { DID } from "dids";
 import { getResolver as getKeyResolver } from "key-did-resolver";
 import { getResolver as get3IDResolver } from "@ceramicnetwork/3id-did-resolver";
-import {
-	AuthProvider,
-	ThreeIdConnect,
-	EthereumAuthProvider
-} from "@3id/connect";
+import { AuthProvider, ThreeIdConnect } from "@3id/connect";
 import { Caip10Link } from "@ceramicnetwork/stream-caip10-link";
 // import { ThreeIdProvider } from "@3id/did-provider";
 import * as uint8arrays from "uint8arrays";
 import { Sha256 } from "@aws-crypto/sha256-browser";
-import { ethers } from "ethers";
+import { CosmosAuthProvider } from "@ceramicnetwork/blockchain-utils-linking";
+import { entropyToMnemonic } from "@cosmjs/crypto/build/bip39";
+import { Tx, SignMeta } from "@tendermint/sig";
 
 import { Chains } from "@/types";
-import getMagicClient from "@/utils/magic-client";
 import { ceramicNetwork } from "@/env-config";
 import getCeramicClientInstance from "@/utils/ceramic-client";
 
 // Create a ThreeIdConnect connect instance as soon as possible in your app to start loading assets
 const threeID = new ThreeIdConnect(ceramicNetwork);
 const ceramic = getCeramicClientInstance();
-const magic = getMagicClient();
 
 class Authenticate {
 	protected did: DID | null;
@@ -42,9 +38,6 @@ class Authenticate {
 	 */
 	private async connect(authProvider: AuthProvider) {
 		if (this.did !== null) {
-			// if(this.chains.length === 1 && this.chains.includes(Chains.ARWEAVE)){
-			// 	return this.linkArweave();
-			// }
 			// DID already established... meaning all future connects are links to the existing DID.
 			// The Caip10Link manages this merge mechanism, automatically... -- see https://developers.ceramic.network/reference/stream-programs/caip10-link/
 			const accountId = await authProvider.accountId();
@@ -84,7 +77,7 @@ class Authenticate {
 	}
 
 	/**
-	 * Deterministically produced a eip115 wallet for use with ThreeID
+	 * Deterministically produced a Cosm wallet for use with ThreeID
 	 */
 	public async withArweave(
 		walletAddress: string,
@@ -100,21 +93,26 @@ class Authenticate {
 		hash.update(uint8arrays.toString(sig));
 		const entropy = await hash.digest();
 
-		const mnemonic = ethers.utils.entropyToMnemonic(entropy);
-		const caipWallet = ethers.Wallet.fromMnemonic(mnemonic);
 		// @ts-ignore
-		// const provider = new ethers.providers.Web3Provider(magic.rpcProvider);
-		// const provider = new ethers.providers.StaticJsonRpcProvider(
-		// 	"https://eth-mainnet.alchemyapi.io/v2/Vr62QipjNeuLST97u1AKQAeDWxUJ2zKl",
-		// 	"homestead"
-		// );
-		const provider = new ethers.providers.AlchemyProvider(
-			"homestead",
-			"Vr62QipjNeuLST97u1AKQAeDWxUJ2zKl"
+		const Sig = await import("@tendermint/sig/dist/web");
+		console.log(Sig);
+		const mnemonic = entropyToMnemonic(entropy);
+		const cosmWallet = Sig.createWalletFromMnemonic(mnemonic);
+		console.log(cosmWallet);
+		const authProvider = new CosmosAuthProvider(
+			{
+				sign(tx: Tx, metadata: SignMeta) {
+					return Sig.signTx(tx, metadata, {
+						privateKey: cosmWallet.privateKey,
+						publicKey: cosmWallet.publicKey
+					});
+				}
+			},
+			cosmWallet.address,
+			"usher__arweave-proxy"
 		);
-		// "https://eth-mainnet.alchemyapi.io/v2/Vr62QipjNeuLST97u1AKQAeDWxUJ2zKl"
-		const authProvider = new EthereumAuthProvider(provider, caipWallet.address);
 
+		// @ts-ignore
 		return this.connect(authProvider);
 
 		// const threeIDAuth = await ThreeIdProvider.create({
