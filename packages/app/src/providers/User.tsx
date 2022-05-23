@@ -155,12 +155,7 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 			case Connections.ARCONNECT: {
 				const arconnect = getArConnect();
 				if (arconnect !== null) {
-					const permissions = [
-						"ACCESS_ADDRESS",
-						"ENCRYPT",
-						"DECRYPT",
-						"SIGNATURE"
-					];
+					const permissions = ["ACCESS_ADDRESS", "SIGNATURE"];
 					// @ts-ignore
 					await arconnect.connect(permissions, {
 						name: "Usher",

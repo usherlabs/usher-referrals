@@ -1,90 +1,111 @@
 import { DID } from "dids";
 import { getResolver as getKeyResolver } from "key-did-resolver";
 import { getResolver as get3IDResolver } from "@ceramicnetwork/3id-did-resolver";
-import { ThreeIdConnect } from "@3id/connect";
-import { Caip10Link } from "@ceramicnetwork/stream-caip10-link";
-// import { ThreeIdProvider } from "@3id/did-provider";
+import { ThreeIdProvider } from "@3id/did-provider";
 import * as uint8arrays from "uint8arrays";
 import { Sha256 } from "@aws-crypto/sha256-browser";
-import {
-	AuthProvider,
-	CosmosAuthProvider
-} from "@ceramicnetwork/blockchain-utils-linking";
-import { entropyToMnemonic } from "@cosmjs/crypto/build/bip39";
-import { Tx, SignMeta } from "@tendermint/sig";
-import { AccountIdParams } from "caip";
 
 import { Chains } from "@/types";
-import { ceramicNetwork } from "@/env-config";
 import getCeramicClientInstance from "@/utils/ceramic-client";
 
-declare module "caip" {
-	namespace AccountId {
-		const toJSON: () => AccountIdParams;
-	}
-}
-
-// Create a ThreeIdConnect connect instance as soon as possible in your app to start loading assets
-const threeID = new ThreeIdConnect(ceramicNetwork);
 const ceramic = getCeramicClientInstance();
 
-class Authenticate {
-	protected did: DID | null = null;
+export type Auth = {
+	id: string;
+	did: DID;
+	active: boolean;
+	chain: Chains;
+};
 
-	protected chains: Chains[] = [];
+class Authenticate {
+	protected auths: Auth[] = [];
+
+	protected account: {
+		did: DID | null;
+		key: string;
+	};
 
 	private static instance: Authenticate | null;
 
-	/**
-	 * Used for Blockchains compatible with CAIP-10 and ThreeIDConnect
-	 * https://github.com/ceramicnetwork/js-ceramic/tree/develop/packages/blockchain-utils-linking
-	 *
-	 * 3ID Connect:
-	 * https://developers.ceramic.network/reference/accounts/3id-did/#3id-connect
-	 */
-	private async connect(authProvider: AuthProvider) {
-		if (this.did !== null) {
-			// DID already established... meaning all future connects are links to the existing DID.
-			// The Caip10Link manages this merge mechanism, automatically... -- see https://developers.ceramic.network/reference/stream-programs/caip10-link/
-			const accountId = await authProvider.accountId();
-			const accountLink = await Caip10Link.fromAccount(
-				ceramic,
-				accountId.toString()
-			);
-			// `accountLink.did` -- can be used to access the independent DID, but we want to link it to the currently connected DID.
-			await accountLink.setDid(this.did, authProvider);
-			return this.did;
-		}
+	// Fetch the account Link stream and populate the class -- Stream ID is relevant to the Account DID
+	private async initAccount() {
+		// ...
+	}
 
-		await threeID.connect(authProvider);
-
-		const provider = threeID.getDidProvider();
-		console.log(provider);
+	private async connectWallet(id: string, secret: Uint8Array, chain: Chains) {
+		const threeIDAuth = await ThreeIdProvider.create({
+			ceramic,
+			authId: id,
+			authSecret: secret,
+			getPermission: (request: any) => Promise.resolve(request.payload.paths)
+		});
 
 		const did = new DID({
 			// Get the DID provider from the 3ID Connect instance
-			provider,
+			provider: threeIDAuth.getDidProvider(),
 			resolver: {
 				...get3IDResolver(ceramic),
 				...getKeyResolver()
 			}
 		});
-		console.log(did);
 		// Authenticate the DID using the 3ID provider from 3ID Connect, this will trigger the
 		// authentication flow using 3ID Connect and the Ethereum provider
 		await did.authenticate();
-		console.log(did.id);
-
-		this.did = did;
 
 		// The Ceramic client can create and update streams using the authenticated DID
 		ceramic.did = did;
 
+		// If wallet dids exist
+		if (this.auths.length > 0) {
+			// If wallet DID does not exist, push it and active
+			if (!this.auths.find((auth) => auth.did.id === did.id)) {
+				// If there is already one authentication, and we're about to add another, initialise the accountDID
+				if (this.auths.length === 1) {
+					await this.initAccount();
+				}
+
+				this.add({
+					id,
+					did,
+					active: false,
+					chain
+				});
+			}
+		}
+
 		return did;
 	}
 
-	public getDID() {
-		return this.did;
+	private add(auth: Auth) {
+		this.auths.push(auth);
+		this.activate(auth.did);
+		// Link auth to account
+	}
+
+	private activate(did: DID | string) {
+		let id = "";
+		if (typeof did === "string") {
+			id = did;
+		} else if (did instanceof DID) {
+			id = did.id;
+		}
+
+		this.auths = this.auths.map((walletDID) => {
+			if (walletDID.did.id === id) {
+				return {
+					...walletDID,
+					active: true
+				};
+			}
+			return {
+				...walletDID,
+				active: false
+			};
+		});
+	}
+
+	public get did() {
+		return this.auths.find(({ active }) => active === true);
 	}
 
 	/**
@@ -104,66 +125,16 @@ class Authenticate {
 		hash.update(uint8arrays.toString(sig));
 		const entropy = await hash.digest();
 
-		// @ts-ignore
-		const Sig = await import("@tendermint/sig/dist/web");
-		const mnemonic = entropyToMnemonic(entropy);
-		const cosmWallet = Sig.createWalletFromMnemonic(mnemonic);
-		console.log(cosmWallet);
-		const authProvider = new CosmosAuthProvider(
-			{
-				sign(tx: Tx, metadata: SignMeta) {
-					console.log(tx, metadata, {
-						privateKey: cosmWallet.privateKey,
-						publicKey: cosmWallet.publicKey
-					});
-					return Sig.signTx(tx, metadata, {
-						privateKey: cosmWallet.privateKey,
-						publicKey: cosmWallet.publicKey
-					});
-				}
-			},
-			cosmWallet.address,
-			"cosmos"
+		const did = await this.connectWallet(
+			walletAddress,
+			entropy,
+			Chains.ARWEAVE
 		);
 
-		return this.connect(authProvider);
-
-		// const threeIDAuth = await ThreeIdProvider.create({
-		// 	ceramic,
-		// 	authId: walletAddress,
-		// 	authSecret: res,
-		// 	getPermission: (request: any) => Promise.resolve(request.payload.paths)
-		// });
-
-		// const did = new DID({
-		// 	// Get the DID provider from the 3ID Connect instance
-		// 	provider: threeIDAuth.getDidProvider(),
-		// 	resolver: {
-		// 		...get3IDResolver(ceramic),
-		// 		...getKeyResolver()
-		// 	}
-		// });
-		// // Authenticate the DID using the 3ID provider from 3ID Connect, this will trigger the
-		// // authentication flow using 3ID Connect and the Ethereum provider
-		// await did.authenticate();
-
-		// // The Ceramic client can create and update streams using the authenticated DID
-		// ceramic.did = did;
-
-		// this.did = did;
-		// this.chains.push(Chains.ARWEAVE);
-
-		// return "";
+		return did;
 	}
 
-	// /**
-	//  * A method for creating a Ceramic Document indicating ownership of an Arweave wallet/did
-	//  *
-	//  * @return  {[type]}  [return description]
-	//  */
-	// public async linkArweave() {}
-
-	public static getInstance() {
+	public static async getInstance() {
 		if (!this.instance) {
 			this.instance = new Authenticate();
 		}
