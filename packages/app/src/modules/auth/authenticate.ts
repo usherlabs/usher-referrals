@@ -59,11 +59,6 @@ class Authenticate {
 		if (this.auths.length > 0) {
 			// If wallet DID does not exist, push it and active
 			if (!this.auths.find((auth) => auth.did.id === did.id)) {
-				// If there is already one authentication, and we're about to add another, initialise the accountDID
-				if (this.auths.length === 1) {
-					await this.initAccount();
-				}
-
 				this.add({
 					id,
 					did,
@@ -71,6 +66,11 @@ class Authenticate {
 					chain
 				});
 			}
+		} else {
+			// Fetch the Account Stream -- by using the AuthAccounts Stream
+			// If none exists for this given DID, then create one
+			// Basically, each Auth DID should own a connection to an AuthAccount. The AuthAccount behaves as an Index for all the Authentications made by the User.
+			// TODO: Install Glaze suite and learn it.
 		}
 
 		return did;
