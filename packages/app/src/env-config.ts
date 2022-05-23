@@ -18,7 +18,7 @@ export const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 export const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 export const ceramicUrl =
-	process.env.NEXT_PUBLIC_CERAMIC_URL || "http://localhost:7007";
+	process.env.NEXT_PUBLIC_CERAMIC_URL || "https://ceramic-clay.3boxlabs.com";
 export const ceramicNetwork = process.env.NEXT_PUBLIC_CERAMIC_NETWORK;
 
 export const hcaptchaSiteKey = process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY;

@@ -1,33 +1,39 @@
 import { DID } from "dids";
 import { getResolver as getKeyResolver } from "key-did-resolver";
 import { getResolver as get3IDResolver } from "@ceramicnetwork/3id-did-resolver";
-import { AuthProvider, ThreeIdConnect } from "@3id/connect";
+import { ThreeIdConnect } from "@3id/connect";
 import { Caip10Link } from "@ceramicnetwork/stream-caip10-link";
 // import { ThreeIdProvider } from "@3id/did-provider";
 import * as uint8arrays from "uint8arrays";
 import { Sha256 } from "@aws-crypto/sha256-browser";
-import { CosmosAuthProvider } from "@ceramicnetwork/blockchain-utils-linking";
+import {
+	AuthProvider,
+	CosmosAuthProvider
+} from "@ceramicnetwork/blockchain-utils-linking";
 import { entropyToMnemonic } from "@cosmjs/crypto/build/bip39";
 import { Tx, SignMeta } from "@tendermint/sig";
+import { AccountIdParams } from "caip";
 
 import { Chains } from "@/types";
 import { ceramicNetwork } from "@/env-config";
 import getCeramicClientInstance from "@/utils/ceramic-client";
+
+declare module "caip" {
+	namespace AccountId {
+		const toJSON: () => AccountIdParams;
+	}
+}
 
 // Create a ThreeIdConnect connect instance as soon as possible in your app to start loading assets
 const threeID = new ThreeIdConnect(ceramicNetwork);
 const ceramic = getCeramicClientInstance();
 
 class Authenticate {
-	protected did: DID | null;
+	protected did: DID | null = null;
 
 	protected chains: Chains[] = [];
 
 	private static instance: Authenticate | null;
-
-	constructor() {
-		this.did = null;
-	}
 
 	/**
 	 * Used for Blockchains compatible with CAIP-10 and ThreeIDConnect
@@ -52,17 +58,22 @@ class Authenticate {
 
 		await threeID.connect(authProvider);
 
+		const provider = threeID.getDidProvider();
+		console.log(provider);
+
 		const did = new DID({
 			// Get the DID provider from the 3ID Connect instance
-			provider: threeID.getDidProvider(),
+			provider,
 			resolver: {
 				...get3IDResolver(ceramic),
 				...getKeyResolver()
 			}
 		});
+		console.log(did);
 		// Authenticate the DID using the 3ID provider from 3ID Connect, this will trigger the
 		// authentication flow using 3ID Connect and the Ethereum provider
 		await did.authenticate();
+		console.log(did.id);
 
 		this.did = did;
 
@@ -95,13 +106,16 @@ class Authenticate {
 
 		// @ts-ignore
 		const Sig = await import("@tendermint/sig/dist/web");
-		console.log(Sig);
 		const mnemonic = entropyToMnemonic(entropy);
 		const cosmWallet = Sig.createWalletFromMnemonic(mnemonic);
 		console.log(cosmWallet);
 		const authProvider = new CosmosAuthProvider(
 			{
 				sign(tx: Tx, metadata: SignMeta) {
+					console.log(tx, metadata, {
+						privateKey: cosmWallet.privateKey,
+						publicKey: cosmWallet.publicKey
+					});
 					return Sig.signTx(tx, metadata, {
 						privateKey: cosmWallet.privateKey,
 						publicKey: cosmWallet.publicKey
@@ -109,10 +123,9 @@ class Authenticate {
 				}
 			},
 			cosmWallet.address,
-			"usher__arweave-proxy"
+			"cosmos"
 		);
 
-		// @ts-ignore
 		return this.connect(authProvider);
 
 		// const threeIDAuth = await ThreeIdProvider.create({
