@@ -113,12 +113,14 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 				}
 				case Connections.MAGIC: {
 					// Produce the user with Magic here...
-					const idToken = await magic.user.getIdToken();
-					console.log(idToken);
-					const idToken2 = await magic.user.getIdToken();
-					console.log(idToken2);
-					const idToken3 = await magic.user.getIdToken();
-					console.log(idToken3);
+					if (magic) {
+						const idToken = await magic.user.getIdToken();
+						console.log(idToken);
+						const idToken2 = await magic.user.getIdToken();
+						console.log(idToken2);
+						const idToken3 = await magic.user.getIdToken();
+						console.log(idToken3);
+					}
 					break;
 				}
 				default: {
@@ -172,31 +174,13 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 			}
 			case Connections.MAGIC: {
 				const isLoggedIn = await magic.user.isLoggedIn();
-				if (!isLoggedIn) {
-					// Redirect to magic login page
-					router.push("/magic/login");
-					// console.log("hello world");
-					// try {
-					// 	await magic.auth.loginWithMagicLink({ email: "", showUI: true });
-					// } catch (err) {
-					// 	console.log(err);
-					// 	if (err instanceof RPCError) {
-					// 		switch (err.code) {
-					// 			case RPCErrorCode.MagicLinkFailedVerification:
-					// 			case RPCErrorCode.MagicLinkExpired:
-					// 			case RPCErrorCode.MagicLinkRateLimited:
-					// 			case RPCErrorCode.UserAlreadyLoggedIn:
-					// 				handleException(err, null);
-					// 				break;
-					// 			default:
-					// 				break;
-					// 		}
-					// 	}
-					// }
-					return defaultValues;
+				if (isLoggedIn) {
+					// Will only be reached if the user is authorised.
+					return getUser(type);
 				}
-				// Will only be reached if the user is authorised.
-				return getUser(Connections.MAGIC);
+				// Redirect to magic login page
+				router.push("/magic/login");
+				break;
 			}
 			default: {
 				break;
@@ -220,6 +204,7 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 					}
 					case Connections.MAGIC: {
 						// Open Magic Link Dialog Here...
+						router.push("/magic/logout");
 						break;
 					}
 					default: {

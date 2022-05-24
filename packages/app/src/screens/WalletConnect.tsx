@@ -14,6 +14,7 @@ import Bowser from "bowser";
 import { Connections } from "@/types";
 import { useUser, useArConnect } from "@/hooks/";
 import { ARCONNECT_CHROME_URL, ARCONNECT_FIREFOX_URL } from "@/constants";
+import { UilLockOpenAlt } from "@iconscout/react-unicons";
 import ArConnectIcon from "@/assets/icon/arconnect.svg";
 
 export type Props = {
@@ -121,12 +122,12 @@ const WalletConnectScreen: React.FC<Props> = ({ onConnect }) => {
 				<Pane>
 					<Button
 						height={majorScale(7)}
-						iconBefore={EnvelopeIcon}
+						iconBefore={() => <UilLockOpenAlt size="28" />}
 						onClick={connectMagic}
 						isLoading={isLoading}
 						minWidth={300}
 					>
-						<strong>Connect with Email</strong>
+						<strong>Email, SMS, and more</strong>
 					</Button>
 				</Pane>
 			</Pane>
