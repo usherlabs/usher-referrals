@@ -4,15 +4,13 @@ import { magicSecretKey } from "@/server/env-config";
 
 let client: Magic | null = null;
 
-const getInstance = (): Magic => {
-	if (client === null) {
-		if (magicSecretKey) {
-			client = new Magic(magicSecretKey);
-		} else {
-			client = new Magic(magicPublicKey || "");
-		}
-	}
-	return client;
+const options = {
+	testMode: true // isProd
 };
+if (magicSecretKey) {
+	client = new Magic(magicSecretKey, options);
+} else {
+	client = new Magic(magicPublicKey || "", options);
+}
 
-export default getInstance;
+export const magic = client;

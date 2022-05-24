@@ -59,7 +59,7 @@ const Header: React.FC<Props> = ({ height, ...props }) => {
 				</Anchor>
 				<Pane paddingX={16}>
 					{menu.map((item) => (
-						<Anchor href={item.href}>
+						<Anchor key={item.text} href={item.href}>
 							<Button
 								appearance="minimal"
 								height={height}

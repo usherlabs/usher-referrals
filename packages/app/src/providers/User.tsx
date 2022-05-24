@@ -15,6 +15,8 @@ import React, {
 import useLocalStorage from "use-local-storage";
 import produce from "immer";
 import allSettled from "promise.allsettled";
+import { RPCError, RPCErrorCode } from "magic-sdk";
+import { useRouter } from "next/router";
 
 import useArConnect from "@/hooks/use-arconnect";
 import { User, IUserContext, Wallet, Connections, Profile } from "@/types";
@@ -24,6 +26,7 @@ import handleException, {
 } from "@/utils/handle-exception";
 import { identifyUser } from "@/utils/signals";
 import Authenticate from "@/modules/auth";
+import { magic } from "@/utils/magic-client";
 // import * as api from "@/api";
 
 import LogoImage from "@/assets/logo/Logo-Icon.svg";
@@ -73,6 +76,7 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 		Connections[]
 	>("saved-connections", []);
 	const [getArConnect, isArConnectLoading] = useArConnect();
+	const router = useRouter();
 	const walletsLoading = isArConnectLoading;
 
 	const saveUser = useCallback((saved: User) => {
@@ -97,16 +101,9 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 					if (arconnect !== null) {
 						try {
 							const arweaveWalletAddress = await arconnect.getActiveAddress();
-							console.log(arweaveWalletAddress);
-							const { did } = await auth.withArweave(
-								arweaveWalletAddress,
-								arconnect,
-								type
-							);
-							console.log(did);
+							await auth.withArweave(arweaveWalletAddress, arconnect, type);
 							wallets = auth.getWallets();
 						} catch (e) {
-							console.error(e);
 							if (e instanceof Error) {
 								handleException(e, null);
 							}
@@ -115,7 +112,13 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 					break;
 				}
 				case Connections.MAGIC: {
-					// Authorise Magic Wallet here...
+					// Produce the user with Magic here...
+					const idToken = await magic.user.getIdToken();
+					console.log(idToken);
+					const idToken2 = await magic.user.getIdToken();
+					console.log(idToken2);
+					const idToken3 = await magic.user.getIdToken();
+					console.log(idToken3);
 					break;
 				}
 				default: {
@@ -166,6 +169,34 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 					return getUser(type);
 				}
 				break;
+			}
+			case Connections.MAGIC: {
+				const isLoggedIn = await magic.user.isLoggedIn();
+				if (!isLoggedIn) {
+					// Redirect to magic login page
+					router.push("/magic/login");
+					// console.log("hello world");
+					// try {
+					// 	await magic.auth.loginWithMagicLink({ email: "", showUI: true });
+					// } catch (err) {
+					// 	console.log(err);
+					// 	if (err instanceof RPCError) {
+					// 		switch (err.code) {
+					// 			case RPCErrorCode.MagicLinkFailedVerification:
+					// 			case RPCErrorCode.MagicLinkExpired:
+					// 			case RPCErrorCode.MagicLinkRateLimited:
+					// 			case RPCErrorCode.UserAlreadyLoggedIn:
+					// 				handleException(err, null);
+					// 				break;
+					// 			default:
+					// 				break;
+					// 		}
+					// 	}
+					// }
+					return defaultValues;
+				}
+				// Will only be reached if the user is authorised.
+				return getUser(Connections.MAGIC);
 			}
 			default: {
 				break;

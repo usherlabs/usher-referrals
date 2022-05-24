@@ -2,7 +2,7 @@
 // import DashboardContainer from "@/containers/Dashboard";
 import UserProvider from "@/providers/User";
 
-const Overview = () => {
+const Explore = () => {
 	return (
 		<UserProvider>
 			{/* <DashboardContainer>
@@ -12,4 +12,4 @@ const Overview = () => {
 	);
 };
 
-export default Overview;
+export default Explore;

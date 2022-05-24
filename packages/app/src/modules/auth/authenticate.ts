@@ -6,10 +6,8 @@ import * as uint8arrays from "uint8arrays";
 import { Sha256 } from "@aws-crypto/sha256-browser";
 
 import { Chains, Wallet, Connections } from "@/types";
-import getCeramicClientInstance from "@/utils/ceramic-client";
+import { ceramic } from "@/utils/ceramic-client";
 import Auth from "./authentication";
-
-const ceramic = getCeramicClientInstance();
 
 class Authenticate {
 	protected auths: Auth[] = [];
