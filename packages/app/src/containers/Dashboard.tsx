@@ -4,7 +4,7 @@ import isEmpty from "lodash/isEmpty";
 import useLocalStorage from "use-local-storage";
 
 import { useUser } from "@/hooks/";
-// import Header from "@/components/Header";
+import Header from "@/components/Header";
 import WalletConnectScreen from "@/screens/WalletConnect";
 import EmailCaptureScreen from "@/screens/EmailCapture";
 import CaptchaScreen from "@/screens/Captcha";
@@ -25,7 +25,6 @@ type Props = {
 
 // let loadingMessageIndex = 0;
 
-const SIDEBAR_WIDTH = 90 as const;
 const HEADER_HEIGHT = 70 as const;
 
 const DashboardContainer: React.FC<Props> = ({ children }) => {
@@ -103,53 +102,37 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 			)}
 			<Pane
 				position="fixed"
-				bottom={0}
 				left={0}
-				top={0}
-				width={SIDEBAR_WIDTH}
-				backgroundColor={colors.gray900}
-			>
-				{/* <Sidebar /> */}
-			</Pane>
-			<Pane
-				position="fixed"
-				left={SIDEBAR_WIDTH}
 				right={0}
 				top={0}
 				height={HEADER_HEIGHT}
 				borderBottomWidth={2}
 				borderBottomColor={colors.gray300}
 				borderBottomStyle="solid"
+				zIndex={10}
 			>
-				{/* <Header height={HEADER_HEIGHT} user={user} disconnect={disconnect} /> */}
+				<Header height={HEADER_HEIGHT} />
 			</Pane>
 			<Pane
-				position="fixed"
-				bottom={0}
-				right={0}
-				left={SIDEBAR_WIDTH}
-				top={HEADER_HEIGHT}
+				display="flex"
+				flexDirection="column"
+				marginY="0"
+				marginX="auto"
+				minHeight="100vh"
+				position="relative"
+				paddingTop={HEADER_HEIGHT}
 			>
-				<Pane
-					display="flex"
-					flexDirection="column"
-					marginY="0"
-					marginX="auto"
-					minHeight="100vh"
-					position="relative"
-				>
-					{isEmpty(wallets) && <WalletConnectScreen onConnect={onConnect} />}
-					{isEmpty(profile.email) && !isEmpty(wallets) && captureEmail && (
-						<EmailCaptureScreen
-							onSkip={onEmailCaptureSkip}
-							onCapture={onEmailCapture}
-						/>
-					)}
-					{!isEmpty(wallets) && !isCaptchaVerified && !captureEmail && (
-						<CaptchaScreen />
-					)}
-					{!isEmpty(wallets) && isCaptchaVerified && !captureEmail && children}
-				</Pane>
+				{isEmpty(wallets) && <WalletConnectScreen onConnect={onConnect} />}
+				{isEmpty(profile.email) && !isEmpty(wallets) && captureEmail && (
+					<EmailCaptureScreen
+						onSkip={onEmailCaptureSkip}
+						onCapture={onEmailCapture}
+					/>
+				)}
+				{!isEmpty(wallets) && !isCaptchaVerified && !captureEmail && (
+					<CaptchaScreen />
+				)}
+				{!isEmpty(wallets) && isCaptchaVerified && !captureEmail && children}
 			</Pane>
 		</Pane>
 	);

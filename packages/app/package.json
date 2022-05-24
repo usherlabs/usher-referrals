@@ -17,6 +17,7 @@
 		"@ceramicnetwork/http-client": "^2.0.0",
 		"@fpjs-incubator/botd-agent": "^0.1.24",
 		"@hcaptcha/react-hcaptcha": "^1.1.1",
+		"@iconscout/react-unicons": "^1.1.6",
 		"@jsdevtools/ono": "^7.1.3",
 		"@linaria/core": "^3.0.0-beta.15",
 		"@linaria/react": "^3.0.0-beta.15",

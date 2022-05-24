@@ -13,11 +13,7 @@ import Bowser from "bowser";
 
 import { Connections } from "@/types";
 import { useUser, useArConnect } from "@/hooks/";
-import {
-	ARCONNECT_CHROME_URL,
-	ARCONNECT_FIREFOX_URL
-	// SKIPPED_WALLET_ADDRESS
-} from "@/constants";
+import { ARCONNECT_CHROME_URL, ARCONNECT_FIREFOX_URL } from "@/constants";
 import ArConnectIcon from "@/assets/icon/arconnect.svg";
 
 export type Props = {
