@@ -31,7 +31,11 @@ const HEADER_HEIGHT = 70 as const;
 const DashboardContainer: React.FC<Props> = ({ children }) => {
 	const { colors } = useTheme();
 	const {
-		user,
+		user: {
+			wallets,
+			profile,
+			verifications: { captcha }
+		},
 		isLoading,
 		actions: { setProfile }
 	} = useUser();
@@ -41,11 +45,6 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 		"get-notified",
 		null
 	);
-	const {
-		id: userId,
-		profile,
-		verifications: { captcha }
-	} = user;
 	const isCaptchaVerified = isEmpty(hcaptchaSiteKey) ? true : captcha;
 	// const [loadingMessage, setLoadingMessage] = useState(
 	// 	loadingMessages[loadingMessageIndex]
@@ -139,17 +138,17 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 					minHeight="100vh"
 					position="relative"
 				>
-					{isEmpty(userId) && <WalletConnectScreen onConnect={onConnect} />}
-					{isEmpty(profile.email) && !isEmpty(userId) && captureEmail && (
+					{isEmpty(wallets) && <WalletConnectScreen onConnect={onConnect} />}
+					{isEmpty(profile.email) && !isEmpty(wallets) && captureEmail && (
 						<EmailCaptureScreen
 							onSkip={onEmailCaptureSkip}
 							onCapture={onEmailCapture}
 						/>
 					)}
-					{!isEmpty(userId) && !isCaptchaVerified && !captureEmail && (
+					{!isEmpty(wallets) && !isCaptchaVerified && !captureEmail && (
 						<CaptchaScreen />
 					)}
-					{!isEmpty(userId) && isCaptchaVerified && !captureEmail && children}
+					{!isEmpty(wallets) && isCaptchaVerified && !captureEmail && children}
 				</Pane>
 			</Pane>
 		</Pane>

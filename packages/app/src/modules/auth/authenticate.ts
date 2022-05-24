@@ -5,8 +5,9 @@ import { ThreeIdProvider } from "@3id/did-provider";
 import * as uint8arrays from "uint8arrays";
 import { Sha256 } from "@aws-crypto/sha256-browser";
 
-import { Auth, Chains, Wallet, Connections } from "@/types";
+import { Chains, Wallet, Connections } from "@/types";
 import getCeramicClientInstance from "@/utils/ceramic-client";
+import Auth from "./authentication";
 
 const ceramic = getCeramicClientInstance();
 
@@ -74,8 +75,8 @@ class Authenticate {
 	}
 
 	public getWallets(): Wallet[] {
-		return this.auths.map(({ did, ...wallet }) => {
-			return wallet;
+		return this.auths.map((auth) => {
+			return auth.wallet;
 		});
 	}
 
@@ -102,13 +103,13 @@ class Authenticate {
 		const entropy = await hash.digest();
 
 		const did = await Authenticate.connect(walletAddress, entropy);
-
-		const auth = {
-			did,
+		const auth = new Auth(did, {
 			address: walletAddress,
 			chains: [Chains.ARWEAVE],
 			connection
-		};
+		});
+		await auth.load();
+
 		// If wallet DID does not exist, push and activate it
 		if (!this.exists(did)) {
 			this.add(auth);

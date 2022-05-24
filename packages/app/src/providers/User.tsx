@@ -17,14 +17,7 @@ import produce from "immer";
 import allSettled from "promise.allsettled";
 
 import useArConnect from "@/hooks/use-arconnect";
-import {
-	User,
-	IUserContext,
-	Wallet,
-	Connections,
-	Profile,
-	Partnership
-} from "@/types";
+import { User, IUserContext, Wallet, Connections, Profile } from "@/types";
 import delay from "@/utils/delay";
 import handleException, {
 	setUser as setErrorTrackingUser
@@ -41,7 +34,6 @@ type Props = {
 
 const defaultValues: User = {
 	wallets: [],
-	partnerships: [],
 	verifications: {
 		personhood: false,
 		captcha: false
@@ -138,20 +130,18 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 			// Authenticated
 			// const { success: captcha } = await api.captcha().get(id);
 			// const personhood = await checkPersonhood(did.id);
-			// Fetch inactive wallets -- filter the existing wallet.
-			// Fetch Partnerships relative to this connection
-			const partnerships: Partnership[] = [];
 
 			const newUser = produce(user, (draft) => {
 				draft.wallets = wallets;
-				draft.partnerships = [...user.partnerships, ...partnerships];
 				draft.verifications = { captcha: false, personhood: false };
 			});
 
 			saveUser(newUser);
 			setSavedConnections(
 				produce(savedConnections, (draft) => {
-					draft.push(type);
+					if (!draft.includes(type)) {
+						draft.push(type);
+					}
 				})
 			);
 

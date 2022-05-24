@@ -32,16 +32,14 @@ export type Wallet = {
 	address: string;
 };
 
-export type Auth = Wallet & {
-	did: DID;
+export type Campaign = {
+	network: Chains;
+	address: string;
 };
 
 export type Partnership = {
 	id: number;
-	campaign: {
-		network: Chains;
-		address: string;
-	};
+	campaign: Campaign;
 };
 
 export type Profile = {
@@ -50,7 +48,6 @@ export type Profile = {
 
 export type User = {
 	wallets: Wallet[];
-	partnerships: Partnership[];
 	verifications: {
 		personhood: boolean;
 		captcha: boolean;
