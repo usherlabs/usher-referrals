@@ -42,7 +42,7 @@ if (sentry.dsn) {
 
 export { Sentry };
 
-export const setUser = (user: User) => {
+export const setUser = (user: User | null) => {
 	Sentry.configureScope((scope) => {
 		scope.setUser(user);
 	});

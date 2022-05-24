@@ -1,3 +1,5 @@
+import "es6-shim";
+
 import React, { useEffect } from "react";
 import { AppProps } from "next/app";
 import { DefaultSeo } from "next-seo";

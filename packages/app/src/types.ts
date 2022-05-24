@@ -1,5 +1,6 @@
 import { NextPageContext, NextApiRequest, NextApiResponse } from "next";
 // import { BaseLogger } from "pino";
+import { DID } from "dids";
 
 /**
  * ###### ENUMS ######
@@ -32,6 +33,10 @@ export type Wallet = {
 	active: boolean; // Whether the wallet is the actively connected wallet
 };
 
+export type Auth = Wallet & {
+	did: DID;
+};
+
 export type Partnership = {
 	id: number;
 	campaign: {
@@ -45,7 +50,6 @@ export type Profile = {
 };
 
 export type User = {
-	id: string; // Affiliate DID
 	wallets: Wallet[];
 	partnerships: Partnership[];
 	verifications: {
@@ -113,6 +117,7 @@ export interface IUserActions {
 	disconnect: (type: Connections) => Promise<void>;
 	setCaptcha: (value: boolean) => void;
 	setProfile: (value: Profile) => void;
+	switchWallet: (value: string) => void;
 }
 
 export interface IUserContext extends IUserActions {
