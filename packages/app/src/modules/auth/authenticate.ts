@@ -62,27 +62,11 @@ class Authenticate {
 		} else {
 			did = param;
 		}
-		this.auths = this.auths.map((auth) => {
-			if (auth.did.id === did.id) {
-				return {
-					...auth,
-					active: true
-				};
-			}
-			return {
-				...auth,
-				active: false
-			};
-		});
 
 		// The Ceramic client can create and update streams using the authenticated DID
 		ceramic.did = did;
 
 		return did;
-	}
-
-	public getActive() {
-		return this.auths.find(({ active }) => active === true);
 	}
 
 	public getAuth(address: string) {
@@ -119,14 +103,13 @@ class Authenticate {
 
 		const did = await Authenticate.connect(walletAddress, entropy);
 
-		// If wallet DID does not exist, push it and active
 		const auth = {
 			did,
-			active: false,
 			address: walletAddress,
 			chains: [Chains.ARWEAVE],
 			connection
 		};
+		// If wallet DID does not exist, push and activate it
 		if (!this.exists(did)) {
 			this.add(auth);
 		}

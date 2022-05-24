@@ -68,9 +68,6 @@ export const UserContext = createContext<IUserContext>({
 	},
 	setProfile() {
 		// ...
-	},
-	switchWallet() {
-		// ...
 	}
 });
 
@@ -220,18 +217,6 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 		[walletsLoading, savedConnections]
 	);
 
-	const switchWallet = useCallback(
-		(address: string) => {
-			auth.activate(address);
-			const wallets = auth.getWallets();
-			const nextUser = produce(user, (draft) => {
-				draft.wallets = wallets;
-			});
-			saveUser(nextUser);
-		},
-		[user]
-	);
-
 	const setCaptcha = useCallback(
 		(value: boolean) => {
 			setUser(
@@ -289,8 +274,7 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 			connect,
 			disconnect,
 			setCaptcha,
-			setProfile,
-			switchWallet
+			setProfile
 		}),
 		[user, loading]
 	);
