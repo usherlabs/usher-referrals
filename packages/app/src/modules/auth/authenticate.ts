@@ -23,14 +23,9 @@ class Authenticate {
 	protected account: {
 		did: DID | null;
 		key: string;
-	};
+	} = { did: null, key: "" };
 
 	private static instance: Authenticate | null;
-
-	// Fetch the account Link stream and populate the class -- Stream ID is relevant to the Account DID
-	private async initAccount() {
-		// ...
-	}
 
 	private async connectWallet(id: string, secret: Uint8Array, chain: Chains) {
 		const threeIDAuth = await ThreeIdProvider.create({
@@ -55,8 +50,20 @@ class Authenticate {
 		// The Ceramic client can create and update streams using the authenticated DID
 		ceramic.did = did;
 
+		// Fetch the Account Stream for this Auth DID -- by using the AuthAccounts Stream
+		// This factors in the circumstance where this Auth already belongs to a Account
+
+		// If account in memory does not match the account id from the AuthAccount, merge them
+		// if(){
+		// }
+
 		// If wallet dids exist
 		if (this.auths.length > 0) {
+			// If no account DID exists for this given auth DID, then create one here.
+			if (this.account.did === null) {
+				// ...
+			}
+
 			// If wallet DID does not exist, push it and active
 			if (!this.auths.find((auth) => auth.did.id === did.id)) {
 				this.add({
@@ -67,8 +74,6 @@ class Authenticate {
 				});
 			}
 		} else {
-			// Fetch the Account Stream -- by using the AuthAccounts Stream
-			// If none exists for this given DID, then create one
 			// Basically, each Auth DID should own a connection to an AuthAccount. The AuthAccount behaves as an Index for all the Authentications made by the User.
 			// TODO: Install Glaze suite and learn it.
 		}
@@ -82,26 +87,24 @@ class Authenticate {
 		// Link auth to account
 	}
 
-	private activate(did: DID | string) {
-		let id = "";
-		if (typeof did === "string") {
-			id = did;
-		} else if (did instanceof DID) {
-			id = did.id;
-		}
-
-		this.auths = this.auths.map((walletDID) => {
-			if (walletDID.did.id === id) {
+	private activate(did: DID) {
+		this.auths = this.auths.map((auth) => {
+			if (auth.did.id === did.id) {
 				return {
-					...walletDID,
+					...auth,
 					active: true
 				};
 			}
 			return {
-				...walletDID,
+				...auth,
 				active: false
 			};
 		});
+
+		// The Ceramic client can create and update streams using the authenticated DID
+		ceramic.did = did;
+
+		return did;
 	}
 
 	public get did() {
