@@ -1,13 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import {
-	Pane,
-	Heading,
-	Text,
-	Button,
-	majorScale,
-	Link,
-	EnvelopeIcon
-} from "evergreen-ui";
+import { Pane, Heading, Text, Button, majorScale, Link } from "evergreen-ui";
 import Image from "next/image";
 import Bowser from "bowser";
 
@@ -16,6 +8,7 @@ import { useUser, useArConnect } from "@/hooks/";
 import { ARCONNECT_CHROME_URL, ARCONNECT_FIREFOX_URL } from "@/constants";
 import { UilLockOpenAlt } from "@iconscout/react-unicons";
 import ArConnectIcon from "@/assets/icon/arconnect.svg";
+import { magic } from "@/utils/magic-client";
 
 export type Props = {
 	onConnect: (type: Connections) => void;

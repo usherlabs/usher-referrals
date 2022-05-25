@@ -173,13 +173,15 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 				break;
 			}
 			case Connections.MAGIC: {
-				const isLoggedIn = await magic.user.isLoggedIn();
-				if (isLoggedIn) {
-					// Will only be reached if the user is authorised.
-					return getUser(type);
+				if (magic) {
+					const isLoggedIn = await magic.user.isLoggedIn();
+					if (isLoggedIn) {
+						// Will only be reached if the user is authorised.
+						return getUser(type);
+					}
+					// Redirect to magic login page
+					router.push("/magic/login");
 				}
-				// Redirect to magic login page
-				router.push("/magic/login");
 				break;
 			}
 			default: {
