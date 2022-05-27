@@ -75,7 +75,8 @@
           "error",
           { "argsIgnorePattern": "^_", "ignoreRestSiblings": true }
         ],
-				"no-param-reassign": "off"
+				"no-param-reassign": "off",
+				"class-methods-use-this": "off"
       }
     }
   ]

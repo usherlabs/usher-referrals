@@ -5,6 +5,7 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/router";
+import { Magic } from "magic-sdk";
 
 import UserProvider from "@/providers/User";
 import Preloader from "@/components/Preloader";
@@ -14,76 +15,89 @@ import { magic } from "@/utils/magic-client";
 
 // https://github.com/pubkey/broadcast-channel -- to prevent multiple tabs from processing the same connection.
 
-type CallbackType = 'oauth' | 'magic_credential' | 'settings';
+type CallbackType = "oauth" | "magic_credential" | "settings";
 
 class MagicPNPCallback {
 	private urlParams;
 
-	constructor(){
+	constructor() {
 		const queryString = window.location.search;
-  	this.urlParams = new URLSearchParams(queryString);
-		if(magic === null){
-			throw new Error("Magic is not initialised");
-		}
+		this.urlParams = new URLSearchParams(queryString);
 	}
 
 	public async handleOAuthCallback() {
-    const res = await magic.oauth.getRedirectResult();
-    return {
-      idToken: res.magic.idToken,
-      userMetadata: res.magic.userMetadata,
-      oauth: res.oauth,
-    };
-  }
+		if (!magic) {
+			return {};
+		}
+		const res = await magic.oauth.getRedirectResult();
+		return {
+			idToken: res.magic.idToken,
+			userMetadata: res.magic.userMetadata,
+			oauth: res.oauth
+		};
+	}
 
-  async function handleMagicLinkRedirectCallback() {
-    const idToken = await magic.auth.loginWithCredential();
-    const userMetadata = await magic.user.getMetadata();
-    dispatchReadyEvent(magic, { idToken, userMetadata });
-  }
+	public async handleMagicLinkRedirectCallback() {
+		if (!magic) {
+			return {};
+		}
+		const idToken = await magic.auth.loginWithCredential();
+		const userMetadata = await magic.user.getMetadata();
+		return { idToken, userMetadata };
+	}
 
-  async function handleSettingsCallback() {
-    const idToken = await magic.user.getIdToken();
-    const prevUserMetadata = magic.pnp.decodeUserMetadata(urlParams.get('prev_user_metadata')) ?? undefined;
-    const currUserMetadata =
-      magic.pnp.decodeUserMetadata(urlParams.get('curr_user_metadata')) ?? (await magic.user.getMetadata());
-    clearURLQuery();
-    dispatchReadyEvent(magic, { idToken, userMetadata: currUserMetadata, prevUserMetadata });
-  }
+	public async handleSettingsCallback() {
+		if (!magic) {
+			return {};
+		}
+		const idToken = await magic.user.getIdToken();
+		const prevUserMetadata =
+			magic.pnp.decodeUserMetadata(this.urlParams.get("prev_user_metadata")) ??
+			undefined;
+		const currUserMetadata =
+			magic.pnp.decodeUserMetadata(this.urlParams.get("curr_user_metadata")) ??
+			(await magic.user.getMetadata());
+		return { idToken, userMetadata: currUserMetadata, prevUserMetadata };
+	}
 
-  /**
-   * Generically handles auth callback for methods where
-   * a redirect in not applicable. Examples include:
-   *
-   * - SMS login
-   * - Magic link login w/o `redirectURI`
-   * - WebAuthn login
-   * - Cases where the user has landed direclty
-   *   on the callback page without a redirect
-   */
-  async function handleGenericCallback() {
-    const idToken = urlParams.get('didt') || (await magic.user.getIdToken());
-    clearURLQuery();
-    const userMetadata = await magic.user.getMetadata();
-    dispatchReadyEvent(magic, { idToken: decodeURIComponent(idToken), userMetadata });
-  }
+	/**
+	 * Generically handles auth callback for methods where
+	 * a redirect in not applicable. Examples include:
+	 *
+	 * - SMS login
+	 * - Magic link login w/o `redirectURI`
+	 * - WebAuthn login
+	 * - Cases where the user has landed direclty
+	 *   on the callback page without a redirect
+	 */
+	public async handleGenericCallback() {
+		if (!magic) {
+			return {};
+		}
+		const idToken =
+			this.urlParams.get("didt") || (await magic.user.getIdToken());
+		const userMetadata = await magic.user.getMetadata();
+		return { idToken: decodeURIComponent(idToken), userMetadata };
+	}
 
 	public static clearURLQuery() {
-    const urlWithoutQuery = window.location.origin + window.location.pathname;
-    window.history.replaceState(null, '', urlWithoutQuery);
-  }
+		const urlWithoutQuery = window.location.origin + window.location.pathname;
+		window.history.replaceState(null, "", urlWithoutQuery);
+	}
 
-	public static getCallbackType(urlParams: URLSearchParams): CallbackType | null {
-		if (urlParams.get('state')) {
-			return 'oauth';
+	public static getCallbackType(
+		urlParams: URLSearchParams
+	): CallbackType | null {
+		if (urlParams.get("state")) {
+			return "oauth";
 		}
 
-		if (urlParams.get('magic_credential')) {
-			return 'magic_credential';
+		if (urlParams.get("magic_credential")) {
+			return "magic_credential";
 		}
 
-		if (urlParams.get('prev_user_metadata')) {
-			return 'settings';
+		if (urlParams.get("prev_user_metadata")) {
+			return "settings";
 		}
 
 		return null;
