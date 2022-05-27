@@ -24,6 +24,15 @@ const WalletConnectScreen: React.FC<Props> = ({ onConnect }) => {
 	const [isConnecting, setConnecting] = useState(false);
 	const isLoading = isUserLoading || isConnecting;
 
+	useEffect(() => {
+		(async () => {
+			if (magic) {
+				const isLoggedIn = await magic.user.isLoggedIn();
+				console.log("logged in", isLoggedIn);
+			}
+		})();
+	}, []);
+
 	const connectArConnect = useCallback(() => {
 		setConnecting(true);
 		connect(Connections.ARCONNECT)

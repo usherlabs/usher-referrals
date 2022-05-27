@@ -3,6 +3,7 @@ import "es6-shim";
 import React, { useEffect } from "react";
 import { AppProps } from "next/app";
 import { DefaultSeo } from "next-seo";
+// import { useRouter } from "next/router";
 import { ThemeProvider, mergeTheme, defaultTheme } from "evergreen-ui";
 import "modern-normalize";
 import { setup as setupSignals } from "@/utils/signals";
@@ -29,10 +30,27 @@ const App = ({ Component, pageProps }: AppProps) => {
 		}
 	});
 
+	// const router = useRouter();
 	useEffect(() => {
 		if (typeof window !== "undefined") {
 			setupSignals();
 		}
+
+		// Ensure that the page is refreshed when router completes a url change
+		// const reload = (url: string) => {
+		// 	if (
+		// 		url.startsWith("/magic") ||
+		// 		window.location.pathname.startsWith("/magic")
+		// 	) {
+		// 		window.location.reload();
+		// 	}
+		// };
+		// router.events.on("routeChangeStart", reload);
+		// router.events.on("routeChangeComplete", reload);
+		// return () => {
+		// 	router.events.off("routeChangeStart", reload);
+		// 	router.events.off("routeChangeComplete", reload);
+		// };
 	}, []);
 
 	const { seo = {} } = pageProps;

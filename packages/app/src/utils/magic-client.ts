@@ -1,22 +1,10 @@
-import { Magic } from "magic-sdk";
+import { Magic, Extension } from "magic-sdk";
 import { OAuthExtension } from "@magic-ext/oauth";
 import { magicPublicKey } from "@/env-config";
-// import type { Magic } from "magic-sdk/dist/types/index";
-// import type IOAuthExtension from '@magic-ext/oauth/dist/types/index.cdn';
-
-import type CDNMagic from "magic-sdk/dist/types/index.cdn";
 
 import type { MagicUserMetadata } from "@magic-sdk/types";
 
-// type IMagic = Magic;
-
-declare module "magic-sdk" {
-	interface Magic {
-		Extension: typeof CDNMagic.Extension;
-	}
-}
-
-export class PlugNPlayExtension extends Magic.Extension.Internal<
+export class PlugNPlayExtension extends Extension.Internal<
 	"pnp",
 	{ isPnP: boolean }
 > {
@@ -78,6 +66,6 @@ export class PlugNPlayExtension extends Magic.Extension.Internal<
 export const magic =
 	typeof window !== "undefined"
 		? new Magic(magicPublicKey!, {
-				extensions: [new OAuthExtension()]
+				extensions: [new PlugNPlayExtension(), new OAuthExtension()]
 		  })
 		: null;

@@ -4,20 +4,19 @@
  */
 
 import { useEffect } from "react";
-import { useRouter } from "next/router";
-import { Magic } from "magic-sdk";
+// import { Magic } from "magic-sdk";
 
 import UserProvider from "@/providers/User";
 import Preloader from "@/components/Preloader";
-import { useUser } from "@/hooks";
-import { Connections } from "@/types";
+// import { useUser } from "@/hooks";
+// import { Connections } from "@/types";
 import { magic } from "@/utils/magic-client";
 
 // https://github.com/pubkey/broadcast-channel -- to prevent multiple tabs from processing the same connection.
 
 type CallbackType = "oauth" | "magic_credential" | "settings";
 
-class MagicPNPCallback {
+class MagicPNP {
 	private urlParams;
 
 	constructor() {
@@ -57,6 +56,7 @@ class MagicPNPCallback {
 		const currUserMetadata =
 			magic.pnp.decodeUserMetadata(this.urlParams.get("curr_user_metadata")) ??
 			(await magic.user.getMetadata());
+		this.clearURLQuery();
 		return { idToken, userMetadata: currUserMetadata, prevUserMetadata };
 	}
 
@@ -77,17 +77,17 @@ class MagicPNPCallback {
 		const idToken =
 			this.urlParams.get("didt") || (await magic.user.getIdToken());
 		const userMetadata = await magic.user.getMetadata();
+		this.clearURLQuery();
 		return { idToken: decodeURIComponent(idToken), userMetadata };
 	}
 
-	public static clearURLQuery() {
+	public clearURLQuery() {
 		const urlWithoutQuery = window.location.origin + window.location.pathname;
 		window.history.replaceState(null, "", urlWithoutQuery);
 	}
 
-	public static getCallbackType(
-		urlParams: URLSearchParams
-	): CallbackType | null {
+	public getCallbackType(): CallbackType | null {
+		const { urlParams } = this;
 		if (urlParams.get("state")) {
 			return "oauth";
 		}
@@ -102,45 +102,35 @@ class MagicPNPCallback {
 
 		return null;
 	}
+
+	public async handle() {
+		switch (this.getCallbackType()) {
+			case "oauth":
+				return this.handleOAuthCallback();
+			case "magic_credential":
+				return this.handleMagicLinkRedirectCallback();
+			case "settings":
+				return this.handleSettingsCallback();
+			default:
+				return this.handleGenericCallback();
+		}
+	}
 }
 
 const Screen = () => {
 	// const {
 	// 	actions: { connect }
 	// } = useUser();
-	const router = useRouter();
-	useEffect(() => {
-		// Ensure that the page is refreshed when router completes a url change
-		const handleRefresh = () => {
-			window.location.reload();
-		};
-		router.events.on("routeChangeComplete", handleRefresh);
-		return () => {
-			router.events.off("routeChangeComplete", handleRefresh);
-		};
-	}, []);
 
 	useEffect(() => {
 		if (typeof window !== "undefined") {
-			console.log(window.location.search);
-			window.addEventListener("@magic/ready", (e) => {
-				// connect(Connections.MAGIC);
-				// @ts-ignore
-				const { idToken } = e.detail;
-				console.log(e);
-				(async () => {
-					if (magic) {
-						// await magic.auth
-						// 	.loginWithCredential
-						// 	// "0xbb44d366afd12baea0cdee0c806ec9f56f69fc58e365c40822cfeb71aa186b0e30f03cd5423c4ab6a699a049157bdc6aabfa897eaf6216473c9af60264acda2a1c" // -- Given DID token is invalid or malformed.
-						// 	();
-						const isLoggedIn = await magic.user.isLoggedIn();
-						console.log(`logged in`, isLoggedIn);
-						console.log(magic.pnp);
-						console.log(magic);
-					}
-				})();
-			});
+			(async () => {
+				const magicPnp = new MagicPNP();
+				const response = await magicPnp.handle();
+				// Do something with the email -- response.userMetadata.email
+				console.log(response);
+				window.location.href = "/";
+			})();
 		}
 	}, []);
 

@@ -180,7 +180,7 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 						return getUser(type);
 					}
 					// Redirect to magic login page
-					router.push("/magic/login");
+					window.location.href = "/magic/login"; //* Important to use window.location.href for a full page reload.
 				}
 				break;
 			}
