@@ -1,6 +1,5 @@
 import { NextPageContext, NextApiRequest, NextApiResponse } from "next";
 // import { BaseLogger } from "pino";
-import { DID } from "dids";
 
 /**
  * ###### ENUMS ######
@@ -19,7 +18,7 @@ export enum Chains {
 
 export enum Connections {
 	MAGIC = "magic",
-	ARCONNECT = "arconnect"
+	ARCONNECT = "ar_connect"
 }
 
 /**
@@ -49,7 +48,7 @@ export type Profile = {
 export type User = {
 	wallets: Wallet[];
 	verifications: {
-		personhood: boolean;
+		personhood: number | null; // here we store the timestamp that the user was verified.
 		captcha: boolean;
 	};
 	profile: Profile;

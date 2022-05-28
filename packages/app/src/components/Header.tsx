@@ -1,10 +1,23 @@
 import React from "react";
 import Image from "next/image";
-import { Pane, Heading, Button, useTheme, Label } from "evergreen-ui";
+import {
+	Pane,
+	Heading,
+	Button,
+	useTheme,
+	Label,
+	Spinner,
+	Popover,
+	Menu,
+	Position,
+	LogOutIcon,
+	CogIcon
+} from "evergreen-ui";
 import { UilUserCircle, UilWallet } from "@iconscout/react-unicons";
 import { css } from "@linaria/core";
 
 import Anchor from "@/components/Anchor";
+import { useUser } from "@/hooks";
 
 import LogoImage from "@/assets/logo/Logo-Icon.svg";
 
@@ -12,6 +25,8 @@ type Props = {
 	height: number;
 	walletCount: number;
 	onWalletClick: () => void;
+	onSettingsClick: () => void;
+	onLogoutClick: () => void;
 };
 
 const menu = [
@@ -34,9 +49,32 @@ const Header: React.FC<Props> = ({
 	height,
 	walletCount,
 	onWalletClick,
+	onSettingsClick,
+	onLogoutClick,
 	...props
 }) => {
 	const { colors } = useTheme();
+	const {
+		user: { wallets },
+		isLoading: isWalletLoading
+	} = useUser();
+
+	const ProfileButton = (
+		<Button
+			appearance="minimal"
+			paddingX={0}
+			width={height}
+			height={height}
+			boxShadow="none !important"
+			className={css`
+				:hover svg {
+					fill: #000 !important;
+				}
+			`}
+		>
+			<UilUserCircle size="32" color={colors.gray700} />
+		</Button>
+	);
 
 	return (
 		<Pane width="100%" background="tint2" height={height} {...props}>
@@ -92,20 +130,27 @@ const Header: React.FC<Props> = ({
 							</Button>
 						</Anchor>
 					))}
-					<Button
-						appearance="minimal"
-						paddingX={0}
-						width={height}
-						height={height}
-						boxShadow="none !important"
-						className={css`
-							:hover svg {
-								fill: #000 !important;
+					{wallets.length === 0 ? (
+						<Anchor href="/login">{ProfileButton}</Anchor>
+					) : (
+						<Popover
+							position={Position.BOTTOM_RIGHT}
+							content={
+								<Menu>
+									<Menu.Group>
+										<Menu.Item icon={CogIcon} onClick={onSettingsClick}>
+											Settings
+										</Menu.Item>
+										<Menu.Item icon={LogOutIcon} onClick={onLogoutClick}>
+											Log Out
+										</Menu.Item>
+									</Menu.Group>
+								</Menu>
 							}
-						`}
-					>
-						<UilUserCircle size="32" color={colors.gray700} />
-					</Button>
+						>
+							{ProfileButton}
+						</Popover>
+					)}
 					<Button
 						appearance="minimal"
 						paddingX={0}
@@ -138,6 +183,11 @@ const Header: React.FC<Props> = ({
 							>
 								{walletCount}
 							</Label>
+						)}
+						{isWalletLoading && (
+							<Pane position="absolute" bottom="7.5px" right="7.5px">
+								<Spinner size={16} />
+							</Pane>
 						)}
 					</Button>
 				</Pane>

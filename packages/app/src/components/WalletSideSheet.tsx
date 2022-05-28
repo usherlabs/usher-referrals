@@ -23,9 +23,7 @@ import truncate from "@/utils/truncate";
 import getArweaveClient from "@/utils/arweave-client";
 import WalletConnect from "@/components/WalletConnect";
 import { useArConnect } from "@/hooks";
-
-import ArConnectIcon from "@/assets/icon/arconnect.svg";
-import MagicLinkIcon from "@/assets/icon/magic-icon.png";
+import { connectionImages } from "@/utils/connections-map";
 
 const arweave = getArweaveClient();
 
@@ -33,11 +31,6 @@ export type Props = {
 	isShown: boolean;
 	wallets: Wallet[];
 	onClose: () => void;
-};
-
-const connectionImages = {
-	[Connections.ARCONNECT]: ArConnectIcon,
-	[Connections.MAGIC]: MagicLinkIcon
 };
 
 const getBalances = (wallets: Wallet[]) => {
@@ -139,7 +132,7 @@ const WalletSideSheet: React.FC<Props> = ({ isShown, wallets, onClose }) => {
 						alignItems="center"
 						justifyContent="center"
 					>
-						<WalletConnect hide={hiddenConnections} />
+						<WalletConnect hide={hiddenConnections} onConnect={onClose} />
 					</Pane>
 				</Pane>
 			) : (

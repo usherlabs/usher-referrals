@@ -15,15 +15,17 @@ export type Props = {
 	onSubmit: (value: string) => Promise<void>;
 	disabled?: boolean;
 	loading?: boolean;
+	value?: string;
 };
 
 const EmailSubmit: React.FC<Props> = ({
 	onSubmit,
 	disabled: disabledProp,
-	loading
+	loading,
+	value: valueProp
 }) => {
 	const [disabledState, setDisabled] = useState(false);
-	const [value, setValue] = useState("");
+	const [value, setValue] = useState(valueProp || "");
 	const disabled = disabledProp || disabledState;
 
 	const submit = useCallback(async () => {
@@ -37,7 +39,7 @@ const EmailSubmit: React.FC<Props> = ({
 	}, [value]);
 
 	return (
-		<Pane display="flex" alignItems="center" border>
+		<Pane display="flex" alignItems="center" border borderRadius={5}>
 			<TextInput
 				name="email"
 				placeholder="youremail@example.com"
@@ -56,6 +58,7 @@ const EmailSubmit: React.FC<Props> = ({
 				borderBottomRightRadius={0}
 				borderWidth={0}
 				minWidth={250}
+				flex={1}
 			/>
 			<Button
 				onClick={submit}

@@ -6,6 +6,9 @@ import { DefaultSeo } from "next-seo";
 import { ThemeProvider, mergeTheme, defaultTheme } from "evergreen-ui";
 import { QueryClient, QueryClientProvider } from "react-query";
 import "modern-normalize";
+import { combineProviders } from "react-combine-providers";
+
+import UserProvider from "@/providers/User";
 import { setup as setupSignals } from "@/utils/signals";
 import "@/styles/styles.scss";
 
@@ -38,17 +41,26 @@ const App = ({ Component, pageProps }: AppProps) => {
 		}
 	}, []);
 
-	const { seo = {} } = pageProps;
+	const { seo = {}, noUser = false } = pageProps;
+
+	const combinedProviders = combineProviders();
+
+	combinedProviders.push(QueryClientProvider, { client: queryClient });
+	combinedProviders.push(ThemeProvider, { value: theme });
+
+	if (!noUser) {
+		combinedProviders.push(UserProvider);
+	}
+
+	const MasterProvider = combinedProviders.master();
 
 	return (
-		<QueryClientProvider client={queryClient}>
-			<ThemeProvider value={theme}>
-				<main id="usher-app">
-					<DefaultSeo title="Usher" {...seo} />
-					<Component {...pageProps} />
-				</main>
-			</ThemeProvider>
-		</QueryClientProvider>
+		<MasterProvider>
+			<main id="usher-app">
+				<DefaultSeo title="Usher" {...seo} />
+				<Component {...pageProps} />
+			</main>
+		</MasterProvider>
 	);
 };
 

@@ -78,14 +78,17 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 	const saveUser = useCallback((saved: User) => {
 		setUser(saved);
 		setErrorTrackingUser(saved);
-		identifyUser(saved.wallets.map((w) => w.address).join("|"), saved);
+		identifyUser(
+			saved.profile.email || saved.wallets.map((w) => w.address).join("|"),
+			saved
+		);
 	}, []);
 
-	const removeUser = useCallback(() => {
-		setUser(defaultValues);
-		setErrorTrackingUser(null);
-		identifyUser(null);
-	}, []);
+	// const removeUser = useCallback(() => {
+	// 	setUser(defaultValues);
+	// 	setErrorTrackingUser(null);
+	// 	identifyUser(null);
+	// }, []);
 
 	const getUser = useCallback(
 		async (type: Connections) => {
@@ -94,7 +97,7 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 			switch (type) {
 				case Connections.ARCONNECT: {
 					const arconnect = getArConnect();
-					if (arconnect !== null) {
+					if (arconnect) {
 						try {
 							const arweaveWalletAddress = await arconnect.getActiveAddress();
 							await auth.withArweave(arweaveWalletAddress, arconnect, type);
@@ -140,7 +143,7 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 
 			const newUser = produce(user, (draft) => {
 				draft.wallets = wallets;
-				draft.verifications = { captcha: false, personhood: false };
+				draft.verifications = { captcha: false, personhood: null };
 			});
 
 			saveUser(newUser);
@@ -196,6 +199,9 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 							await arconnect.disconnect();
 							await delay(500);
 						}
+
+						// Reload the screen when a user disconnects their wallet
+						window.location.reload();
 						break;
 					}
 					case Connections.MAGIC: {
@@ -208,8 +214,6 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 					}
 				}
 			}
-
-			removeUser();
 		},
 		[walletsLoading]
 	);
@@ -254,8 +258,6 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 					setLoading(false);
 				});
 				setUserFetched(true);
-			} else {
-				setLoading(false);
 			}
 		}
 		return () => {};

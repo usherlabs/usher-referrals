@@ -30,4 +30,12 @@ const LinkError = () => {
 	);
 };
 
+export async function getStaticProps() {
+	return {
+		props: {
+			noUser: true
+		}
+	};
+}
+
 export default LinkError;

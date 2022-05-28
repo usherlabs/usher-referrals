@@ -27,4 +27,12 @@ const Satellite = () => {
 	return null;
 };
 
+export async function getStaticProps() {
+	return {
+		props: {
+			noUser: true
+		}
+	};
+}
+
 export default Satellite;

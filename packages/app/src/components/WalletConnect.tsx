@@ -10,32 +10,22 @@ import { UilLockOpenAlt } from "@iconscout/react-unicons";
 import ArConnectIcon from "@/assets/icon/arconnect.svg";
 
 export type Props = {
-	hide: Connections[];
+	hide?: Connections[];
+	onConnect?: (connection: string) => void;
 };
 
-const WalletConnect: React.FC<Props> = ({ hide }) => {
+const WalletConnect: React.FC<Props> = ({
+	hide = [],
+	onConnect = () => {}
+}) => {
 	const {
 		isLoading: isUserLoading,
 		actions: { connect }
 	} = useUser();
-	const [, isArConnectLoading] = useArConnect();
+	const [getArConnect] = useArConnect();
 	const [browserName, setBrowserName] = useState("");
 	const [isConnecting, setConnecting] = useState(false);
 	const isLoading = isUserLoading || isConnecting;
-
-	const connectArConnect = useCallback(() => {
-		setConnecting(true);
-		connect(Connections.ARCONNECT).finally(() => {
-			setConnecting(false);
-		});
-	}, []);
-
-	const connectMagic = useCallback(() => {
-		setConnecting(true);
-		connect(Connections.MAGIC).finally(() => {
-			setConnecting(false);
-		});
-	}, []);
 
 	useEffect(() => {
 		if (typeof window !== "undefined") {
@@ -47,41 +37,49 @@ const WalletConnect: React.FC<Props> = ({ hide }) => {
 		return () => {};
 	}, []);
 
+	const connectArConnect = useCallback(() => {
+		const arconnect = getArConnect();
+		if (arconnect) {
+			setConnecting(true);
+			connect(Connections.ARCONNECT)
+				.then(() => {
+					onConnect(Connections.ARCONNECT); // used to close the sidesheet.
+				})
+				.finally(() => {
+					setConnecting(false);
+				});
+		} else {
+			const openLink = browserName.toLowerCase().includes("firefox")
+				? ARCONNECT_FIREFOX_URL
+				: ARCONNECT_CHROME_URL;
+			window.open(openLink);
+		}
+	}, [browserName]);
+
+	const connectMagic = useCallback(() => {
+		setConnecting(true);
+		connect(Connections.MAGIC)
+			.then(() => {
+				onConnect(Connections.MAGIC);
+			})
+			.finally(() => {
+				setConnecting(false);
+			});
+	}, []);
+
 	return (
 		<Pane display="flex" flexDirection="column">
 			{!hide.includes(Connections.ARCONNECT) && (
 				<Pane marginBottom={8}>
-					{!isArConnectLoading ? (
-						<Button
-							height={majorScale(7)}
-							iconBefore={<Image src={ArConnectIcon} width={30} height={30} />}
-							onClick={connectArConnect}
-							isLoading={isLoading}
-							minWidth={300}
-						>
-							<strong>Connect with ArConnect</strong>
-						</Button>
-					) : (
-						<Link
-							href={
-								browserName.toLowerCase().includes("firefox")
-									? ARCONNECT_FIREFOX_URL
-									: ARCONNECT_CHROME_URL
-							}
-							target="_blank"
-							rel="nopenner noreferrer"
-						>
-							<Button
-								height={majorScale(6)}
-								iconBefore={
-									<Image src={ArConnectIcon} width={30} height={30} />
-								}
-								minWidth={300}
-							>
-								<strong>Install ArConnect</strong>
-							</Button>
-						</Link>
-					)}
+					<Button
+						height={majorScale(7)}
+						iconBefore={<Image src={ArConnectIcon} width={30} height={30} />}
+						onClick={connectArConnect}
+						isLoading={isLoading}
+						minWidth={300}
+					>
+						<strong>Connect with ArConnect</strong>
+					</Button>
 				</Pane>
 			)}
 			{!hide.includes(Connections.MAGIC) && (
