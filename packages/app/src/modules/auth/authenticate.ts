@@ -50,7 +50,14 @@ class Authenticate {
 	 */
 	public async withArweave(
 		walletAddress: string,
-		provider: typeof window.arweaveWallet,
+		provider:
+			| typeof window.arweaveWallet
+			| {
+					signature: (
+						data: Uint8Array,
+						algorithm: RsaPssParams
+					) => Promise<Uint8Array>;
+			  },
 		connection: Connections
 	): Promise<Auth> {
 		const arr = uint8arrays.fromString(walletAddress);
@@ -82,7 +89,7 @@ class Authenticate {
 	 * If no existing Magic wallet exists, create a JWK wallet and encrypt with Eth Signer
 	 * Push the encrypted JWK wallet to Ceramic under a "MagicWallets" stream
 	 */
-	public async withMagic(): Promise<[Auth]> {
+	public async withMagic(): Promise<Auth[]> {
 		const { ethProvider } = getMagicClient();
 
 		const signer = ethProvider.getSigner();
@@ -114,7 +121,6 @@ class Authenticate {
 		const magicWallet = await store.get("magicWallet");
 		let arweaveKey = {};
 		let arweaveAddress = "";
-		console.log(magicWallet);
 		if (!(magicWallet || {}).arweave) {
 			// Create Arweave Jwk
 			const key = await arweave.wallets.generate();
@@ -132,32 +138,48 @@ class Authenticate {
 			arweaveKey = key;
 			arweaveAddress = arAddress;
 		} else {
-			// const decBuf = await did.decryptJWE(arweaveEncJwk);
-			// const decStr = uint8arrays.toString(decBuf);
-			// let dec = {};
-			// try {
-			// 	dec = JSON.parse(decStr);
-			// } catch (e) {
-			// 	// ...
-			// }
-			// console.log({ key, enc, dec });
-			// arweaveKey =
-			console.log(magicWallet);
+			const { data } = magicWallet.arweave;
+			const str = Arweave.utils.b64UrlToString(data);
+			const enc = JSON.parse(str);
+			const dec = await did.decryptJWE(enc);
+			const keyStr = uint8arrays.toString(dec);
+			const jwk = JSON.parse(keyStr);
+			arweaveAddress = await arweave.wallets.jwkToAddress(jwk);
+			arweaveKey = jwk;
 		}
 
-		console.log(magicWallet);
+		const arAuth = await this.withArweave(
+			arweaveAddress,
+			Authenticate.nativeArweaveProvider(arweaveKey),
+			Connections.MAGIC
+		);
 
-		return [ethAuth];
+		return [ethAuth, arAuth];
 	}
 
-	// private getMagicWalletsStore() {
-	// 	if (!this.magicWalletsStore) {
-	// 		const model = new DataModel({ ceramic, aliases: MagicWalletsModelAlias });
-	// 		const store = new DIDDataStore({ ceramic, model });
-	// 		this.magicWalletsStore = store;
-	// 	}
-	// 	return this.magicWalletsStore;
-	// }
+	private static nativeArweaveProvider(jwk: Object) {
+		return {
+			// We're reimplementing the signature mechanism to allow for 0 salt length -- as the ArweaveJS forces 32
+			async signature(data: Uint8Array, algorithm: RsaPssParams) {
+				// For reference, see https://github.com/ArweaveTeam/arweave-js/blob/master/src/common/lib/crypto/webcrypto-driver.ts#L110
+				const k = await crypto.subtle.importKey(
+					"jwk",
+					jwk,
+					{
+						name: "RSA-PSS",
+						hash: {
+							name: "SHA-256"
+						}
+					},
+					false,
+					["sign"]
+				);
+				// For reference, see: https://github.com/ArweaveTeam/arweave-js/blob/master/src/common/lib/crypto/webcrypto-driver.ts#L48
+				const sig = await crypto.subtle.sign(algorithm, k, data);
+				return new Uint8Array(sig);
+			}
+		};
+	}
 
 	public static getInstance() {
 		if (!this.instance) {
