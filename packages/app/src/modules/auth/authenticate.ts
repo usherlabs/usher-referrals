@@ -7,14 +7,11 @@ import Arweave from "arweave";
 import MagicWalletsModelAlias from "@usher/ceramic/models/MagicWallet.json";
 
 import getMagicClient from "@/utils/magic-client";
+import getArweaveClient from "@/utils/arweave-client";
 import { Chains, Wallet, Connections } from "@/types";
 import Auth from "./authentication";
 
-const arweave = Arweave.init({
-	host: "arweave.net",
-	port: 443,
-	protocol: "https"
-});
+const arweave = getArweaveClient();
 
 class Authenticate {
 	protected auths: Auth[] = [];
@@ -71,7 +68,7 @@ class Authenticate {
 		const entropy = await hash.digest();
 
 		const auth = new Auth();
-		await auth.connect(walletAddress, entropy, [Chains.ARWEAVE], connection);
+		await auth.connect(walletAddress, entropy, Chains.ARWEAVE, connection);
 		const { did } = auth;
 
 		// If wallet DID does not exist, push and activate it
@@ -100,12 +97,7 @@ class Authenticate {
 		const entropy = await hash.digest();
 
 		const ethAuth = new Auth();
-		await ethAuth.connect(
-			address,
-			entropy,
-			[Chains.ETHEREUM],
-			Connections.MAGIC
-		);
+		await ethAuth.connect(address, entropy, Chains.ETHEREUM, Connections.MAGIC);
 		const { did, ceramic } = ethAuth;
 
 		// If wallet DID does not exist, push and activate it

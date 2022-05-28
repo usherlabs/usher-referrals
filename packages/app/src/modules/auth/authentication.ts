@@ -56,7 +56,7 @@ class Auth {
 	public async connect(
 		address: string,
 		secret: Uint8Array,
-		chains: Chains[],
+		chain: Chains,
 		connection: Connections
 	) {
 		// Connect/Auth DID
@@ -85,7 +85,7 @@ class Auth {
 
 		this._wallet = {
 			address,
-			chains,
+			chain,
 			connection
 		};
 

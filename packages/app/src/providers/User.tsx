@@ -78,7 +78,7 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 	const saveUser = useCallback((saved: User) => {
 		setUser(saved);
 		setErrorTrackingUser(saved);
-		identifyUser(saved);
+		identifyUser(saved.wallets.map((w) => w.address).join("|"), saved);
 	}, []);
 
 	const removeUser = useCallback(() => {

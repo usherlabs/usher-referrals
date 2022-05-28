@@ -4,7 +4,6 @@ import Router from "next/router";
 
 import { isProd, gaTrackingId, logrocketAppId } from "@/env-config";
 import { Sentry } from "@/utils/handle-exception";
-import { User } from "@/types";
 
 // Helper to ensure production
 const mw =
@@ -55,23 +54,21 @@ export const setup = mw(async () => {
  *
  * @param   {Object}  user  Callsesh user object
  */
-export const identifyUser = mw(async (user: User | null) => {
-	if (isEmpty(user)) {
+export const identifyUser = mw(async (id: string, properties: any) => {
+	if (!id) {
 		return null;
 	}
 
-	user = user as User;
-
 	// Identify for GA
 	if (!isEmpty(gaTrackingId)) {
-		ReactGA.set({ userId: user.id });
+		ReactGA.set({ userId: id });
 	}
 
 	if (!isEmpty(logrocketAppId)) {
 		// Identify Log Rocket
 		const LogRocket = await getLogRocket();
-		LogRocket.identify(user.id, user.user_metadata);
+		LogRocket.identify(id, properties);
 	}
 
-	return user;
+	return null;
 });

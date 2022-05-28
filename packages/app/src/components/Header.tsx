@@ -10,6 +10,8 @@ import LogoImage from "@/assets/logo/Logo-Icon.svg";
 
 type Props = {
 	height: number;
+	walletCount: number;
+	onWalletClick: () => void;
 };
 
 const menu = [
@@ -28,7 +30,12 @@ const menu = [
 	}
 ];
 
-const Header: React.FC<Props> = ({ height, ...props }) => {
+const Header: React.FC<Props> = ({
+	height,
+	walletCount,
+	onWalletClick,
+	...props
+}) => {
 	const { colors } = useTheme();
 
 	return (
@@ -64,7 +71,11 @@ const Header: React.FC<Props> = ({ height, ...props }) => {
 				</Anchor>
 				<Pane paddingX={16}>
 					{menu.map((item) => (
-						<Anchor key={item.text} href={item.href}>
+						<Anchor
+							key={item.text}
+							href={item.href}
+							external={item.external || false}
+						>
 							<Button
 								appearance="minimal"
 								height={height}
@@ -101,18 +112,42 @@ const Header: React.FC<Props> = ({ height, ...props }) => {
 						width={height}
 						height={height}
 						boxShadow="none !important"
+						position="relative"
 						className={css`
 							:hover svg {
 								fill: #000 !important;
 							}
 						`}
+						onClick={onWalletClick}
 					>
 						<UilWallet size="32" color={colors.gray700} />
+						{walletCount > 0 && (
+							<Label
+								position="absolute"
+								top="5px"
+								right="5px"
+								width="20px"
+								height="20px"
+								fontWeight={900}
+								backgroundColor={colors.blue500}
+								color="#fff"
+								borderRadius={100}
+								display="flex"
+								alignItems="center"
+								justifyContent="center"
+							>
+								{walletCount}
+							</Label>
+						)}
 					</Button>
 				</Pane>
 			</Pane>
 		</Pane>
 	);
+};
+
+Header.defaultProps = {
+	walletCount: 0
 };
 
 export default Header;

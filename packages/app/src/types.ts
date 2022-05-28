@@ -27,7 +27,7 @@ export enum Connections {
  */
 
 export type Wallet = {
-	chains: Chains[]; // Some wallets can belong to more than one Blockchain
+	chain: Chains;
 	connection: Connections;
 	address: string;
 };

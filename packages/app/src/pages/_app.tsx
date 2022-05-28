@@ -4,9 +4,12 @@ import React, { useEffect } from "react";
 import { AppProps } from "next/app";
 import { DefaultSeo } from "next-seo";
 import { ThemeProvider, mergeTheme, defaultTheme } from "evergreen-ui";
+import { QueryClient, QueryClientProvider } from "react-query";
 import "modern-normalize";
 import { setup as setupSignals } from "@/utils/signals";
 import "@/styles/styles.scss";
+
+const queryClient = new QueryClient();
 
 const App = ({ Component, pageProps }: AppProps) => {
 	const theme = mergeTheme(defaultTheme, {
@@ -38,12 +41,14 @@ const App = ({ Component, pageProps }: AppProps) => {
 	const { seo = {} } = pageProps;
 
 	return (
-		<ThemeProvider value={theme}>
-			<main id="usher-app">
-				<DefaultSeo title="Usher" {...seo} />
-				<Component {...pageProps} />
-			</main>
-		</ThemeProvider>
+		<QueryClientProvider client={queryClient}>
+			<ThemeProvider value={theme}>
+				<main id="usher-app">
+					<DefaultSeo title="Usher" {...seo} />
+					<Component {...pageProps} />
+				</main>
+			</ThemeProvider>
+		</QueryClientProvider>
 	);
 };
 

@@ -1,48 +1,9 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { Pane, Heading, Text, Button, majorScale, Link } from "evergreen-ui";
-import Image from "next/image";
-import Bowser from "bowser";
+import React from "react";
+import { Pane, Heading, Text } from "evergreen-ui";
 
-import { Connections } from "@/types";
-import { useUser, useArConnect } from "@/hooks/";
-import { ARCONNECT_CHROME_URL, ARCONNECT_FIREFOX_URL } from "@/constants";
-import { UilLockOpenAlt } from "@iconscout/react-unicons";
-import ArConnectIcon from "@/assets/icon/arconnect.svg";
+import WalletConnect from "@/components/WalletConnect";
 
 const WalletConnectScreen: React.FC = () => {
-	const {
-		isLoading: isUserLoading,
-		actions: { connect }
-	} = useUser();
-	const [, isArConnectLoading] = useArConnect();
-	const [browserName, setBrowserName] = useState("");
-	const [isConnecting, setConnecting] = useState(false);
-	const isLoading = isUserLoading || isConnecting;
-
-	const connectArConnect = useCallback(() => {
-		setConnecting(true);
-		connect(Connections.ARCONNECT).finally(() => {
-			setConnecting(false);
-		});
-	}, []);
-
-	const connectMagic = useCallback(() => {
-		setConnecting(true);
-		connect(Connections.MAGIC).finally(() => {
-			setConnecting(false);
-		});
-	}, []);
-
-	useEffect(() => {
-		if (typeof window !== "undefined") {
-			const name = Bowser.getParser(
-				window.navigator.userAgent
-			).getBrowserName();
-			setBrowserName(name);
-		}
-		return () => {};
-	}, []);
-
 	return (
 		<Pane
 			display="flex"
@@ -57,58 +18,8 @@ const WalletConnectScreen: React.FC = () => {
 				👋&nbsp;&nbsp;Welcome!
 			</Heading>
 			<Text size={500}>To get started, connect your wallet</Text>
-			<Pane
-				background="tint2"
-				padding={16}
-				margin={12}
-				borderRadius={8}
-				display="flex"
-				flexDirection="column"
-			>
-				<Pane marginBottom={8}>
-					{!isArConnectLoading ? (
-						<Button
-							height={majorScale(7)}
-							iconBefore={<Image src={ArConnectIcon} width={30} height={30} />}
-							onClick={connectArConnect}
-							isLoading={isLoading}
-							minWidth={300}
-						>
-							<strong>Connect with ArConnect</strong>
-						</Button>
-					) : (
-						<Link
-							href={
-								browserName.toLowerCase().includes("firefox")
-									? ARCONNECT_FIREFOX_URL
-									: ARCONNECT_CHROME_URL
-							}
-							target="_blank"
-							rel="nopenner noreferrer"
-						>
-							<Button
-								height={majorScale(6)}
-								iconBefore={
-									<Image src={ArConnectIcon} width={30} height={30} />
-								}
-								minWidth={300}
-							>
-								<strong>Install ArConnect</strong>
-							</Button>
-						</Link>
-					)}
-				</Pane>
-				<Pane>
-					<Button
-						height={majorScale(7)}
-						iconBefore={() => <UilLockOpenAlt size="28" />}
-						onClick={connectMagic}
-						isLoading={isLoading}
-						minWidth={300}
-					>
-						<strong>Email, SMS, and more</strong>
-					</Button>
-				</Pane>
+			<Pane background="tint2" padding={16} margin={12} borderRadius={8}>
+				<WalletConnect />
 			</Pane>
 		</Pane>
 	);
