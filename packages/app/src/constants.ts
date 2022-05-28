@@ -8,3 +8,5 @@ export const MAX_SCREEN_WIDTH = 1280 as const;
 export const TABLET_BREAKPOINT = 767 as const;
 
 export const CONVERSION_COOKIE_NAME = "__usher_cid" as const;
+
+export const CERAMIC_DID_STORE_MAGIC_WALLET = {} as const;

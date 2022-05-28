@@ -15,7 +15,6 @@ import React, {
 import useLocalStorage from "use-local-storage";
 import produce from "immer";
 import allSettled from "promise.allsettled";
-import { RPCError, RPCErrorCode } from "magic-sdk";
 import { useRouter } from "next/router";
 
 import useArConnect from "@/hooks/use-arconnect";
@@ -26,7 +25,7 @@ import handleException, {
 } from "@/utils/handle-exception";
 import { identifyUser } from "@/utils/signals";
 import Authenticate from "@/modules/auth";
-import { magic } from "@/utils/magic-client";
+import getMagicClient from "@/utils/magic-client";
 // import * as api from "@/api";
 
 import LogoImage from "@/assets/logo/Logo-Icon.svg";
@@ -72,9 +71,6 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 	const [user, setUser] = useState<User>(defaultValues);
 	const [loading, setLoading] = useState(true);
 	const [isUserFetched, setUserFetched] = useState(false);
-	const [savedConnections, setSavedConnections] = useLocalStorage<
-		Connections[]
-	>("saved-connections", []);
 	const [getArConnect, isArConnectLoading] = useArConnect();
 	const router = useRouter();
 	const walletsLoading = isArConnectLoading;
@@ -112,14 +108,19 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 					break;
 				}
 				case Connections.MAGIC: {
-					// Produce the user with Magic here...
-					if (magic) {
-						const idToken = await magic.user.getIdToken();
-						console.log(idToken);
-						const idToken2 = await magic.user.getIdToken();
-						console.log(idToken2);
-						const idToken3 = await magic.user.getIdToken();
-						console.log(idToken3);
+					try {
+						// Produce the user with Magic here...
+						const { magic } = getMagicClient();
+						const isLoggedIn = await magic.user.isLoggedIn();
+						if (isLoggedIn) {
+							await auth.withMagic();
+							// Magic will produce and authenticate multiple wallets for each blockchain it supports -- ie. Eth & Arweave
+							wallets = auth.getWallets();
+						}
+					} catch (e) {
+						if (e instanceof Error) {
+							handleException(e, null);
+						}
 					}
 					break;
 				}
@@ -129,6 +130,7 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 			}
 
 			if (wallets.length === 0) {
+				// Ensure that the saved connection is removed if no wallets returned.
 				return defaultValues;
 			}
 
@@ -142,13 +144,6 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 			});
 
 			saveUser(newUser);
-			setSavedConnections(
-				produce(savedConnections, (draft) => {
-					if (!draft.includes(type)) {
-						draft.push(type);
-					}
-				})
-			);
 
 			return newUser;
 		},
@@ -173,15 +168,14 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 				break;
 			}
 			case Connections.MAGIC: {
-				if (magic) {
-					const isLoggedIn = await magic.user.isLoggedIn();
-					if (isLoggedIn) {
-						// Will only be reached if the user is authorised.
-						return getUser(type);
-					}
-					// Redirect to magic login page
-					window.location.href = "/magic/login"; //* Important to use window.location.href for a full page reload.
+				const { magic } = getMagicClient();
+				const isLoggedIn = await magic.user.isLoggedIn();
+				if (isLoggedIn) {
+					// Will only be reached if the user is authorised.
+					return getUser(type);
 				}
+				// Redirect to magic login page
+				window.location.href = "/magic/login"; //* Important to use window.location.href for a full page reload.
 				break;
 			}
 			default: {
@@ -213,16 +207,11 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 						break;
 					}
 				}
-
-				const newSavedConnections = savedConnections.filter(
-					(connection) => connection !== type
-				);
-				setSavedConnections(newSavedConnections);
 			}
 
 			removeUser();
 		},
-		[walletsLoading, savedConnections]
+		[walletsLoading]
 	);
 
 	const setCaptcha = useCallback(
@@ -248,21 +237,19 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 	);
 
 	useEffect(() => {
+		(async () => {
+			const { magic } = getMagicClient();
+			const isLoggedIn = await magic.user.isLoggedIn();
+			console.log("is logged in", isLoggedIn);
+		})();
+	}, []);
+
+	useEffect(() => {
 		if (!walletsLoading) {
-			if (
-				user.wallets.length === 0 &&
-				!isUserFetched &&
-				savedConnections.length
-			) {
+			if (user.wallets.length === 0 && !isUserFetched) {
 				setLoading(true);
-				// (async () => {
-				// 	for (let i = 0; i < savedConnections.length; i++) {
-				// 		await getUser(savedConnections[i]);
-				// 	}
-				// 	setLoading(false);
-				// })();
 				allSettled(
-					savedConnections.map((connection) => getUser(connection))
+					Object.values(Connections).map((values) => getUser(values))
 				).finally(() => {
 					setLoading(false);
 				});
@@ -272,7 +259,7 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 			}
 		}
 		return () => {};
-	}, [user, isUserFetched, walletsLoading, savedConnections]);
+	}, [user, isUserFetched, walletsLoading]);
 
 	const value = useMemo(
 		() => ({

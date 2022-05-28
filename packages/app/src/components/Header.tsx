@@ -20,6 +20,11 @@ const menu = [
 	{
 		href: "/explore",
 		text: "Explore"
+	},
+	{
+		href: "https://go.usher.so/register",
+		text: "Start a Campaign",
+		external: true
 	}
 ];
 

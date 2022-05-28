@@ -1,71 +1,34 @@
 import { DID } from "dids";
-import { getResolver as getKeyResolver } from "key-did-resolver";
-import { getResolver as get3IDResolver } from "@ceramicnetwork/3id-did-resolver";
-import { ThreeIdProvider } from "@3id/did-provider";
 import * as uint8arrays from "uint8arrays";
 import { Sha256 } from "@aws-crypto/sha256-browser";
+import { DataModel } from "@glazed/datamodel";
+import { DIDDataStore } from "@glazed/did-datastore";
+import Arweave from "arweave";
+import MagicWalletsModelAlias from "@usher/ceramic/models/MagicWallet.json";
 
+import getMagicClient from "@/utils/magic-client";
 import { Chains, Wallet, Connections } from "@/types";
-import { ceramic } from "@/utils/ceramic-client";
 import Auth from "./authentication";
+
+const arweave = Arweave.init({
+	host: "arweave.net",
+	port: 443,
+	protocol: "https"
+});
 
 class Authenticate {
 	protected auths: Auth[] = [];
 
 	private static instance: Authenticate | null;
 
-	private static async connect(id: string, secret: Uint8Array) {
-		const threeIDAuth = await ThreeIdProvider.create({
-			ceramic,
-			authId: id,
-			authSecret: secret,
-			getPermission: (request: any) => Promise.resolve(request.payload.paths)
-		});
-
-		const did = new DID({
-			// Get the DID provider from the 3ID Connect instance
-			provider: threeIDAuth.getDidProvider(),
-			resolver: {
-				...get3IDResolver(ceramic),
-				...getKeyResolver()
-			}
-		});
-		// Authenticate the DID using the 3ID provider from 3ID Connect, this will trigger the
-		// authentication flow using 3ID Connect and the Ethereum provider
-		await did.authenticate();
-
-		return did;
-	}
-
 	private add(auth: Auth) {
 		this.auths.push(auth);
-		this.activate(auth.did);
 	}
 
 	private exists(o: DID | Auth) {
 		return !!this.auths.find(
 			(auth) => auth.did.id === (o instanceof DID ? o.id : o.did.id)
 		);
-	}
-
-	public activate(param: DID | Auth | string) {
-		let did: DID;
-		if (typeof param === "string") {
-			const target = this.auths.find((auth) => auth.address === param);
-			if (!target) {
-				throw new Error(`Address is not found or authenticated`);
-			}
-			did = target.did;
-		} else if (!(param instanceof DID)) {
-			did = param.did;
-		} else {
-			did = param;
-		}
-
-		// The Ceramic client can create and update streams using the authenticated DID
-		ceramic.did = did;
-
-		return did;
 	}
 
 	public getAuth(address: string) {
@@ -100,13 +63,9 @@ class Authenticate {
 		hash.update(uint8arrays.toString(sig));
 		const entropy = await hash.digest();
 
-		const did = await Authenticate.connect(walletAddress, entropy);
-		const auth = new Auth(did, {
-			address: walletAddress,
-			chains: [Chains.ARWEAVE],
-			connection
-		});
-		await auth.load();
+		const auth = new Auth();
+		await auth.connect(walletAddress, entropy, [Chains.ARWEAVE], connection);
+		const { did } = auth;
 
 		// If wallet DID does not exist, push and activate it
 		if (!this.exists(did)) {
@@ -115,6 +74,90 @@ class Authenticate {
 
 		return auth;
 	}
+
+	/**
+	 * Authenticate with Magic -- assumes that user is authenticated
+	 *
+	 * Create a DID for Magic Eth wallet.
+	 * If no existing Magic wallet exists, create a JWK wallet and encrypt with Eth Signer
+	 * Push the encrypted JWK wallet to Ceramic under a "MagicWallets" stream
+	 */
+	public async withMagic(): Promise<[Auth]> {
+		const { ethProvider } = getMagicClient();
+
+		const signer = ethProvider.getSigner();
+		const address = await signer.getAddress();
+		const sig = await signer.signMessage(address);
+		const hash = new Sha256();
+		hash.update(sig);
+		const entropy = await hash.digest();
+
+		const ethAuth = new Auth();
+		await ethAuth.connect(
+			address,
+			entropy,
+			[Chains.ETHEREUM],
+			Connections.MAGIC
+		);
+		const { did, ceramic } = ethAuth;
+
+		// If wallet DID does not exist, push and activate it
+		if (!this.exists(ethAuth.did)) {
+			this.add(ethAuth);
+		}
+
+		// Check if Arweave wallet exists for the DID
+		// For reference, see https://developers.ceramic.network/tools/glaze/example/#5-runtime-usage
+		// const store = this.getMagicWalletsStore();
+		const model = new DataModel({ ceramic, aliases: MagicWalletsModelAlias });
+		const store = new DIDDataStore({ ceramic, model });
+		const magicWallet = await store.get("magicWallet");
+		let arweaveKey = {};
+		let arweaveAddress = "";
+		console.log(magicWallet);
+		if (!(magicWallet || {}).arweave) {
+			// Create Arweave Jwk
+			const key = await arweave.wallets.generate();
+			const arAddress = await arweave.wallets.jwkToAddress(key);
+			// Encrypt the wallet.
+			const buf = uint8arrays.fromString(JSON.stringify(key));
+			const enc = await did.createJWE(buf, [did.id]);
+			const encData = Arweave.utils.stringToB64Url(JSON.stringify(enc));
+			await store.set("magicWallet", {
+				arweave: {
+					address: arAddress,
+					data: encData
+				}
+			});
+			arweaveKey = key;
+			arweaveAddress = arAddress;
+		} else {
+			// const decBuf = await did.decryptJWE(arweaveEncJwk);
+			// const decStr = uint8arrays.toString(decBuf);
+			// let dec = {};
+			// try {
+			// 	dec = JSON.parse(decStr);
+			// } catch (e) {
+			// 	// ...
+			// }
+			// console.log({ key, enc, dec });
+			// arweaveKey =
+			console.log(magicWallet);
+		}
+
+		console.log(magicWallet);
+
+		return [ethAuth];
+	}
+
+	// private getMagicWalletsStore() {
+	// 	if (!this.magicWalletsStore) {
+	// 		const model = new DataModel({ ceramic, aliases: MagicWalletsModelAlias });
+	// 		const store = new DIDDataStore({ ceramic, model });
+	// 		this.magicWalletsStore = store;
+	// 	}
+	// 	return this.magicWalletsStore;
+	// }
 
 	public static getInstance() {
 		if (!this.instance) {

@@ -8,13 +8,8 @@ import { useUser, useArConnect } from "@/hooks/";
 import { ARCONNECT_CHROME_URL, ARCONNECT_FIREFOX_URL } from "@/constants";
 import { UilLockOpenAlt } from "@iconscout/react-unicons";
 import ArConnectIcon from "@/assets/icon/arconnect.svg";
-import { magic } from "@/utils/magic-client";
 
-export type Props = {
-	onConnect: (type: Connections) => void;
-};
-
-const WalletConnectScreen: React.FC<Props> = ({ onConnect }) => {
+const WalletConnectScreen: React.FC = () => {
 	const {
 		isLoading: isUserLoading,
 		actions: { connect }
@@ -24,36 +19,18 @@ const WalletConnectScreen: React.FC<Props> = ({ onConnect }) => {
 	const [isConnecting, setConnecting] = useState(false);
 	const isLoading = isUserLoading || isConnecting;
 
-	useEffect(() => {
-		(async () => {
-			if (magic) {
-				const isLoggedIn = await magic.user.isLoggedIn();
-				console.log("logged in", isLoggedIn);
-			}
-		})();
-	}, []);
-
 	const connectArConnect = useCallback(() => {
 		setConnecting(true);
-		connect(Connections.ARCONNECT)
-			.then(() => {
-				onConnect(Connections.ARCONNECT);
-			})
-			.finally(() => {
-				setConnecting(false);
-			});
+		connect(Connections.ARCONNECT).finally(() => {
+			setConnecting(false);
+		});
 	}, []);
 
 	const connectMagic = useCallback(() => {
 		setConnecting(true);
-		connect(Connections.MAGIC)
-			.then(() => {
-				// TODO: This will trigger Email Capture if the connect function doesn't wait for authorisation...
-				onConnect(Connections.MAGIC);
-			})
-			.finally(() => {
-				setConnecting(false);
-			});
+		connect(Connections.MAGIC).finally(() => {
+			setConnecting(false);
+		});
 	}, []);
 
 	useEffect(() => {

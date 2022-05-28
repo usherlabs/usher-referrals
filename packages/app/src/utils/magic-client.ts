@@ -1,7 +1,8 @@
 import { Magic, Extension } from "magic-sdk";
 import { OAuthExtension } from "@magic-ext/oauth";
-import { magicPublicKey } from "@/env-config";
+import { ethers } from "ethers";
 
+import { magicPublicKey } from "@/env-config";
 import type { MagicUserMetadata } from "@magic-sdk/types";
 
 export class PlugNPlayExtension extends Extension.Internal<
@@ -63,9 +64,21 @@ export class PlugNPlayExtension extends Extension.Internal<
 	}
 }
 
-export const magic =
-	typeof window !== "undefined"
-		? new Magic(magicPublicKey!, {
-				extensions: [new PlugNPlayExtension(), new OAuthExtension()]
-		  })
-		: null;
+let magicClient: Magic<[PlugNPlayExtension, OAuthExtension]>;
+let ethProvider: ethers.providers.Web3Provider;
+
+export default () => {
+	if (!magicClient) {
+		magicClient = new Magic(magicPublicKey!, {
+			extensions: [new PlugNPlayExtension(), new OAuthExtension()]
+		});
+	}
+	if (!ethProvider) {
+		// @ts-ignore
+		ethProvider = new ethers.providers.Web3Provider(magicClient.rpcProvider);
+	}
+	return {
+		magic: magicClient,
+		ethProvider
+	};
+};

@@ -1,5 +1,5 @@
 {
-	"eslint.workingDirectories": ["./", "./packages/app"],
+	"eslint.workingDirectories": ["./", "./packages/app", "packages/prisma", "packages/ceramic"],
 	"eslint.validate": ["javascript", "javascriptreact"],
 	"prettier.configPath": "./.prettierrc",
 	"prettier.prettierPath": "./node_modules/prettier"

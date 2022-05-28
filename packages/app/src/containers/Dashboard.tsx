@@ -40,10 +40,11 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 	} = useUser();
 	const [isPreloading, setPreloading] = useState(true);
 	const [isMounted, setMounted] = useState(false);
-	const [captureEmail, setCaptureEmail] = useLocalStorage<boolean | null>(
-		"get-notified",
-		null
-	);
+	// const [captureEmail, setCaptureEmail] = useLocalStorage<boolean | null>(
+	// 	"get-notified",
+	// 	null
+	// );
+	const captureEmail = false;
 	const isCaptchaVerified = isEmpty(hcaptchaSiteKey) ? true : captcha;
 	// const [loadingMessage, setLoadingMessage] = useState(
 	// 	loadingMessages[loadingMessageIndex]
@@ -74,11 +75,11 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 	// 	}, 750);
 	// }, []);
 
-	const onConnect = useCallback(() => {
-		if (!profile.email) {
-			setCaptureEmail(true);
-		}
-	}, [profile]);
+	// const onConnect = useCallback(() => {
+	// 	if (!profile.email) {
+	// 		setCaptureEmail(true);
+	// 	}
+	// }, [profile]);
 
 	const onEmailCapture = useCallback(
 		(email: string) => {
@@ -86,13 +87,13 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 				...profile,
 				email
 			});
-			setCaptureEmail(false);
+			// setCaptureEmail(false);
 		},
 		[profile]
 	);
 
 	const onEmailCaptureSkip = useCallback(() => {
-		setCaptureEmail(false);
+		// setCaptureEmail(false);
 	}, []);
 
 	return (
@@ -122,7 +123,7 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 				position="relative"
 				paddingTop={HEADER_HEIGHT}
 			>
-				{isEmpty(wallets) && <WalletConnectScreen onConnect={onConnect} />}
+				{isEmpty(wallets) && <WalletConnectScreen />}
 				{isEmpty(profile.email) && !isEmpty(wallets) && captureEmail && (
 					<EmailCaptureScreen
 						onSkip={onEmailCaptureSkip}

@@ -4,13 +4,12 @@
  */
 
 import { useEffect } from "react";
-// import { Magic } from "magic-sdk";
 
 import UserProvider from "@/providers/User";
 import Preloader from "@/components/Preloader";
-// import { useUser } from "@/hooks";
-// import { Connections } from "@/types";
-import { magic } from "@/utils/magic-client";
+import { useUser } from "@/hooks";
+import { Connections } from "@/types";
+import getMagicClient from "@/utils/magic-client";
 
 // https://github.com/pubkey/broadcast-channel -- to prevent multiple tabs from processing the same connection.
 
@@ -19,16 +18,17 @@ type CallbackType = "oauth" | "magic_credential" | "settings";
 class MagicPNP {
 	private urlParams;
 
+	private magic;
+
 	constructor() {
 		const queryString = window.location.search;
 		this.urlParams = new URLSearchParams(queryString);
+		const { magic } = getMagicClient();
+		this.magic = magic;
 	}
 
 	public async handleOAuthCallback() {
-		if (!magic) {
-			return {};
-		}
-		const res = await magic.oauth.getRedirectResult();
+		const res = await this.magic.oauth.getRedirectResult();
 		return {
 			idToken: res.magic.idToken,
 			userMetadata: res.magic.userMetadata,
@@ -37,25 +37,22 @@ class MagicPNP {
 	}
 
 	public async handleMagicLinkRedirectCallback() {
-		if (!magic) {
-			return {};
-		}
-		const idToken = await magic.auth.loginWithCredential();
-		const userMetadata = await magic.user.getMetadata();
+		const idToken = await this.magic.auth.loginWithCredential();
+		const userMetadata = await this.magic.user.getMetadata();
+		this.clearURLQuery();
 		return { idToken, userMetadata };
 	}
 
 	public async handleSettingsCallback() {
-		if (!magic) {
-			return {};
-		}
-		const idToken = await magic.user.getIdToken();
+		const idToken = await this.magic.user.getIdToken();
 		const prevUserMetadata =
-			magic.pnp.decodeUserMetadata(this.urlParams.get("prev_user_metadata")) ??
-			undefined;
+			this.magic.pnp.decodeUserMetadata(
+				this.urlParams.get("prev_user_metadata")
+			) ?? undefined;
 		const currUserMetadata =
-			magic.pnp.decodeUserMetadata(this.urlParams.get("curr_user_metadata")) ??
-			(await magic.user.getMetadata());
+			this.magic.pnp.decodeUserMetadata(
+				this.urlParams.get("curr_user_metadata")
+			) ?? (await this.magic.user.getMetadata());
 		this.clearURLQuery();
 		return { idToken, userMetadata: currUserMetadata, prevUserMetadata };
 	}
@@ -71,12 +68,9 @@ class MagicPNP {
 	 *   on the callback page without a redirect
 	 */
 	public async handleGenericCallback() {
-		if (!magic) {
-			return {};
-		}
 		const idToken =
-			this.urlParams.get("didt") || (await magic.user.getIdToken());
-		const userMetadata = await magic.user.getMetadata();
+			this.urlParams.get("didt") || (await this.magic.user.getIdToken());
+		const userMetadata = await this.magic.user.getMetadata();
 		this.clearURLQuery();
 		return { idToken: decodeURIComponent(idToken), userMetadata };
 	}
@@ -118,9 +112,9 @@ class MagicPNP {
 }
 
 const Screen = () => {
-	// const {
-	// 	actions: { connect }
-	// } = useUser();
+	const {
+		actions: { connect }
+	} = useUser();
 
 	useEffect(() => {
 		if (typeof window !== "undefined") {
@@ -129,6 +123,7 @@ const Screen = () => {
 				const response = await magicPnp.handle();
 				// Do something with the email -- response.userMetadata.email
 				console.log(response);
+				await connect(Connections.MAGIC); // Authorise the Magic DID now that we're logged in.
 				window.location.href = "/";
 			})();
 		}

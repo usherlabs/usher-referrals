@@ -12,8 +12,8 @@ export enum ContractConflictStrategy {
 }
 
 export enum Chains {
-	ARWEAVE = "arweave"
-	// ETHEREUM = "ethereum",
+	ARWEAVE = "arweave",
+	ETHEREUM = "ethereum"
 	// POLYGON = "polygon"
 }
 
