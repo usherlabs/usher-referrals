@@ -15,7 +15,7 @@ import Captcha from "@/components/Captcha";
 // import { getDestinationUrl, createConversion } from "@/actions/invite";
 import { useContract } from "@/hooks/";
 import handleException from "@/utils/handle-exception";
-import { ContractConflictStrategy } from "@/types";
+// import { ContractConflictStrategy } from "@/types";
 
 import LogoImage from "@/assets/logo/Logo.png";
 
@@ -49,7 +49,7 @@ const Invite = () => {
 			// If the Smart Contract has NOT defined that new Affiliate Links will overwrite the conversion
 			// The default behaviour is to simply skip replacing the conversion cookie if a valid one exists
 			if (
-				conflictStrategy === ContractConflictStrategy.OVERWRITE ||
+				// conflictStrategy === ContractConflictStrategy.OVERWRITE ||
 				!existingConvId
 			) {
 				// If a valid converison tracking id is NOT already in cookie

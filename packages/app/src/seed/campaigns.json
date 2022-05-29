@@ -1,0 +1,34 @@
+[
+	{
+		"id": "ksFTLgrwQGtNrhRz6MWyd3a4lvK1Oh-QF1HYcEeeF12",
+		"owner": "ksFTLgrwQGtNrhRz6MWyd3a4lvK1Oh-QF1HYcEeeFVk",
+		"events": [
+			{
+				"strategy": "flat",
+				"rate": 0.1,
+				"limit": 250000
+			}
+		],
+		"reward": {
+			"name": "Arweave",
+			"ticker": "AR",
+			"type": "token",
+			"limit": 0
+		},
+		"conflict_strategy": "PASSTHROUGH",
+		"details": {
+			"destination_url": "https://www.webdoodle.com.au",
+			"name": "ArDrive Referral Program dawlkjdklawjdlkawjdldawlkjdlakjwdkl",
+			"description": "Refer users to ArDrive and earn when files are uploaded. Refer users to ArDrive and earn when files are uploaded. Refer users to ArDrive and earn when files are uploaded.",
+			"image": "https://ardrive.io/wp-content/uploads/2021/07/Gallery-Angle-PS3000-scaled.jpg",
+			"external_link": "https://ardrive.io/"
+		},
+		"advertiser": {
+			"name": "ArDrive",
+			"icon": "https://ardrive.io/wp-content/uploads/2021/06/AD-LOGO-PS1600-210x79.png",
+			"description": "Upload files forever!",
+			"external_link": "https://ardrive.io/",
+			"twitter": "https://twitter.com/ardriveapp"
+		}
+	}
+]

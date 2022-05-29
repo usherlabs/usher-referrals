@@ -10,7 +10,13 @@ import { getResolver as get3IDResolver } from "@ceramicnetwork/3id-did-resolver"
 import { ThreeIdProvider } from "@3id/did-provider";
 
 import { ceramicUrl } from "@/env-config";
-import { Wallet, Partnership, Campaign, Chains, Connections } from "@/types";
+import {
+	Wallet,
+	Partnership,
+	CampaignReference,
+	Chains,
+	Connections
+} from "@/types";
 
 class Auth {
 	private _did!: DID;
@@ -93,7 +99,7 @@ class Auth {
 	}
 
 	// Add Campaign to Partnerships Stream and load new index
-	public async addPartnership(campaign: Campaign) {
+	public async addPartnership(campaign: CampaignReference) {
 		// ...
 	}
 }

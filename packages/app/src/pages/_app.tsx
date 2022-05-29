@@ -57,7 +57,7 @@ const App = ({ Component, pageProps }: AppProps) => {
 	return (
 		<MasterProvider>
 			<main id="usher-app">
-				<DefaultSeo title="Usher" {...seo} />
+				<DefaultSeo defaultTitle="Usher" titleTemplate="%s | Usher" {...seo} />
 				<Component {...pageProps} />
 			</main>
 		</MasterProvider>

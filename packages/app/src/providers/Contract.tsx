@@ -6,7 +6,7 @@ import React, {
 	useCallback
 } from "react";
 
-import { Contract, IContractContext, ContractConflictStrategy } from "@/types";
+import { Contract, IContractContext } from "@/types";
 import handleException from "@/utils/handle-exception";
 import * as alerts from "@/utils/alerts";
 import { getContract as getContractState } from "@/utils/contract";
@@ -23,8 +23,8 @@ const defaultContractValues = {
 		ticker: "",
 		type: ""
 	},
-	limit: 0,
-	conflictStrategy: ContractConflictStrategy.PASSTHROUGH
+	limit: 0
+	// conflictStrategy: ContractConflictStrategy.PASSTHROUGH
 } as const;
 
 export const ContractContext = createContext<IContractContext>({

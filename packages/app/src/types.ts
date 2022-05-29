@@ -5,11 +5,6 @@ import { NextPageContext, NextApiRequest, NextApiResponse } from "next";
  * ###### ENUMS ######
  */
 
-export enum ContractConflictStrategy {
-	OVERWRITE = "OVERWRITE",
-	PASSTHROUGH = "PASSTHROUGH"
-}
-
 export enum Chains {
 	ARWEAVE = "arweave",
 	ETHEREUM = "ethereum"
@@ -21,9 +16,56 @@ export enum Connections {
 	ARCONNECT = "ar_connect"
 }
 
+export enum CampaignConflictStrategy {
+	OVERWRITE = "OVERWRITE",
+	PASSTHROUGH = "PASSTHROUGH"
+}
+
+export enum CampaignStrategies {
+	FLAT = "flat",
+	PERCENTAGE = "percentage"
+}
+
+export enum RewardTypes {
+	TOKEN = "token",
+	NFT = "nft",
+	PST = "pst"
+}
+
 /**
  * ###### TYPES ######
  */
+
+export type Campaign = {
+	id: string;
+	owner: string;
+	events: {
+		strategy: CampaignStrategies;
+		rate: number;
+		limit: number;
+	}[];
+	reward: {
+		name: string;
+		ticker: string;
+		type: RewardTypes;
+		limit: number;
+	};
+	conflictStrategy: CampaignConflictStrategy;
+	details: {
+		destinationUrl: string;
+		name: string;
+		description?: string;
+		image?: string;
+		externalLink?: string;
+	};
+	advertiser: {
+		name?: string;
+		icon?: string;
+		description?: string;
+		externalLink?: string;
+		twitter?: string;
+	};
+};
 
 export type Wallet = {
 	chain: Chains;
@@ -31,14 +73,14 @@ export type Wallet = {
 	address: string;
 };
 
-export type Campaign = {
+export type CampaignReference = {
 	network: Chains;
 	address: string;
 };
 
 export type Partnership = {
 	id: number;
-	campaign: Campaign;
+	campaign: CampaignReference;
 };
 
 export type Profile = {

@@ -89,7 +89,9 @@ const WalletSideSheet: React.FC<Props> = ({ isShown, wallets, onClose }) => {
 	}, [wallets, hiddenConnections]);
 
 	const onCopy = useCallback(() => {
-		toaster.notify("Address copied");
+		toaster.notify("Address copied", {
+			id: "wallet-side-sheet--address-copy"
+		});
 	}, []);
 
 	const onWalletConnect = useCallback(() => {

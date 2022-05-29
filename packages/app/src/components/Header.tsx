@@ -32,7 +32,8 @@ type Props = {
 const menu = [
 	{
 		href: "/",
-		text: "My Partnerships"
+		text: "My Partnerships",
+		auth: true
 	},
 	{
 		href: "/explore",
@@ -108,28 +109,50 @@ const Header: React.FC<Props> = ({
 					</Pane>
 				</Anchor>
 				<Pane paddingX={16}>
-					{menu.map((item) => (
-						<Anchor
-							key={item.text}
-							href={item.href}
-							external={item.external || false}
-						>
-							<Button
-								appearance="minimal"
-								height={height}
-								boxShadow="none !important"
-								className={css`
-									:hover label {
-										color: #000 !important;
-									}
-								`}
+					{menu
+						.filter((item) => {
+							if (item.auth && wallets.length === 0) {
+								return false;
+							}
+							return true;
+						})
+						.map((item) => (
+							<Anchor
+								key={item.text}
+								href={item.href}
+								external={item.external || false}
 							>
-								<Label size={500} color={colors.gray800} pointerEvents="none">
-									{item.text}
-								</Label>
-							</Button>
-						</Anchor>
-					))}
+								<Button
+									appearance="minimal"
+									height={height}
+									boxShadow="none !important"
+									position="relative"
+									className={
+										css`
+											:hover label {
+												color: #000 !important;
+											}
+										` &&
+										typeof window !== "undefined" &&
+										window.location.pathname === item.href
+											? css`&:after {
+										content: "";
+										position: absolute;
+										background-color: #3366FF
+										left: 0;
+										right: 0;
+										bottom: 0;
+										height: 3px;
+									}`
+											: ``
+									}
+								>
+									<Label size={500} color={colors.gray800} pointerEvents="none">
+										{item.text}
+									</Label>
+								</Button>
+							</Anchor>
+						))}
 					{wallets.length === 0 ? (
 						<Anchor href="/login">{ProfileButton}</Anchor>
 					) : (
