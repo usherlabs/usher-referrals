@@ -1,19 +1,23 @@
 {
 	"$schema": "http://json-schema.org/draft-07/schema#",
 	"title": "MagicWallets",
-	"type": "object",
-	"properties": {
-		"arweave": {
-			"type": "object",
-			"properties": {
-				"address": {
-					"type": "string"
-				},
-				"data": {
-					"type": "string"
-				}
+	"type": "array",
+	"items": {
+		"type": "object",
+		"properties": {
+			"chain": {
+				"type": "string"
 			},
-			"required": ["data"]
-		}
+			"address": {
+				"type": "string"
+			},
+			"data": {
+				"type": "string"
+			},
+			"timestamp": {
+				"type": "number"
+			}
+		},
+		"required": ["chain", "data", "timestamp"]
 	}
 }

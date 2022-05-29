@@ -1,9 +1,9 @@
 {
 	"definitions": {
-		"magicWallet": "kjzl6cwe1jw1477wmmm0cptnzo4ksc8fkui6v6n9vx42paw2wrbx9uvelsmqe62"
+		"magicWallet": "kjzl6cwe1jw148nofn8idletofmf0b5jrsb35zictjdexcuy2iqqtpd56wzo100"
 	},
 	"schemas": {
-		"MagicWallets": "ceramic://k3y52l7qbv1fryg0hokren3udm05ena000z1zzmjyebhns1zkoz722dyvaj819728"
+		"MagicWallets": "ceramic://k3y52l7qbv1frxljcahl4gmkwuawshsmy9qvlxuyx26vewnha2h1q0b2z7gkgf20w"
 	},
 	"tiles": {}
 }

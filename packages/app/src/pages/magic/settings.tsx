@@ -1,3 +1,5 @@
+// TODO: Currently this settings modal isn't showing...
+
 import Script from "next/script";
 
 import { magicPublicKey } from "@/env-config";

@@ -25,3 +25,43 @@
 ```shell
 glaze model:deploy magic-wallets ./models/MagicWallet.json
 ```
+
+### Updating Models
+
+As per this [Discord Message](https://discord.com/channels/682786569857662976/937412186781909012/964094124649242654), Schema Documents are Streams, so it's just be a matter of applying a new comment using the `TileDocument.update()`.
+Glaze does not currently support this.
+
+```shell
+glaze stream:state kjzl6cwe1jw14a4khio3qvh7jen9decdi4xgvg3xivzo5ms2cig6h7l7rx2tfct                                                                                                         03:03:19 pm
+✔ Successfully queried stream kjzl6cwe1jw14a4khio3qvh7jen9decdi4xgvg3xivzo5ms2cig6h7l7rx2tfct
+{
+  type: 0,
+  content: {
+    type: 'object',
+    title: 'MagicWallets',
+    '$schema': 'http://json-schema.org/draft-07/schema#',
+    properties: {
+      arweave: {
+        type: 'object',
+        title: 'arweave',
+        properties: {
+          data: { type: 'string', title: 'data' },
+          address: { type: 'string', title: 'address' }
+        }
+      }
+    }
+  },
+  metadata: {
+    unique: 'YuG5O0/EWtisz+no',
+    controllers: [ 'did:key:z6MkwVNrdkjiAzEFoWVq9J1R28gyUpA3Md7Bdx8DaABhQzVX' ]
+  },
+  signature: 2,
+  anchorStatus: 0,
+  log: [
+    {
+      cid: CID(bagcqceraykyfiubvaascq26dtg4rfdukuh3h6imoku6p2vuebeckdmsszd6q),
+      type: 0
+    }
+  ]
+}
+```

@@ -1,7 +1,7 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { Pane, Button, majorScale, Link } from "evergreen-ui";
+import React, { useCallback, useState } from "react";
+import { Pane, Button, majorScale } from "evergreen-ui";
 import Image from "next/image";
-import Bowser from "bowser";
+import { browserName } from "react-device-detect";
 
 import { Connections } from "@/types";
 import { useUser, useArConnect } from "@/hooks/";
@@ -23,19 +23,8 @@ const WalletConnect: React.FC<Props> = ({
 		actions: { connect }
 	} = useUser();
 	const [getArConnect] = useArConnect();
-	const [browserName, setBrowserName] = useState("");
 	const [isConnecting, setConnecting] = useState(false);
 	const isLoading = isUserLoading || isConnecting;
-
-	useEffect(() => {
-		if (typeof window !== "undefined") {
-			const name = Bowser.getParser(
-				window.navigator.userAgent
-			).getBrowserName();
-			setBrowserName(name);
-		}
-		return () => {};
-	}, []);
 
 	const connectArConnect = useCallback(() => {
 		const arconnect = getArConnect();

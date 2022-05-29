@@ -250,14 +250,17 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 
 	useEffect(() => {
 		if (!walletsLoading) {
-			if (user.wallets.length === 0 && !isUserFetched) {
+			if (isUserFetched) {
+				return () => {};
+			}
+			if (user.wallets.length === 0) {
 				setLoading(true);
+				setUserFetched(true);
 				allSettled(
 					Object.values(Connections).map((values) => getUser(values))
 				).finally(() => {
 					setLoading(false);
 				});
-				setUserFetched(true);
 			}
 		}
 		return () => {};

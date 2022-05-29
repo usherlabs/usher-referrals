@@ -10,7 +10,7 @@ export const request = ky.create({
 });
 
 export const captcha = () => ({
-	post: (token: string, id?: string): Promise<{ success: boolean }> =>
+	post: (token: string, id?: string[]): Promise<{ success: boolean }> =>
 		request
 			.post("captcha", {
 				json: {
