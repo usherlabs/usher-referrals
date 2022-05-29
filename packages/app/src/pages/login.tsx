@@ -3,10 +3,9 @@ import { Pane, Heading, Text } from "evergreen-ui";
 import { useRouter } from "next/router";
 
 import { useUser } from "@/hooks";
-import DashboardContainer from "@/containers/Dashboard";
 import WalletConnect from "@/components/WalletConnect";
 
-const Screen = () => {
+const Login = () => {
 	const {
 		user: { wallets },
 		isLoading
@@ -43,14 +42,6 @@ const Screen = () => {
 				<WalletConnect />
 			</Pane>
 		</Pane>
-	);
-};
-
-const Login = () => {
-	return (
-		<DashboardContainer>
-			<Screen />
-		</DashboardContainer>
 	);
 };
 

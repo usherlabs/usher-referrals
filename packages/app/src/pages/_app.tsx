@@ -11,6 +11,7 @@ import { combineProviders } from "react-combine-providers";
 import UserProvider from "@/providers/User";
 import { setup as setupSignals } from "@/utils/signals";
 import "@/styles/styles.scss";
+import DashboardContainer from "@/containers/Dashboard";
 
 const queryClient = new QueryClient();
 
@@ -50,6 +51,7 @@ const App = ({ Component, pageProps }: AppProps) => {
 
 	if (!noUser) {
 		combinedProviders.push(UserProvider);
+		combinedProviders.push(DashboardContainer);
 	}
 
 	const MasterProvider = combinedProviders.master();
