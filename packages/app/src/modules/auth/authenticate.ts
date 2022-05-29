@@ -4,7 +4,6 @@ import { Sha256 } from "@aws-crypto/sha256-browser";
 import { DataModel } from "@glazed/datamodel";
 import { DIDDataStore } from "@glazed/did-datastore";
 import Arweave from "arweave";
-import allSettled from "promise.allsettled";
 import MagicWalletsModelAlias from "@usher/ceramic/models/MagicWallet.json";
 
 import getMagicClient from "@/utils/magic-client";
@@ -13,13 +12,6 @@ import { Chains, Wallet, Connections } from "@/types";
 import Auth from "./authentication";
 
 const arweave = getArweaveClient();
-
-type MagicWallet = {
-	chain: string;
-	address: string;
-	data: string;
-	timestamp: number;
-};
 
 class Authenticate {
 	protected auths: Auth[] = [];
@@ -118,15 +110,10 @@ class Authenticate {
 		// const store = this.getMagicWalletsStore();
 		const model = new DataModel({ ceramic, aliases: MagicWalletsModelAlias });
 		const store = new DIDDataStore({ ceramic, model });
-		const magicWallet: MagicWallet[] | null = await store.get("magicWallet");
-		let arweaveMatches: MagicWallet[] = [];
-		if (magicWallet && magicWallet.length) {
-			arweaveMatches = magicWallet.filter(
-				({ chain }: { chain: string }) => chain === Chains.ARWEAVE
-			);
-		}
-		console.log({ magicWallet, arweaveMatches });
-		if (arweaveMatches.length === 0) {
+		const magicWallets = await store.get("magicWallets");
+		let arweaveKey = {};
+		let arweaveAddress = "";
+		if (!(magicWallets || {}).arweave) {
 			// Create Arweave Jwk
 			const key = await arweave.wallets.generate();
 			const arAddress = await arweave.wallets.jwkToAddress(key);
@@ -134,49 +121,33 @@ class Authenticate {
 			const buf = uint8arrays.fromString(JSON.stringify(key));
 			const enc = await did.createJWE(buf, [did.id]);
 			const encData = Arweave.utils.stringToB64Url(JSON.stringify(enc));
-			const mw = magicWallet || [];
-			mw.push({
-				chain: Chains.ARWEAVE,
-				address: arAddress,
-				data: encData,
-				timestamp: Date.now()
+			await store.set("magicWallets", {
+				arweave: {
+					address: arAddress,
+					data: encData,
+					created_at: Date.now()
+				}
 			});
-			console.log(mw);
-			await store.set("magicWallet", mw);
-			const arAuth = await this.withArweave(
-				arAddress,
-				Authenticate.nativeArweaveProvider(key),
-				Connections.MAGIC
-			);
-			return [ethAuth, arAuth];
+			arweaveKey = key;
+			arweaveAddress = arAddress;
+		} else {
+			const { data } = magicWallets.arweave;
+			const str = Arweave.utils.b64UrlToString(data);
+			const enc = JSON.parse(str);
+			const dec = await did.decryptJWE(enc);
+			const keyStr = uint8arrays.toString(dec);
+			const jwk = JSON.parse(keyStr);
+			arweaveAddress = await arweave.wallets.jwkToAddress(jwk);
+			arweaveKey = jwk;
 		}
 
-		const arMagicAuthPromises = arweaveMatches.map(
-			async ({ address: arAddress, data }) => {
-				const str = Arweave.utils.b64UrlToString(data);
-				const enc = JSON.parse(str);
-				const dec = await did.decryptJWE(enc);
-				const keyStr = uint8arrays.toString(dec);
-				const jwk = JSON.parse(keyStr);
-				const arAuth = await this.withArweave(
-					arAddress,
-					Authenticate.nativeArweaveProvider(jwk),
-					Connections.MAGIC
-				);
-				return arAuth;
-			}
+		const arAuth = await this.withArweave(
+			arweaveAddress,
+			Authenticate.nativeArweaveProvider(arweaveKey),
+			Connections.MAGIC
 		);
 
-		const settledAuths = await allSettled(arMagicAuthPromises);
-
-		console.log(settledAuths);
-
-		return [
-			ethAuth
-			// ...settledAuths
-			// 	.filter((res: { status: string }) => res.status === "fulfilled")
-			// 	.map((res) => res.value)
-		];
+		return [ethAuth, arAuth];
 	}
 
 	private static nativeArweaveProvider(jwk: Object) {

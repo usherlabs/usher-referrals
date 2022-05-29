@@ -28,8 +28,9 @@ glaze model:deploy magic-wallets ./models/MagicWallet.json
 
 ### Updating Models
 
-As per this [Discord Message](https://discord.com/channels/682786569857662976/937412186781909012/964094124649242654), Schema Documents are Streams, so it's just be a matter of applying a new comment using the `TileDocument.update()`.
-Glaze does not currently support this.
+As per this [Discord Message](https://discord.com/channels/682786569857662976/937412186781909012/964094124649242654), Schema Documents are Streams, so it's just be a matter of applying a new commit using the `TileDocument.update()`.
+Glaze does not currently support this natively.
+**The commit updates to a schema should have backward compatibility -- based on logic.**
 
 ```shell
 glaze stream:state kjzl6cwe1jw14a4khio3qvh7jen9decdi4xgvg3xivzo5ms2cig6h7l7rx2tfct                                                                                                         03:03:19 pm

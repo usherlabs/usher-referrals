@@ -31,7 +31,6 @@
 		"@usher/ceramic": "*",
 		"@usher/prisma": "*",
 		"arweave": "^1.10.23",
-		"caip": "^1.1.0",
 		"cors": "^2.8.5",
 		"date-and-time": "^2.3.1",
 		"dids": "^3.1.0",
