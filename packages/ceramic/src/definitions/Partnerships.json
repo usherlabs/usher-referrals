@@ -1,0 +1,5 @@
+{
+	"name": "A partnerships index",
+	"description": "An index of campaigns associated to a DID. This map represents partnerships to different campaigns on Usher.so",
+	"schema": "ceramic://"
+}

@@ -1,0 +1,11 @@
+{
+	"definitions": {
+		"magicWallets": "kjzl6cwe1jw149jrknangj5g97wpwwbk5t77xamr8vu91wtmxakcpgt6vtpuw39",
+		"partnerships": "kjzl6cwe1jw14arbgqk87r0l8ugz0b51xsvrftydcwieutjg1zg8xj9b16qd1ds"
+	},
+	"schemas": {
+		"MagicWallets": "ceramic://k3y52l7qbv1frxkiqwr6dd33pl6w0zgdmygo4gs61oqppzaj5uvyphtyzpdx7s8ow",
+		"Partnerships": "ceramic://k3y52l7qbv1fryf9arz24ky5ct6qw7cwdx748of9le96swaw5q1znnfr02mhvbugw"
+	},
+	"tiles": {}
+}

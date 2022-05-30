@@ -10,9 +10,7 @@
 			}
 		],
 		"reward": {
-			"name": "Arweave",
-			"ticker": "AR",
-			"type": "token",
+			"address": "",
 			"limit": 0
 		},
 		"conflict_strategy": "PASSTHROUGH",

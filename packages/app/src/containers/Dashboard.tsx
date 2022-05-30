@@ -24,7 +24,7 @@ type Props = {
 const loadingMessages = [
 	"Hold tight...",
 	"Dashboard engines ready...",
-	"Loading you wallets..."
+	"Loading your wallets..."
 ];
 
 let loadingMessageIndex = 0;

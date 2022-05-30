@@ -1,10 +1,7 @@
 import { DID } from "dids";
 import * as uint8arrays from "uint8arrays";
 import { Sha256 } from "@aws-crypto/sha256-browser";
-import { DataModel } from "@glazed/datamodel";
-import { DIDDataStore } from "@glazed/did-datastore";
 import Arweave from "arweave";
-import MagicWalletsModelAlias from "@usher/ceramic/models/MagicWallet.json";
 
 import getMagicClient from "@/utils/magic-client";
 import getArweaveClient from "@/utils/arweave-client";
@@ -98,7 +95,7 @@ class Authenticate {
 
 		const ethAuth = new Auth();
 		await ethAuth.connect(address, entropy, Chains.ETHEREUM, Connections.MAGIC);
-		const { did, ceramic } = ethAuth;
+		const { did } = ethAuth;
 
 		// If wallet DID does not exist, push and activate it
 		if (!this.exists(ethAuth.did)) {
@@ -107,10 +104,7 @@ class Authenticate {
 
 		// Check if Arweave wallet exists for the DID
 		// For reference, see https://developers.ceramic.network/tools/glaze/example/#5-runtime-usage
-		// const store = this.getMagicWalletsStore();
-		const model = new DataModel({ ceramic, aliases: MagicWalletsModelAlias });
-		const store = new DIDDataStore({ ceramic, model });
-		const magicWallets = await store.get("magicWallets");
+		const magicWallets = await ethAuth.getMagicWallets();
 		let arweaveKey = {};
 		let arweaveAddress = "";
 		if (!(magicWallets || {}).arweave) {
@@ -121,7 +115,7 @@ class Authenticate {
 			const buf = uint8arrays.fromString(JSON.stringify(key));
 			const enc = await did.createJWE(buf, [did.id]);
 			const encData = Arweave.utils.stringToB64Url(JSON.stringify(enc));
-			await store.set("magicWallets", {
+			ethAuth.addMagicWallet({
 				arweave: {
 					address: arAddress,
 					data: encData,

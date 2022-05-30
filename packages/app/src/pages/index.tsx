@@ -2,24 +2,34 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import { Pane, Heading } from "evergreen-ui";
+import {
+	Pane,
+	Heading,
+	Paragraph,
+	Button,
+	majorScale,
+	Strong
+} from "evergreen-ui";
 import { useQuery } from "react-query";
 import range from "lodash/range";
 import camelcaseKeys from "camelcase-keys";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
+import isEmpty from "lodash/isEmpty";
 
 import { useUser } from "@/hooks";
 import CampaignCard from "@/components/CampaignCard";
+import Anchor from "@/components/Anchor";
 import { Campaign } from "@/types";
 import delay from "@/utils/delay";
 
 const getCampaigns = async (): Promise<Campaign[]> => {
 	await delay(5000);
-	const campaignsData = (await import("@/seed/campaigns.json")).default;
-	const campaigns = camelcaseKeys(campaignsData, { deep: true });
+	// const campaignsData = (await import("@/seed/campaigns.json")).default;
+	// const campaigns = camelcaseKeys(campaignsData, { deep: true });
 
-	return campaigns as Campaign[];
+	// return campaigns as Campaign[];
+	return [];
 };
 
 const Partnerships = () => {
@@ -78,6 +88,29 @@ const Partnerships = () => {
 								/>
 							</Pane>
 						))}
+					{!campaigns.isLoading &&
+						(!campaigns.data || isEmpty(campaigns.data)) && (
+							<Pane paddingX={16}>
+								<Heading size={600} marginBottom={8}>
+									Start by engaging campaigns
+								</Heading>
+								<Paragraph size={500} marginBottom={12}>
+									You do not have any active partnerships. Explore &amp;
+									discover campaigns to get started!
+								</Paragraph>
+								<Anchor href="/explore">
+									<Button
+										appearance="primary"
+										minWidth={200}
+										height={majorScale(6)}
+									>
+										<Strong color="#fff" size={500}>
+											Get started
+										</Strong>
+									</Button>
+								</Anchor>
+							</Pane>
+						)}
 					{!campaigns.isLoading &&
 						campaigns.data &&
 						campaigns.data.map((campaign) => {

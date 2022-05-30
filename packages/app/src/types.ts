@@ -71,6 +71,7 @@ export type Wallet = {
 	chain: Chains;
 	connection: Connections;
 	address: string;
+	partnerships: Partnership[];
 };
 
 export type CampaignReference = {

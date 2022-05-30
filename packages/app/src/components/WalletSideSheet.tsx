@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import {
 	Button,
-	// Tooltip,
+	Tooltip,
 	Strong,
 	toaster,
 	useTheme,
@@ -12,12 +12,13 @@ import {
 	majorScale,
 	ArrowLeftIcon
 } from "evergreen-ui";
+import { css } from "@linaria/core";
 import CopyToClipboard from "react-copy-to-clipboard";
-// import startCase from "lodash/startCase";
 import Image from "next/image";
 import { useQuery } from "react-query";
 import allSettled from "promise.allsettled";
 
+import pascalCase from "@/utils/pascal-case";
 import { Wallet, Chains, Connections } from "@/types";
 import truncate from "@/utils/truncate";
 import getArweaveClient from "@/utils/arweave-client";
@@ -103,7 +104,7 @@ const WalletSideSheet: React.FC<Props> = ({ isShown, wallets, onClose }) => {
 	}, [showWalletConnect]);
 
 	return (
-		<SideSheet isShown={isShown} onCloseComplete={onClose}>
+		<SideSheet isShown={isShown} onCloseComplete={onClose} preventBodyScrolling>
 			{showWalletConnect ? (
 				<Pane>
 					<Pane padding={10}>
@@ -204,31 +205,42 @@ const WalletSideSheet: React.FC<Props> = ({ isShown, wallets, onClose }) => {
 														justifyContent="center"
 														flexDirection="row"
 													>
-														<Pane
-															marginRight={8}
-															display="flex"
-															alignItems="center"
-															justifyContent="center"
-														>
-															{/* <Tooltip content={startCase(wallet.connection)}> */}
-															<Image
-																src={connectionImages[wallet.connection]}
-																width={20}
-																height={20}
-															/>
-															{/* </Tooltip> */}
+														<Pane marginRight={8}>
+															<Tooltip content={pascalCase(wallet.connection)}>
+																<Pane
+																	display="flex"
+																	alignItems="center"
+																	justifyContent="center"
+																>
+																	<Image
+																		src={connectionImages[wallet.connection]}
+																		width={20}
+																		height={20}
+																	/>
+																</Pane>
+															</Tooltip>
 														</Pane>
 														<Pane>
-															{/* <Tooltip content="copy"> */}
-															<CopyToClipboard
-																text={wallet.address}
-																onCopy={onCopy}
-															>
-																<Label color={colors.gray800}>
-																	{truncate(wallet.address, 6, 4)}
-																</Label>
-															</CopyToClipboard>
-															{/* </Tooltip> */}
+															<Tooltip content="Copy Address">
+																<Pane>
+																	<CopyToClipboard
+																		text={wallet.address}
+																		onCopy={onCopy}
+																	>
+																		<Label
+																			color={colors.gray800}
+																			className={css`
+																				cursor: pointer;
+																				&:active {
+																					opacity: 0.8;
+																				}
+																			`}
+																		>
+																			{truncate(wallet.address, 6, 4)}
+																		</Label>
+																	</CopyToClipboard>
+																</Pane>
+															</Tooltip>
 														</Pane>
 													</Pane>
 													<Pane>

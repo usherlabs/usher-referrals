@@ -37,7 +37,7 @@ const Partnerships = () => {
 
 	return (
 		const { colors } = useTheme();
-	const {
+	const {gi
 		contract: {
 			rate,
 			token: { ticker },

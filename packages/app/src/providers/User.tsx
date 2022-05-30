@@ -12,7 +12,6 @@ import React, {
 	useMemo,
 	useState
 } from "react";
-import useLocalStorage from "use-local-storage";
 import produce from "immer";
 import allSettled from "promise.allsettled";
 import { useRouter } from "next/router";
@@ -37,7 +36,7 @@ type Props = {
 const defaultValues: User = {
 	wallets: [],
 	verifications: {
-		personhood: false,
+		personhood: null,
 		captcha: false
 	},
 	profile: {
