@@ -16,6 +16,7 @@ import ProfileSettings from "@/components/ProfileSettings";
 // import handleException from "@/utils/handle-exception";
 // import * as alerts from "@/utils/alerts";
 import { hcaptchaSiteKey } from "@/env-config";
+import useRedir from "@/hooks/use-redir";
 
 type Props = {
 	children: React.ReactNode;
@@ -47,6 +48,7 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 	const [showLogout, setShowLogout] = useState(false);
 	const [showSettings, setShowSettings] = useState(false);
 	const router = useRouter();
+	const loginUrl = useRedir("/login");
 	// const [captureEmail, setCaptureEmail] = useLocalStorage<boolean | null>(
 	// 	"get-notified",
 	// 	null
@@ -97,11 +99,7 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 
 	const onWalletToggle = useCallback(() => {
 		if (wallets.length === 0) {
-			router.push(
-				`/login${
-					window.location.pathname ? `?redir=${window.location.pathname}` : ""
-				}`
-			); // redirect to login page if no wallets authenticated.
+			router.push(loginUrl); // redirect to login page if no wallets authenticated.
 			return;
 		}
 		if (showWallets) {
@@ -111,7 +109,7 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 
 		setShowWallets(true);
 		// Start loading wallet values -- use react-query for caching
-	}, [wallets]);
+	}, [loginUrl, wallets]);
 
 	const onWalletSideSheetClose = useCallback(() => {
 		setShowWallets(false);

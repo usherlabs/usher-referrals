@@ -33,6 +33,7 @@ import truncate from "@/utils/truncate";
 import { UilTwitter } from "@iconscout/react-unicons";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
+import useRedir from "@/hooks/use-redir";
 
 const getCampaign = async (id: string, network: Chains) => {
 	await delay(5000);
@@ -53,6 +54,7 @@ const Partnerships = () => {
 	const campaign = useQuery("campaign", () =>
 		getCampaign(id as string, network as Chains)
 	);
+	const loginUrl = useRedir("/login");
 	const isLoggedIn = wallets.length > 0;
 	const partnerships = isLoggedIn
 		? wallets
@@ -78,15 +80,11 @@ const Partnerships = () => {
 
 	const onStartPartnership = useCallback(() => {
 		if (!isLoggedIn) {
-			router.push(
-				`/login${
-					window.location.pathname ? `?redir=${window.location.pathname}` : ""
-				}`
-			);
+			router.push(loginUrl);
 			return;
 		}
 		console.log("hello world");
-	}, [isLoggedIn]);
+	}, [loginUrl, isLoggedIn]);
 
 	// useEffect(() => {
 	// 	if (user !== null) {
