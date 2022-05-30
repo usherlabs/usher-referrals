@@ -97,7 +97,11 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 
 	const onWalletToggle = useCallback(() => {
 		if (wallets.length === 0) {
-			router.push("/login"); // redirect to login page if no wallets authenticated.
+			router.push(
+				`/login${
+					window.location.pathname ? `?redir=${window.location.pathname}` : ""
+				}`
+			); // redirect to login page if no wallets authenticated.
 			return;
 		}
 		if (showWallets) {

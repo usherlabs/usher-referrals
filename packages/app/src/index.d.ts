@@ -11,4 +11,7 @@ declare module "@iconscout/react-unicons" {
 	export const UilUserCircle: Icon;
 	export const UilWallet: Icon;
 	export const UilLockOpenAlt: Icon;
+	export const UilTwitter: Icon;
+	export const UilGlob: Icon;
+	export const UilExternalLinkAlt: Icon;
 }

@@ -126,13 +126,18 @@ class Auth {
 		this._did = did;
 
 		// Load the Partnerships Stream
+		const pDefId = this.store.getDefinitionID("partnerships");
 		const partnershipsData = await this.store.get("partnerships");
+		const pId = await this.store.getRecordID(pDefId);
 		console.log("partnershipsData", partnershipsData);
+		if (pId) {
+			console.log("partnership by id", await this.model.loadTile(pId));
+		}
 		const partnerships: Partnership[] = (partnershipsData || []).map(
-			(campaignReferences: CampaignReference, i: number) => {
+			(ref: CampaignReference, i: number) => {
 				return {
-					id: i,
-					campaign: campaignReferences
+					id: [pId, i].join("/"),
+					campaign: ref
 				};
 			}
 		) as Partnership[];
@@ -149,9 +154,17 @@ class Auth {
 
 	// Add Campaign to Partnerships Stream and load new index
 	public async addPartnership(campaign: CampaignReference) {
-		await this.store.set("partnerships", campaign);
+		const defId = this.store.getDefinitionID("partnerships");
+		await this.store.merge("partnerships", campaign);
+		const id = await this.store.getRecordID(defId);
+		if (!id) {
+			throw new Error(
+				`Cannot get Parterships ID at Definition ${defId} for DID ${this._did.id}`
+			);
+		}
+		console.log("partnership by id", await this.model.loadTile(id));
 		this._partnerships.push({
-			id: this._partnerships.length + 1,
+			id: [id, this._partnerships.length].join("/"),
 			campaign
 		});
 		return this._partnerships;
@@ -162,7 +175,7 @@ class Auth {
 	}
 
 	public addMagicWallet(wallet: MagicWallet) {
-		return this.store.set("magicWallets", wallet);
+		return this.store.merge("magicWallets", wallet);
 	}
 }
 

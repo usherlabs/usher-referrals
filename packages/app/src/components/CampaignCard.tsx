@@ -5,6 +5,7 @@ import { Pane, Paragraph, Strong, useTheme } from "evergreen-ui";
 import { Campaign } from "@/types";
 import Anchor from "@/components/Anchor";
 import truncate from "@/utils/truncate";
+import { useRandomColor } from "@/hooks";
 
 export type Props = {
 	campaign: Campaign;
@@ -12,16 +13,7 @@ export type Props = {
 
 const CampaignCard: React.FC<Props> = ({ campaign }) => {
 	const { colors } = useTheme();
-	const bgColors = [
-		colors.gray500,
-		colors.red500,
-		colors.blue500,
-		colors.green500,
-		colors.orange500,
-		colors.purple600
-	];
-	const r = Math.floor(Math.random() * bgColors.length);
-	const bgColor = bgColors[r];
+	const rColor = useRandomColor();
 
 	return (
 		<Pane padding={16} width="25%" minWidth="300px">
@@ -46,7 +38,7 @@ const CampaignCard: React.FC<Props> = ({ campaign }) => {
 						backgroundImage={`url(${campaign.details.image})`}
 						backgroundPosition="center"
 						backgroundSize="cover"
-						backgroundColor={bgColor}
+						backgroundColor={rColor}
 						backgroundRepeat="no-repeat"
 						boxShadow="inset 0 -5px 20px rgba(0, 0, 0, 0.25)"
 					/>

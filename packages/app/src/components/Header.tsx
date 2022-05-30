@@ -154,7 +154,15 @@ const Header: React.FC<Props> = ({
 							</Anchor>
 						))}
 					{wallets.length === 0 ? (
-						<Anchor href="/login">{ProfileButton}</Anchor>
+						<Anchor
+							href={`/login${
+								window.location.pathname
+									? `?redir=${window.location.pathname}`
+									: ""
+							}}`}
+						>
+							{ProfileButton}
+						</Anchor>
 					) : (
 						<Popover
 							position={Position.BOTTOM_RIGHT}

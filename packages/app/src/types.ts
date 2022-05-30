@@ -80,7 +80,7 @@ export type CampaignReference = {
 };
 
 export type Partnership = {
-	id: number;
+	id: string;
 	campaign: CampaignReference;
 };
 
@@ -120,7 +120,7 @@ export type Contract = {
 	rate: number;
 	token: Token;
 	limit: number;
-	conflictStrategy: ContractConflictStrategy;
+	conflictStrategy: string;
 };
 
 // Server Types
