@@ -7,7 +7,7 @@ import {
 	Pane,
 	Button,
 	Menu,
-	PaneProps,
+	ButtonProps,
 	ChevronDownIcon,
 	Popover,
 	Strong,
@@ -21,7 +21,7 @@ import useViewerWallet from "@/hooks/use-viewer-wallet";
 import { useUser } from "@/hooks";
 import { connectionImages } from "@/utils/connections-map";
 
-export type Props = PaneProps & {
+export type Props = ButtonProps & {
 	chain: Chains;
 };
 

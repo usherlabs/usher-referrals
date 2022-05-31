@@ -69,7 +69,7 @@ export const UserContext = createContext<IUserContext>({
 	setProfile() {
 		// ...
 	},
-	addPartnership() {
+	async addPartnership() {
 		// ...
 	}
 });
@@ -277,13 +277,13 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 		[user]
 	);
 
-	useEffect(() => {
-		(async () => {
-			const { magic } = getMagicClient();
-			const isLoggedIn = await magic.user.isLoggedIn();
-			console.log("is logged in", isLoggedIn);
-		})();
-	}, []);
+	// useEffect(() => {
+	// 	(async () => {
+	// 		const { magic } = getMagicClient();
+	// 		const isLoggedIn = await magic.user.isLoggedIn();
+	// 		console.log("is logged in", isLoggedIn);
+	// 	})();
+	// }, []);
 
 	useEffect(() => {
 		if (!walletsLoading) {

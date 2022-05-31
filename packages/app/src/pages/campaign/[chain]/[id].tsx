@@ -1,48 +1,37 @@
-// Partnerships is the Index page because we want them to login and get their link as fast as possible.
-
-import { useEffect, useState, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { useRouter } from "next/router";
 import { useQuery } from "react-query";
 import {
 	Pane,
-	Heading,
 	Paragraph,
 	Strong,
-	Tooltip,
-	HelpIcon,
 	useTheme,
 	Alert,
 	Button,
 	majorScale,
-	Text,
 	toaster
 } from "evergreen-ui";
-import { css } from "@linaria/core";
 import camelcaseKeys from "camelcase-keys";
-import Image from "next/image";
-import startCase from "lodash/startCase";
 
-import { useUser, useRandomColor } from "@/hooks/";
+import { useUser } from "@/hooks/";
 import { MAX_SCREEN_WIDTH } from "@/constants";
-import AffiliateLink from "@/components/AffiliateLink";
-import ValueCard from "@/components/ValueCard";
 import ClaimButton from "@/components/ClaimButton";
-import Terms from "@/components/Terms";
+import Terms from "@/components/Campaign/Terms";
 import Progress from "@/components/Progress";
-import Anchor from "@/components/Anchor";
-import getInviteLink from "@/utils/get-invite-link";
 import delay from "@/utils/delay";
 import { Chains, Partnership, Campaign, RewardTypes } from "@/types";
-import truncate from "@/utils/truncate";
-import { UilTwitter } from "@iconscout/react-unicons";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import useRedir from "@/hooks/use-redir";
 import Serve404 from "@/components/Serve404";
-import ArweaveIcon from "@/assets/icon/arweave-icon.png";
 import useViewerWallet from "@/hooks/use-viewer-wallet";
 import handleException from "@/utils/handle-exception";
-import ViewerWallet from "@/components/ViewerWallet";
+import Banner from "@/components/Campaign/Banner";
+import Info from "@/components/Campaign/Info";
+import Actions from "@/components/Campaign/Actions";
+import PartnershipUI from "@/components/Campaign/Partnership";
+import StartPartnership from "@/components/Campaign/StartPartnership";
+import ValueCard from "@/components/ValueCard";
 
 const getCampaign = async (id: string, chain: Chains) => {
 	await delay(5000);
@@ -52,14 +41,14 @@ const getCampaign = async (id: string, chain: Chains) => {
 	return campaigns[0];
 };
 
-const Partnerships = () => {
+const CampaignPage = () => {
 	const {
 		user: { wallets },
+		isLoading: isUserLoading,
 		actions: { addPartnership }
 	} = useUser();
 	const router = useRouter();
 	const { colors } = useTheme();
-	const rColor = useRandomColor();
 	const { id, chain } = router.query as { id: string; chain: Chains };
 	const campaign = useQuery("campaign", () => getCampaign(id as string, chain));
 	const loginUrl = useRedir("/login");
@@ -82,17 +71,6 @@ const Partnerships = () => {
 	const partnership = partnerships.find(
 		(p) => p.campaign.address === id && p.campaign.chain === chain
 	);
-
-	// "Users converted by the Advertiser that are pending for processing."
-	const ConvHelpIcon = (content: string) =>
-		useCallback(
-			(props: any) => (
-				<Tooltip content={content} statelessProps={{ minWidth: 340 }}>
-					<HelpIcon {...props} />
-				</Tooltip>
-			),
-			[]
-		);
 
 	const onStartPartnership = useCallback(() => {
 		if (!isLoggedIn || !viewerWallet) {
@@ -149,44 +127,7 @@ const Partnerships = () => {
 			{!campaign.isLoading &&
 			campaign.data &&
 			(campaign.data.details.image || campaign.data.advertiser.icon) ? (
-				<Pane
-					borderBottom
-					height={200}
-					backgroundImage={`url(${
-						!campaign.isLoading && campaign.data
-							? campaign.data.details.image
-							: ""
-					})`}
-					backgroundPosition="center"
-					backgroundSize="cover"
-					backgroundColor={rColor}
-					backgroundRepeat="no-repeat"
-					boxShadow="inset 0 -18px 58px rgba(0, 0, 0, 0.1)"
-					position="relative"
-					borderBottomLeftRadius={12}
-					borderBottomRightRadius={12}
-					width="100%"
-				>
-					{!campaign.isLoading &&
-						campaign.data &&
-						campaign.data.advertiser.icon && (
-							<Pane
-								borderRadius={12}
-								height={60}
-								boxShadow="0 5px 15px rgba(0, 0, 0, 0.15)"
-								backgroundImage={`url(${campaign.data.advertiser.icon})`}
-								backgroundSize="contain"
-								backgroundRepeat="no-repeat"
-								backgroundPosition="center"
-								border="5px solid #fff"
-								backgroundColor="#fff"
-								width={150}
-								position="absolute"
-								left={16}
-								bottom={16}
-							/>
-						)}
-				</Pane>
+				<Banner campaign={campaign.data as Campaign} />
 			) : (
 				<Pane paddingY={16} />
 			)}
@@ -200,96 +141,10 @@ const Partnerships = () => {
 						width="100%"
 					>
 						<Pane flex={1}>
-							<Heading
-								is="h1"
-								size={900}
-								textAlign="left"
-								width="100%"
-								marginBottom={8}
-							>
-								{campaign.data.details.name}
-							</Heading>
-							<Heading size={600} fontWeight={400} color={colors.gray900}>
-								By{" "}
-								<Anchor
-									href={campaign.data.advertiser.externalLink}
-									external
-									fontSize="inherit"
-								>
-									<Strong
-										fontSize="inherit"
-										textDecoration="underline"
-										color={colors.blue500}
-									>
-										{campaign.data.advertiser.name
-											? campaign.data.advertiser.name
-											: truncate(campaign.data.owner, 6, 4)}
-									</Strong>
-								</Anchor>
-								{campaign.data.advertiser.description && (
-									<Text size={500} opacity="0.7" fontSize="inherit">
-										&nbsp;&nbsp;&mdash;&nbsp;&nbsp;
-										{campaign.data.advertiser.description}
-									</Text>
-								)}
-							</Heading>
-							{campaign.data.details.description && (
-								<Paragraph size={500} marginTop={10} fontSize="1.2em">
-									{campaign.data.details.description}
-								</Paragraph>
-							)}
+							<Info campaign={campaign.data as Campaign} />
 						</Pane>
 						<Pane width="40%">
-							<Pane
-								display="flex"
-								flexDirection="row"
-								alignItems="center"
-								justifyContent="flex-end"
-							>
-								<Pane marginRight={12}>
-									<ViewerWallet chain={chain} height={50} />
-								</Pane>
-								{campaign.data.advertiser.twitter && (
-									<Pane marginRight={12}>
-										<Tooltip content="Twitter">
-											<Pane>
-												<Anchor
-													href={campaign.data.advertiser.twitter}
-													external
-												>
-													<Button
-														borderRadius={100}
-														height={50}
-														width={50}
-														padding={0}
-													>
-														<UilTwitter size="28" />
-													</Button>
-												</Anchor>
-											</Pane>
-										</Tooltip>
-									</Pane>
-								)}
-								<Pane>
-									<Tooltip content="View on Arweave">
-										<Pane>
-											<Anchor
-												href={`https://arweave.net/${campaign.data.id}`}
-												external
-											>
-												<Button
-													borderRadius={100}
-													height={50}
-													width={50}
-													padding={0}
-												>
-													<Image src={ArweaveIcon} height={28} width={28} />
-												</Button>
-											</Anchor>
-										</Pane>
-									</Tooltip>
-								</Pane>
-							</Pane>
+							<Actions chain={chain} campaign={campaign.data as Campaign} />
 						</Pane>
 					</Pane>
 				) : (
@@ -313,128 +168,25 @@ const Partnerships = () => {
 				// `}
 			>
 				<Pane flex={1} margin={6}>
-					{partnership ? (
+					{!campaign.isLoading && !isUserLoading ? (
 						<>
-							<Pane
-								padding={12}
-								background="tint2"
-								borderRadius={8}
-								marginBottom={12}
-							>
-								<Pane display="flex" flexDirection="column">
-									<AffiliateLink
-										link={getInviteLink(partnership.id)}
-										marginBottom={12}
-									/>
-									<Pane
-										display="flex"
-										flexDirection="row"
-										alignItems="center"
-										justifyContent="space-between"
-									>
-										<Paragraph width="100%">
-											👆&nbsp;&nbsp;Click and Copy to share this Affiliate link
-											and earn
-										</Paragraph>
-									</Pane>
-								</Pane>
-							</Pane>
-							<Pane>
-								<Heading size={500} paddingY={12}>
-									Overview
-								</Heading>
-								<Pane
-									padding={12}
-									marginBottom={12}
-									background="tint2"
-									borderRadius={8}
-								>
-									<Pane display="flex" marginBottom={24}>
-										<ValueCard
-											// value={conversions.total}
-											value={0}
-											ticker="hits"
-											id="total-referrals"
-											label="Affiliate Link Hits"
-										/>
-									</Pane>
-									<Pane
-										display="flex"
-										flexDirection="row"
-										width="100%"
-										className={css`
-											@media (max-width: 767px) {
-												flexdirection: column !important;
-											}
-										`}
-									>
-										<Pane display="flex" flex={1}>
-											<ValueCard
-												// value={conversions.pending}
-												value={0}
-												id="pending-conv-count"
-												label="Pending Conversions"
-												iconRight={ConvHelpIcon(
-													"Pending Conversions are referrals that have been converted to users on the advertising partner's application. These are considered pending as conversions are yet to have associated rewards allocated."
-												)}
-												iconProps={{
-													color: colors.gray500
-												}}
-											/>
-										</Pane>
-										<Pane width={20} />
-										<Pane display="flex" flex={1}>
-											<ValueCard
-												// value={conversions.success}
-												value={0}
-												id="success-conv-count"
-												label="Successful Conversions"
-												iconRight={ConvHelpIcon(
-													"Successful Conversions are converted referrals where rewards are guaranteed for the Affiliate."
-												)}
-												iconProps={{
-													color: colors.gray500
-												}}
-											/>
-										</Pane>
-									</Pane>
-								</Pane>
-							</Pane>
+							{partnership ? (
+								<PartnershipUI partnership={partnership} />
+							) : (
+								<StartPartnership
+									onStart={onStartPartnership}
+									chain={chain}
+									isLoading={isPartnering}
+								/>
+							)}
 						</>
 					) : (
-						<Pane
-							border
-							borderRadius={8}
-							display="flex"
-							flexDirection="column"
-							alignItems="center"
-							justifyContent="center"
-							height={300}
-							background="tint2"
-						>
-							<Button
-								height={majorScale(7)}
-								appearance="primary"
-								onClick={onStartPartnership}
-								minWidth={250}
-								isLoading={isPartnering}
-							>
-								<Strong color="#fff" fontSize="1.1em">
-									👉&nbsp;&nbsp;Start a Partnership
-								</Strong>
-							</Button>
-							{!viewerWallet && (
-								<Paragraph
-									marginTop={8}
-									textAlign="center"
-									fontSize="1.1em"
-									opacity="0.8"
-									color={colors.gray900}
-								>
-									Connect a wallet for the {startCase(chain)} blockchain
-								</Paragraph>
-							)}
-						</Pane>
+						<Skeleton
+							style={{
+								height: 300,
+								borderRadius: 8
+							}}
+						/>
 					)}
 				</Pane>
 				<Pane
@@ -558,4 +310,4 @@ const Partnerships = () => {
 	);
 };
 
-export default Partnerships;
+export default CampaignPage;
