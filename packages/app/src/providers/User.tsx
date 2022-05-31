@@ -17,7 +17,14 @@ import allSettled from "promise.allsettled";
 import { useRouter } from "next/router";
 
 import useArConnect from "@/hooks/use-arconnect";
-import { User, IUserContext, Wallet, Connections, Profile } from "@/types";
+import {
+	User,
+	IUserContext,
+	Wallet,
+	Connections,
+	Profile,
+	CampaignReference
+} from "@/types";
 import delay from "@/utils/delay";
 import handleException, {
 	setUser as setErrorTrackingUser
@@ -61,10 +68,13 @@ export const UserContext = createContext<IUserContext>({
 	},
 	setProfile() {
 		// ...
+	},
+	addPartnership() {
+		// ...
 	}
 });
 
-const auth = Authenticate.getInstance();
+const authInstance = Authenticate.getInstance();
 
 const UserContextProvider: React.FC<Props> = ({ children }) => {
 	const [user, setUser] = useState<User>(defaultValues);
@@ -99,8 +109,12 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 					if (arconnect) {
 						try {
 							const arweaveWalletAddress = await arconnect.getActiveAddress();
-							await auth.withArweave(arweaveWalletAddress, arconnect, type);
-							wallets = auth.getWallets();
+							await authInstance.withArweave(
+								arweaveWalletAddress,
+								arconnect,
+								type
+							);
+							wallets = authInstance.getWallets();
 						} catch (e) {
 							if (e instanceof Error) {
 								handleException(e, null);
@@ -115,9 +129,9 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 						const { magic } = getMagicClient();
 						const isLoggedIn = await magic.user.isLoggedIn();
 						if (isLoggedIn) {
-							await auth.withMagic();
+							await authInstance.withMagic();
 							// Magic will produce and authenticate multiple wallets for each blockchain it supports -- ie. Eth & Arweave
-							wallets = auth.getWallets();
+							wallets = authInstance.getWallets();
 						}
 					} catch (e) {
 						if (e instanceof Error) {
@@ -239,6 +253,30 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 		[user]
 	);
 
+	const addPartnership = useCallback(
+		async (walletData: string | Wallet, partnership: CampaignReference) => {
+			let walletAddress = "";
+			if (typeof walletData === "string") {
+				walletAddress = walletData;
+			} else {
+				walletAddress = walletData.address;
+			}
+			const auth = await authInstance.getAuth(walletAddress);
+			const partnerships = await auth.addPartnership(partnership);
+			setUser(
+				produce(user, (draft) => {
+					draft.wallets = user.wallets.map((wallet) => {
+						if (wallet.address === walletAddress) {
+							wallet.partnerships = partnerships;
+						}
+						return wallet;
+					});
+				})
+			);
+		},
+		[user]
+	);
+
 	useEffect(() => {
 		(async () => {
 			const { magic } = getMagicClient();
@@ -273,7 +311,8 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 			connect,
 			disconnect,
 			setCaptcha,
-			setProfile
+			setProfile,
+			addPartnership
 		}),
 		[user, loading]
 	);

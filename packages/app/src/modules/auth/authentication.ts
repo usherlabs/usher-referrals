@@ -163,10 +163,18 @@ class Auth {
 			);
 		}
 		console.log("partnership by id", await this.model.loadTile(id));
-		this._partnerships.push({
+		const newPartnership = {
 			id: [id, this._partnerships.length].join("/"),
 			campaign
-		});
+		};
+		// const response = {
+		// 	current: newPartnership,
+		// 	prev: this._partnerships,
+		// 	next: this._partnerships
+		// };
+		this._partnerships.push(newPartnership);
+		// response.next = this._partnerships;
+		// return response;
 		return this._partnerships;
 	}
 

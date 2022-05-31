@@ -10,7 +10,8 @@ function useUser() {
 		connect,
 		disconnect,
 		setCaptcha,
-		setProfile
+		setProfile,
+		addPartnership
 	} = useContext(UserContext);
 
 	return {
@@ -21,7 +22,8 @@ function useUser() {
 			connect,
 			disconnect,
 			setCaptcha,
-			setProfile
+			setProfile,
+			addPartnership
 		}
 	};
 }

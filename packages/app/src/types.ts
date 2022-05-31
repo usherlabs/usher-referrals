@@ -75,7 +75,7 @@ export type Wallet = {
 };
 
 export type CampaignReference = {
-	network: Chains;
+	chain: Chains;
 	address: string;
 };
 
@@ -155,6 +155,10 @@ export interface IUserActions {
 	disconnect: (type: Connections) => Promise<void>;
 	setCaptcha: (value: boolean) => void;
 	setProfile: (value: Profile) => void;
+	addPartnership: (
+		walletData: string | Wallet,
+		partnership: CampaignReference
+	) => Promise<void>;
 }
 
 export interface IUserContext extends IUserActions {

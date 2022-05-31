@@ -14,11 +14,13 @@ import {
 	Alert,
 	Button,
 	majorScale,
-	Text
+	Text,
+	toaster
 } from "evergreen-ui";
 import { css } from "@linaria/core";
 import camelcaseKeys from "camelcase-keys";
 import Image from "next/image";
+import startCase from "lodash/startCase";
 
 import { useUser, useRandomColor } from "@/hooks/";
 import { MAX_SCREEN_WIDTH } from "@/constants";
@@ -37,10 +39,12 @@ import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import useRedir from "@/hooks/use-redir";
 import Serve404 from "@/components/Serve404";
-
 import ArweaveIcon from "@/assets/icon/arweave-icon.png";
+import useViewerWallet from "@/hooks/use-viewer-wallet";
+import handleException from "@/utils/handle-exception";
+import ViewerWallet from "@/components/ViewerWallet";
 
-const getCampaign = async (id: string, network: Chains) => {
+const getCampaign = async (id: string, chain: Chains) => {
 	await delay(5000);
 	const campaignsData = (await import("@/seed/campaigns.json")).default;
 	const campaigns = camelcaseKeys(campaignsData, { deep: true });
@@ -50,15 +54,14 @@ const getCampaign = async (id: string, network: Chains) => {
 
 const Partnerships = () => {
 	const {
-		user: { wallets }
+		user: { wallets },
+		actions: { addPartnership }
 	} = useUser();
 	const router = useRouter();
 	const { colors } = useTheme();
 	const rColor = useRandomColor();
-	const { id, network } = router.query;
-	const campaign = useQuery("campaign", () =>
-		getCampaign(id as string, network as Chains)
-	);
+	const { id, chain } = router.query as { id: string; chain: Chains };
+	const campaign = useQuery("campaign", () => getCampaign(id as string, chain));
 	const loginUrl = useRedir("/login");
 	const isLoggedIn = wallets.length > 0;
 
@@ -66,15 +69,18 @@ const Partnerships = () => {
 		return <Serve404 />;
 	}
 
+	const [isPartnering, setPartnering] = useState(false);
+	const [viewerWallet] = useViewerWallet(chain);
+
 	const partnerships = isLoggedIn
 		? wallets
-				.filter((w) => w.chain === network)
+				.filter((w) => w.chain === chain)
 				.reduce<Partnership[]>((p, wallet) => {
 					return p.concat(wallet.partnerships);
 				}, [])
 		: [];
 	const partnership = partnerships.find(
-		(p) => p.campaign.address === id && p.campaign.network === network
+		(p) => p.campaign.address === id && p.campaign.chain === chain
 	);
 
 	// "Users converted by the Advertiser that are pending for processing."
@@ -89,12 +95,34 @@ const Partnerships = () => {
 		);
 
 	const onStartPartnership = useCallback(() => {
-		if (!isLoggedIn) {
+		if (!isLoggedIn || !viewerWallet) {
 			router.push(loginUrl);
 			return;
 		}
-		console.log("hello world");
-	}, [loginUrl, isLoggedIn]);
+		if (!campaign.isLoading && campaign.data) {
+			setPartnering(true);
+			const campaignRef = {
+				chain,
+				address: campaign.data.id
+			};
+			(async () => {
+				try {
+					await addPartnership(viewerWallet, campaignRef);
+				} catch (e) {
+					if (e instanceof Error) {
+						handleException(e, null);
+					}
+				}
+				setPartnering(false);
+			})();
+		}
+		toaster.danger(
+			"Oops! Something has gone wrong partnering with this campaign.",
+			{
+				id: "error"
+			}
+		);
+	}, [loginUrl, isLoggedIn, viewerWallet, campaign, wallets]);
 
 	// useEffect(() => {
 	// 	if (user !== null) {
@@ -218,6 +246,9 @@ const Partnerships = () => {
 								alignItems="center"
 								justifyContent="flex-end"
 							>
+								<Pane marginRight={12}>
+									<ViewerWallet chain={chain} height={50} />
+								</Pane>
 								{campaign.data.advertiser.twitter && (
 									<Pane marginRight={12}>
 										<Tooltip content="Twitter">
@@ -386,11 +417,23 @@ const Partnerships = () => {
 								appearance="primary"
 								onClick={onStartPartnership}
 								minWidth={250}
+								isLoading={isPartnering}
 							>
 								<Strong color="#fff" fontSize="1.1em">
 									👉&nbsp;&nbsp;Start a Partnership
 								</Strong>
 							</Button>
+							{!viewerWallet && (
+								<Paragraph
+									marginTop={8}
+									textAlign="center"
+									fontSize="1.1em"
+									opacity="0.8"
+									color={colors.gray900}
+								>
+									Connect a wallet for the {startCase(chain)} blockchain
+								</Paragraph>
+							)}
 						</Pane>
 					)}
 				</Pane>

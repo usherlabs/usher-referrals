@@ -26,7 +26,11 @@ class Authenticate {
 	}
 
 	public getAuth(address: string) {
-		return this.auths.find((auth) => auth.address === address);
+		const auth = this.auths.find((a) => a.address === address);
+		if (auth) {
+			return auth;
+		}
+		throw new Error(`No Auth found for wallet ${address}`);
 	}
 
 	public getWallets(): Wallet[] {

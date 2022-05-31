@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from "react";
-import { Pane, useTheme, Dialog } from "evergreen-ui";
+import { Pane, useTheme, Dialog, SideSheet } from "evergreen-ui";
 import isEmpty from "lodash/isEmpty";
 // import useLocalStorage from "use-local-storage";
 import { useRouter } from "next/router";
@@ -10,7 +10,7 @@ import Header from "@/components/Header";
 // import EmailCaptureScreen from "@/screens/EmailCapture";
 // import CaptchaScreen from "@/screens/Captcha";
 import Preloader from "@/components/Preloader";
-import WalletSideSheet from "@/components/WalletSideSheet";
+import WalletsManager from "@/components/WalletsManager";
 import LogoutManager from "@/components/LogoutManager";
 import ProfileSettings from "@/components/ProfileSettings";
 // import handleException from "@/utils/handle-exception";
@@ -179,11 +179,13 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 					{children}
 				</Pane>
 			</Pane>
-			<WalletSideSheet
+			<SideSheet
 				isShown={showWallets}
-				onClose={onWalletSideSheetClose}
-				wallets={wallets}
-			/>
+				onCloseComplete={onWalletSideSheetClose}
+				preventBodyScrolling
+			>
+				<WalletsManager />
+			</SideSheet>
 			<Dialog
 				isShown={showLogout}
 				title="Log out"
