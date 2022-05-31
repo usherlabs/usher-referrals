@@ -13,10 +13,12 @@ import {
 	useTheme,
 	Alert,
 	Button,
-	majorScale
+	majorScale,
+	Text
 } from "evergreen-ui";
 import { css } from "@linaria/core";
 import camelcaseKeys from "camelcase-keys";
+import Image from "next/image";
 
 import { useUser, useRandomColor } from "@/hooks/";
 import { MAX_SCREEN_WIDTH } from "@/constants";
@@ -28,12 +30,15 @@ import Progress from "@/components/Progress";
 import Anchor from "@/components/Anchor";
 import getInviteLink from "@/utils/get-invite-link";
 import delay from "@/utils/delay";
-import { Wallet, Chains, Partnership, Campaign, RewardTypes } from "@/types";
+import { Chains, Partnership, Campaign, RewardTypes } from "@/types";
 import truncate from "@/utils/truncate";
 import { UilTwitter } from "@iconscout/react-unicons";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import useRedir from "@/hooks/use-redir";
+import Serve404 from "@/components/Serve404";
+
+import ArweaveIcon from "@/assets/icon/arweave-icon.png";
 
 const getCampaign = async (id: string, network: Chains) => {
 	await delay(5000);
@@ -99,6 +104,10 @@ const Partnerships = () => {
 	// 	}
 	// }, []);
 
+	if (!campaign.isLoading && !campaign.data) {
+		return <Serve404 />;
+	}
+
 	return (
 		<Pane
 			display="flex"
@@ -120,85 +129,138 @@ const Partnerships = () => {
 				backgroundSize="cover"
 				backgroundColor={rColor}
 				backgroundRepeat="no-repeat"
-				boxShadow="inset 0 -5px 20px rgba(0, 0, 0, 0.25)"
+				boxShadow="inset 0 -18px 58px rgba(0, 0, 0, 0.1)"
 				position="relative"
 				borderBottomLeftRadius={12}
 				borderBottomRightRadius={12}
+				width="100%"
 			>
 				{!campaign.isLoading &&
 					campaign.data &&
 					campaign.data.advertiser.icon && (
 						<Pane
 							borderRadius={12}
-							borderBottomLeftRadius={0}
-							borderBottomRightRadius={0}
-							height={50}
+							height={60}
+							boxShadow="0 5px 15px rgba(0, 0, 0, 0.15)"
 							backgroundImage={`url(${campaign.data.advertiser.icon})`}
 							backgroundSize="contain"
 							backgroundRepeat="no-repeat"
 							backgroundPosition="center"
 							border="5px solid #fff"
-							borderBottom="none"
 							backgroundColor="#fff"
-							maxWidth={150}
+							width={150}
 							position="absolute"
 							left={16}
 							bottom={16}
 						/>
 					)}
 			</Pane>
-			<Pane padding={16}>
+			<Pane paddingTop={24} paddingBottom={0} paddingX={16} width="100%">
 				{!campaign.isLoading && campaign.data ? (
 					<Pane
 						display="flex"
 						flexDirection="row"
 						alignItems="flex-start"
 						justifyContent="space-between"
+						width="100%"
 					>
 						<Pane flex={1}>
-							<Heading is="h1" size={900} textAlign="left" width="100%">
+							<Heading
+								is="h1"
+								size={900}
+								textAlign="left"
+								width="100%"
+								marginBottom={8}
+							>
 								{campaign.data.details.name}
 							</Heading>
-							<Heading size={500} fontWeight={400} color={colors.gray900}>
+							<Heading size={600} fontWeight={400} color={colors.gray900}>
 								By{" "}
-								<Anchor href={campaign.data.advertiser.externalLink} external>
-									<Strong>
+								<Anchor
+									href={campaign.data.advertiser.externalLink}
+									external
+									fontSize="inherit"
+								>
+									<Strong
+										fontSize="inherit"
+										textDecoration="underline"
+										color={colors.blue500}
+									>
 										{campaign.data.advertiser.name
 											? campaign.data.advertiser.name
 											: truncate(campaign.data.owner, 6, 4)}
 									</Strong>
 								</Anchor>
+								{campaign.data.advertiser.description && (
+									<Text size={500} opacity="0.7" fontSize="inherit">
+										&nbsp;&nbsp;&mdash;&nbsp;&nbsp;
+										{campaign.data.advertiser.description}
+									</Text>
+								)}
 							</Heading>
 							{campaign.data.details.description && (
-								<Paragraph size={500} marginTop={10}>
+								<Paragraph size={500} marginTop={10} fontSize="1.2em">
 									{campaign.data.details.description}
 								</Paragraph>
 							)}
 						</Pane>
 						<Pane width="40%">
-							{campaign.data.advertiser.description && (
-								<Paragraph size={500} marginTop={10}>
-									{campaign.data.advertiser.description}
-								</Paragraph>
-							)}
-							<Pane>
+							<Pane
+								display="flex"
+								flexDirection="row"
+								alignItems="center"
+								justifyContent="flex-end"
+							>
 								{campaign.data.advertiser.twitter && (
-									<Anchor href={campaign.data.advertiser.twitter} external>
-										<Button
-											appearance="primary"
-											backgroundColor={colors.gray900}
-										>
-											<Strong color="#fff">
-												<UilTwitter size="28" />
-											</Strong>
-										</Button>
-									</Anchor>
+									<Pane marginRight={12}>
+										<Tooltip content="Twitter">
+											<Pane>
+												<Anchor
+													href={campaign.data.advertiser.twitter}
+													external
+												>
+													<Button
+														borderRadius={100}
+														height={50}
+														width={50}
+														padding={0}
+													>
+														<UilTwitter size="28" />
+													</Button>
+												</Anchor>
+											</Pane>
+										</Tooltip>
+									</Pane>
 								)}
+								<Pane>
+									<Tooltip content="View on Arweave">
+										<Pane>
+											<Anchor
+												href={`https://arweave.net/${campaign.data.id}`}
+												external
+											>
+												<Button
+													borderRadius={100}
+													height={50}
+													width={50}
+													padding={0}
+												>
+													<Image src={ArweaveIcon} height={28} width={28} />
+												</Button>
+											</Anchor>
+										</Pane>
+									</Tooltip>
+								</Pane>
 							</Pane>
 						</Pane>
 					</Pane>
 				) : (
-					<Skeleton count={5} />
+					<Skeleton
+						count={5}
+						style={{
+							maxWidth: 500
+						}}
+					/>
 				)}
 			</Pane>
 			<Pane
@@ -310,13 +372,17 @@ const Partnerships = () => {
 							alignItems="center"
 							justifyContent="center"
 							height={300}
+							background="tint2"
 						>
 							<Button
 								height={majorScale(7)}
 								appearance="primary"
 								onClick={onStartPartnership}
+								minWidth={250}
 							>
-								<Strong color="#fff">👉&nbsp;&nbsp;Start a Partnership</Strong>
+								<Strong color="#fff" fontSize="1.1em">
+									👉&nbsp;&nbsp;Start a Partnership
+								</Strong>
 							</Button>
 						</Pane>
 					)}
@@ -331,33 +397,38 @@ const Partnerships = () => {
 					// `}
 				>
 					{!campaign.isLoading && campaign.data ? (
-						<Pane
-							background="tint2"
-							borderRadius={8}
-							padding={12}
-							marginBottom={12}
-						>
-							<Progress
-								value={0}
-								label={`${0} / ${campaign.data.reward.limit} ${
-									campaign.data.reward.ticker
-								}${
-									campaign.data.reward.type !== RewardTypes.TOKEN
-										? ` ${campaign.data.reward.type.toUpperCase()}s`
-										: ""
-								} Claimed`}
-								showPercentage
-							/>
-						</Pane>
+						<>
+							{campaign.data.reward.limit > 0 && (
+								<Pane
+									background="tint2"
+									borderRadius={8}
+									padding={12}
+									marginBottom={12}
+								>
+									<Progress
+										value={0}
+										label={`${0} / ${campaign.data.reward.limit} ${
+											campaign.data.reward.ticker
+										}${
+											campaign.data.reward.type !== RewardTypes.TOKEN
+												? ` ${campaign.data.reward.type.toUpperCase()}s`
+												: ""
+										} Claimed`}
+										showPercentage
+									/>
+								</Pane>
+							)}
+						</>
 					) : (
 						<Skeleton
 							style={{
 								height: 100,
-								borderRadius: 8
+								borderRadius: 8,
+								marginBottom: 12
 							}}
 						/>
 					)}
-					{isLoggedIn && (
+					{isLoggedIn && partnership && (
 						<>
 							<Pane
 								padding={12}
