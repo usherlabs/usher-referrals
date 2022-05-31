@@ -1,4 +1,5 @@
 export { default as useUser } from "./use-user";
-export { default as useContract } from "./use-contract";
 export { default as useArConnect } from "./use-arconnect";
 export { default as useRandomColor } from "./use-random-color";
+export { default as useRedir } from "./use-redir";
+export { default as useViewerWallet } from "./use-viewer-wallet";

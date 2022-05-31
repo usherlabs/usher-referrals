@@ -51,7 +51,7 @@ const App = ({ Component, pageProps }: AppProps) => {
 
 	if (!noUser) {
 		combinedProviders.push(UserProvider);
-		combinedProviders.push(DashboardContainer);
+		// combinedProviders.push(DashboardContainer);
 	}
 
 	const MasterProvider = combinedProviders.master();
