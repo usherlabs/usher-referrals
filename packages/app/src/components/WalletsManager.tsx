@@ -9,7 +9,8 @@ import {
 	Heading,
 	Pane,
 	majorScale,
-	ArrowLeftIcon
+	ArrowLeftIcon,
+	Spinner
 } from "evergreen-ui";
 import { css } from "@linaria/core";
 import CopyToClipboard from "react-copy-to-clipboard";
@@ -51,7 +52,8 @@ const getBalances = (wallets: Wallet[]) => {
 
 const WalletsManager: React.FC<Props> = () => {
 	const {
-		user: { wallets }
+		user: { wallets },
+		isLoading: isUserLoading
 	} = useUser();
 	const { colors } = useTheme();
 	const [showWalletConnect, setShowWalletConnect] = useState(false);
@@ -170,7 +172,7 @@ const WalletsManager: React.FC<Props> = () => {
 							</Label>
 							<Pane border={`1px solid ${colors.gray400}`} borderRadius={8}>
 								{walletsForChain.map((wallet, i) => {
-									let balance = `...`;
+									let balance = "";
 									if (
 										!balances.isLoading &&
 										balances.data &&
@@ -245,8 +247,12 @@ const WalletsManager: React.FC<Props> = () => {
 													</Tooltip>
 												</Pane>
 											</Pane>
-											<Pane>
-												<Strong>{balance}</Strong>
+											<Pane display="flex" alignItems="center">
+												{balance ? (
+													<Strong>{balance}</Strong>
+												) : (
+													<Spinner size={16} />
+												)}
 											</Pane>
 										</Pane>
 									);
@@ -257,25 +263,26 @@ const WalletsManager: React.FC<Props> = () => {
 				})}
 			</Pane>
 			{[...hiddenConnections].sort().join(",") !==
-				[...Object.values(Connections)].sort().join(",") && (
-				<Pane
-					paddingTop={40}
-					paddingX={40}
-					paddingBottom={20}
-					display="flex"
-					width="100%"
-					alignItems="center"
-					justifyContent="center"
-				>
-					<Button
-						height={majorScale(5)}
-						minWidth={260}
-						onClick={onWalletConnect}
+				[...Object.values(Connections)].sort().join(",") &&
+				!isUserLoading && (
+					<Pane
+						paddingTop={40}
+						paddingX={40}
+						paddingBottom={20}
+						display="flex"
+						width="100%"
+						alignItems="center"
+						justifyContent="center"
 					>
-						<Strong>Connect a Wallet</Strong>
-					</Button>
-				</Pane>
-			)}
+						<Button
+							height={majorScale(5)}
+							minWidth={260}
+							onClick={onWalletConnect}
+						>
+							<Strong>Connect a Wallet</Strong>
+						</Button>
+					</Pane>
+				)}
 		</Pane>
 	);
 };

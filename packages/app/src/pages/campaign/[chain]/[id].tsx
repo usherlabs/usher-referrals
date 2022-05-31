@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
 import { useRouter } from "next/router";
 import { useQuery } from "react-query";
-import { Pane, useTheme, toaster } from "evergreen-ui";
+import { Pane, toaster } from "evergreen-ui";
 import camelcaseKeys from "camelcase-keys";
 
 import { useUser } from "@/hooks/";
@@ -40,7 +40,6 @@ const CampaignPage = () => {
 		actions: { addPartnership }
 	} = useUser();
 	const router = useRouter();
-	const { colors } = useTheme();
 	const { id, chain } = router.query as { id: string; chain: Chains };
 	const campaign = useQuery("campaign", () => getCampaign(id as string, chain));
 	const loginUrl = useRedir("/login");

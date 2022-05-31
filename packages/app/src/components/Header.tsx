@@ -60,26 +60,13 @@ const Header: React.FC<Props> = ({
 		user: { wallets },
 		isLoading: isWalletLoading
 	} = useUser();
-	const rMenu = menu.filter((item) => {
-		if (item.auth && wallets.length === 0) {
-			return false;
-		}
-		return true;
-	});
-	const [activeMenuItemIndex, setActiveMenuItemIndex] = useState<number | null>(
-		null
-	);
+	const [currentPathname, setCurrentPathname] = useState("");
 	const loginUrl = useRedir("/login");
 
 	useEffect(() => {
-		rMenu.forEach((item, i) => {
-			if (
-				typeof window !== "undefined" &&
-				window.location.pathname === item.href
-			) {
-				setActiveMenuItemIndex(i);
-			}
-		});
+		if (typeof window !== "undefined") {
+			setCurrentPathname(window.location.pathname);
+		}
 	}, []);
 
 	const ProfileButton = (
@@ -131,25 +118,32 @@ const Header: React.FC<Props> = ({
 					</Pane>
 				</Anchor>
 				<Pane paddingX={16}>
-					{rMenu.map((item, i) => (
-						<Anchor
-							key={item.text}
-							href={item.href}
-							external={item.external || false}
-						>
-							<Button
-								appearance="minimal"
-								height={height}
-								boxShadow="none !important"
-								position="relative"
-								className={cx(
-									css`
-										:hover label {
-											color: #000 !important;
-										}
-									`,
-									activeMenuItemIndex === i
-										? css`&:after {
+					{menu
+						.filter((item) => {
+							if (item.auth && wallets.length === 0) {
+								return false;
+							}
+							return true;
+						})
+						.map((item) => (
+							<Anchor
+								key={item.text}
+								href={item.href}
+								external={item.external || false}
+							>
+								<Button
+									appearance="minimal"
+									height={height}
+									boxShadow="none !important"
+									position="relative"
+									className={cx(
+										css`
+											:hover label {
+												color: #000 !important;
+											}
+										`,
+										currentPathname === item.href
+											? css`&:after {
 											content: "";
 											position: absolute;
 											background-color: #3366FF
@@ -158,15 +152,15 @@ const Header: React.FC<Props> = ({
 											bottom: 0;
 											height: 3px;
 										}`
-										: ""
-								)}
-							>
-								<Label size={500} color={colors.gray800} pointerEvents="none">
-									{item.text}
-								</Label>
-							</Button>
-						</Anchor>
-					))}
+											: ""
+									)}
+								>
+									<Label size={500} color={colors.gray800} pointerEvents="none">
+										{item.text}
+									</Label>
+								</Button>
+							</Anchor>
+						))}
 					{wallets.length === 0 ? (
 						<Anchor href={loginUrl}>{ProfileButton}</Anchor>
 					) : (
