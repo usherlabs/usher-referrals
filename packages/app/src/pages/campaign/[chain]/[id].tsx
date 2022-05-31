@@ -1,16 +1,7 @@
 import { useState, useCallback } from "react";
 import { useRouter } from "next/router";
 import { useQuery } from "react-query";
-import {
-	Pane,
-	Paragraph,
-	Strong,
-	useTheme,
-	Alert,
-	Button,
-	majorScale,
-	toaster
-} from "evergreen-ui";
+import { Pane, useTheme, toaster } from "evergreen-ui";
 import camelcaseKeys from "camelcase-keys";
 
 import { useUser } from "@/hooks/";
@@ -32,6 +23,7 @@ import Actions from "@/components/Campaign/Actions";
 import PartnershipUI from "@/components/Campaign/Partnership";
 import StartPartnership from "@/components/Campaign/StartPartnership";
 import ValueCard from "@/components/ValueCard";
+import VerifyPersonhoodAlert from "@/components/VerifyPersonhoodAlert";
 
 const getCampaign = async (id: string, chain: Chains) => {
 	await delay(5000);
@@ -230,7 +222,7 @@ const CampaignPage = () => {
 							}}
 						/>
 					)}
-					{isLoggedIn && partnership && (
+					{partnership && (
 						<>
 							<Pane
 								padding={12}
@@ -271,16 +263,8 @@ const CampaignPage = () => {
 								</Pane>
 							</Pane>
 							<Pane marginBottom={12}>
-								{!campaign.isLoading && campaign.data ? (
-									<Alert intent="warning" title="Unlock Claims">
-										<Paragraph marginBottom={12}>
-											Verify your personhood to unlock the ability to submit
-											claims.
-										</Paragraph>
-										<Button height={majorScale(4)}>
-											<Strong>Verify your personhood</Strong>
-										</Button>
-									</Alert>
+								{!isUserLoading ? (
+									<VerifyPersonhoodAlert />
 								) : (
 									<Skeleton
 										style={{
