@@ -61,6 +61,11 @@ const Partnerships = () => {
 	);
 	const loginUrl = useRedir("/login");
 	const isLoggedIn = wallets.length > 0;
+
+	if (!campaign.isLoading && !campaign.data) {
+		return <Serve404 />;
+	}
+
 	const partnerships = isLoggedIn
 		? wallets
 				.filter((w) => w.chain === network)
@@ -104,10 +109,6 @@ const Partnerships = () => {
 	// 	}
 	// }, []);
 
-	if (!campaign.isLoading && !campaign.data) {
-		return <Serve404 />;
-	}
-
 	return (
 		<Pane
 			display="flex"
@@ -117,44 +118,50 @@ const Partnerships = () => {
 			marginX="auto"
 			width="100%"
 		>
-			<Pane
-				borderBottom
-				height={200}
-				backgroundImage={`url(${
-					!campaign.isLoading && campaign.data
-						? campaign.data.details.image
-						: ""
-				})`}
-				backgroundPosition="center"
-				backgroundSize="cover"
-				backgroundColor={rColor}
-				backgroundRepeat="no-repeat"
-				boxShadow="inset 0 -18px 58px rgba(0, 0, 0, 0.1)"
-				position="relative"
-				borderBottomLeftRadius={12}
-				borderBottomRightRadius={12}
-				width="100%"
-			>
-				{!campaign.isLoading &&
-					campaign.data &&
-					campaign.data.advertiser.icon && (
-						<Pane
-							borderRadius={12}
-							height={60}
-							boxShadow="0 5px 15px rgba(0, 0, 0, 0.15)"
-							backgroundImage={`url(${campaign.data.advertiser.icon})`}
-							backgroundSize="contain"
-							backgroundRepeat="no-repeat"
-							backgroundPosition="center"
-							border="5px solid #fff"
-							backgroundColor="#fff"
-							width={150}
-							position="absolute"
-							left={16}
-							bottom={16}
-						/>
-					)}
-			</Pane>
+			{!campaign.isLoading &&
+			campaign.data &&
+			(campaign.data.details.image || campaign.data.advertiser.icon) ? (
+				<Pane
+					borderBottom
+					height={200}
+					backgroundImage={`url(${
+						!campaign.isLoading && campaign.data
+							? campaign.data.details.image
+							: ""
+					})`}
+					backgroundPosition="center"
+					backgroundSize="cover"
+					backgroundColor={rColor}
+					backgroundRepeat="no-repeat"
+					boxShadow="inset 0 -18px 58px rgba(0, 0, 0, 0.1)"
+					position="relative"
+					borderBottomLeftRadius={12}
+					borderBottomRightRadius={12}
+					width="100%"
+				>
+					{!campaign.isLoading &&
+						campaign.data &&
+						campaign.data.advertiser.icon && (
+							<Pane
+								borderRadius={12}
+								height={60}
+								boxShadow="0 5px 15px rgba(0, 0, 0, 0.15)"
+								backgroundImage={`url(${campaign.data.advertiser.icon})`}
+								backgroundSize="contain"
+								backgroundRepeat="no-repeat"
+								backgroundPosition="center"
+								border="5px solid #fff"
+								backgroundColor="#fff"
+								width={150}
+								position="absolute"
+								left={16}
+								bottom={16}
+							/>
+						)}
+				</Pane>
+			) : (
+				<Pane paddingY={16} />
+			)}
 			<Pane paddingTop={24} paddingBottom={0} paddingX={16} width="100%">
 				{!campaign.isLoading && campaign.data ? (
 					<Pane
