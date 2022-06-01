@@ -141,7 +141,7 @@ export interface ApiResponse extends NextApiResponse {}
  */
 
 export interface IUserActions {
-	connect: (type: Connections) => Promise<User>;
+	connect: (type: Connections) => Promise<void>;
 	disconnect: (type: Connections) => Promise<void>;
 	setCaptcha: (value: boolean) => void;
 	setProfile: (value: Profile) => void;

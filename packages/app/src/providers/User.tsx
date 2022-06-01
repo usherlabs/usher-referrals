@@ -56,7 +56,7 @@ export const UserContext = createContext<IUserContext>({
 	user: defaultValues,
 	loading: false,
 	async connect() {
-		return defaultValues;
+		// ...
 	},
 	async disconnect() {
 		// ...
@@ -208,7 +208,6 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 
 	const saveWallets = useCallback(
 		(saved: Wallet[]) => {
-			console.log("SAVED", saved);
 			const newUser = produce(user, (draft) => {
 				draft.wallets = saved;
 			});
@@ -295,12 +294,6 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 	const { wallets } = user;
 	useEffect(() => {
 		if (!walletsLoading && !isUserFetched && !loading && wallets.length === 0) {
-			console.log({
-				fetching: true,
-				isUserFetched,
-				walletsLoading,
-				loading
-			});
 			isUserFetched = true;
 			setLoading(true);
 			loadUser().finally(() => {

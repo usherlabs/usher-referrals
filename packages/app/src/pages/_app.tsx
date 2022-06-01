@@ -6,7 +6,6 @@ import { DefaultSeo } from "next-seo";
 import { ThemeProvider, mergeTheme, defaultTheme } from "evergreen-ui";
 import { QueryClient, QueryClientProvider } from "react-query";
 import "modern-normalize";
-import { combineProviders } from "react-combine-providers";
 
 import UserProvider from "@/providers/User";
 import { setup as setupSignals } from "@/utils/signals";
@@ -44,18 +43,6 @@ const App = ({ Component, pageProps }: AppProps) => {
 
 	const { seo = {}, noUser = false } = pageProps;
 
-	const combinedProviders = combineProviders();
-
-	combinedProviders.push(QueryClientProvider, { client: queryClient });
-	combinedProviders.push(ThemeProvider, { value: theme });
-
-	if (!noUser) {
-		combinedProviders.push(UserProvider);
-		// combinedProviders.push(DashboardContainer);
-	}
-
-	const MasterProvider = combinedProviders.master();
-
 	// return (
 	// 	<MasterProvider>
 	// 		<main id="usher-app">
@@ -65,19 +52,23 @@ const App = ({ Component, pageProps }: AppProps) => {
 	// 	</MasterProvider>
 	// );
 
+	const AppMain = (
+		<main id="usher-app">
+			<DefaultSeo defaultTitle="Usher" titleTemplate="%s | Usher" {...seo} />
+			<Component {...pageProps} />
+		</main>
+	);
+
 	return (
 		<QueryClientProvider client={queryClient}>
 			<ThemeProvider value={theme}>
-				<UserProvider>
-					<main id="usher-app">
-						<DefaultSeo
-							defaultTitle="Usher"
-							titleTemplate="%s | Usher"
-							{...seo}
-						/>
-						<Component {...pageProps} />
-					</main>
-				</UserProvider>
+				{noUser ? (
+					AppMain
+				) : (
+					<UserProvider>
+						<DashboardContainer>{AppMain}</DashboardContainer>
+					</UserProvider>
+				)}
 			</ThemeProvider>
 		</QueryClientProvider>
 	);

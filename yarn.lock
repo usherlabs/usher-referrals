@@ -8665,11 +8665,6 @@ randombytes@^2.1.0:
   dependencies:
     safe-buffer "^5.1.0"
 
-react-combine-providers@^0.9.6:
-  version "0.9.6"
-  resolved "https://registry.yarnpkg.com/react-combine-providers/-/react-combine-providers-0.9.6.tgz#7d33934f989109c2f472f213ee7b526d4e7e3109"
-  integrity sha512-UwcIg53130LleiokXLrU3Sp3JGH+w57WjxUSAHFVKKX+HgDDDK/fWSh/AwmAa4Pj1oj9rEkwO33t2SRY35KwHg==
-
 react-copy-to-clipboard@^5.0.4:
   version "5.1.0"
   resolved "https://registry.yarnpkg.com/react-copy-to-clipboard/-/react-copy-to-clipboard-5.1.0.tgz#09aae5ec4c62750ccb2e6421a58725eabc41255c"
@@ -10003,11 +9998,6 @@ url-set-query@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/url-set-query/-/url-set-query-1.0.0.tgz#016e8cfd7c20ee05cafe7795e892bd0702faa339"
   integrity sha1-AW6M/Xwg7gXK/neV6JK9BwL6ozk=
-
-use-async-effect@^2.2.5:
-  version "2.2.5"
-  resolved "https://registry.yarnpkg.com/use-async-effect/-/use-async-effect-2.2.5.tgz#f58edb50376723ae0ea7674e7428c3f8dde894df"
-  integrity sha512-0TBhYJ0K6aN7jG8niDDO570ZXoCaIjMCryG0FBNvC9RkHqhb4m8LQlTlkhw40sXtZPwNN1QoYkSlCXB4enaFsQ==
 
 use-local-storage@^2.3.6:
   version "2.3.6"
