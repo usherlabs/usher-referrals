@@ -29,10 +29,16 @@ import { connectionImages } from "@/utils/connections-map";
 
 const arweave = getArweaveClient();
 
-export type Props = {};
+export type Props = {
+	onClose: () => void;
+};
 
-const getBalances = (wallets: Wallet[]) => {
-	return allSettled(
+type WalletWithBalance = Wallet & {
+	balance: string;
+};
+
+const getBalances = async (wallets: Wallet[]) => {
+	const results = await allSettled<WalletWithBalance>(
 		wallets.map(async (wallet) => {
 			const w = {
 				...wallet,
@@ -48,9 +54,17 @@ const getBalances = (wallets: Wallet[]) => {
 			return w;
 		})
 	);
+
+	const resp: WalletWithBalance[] = [];
+	results.forEach((res) => {
+		if (res.status === "fulfilled" && !!res.value) {
+			resp.push(res.value);
+		}
+	});
+	return resp;
 };
 
-const WalletsManager: React.FC<Props> = () => {
+const WalletsManager: React.FC<Props> = ({ onClose }) => {
 	const {
 		user: { wallets },
 		isLoading: isUserLoading
@@ -179,13 +193,10 @@ const WalletsManager: React.FC<Props> = () => {
 										!isEmpty(balances.data)
 									) {
 										const found = balances.data.find(
-											(bal) =>
-												// @ts-ignore
-												bal.value && bal.value.address === wallet.address
+											(bal) => bal && bal.address === wallet.address
 										);
 										if (found) {
-											// @ts-ignore
-											balance = found.value.balance;
+											balance = found.balance;
 										}
 									}
 

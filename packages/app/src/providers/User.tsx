@@ -15,6 +15,8 @@ import React, {
 import produce from "immer";
 import allSettled from "promise.allsettled";
 import { useRouter } from "next/router";
+import useAsyncEffect from "use-async-effect";
+import once from "lodash/once";
 
 import useArConnect from "@/hooks/use-arconnect";
 import {
@@ -54,9 +56,6 @@ const defaultValues: User = {
 export const UserContext = createContext<IUserContext>({
 	user: defaultValues,
 	loading: false,
-	async getUser() {
-		return defaultValues;
-	},
 	async connect() {
 		return defaultValues;
 	},
@@ -76,10 +75,12 @@ export const UserContext = createContext<IUserContext>({
 
 const authInstance = Authenticate.getInstance();
 
+// Only fetch user on page load
+let isUserFetched = false;
+
 const UserContextProvider: React.FC<Props> = ({ children }) => {
 	const [user, setUser] = useState<User>(defaultValues);
-	const [loading, setLoading] = useState(true);
-	const [isUserFetched, setUserFetched] = useState(false);
+	const [loading, setLoading] = useState(false);
 	const [getArConnect, isArConnectLoading] = useArConnect();
 	const router = useRouter();
 	const walletsLoading = isArConnectLoading;
@@ -99,8 +100,9 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 	// 	identifyUser(null);
 	// }, []);
 
-	const getUser = useCallback(
-		async (type: Connections) => {
+	// Returns wallets that have been authenticated. Uses the provided connection to authenticate a new connection.
+	const getWallets = useCallback(
+		async (type: Connections): Promise<Wallet[]> => {
 			// Fetch Currently authenticated User by referring to their connected wallets.
 			let wallets: Wallet[] = [];
 			switch (type) {
@@ -147,21 +149,34 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 
 			if (wallets.length === 0) {
 				// Ensure that the saved connection is removed if no wallets returned.
-				return defaultValues;
+				return [];
 			}
 
-			// Authenticated
-			// const { success: captcha } = await api.captcha().get(id);
-			// const personhood = await checkPersonhood(did.id);
+			return wallets;
 
+			// // Authenticated
+			// // const { success: captcha } = await api.captcha().get(id);
+			// // const personhood = await checkPersonhood(did.id);
+
+			// const newUser = produce(user, (draft) => {
+			// 	draft.wallets = wallets;
+			// 	draft.verifications = { captcha: false, personhood: null };
+			// });
+
+			// saveUser(newUser);
+
+			// return newUser;
+		},
+		[]
+	);
+
+	const saveWallets = useCallback(
+		(saved: Wallet[]) => {
+			console.log("SAVED", saved);
 			const newUser = produce(user, (draft) => {
-				draft.wallets = wallets;
-				draft.verifications = { captcha: false, personhood: null };
+				draft.wallets = saved;
 			});
-
 			saveUser(newUser);
-
-			return newUser;
 		},
 		[user]
 	);
@@ -179,7 +194,9 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 					});
 
 					await delay(1000);
-					return getUser(type);
+					const newWallets = await getWallets(type);
+					saveWallets(newWallets);
+					return newWallets;
 				}
 				break;
 			}
@@ -188,7 +205,9 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 				const isLoggedIn = await magic.user.isLoggedIn();
 				if (isLoggedIn) {
 					// Will only be reached if the user is authorised.
-					return getUser(type);
+					const newWallets = await getWallets(type);
+					saveWallets(newWallets);
+					return newWallets;
 				}
 				// Redirect to magic login page
 				window.location.href = "/magic/login"; //* Important to use window.location.href for a full page reload.
@@ -199,37 +218,33 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 			}
 		}
 
-		return defaultValues;
+		return defaultValues.wallets;
 	}, []);
 
-	const disconnect = useCallback(
-		async (type: Connections) => {
-			if (!walletsLoading) {
-				switch (type) {
-					case Connections.ARCONNECT: {
-						const arconnect = getArConnect();
-						if (arconnect !== null) {
-							await arconnect.disconnect();
-							await delay(500);
-						}
-
-						// Reload the screen when a user disconnects their wallet
-						window.location.reload();
-						break;
-					}
-					case Connections.MAGIC: {
-						// Open Magic Link Dialog Here...
-						router.push("/magic/logout");
-						break;
-					}
-					default: {
-						break;
-					}
+	// Reloading the screen will refresh authentications
+	const disconnect = useCallback(async (type: Connections) => {
+		switch (type) {
+			case Connections.ARCONNECT: {
+				const arconnect = getArConnect();
+				if (arconnect !== null) {
+					await arconnect.disconnect();
+					await delay(500);
 				}
+
+				// Reload the screen when a user disconnects their wallet
+				window.location.reload();
+				break;
 			}
-		},
-		[walletsLoading]
-	);
+			case Connections.MAGIC: {
+				// Open Magic Link Dialog Here...
+				router.push("/magic/logout");
+				break;
+			}
+			default: {
+				break;
+			}
+		}
+	}, []);
 
 	const setCaptcha = useCallback(
 		(value: boolean) => {
@@ -277,6 +292,30 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 		[user]
 	);
 
+	const loadUser = useCallback(async () => {
+		await allSettled(
+			Object.values(Connections).map((value) =>
+				getWallets(value).then((fetched) => {
+					saveWallets(fetched);
+				})
+			)
+		);
+		// const newWallets: Wallet[] = [];
+		// results.forEach((res) => {
+		// 	if (res.status === "fulfilled" && !!res.value) {
+		// 		res.value.forEach((authedWallet) => {
+		// 			if (!newWallets.find((w) => w.address === authedWallet.address)) {
+		// 				newWallets.push(authedWallet);
+		// 			}
+		// 		});
+		// 	}
+		// });
+		// const newUser = produce(user, (draft) => {
+		// 	draft.wallets = newWallets;
+		// });
+		// saveUser(newUser);
+	}, []);
+
 	// useEffect(() => {
 	// 	(async () => {
 	// 		const { magic } = getMagicClient();
@@ -285,36 +324,66 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 	// 	})();
 	// }, []);
 
+	const { wallets } = user;
 	useEffect(() => {
-		if (!walletsLoading) {
-			if (isUserFetched) {
-				return () => {};
-			}
-			if (user.wallets.length === 0) {
-				setLoading(true);
-				setUserFetched(true);
-				allSettled(
-					Object.values(Connections).map((values) => getUser(values))
-				).finally(() => {
-					setLoading(false);
-				});
-			}
+		console.log({
+			isUserFetched,
+			walletsLoading,
+			loading,
+			wallets
+		});
+		if (!walletsLoading && !isUserFetched && !loading && wallets.length === 0) {
+			console.log({
+				fetching: true,
+				isUserFetched,
+				walletsLoading,
+				loading
+			});
+			isUserFetched = true;
+			setLoading(true);
+			loadUser().finally(() => {
+				setLoading(false);
+			});
 		}
 		return () => {};
-	}, [user, isUserFetched, walletsLoading]);
+	}, [wallets, loading, walletsLoading]);
+
+	console.log(user);
+
+	// useAsyncEffect(
+	// 	async (isActive) => {
+	// 		if (!walletsLoading) {
+	// 			if (!isUserFetched) {
+	// 				// return;
+	// 				if (user.wallets.length === 0 && isActive()) {
+	// 					setLoading(true);
+	// 					setUserFetched(true);
+	// 					try {
+	// 						await allSettled(
+	// 							Object.values(Connections).map((values) => getUser(values))
+	// 						);
+	// 					} catch (e) {
+	// 						// ...
+	// 					}
+	// 					setLoading(false);
+	// 				}
+	// 			}
+	// 		}
+	// 	},
+	// 	[getUser, user, isUserFetched, walletsLoading]
+	// );
 
 	const value = useMemo(
 		() => ({
 			user,
 			loading: loading || walletsLoading,
-			getUser,
 			connect,
 			disconnect,
 			setCaptcha,
 			setProfile,
 			addPartnership
 		}),
-		[user, loading]
+		[user, loading, walletsLoading]
 	);
 
 	return <UserContext.Provider value={value}>{children}</UserContext.Provider>;

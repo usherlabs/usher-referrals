@@ -15,7 +15,7 @@ const createUrl = (url: string, redir: string) => {
 	return `${pathname}?${params.toString()}`;
 };
 
-function useRedir(url: string, redir?: string = "") {
+function useRedir(url: string, redir: string = "") {
 	const [newUrl, setNewUrl] = useState(url);
 	useEffect(() => {
 		if (redir) {

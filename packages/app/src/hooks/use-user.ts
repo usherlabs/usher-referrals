@@ -6,7 +6,6 @@ function useUser() {
 	const {
 		user,
 		loading,
-		getUser,
 		connect,
 		disconnect,
 		setCaptcha,
@@ -18,7 +17,6 @@ function useUser() {
 		user,
 		isLoading: loading,
 		actions: {
-			getUser,
 			connect,
 			disconnect,
 			setCaptcha,

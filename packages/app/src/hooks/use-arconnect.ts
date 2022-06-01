@@ -25,11 +25,17 @@ const useArConnect = (): [
 					setLoading(false);
 				}
 			}, 500);
-			setTimeout(() => {
+			const timeout = setTimeout(() => {
 				clearInterval(interval);
 				setLoading(false); // ArConnect not loaded...
 			}, 2000);
+
+			return () => {
+				clearTimeout(timeout);
+				clearInterval(interval);
+			};
 		}
+		return () => {};
 	}, []);
 
 	return [getProvider, isLoading];

@@ -106,6 +106,8 @@ const CampaignPage = () => {
 	// 	}
 	// }, []);
 
+	console.log({ isUserLoading, isCampaignLoading: campaign.isLoading });
+
 	return (
 		<Pane
 			display="flex"

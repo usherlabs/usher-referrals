@@ -140,17 +140,7 @@ export interface ApiResponse extends NextApiResponse {}
  * ###### INTERFACES ######
  */
 
-export interface IContractActions {
-	getContract: () => Promise<Contract>;
-}
-
-export interface IContractContext extends IContractActions {
-	contract: Contract;
-	loading: boolean;
-}
-
 export interface IUserActions {
-	getUser: (type: Connections) => Promise<User>;
 	connect: (type: Connections) => Promise<User>;
 	disconnect: (type: Connections) => Promise<void>;
 	setCaptcha: (value: boolean) => void;
