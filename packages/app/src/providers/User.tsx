@@ -191,7 +191,7 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 	const walletsLoading = isArConnectLoading;
 
 	const saveUser = useCallback((saved: User) => {
-		console.log("SAVED USER", saved);
+		// console.log("SAVED USER", saved);
 		setUser(saved);
 		setErrorTrackingUser(saved);
 		identifyUser(

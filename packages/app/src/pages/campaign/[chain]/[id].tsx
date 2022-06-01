@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/router";
 import { useQuery } from "react-query";
 import { Pane, toaster } from "evergreen-ui";
@@ -10,12 +10,11 @@ import ClaimButton from "@/components/ClaimButton";
 import Terms from "@/components/Campaign/Terms";
 import Progress from "@/components/Progress";
 import delay from "@/utils/delay";
-import { Chains, Partnership, Campaign, RewardTypes } from "@/types";
+import { Chains, Partnership, Campaign, RewardTypes, Wallet } from "@/types";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import useRedir from "@/hooks/use-redir";
 import Serve404 from "@/components/Serve404";
-import useViewerWallet from "@/hooks/use-viewer-wallet";
 import handleException from "@/utils/handle-exception";
 import Banner from "@/components/Campaign/Banner";
 import Info from "@/components/Campaign/Info";
@@ -24,6 +23,7 @@ import PartnershipUI from "@/components/Campaign/Partnership";
 import StartPartnership from "@/components/Campaign/StartPartnership";
 import ValueCard from "@/components/ValueCard";
 import VerifyPersonhoodAlert from "@/components/VerifyPersonhoodAlert";
+import ViewerWallet from "@/components/Campaign/ViewerWallet";
 
 const getCampaign = async (id: string, chain: Chains) => {
 	await delay(5000);
@@ -50,48 +50,64 @@ const CampaignPage = () => {
 	}
 
 	const [isPartnering, setPartnering] = useState(false);
-	const [viewerWallet] = useViewerWallet(chain);
 
+	const walletsForChain = wallets.filter((w) => w.chain === chain);
+	const partnerWallets = walletsForChain.filter(
+		(wallet) =>
+			!!wallet.partnerships.find(
+				(p) => p.campaign.address === id && p.campaign.chain === chain
+			)
+	);
 	const partnerships = isLoggedIn
-		? wallets
-				.filter((w) => w.chain === chain)
-				.reduce<Partnership[]>((p, wallet) => {
-					return p.concat(wallet.partnerships);
-				}, [])
+		? walletsForChain.reduce<Partnership[]>((p, wallet) => {
+				return p.concat(wallet.partnerships);
+		  }, [])
 		: [];
 	const partnership = partnerships.find(
 		(p) => p.campaign.address === id && p.campaign.chain === chain
 	);
+	const [viewerWallet, setViewerWallet] = useState(
+		partnerWallets.length > 0 ? partnerWallets[0] : null
+	);
 
-	const onStartPartnership = useCallback(() => {
-		if (!isLoggedIn || !viewerWallet) {
-			router.push(loginUrl);
-			return;
+	useEffect(() => {
+		if (!viewerWallet && partnerWallets.length > 0) {
+			setViewerWallet(partnerWallets[0]);
 		}
-		if (!campaign.isLoading && campaign.data) {
-			setPartnering(true);
-			const campaignRef = {
-				chain,
-				address: campaign.data.id
-			};
-			(async () => {
-				try {
-					await addPartnership(viewerWallet, campaignRef);
-				} catch (e) {
-					if (e instanceof Error) {
-						handleException(e, null);
-					}
-				}
-				setPartnering(false);
-			})();
-		}
-		toaster.danger(
-			"Oops! Something has gone wrong partnering with this campaign.",
-			{
-				id: "error"
+	}, [partnerWallets]);
+
+	const onStartPartnership = useCallback(
+		(selected: Wallet | null = null) => {
+			if (!selected) {
+				router.push(loginUrl);
+				return;
 			}
-		);
-	}, [loginUrl, isLoggedIn, viewerWallet, campaign, wallets]);
+			if (!campaign.isLoading && campaign.data) {
+				setPartnering(true);
+				const campaignRef = {
+					chain,
+					address: campaign.data.id
+				};
+				(async () => {
+					try {
+						await addPartnership(selected, campaignRef);
+					} catch (e) {
+						if (e instanceof Error) {
+							handleException(e, null);
+						}
+					}
+					setPartnering(false);
+				})();
+			}
+			toaster.danger(
+				"Oops! Something has gone wrong partnering with this campaign.",
+				{
+					id: "error"
+				}
+			);
+		},
+		[loginUrl, campaign]
+	);
 
 	// useEffect(() => {
 	// 	if (user !== null) {
@@ -135,7 +151,26 @@ const CampaignPage = () => {
 							<Info campaign={campaign.data as Campaign} />
 						</Pane>
 						<Pane width="40%">
-							<Actions chain={chain} campaign={campaign.data as Campaign} />
+							<Pane
+								display="flex"
+								flexDirection="row"
+								alignItems="center"
+								justifyContent="flex-end"
+							>
+								{viewerWallet && (
+									<Pane marginRight={12}>
+										<ViewerWallet
+											selected={viewerWallet}
+											options={partnerWallets}
+											buttonProps={{
+												height: 50
+											}}
+											onSelect={(w: Wallet) => setViewerWallet(w)}
+										/>
+									</Pane>
+								)}
+								<Actions chain={chain} campaign={campaign.data as Campaign} />
+							</Pane>
 						</Pane>
 					</Pane>
 				) : (
@@ -168,6 +203,7 @@ const CampaignPage = () => {
 									onStart={onStartPartnership}
 									chain={chain}
 									isLoading={isPartnering}
+									wallets={walletsForChain}
 								/>
 							)}
 						</>

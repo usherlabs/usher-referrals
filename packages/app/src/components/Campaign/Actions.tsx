@@ -4,7 +4,6 @@ import Image from "next/image";
 
 import { Chains, Campaign } from "@/types";
 import Anchor from "@/components/Anchor";
-import ViewerWallet from "@/components/ViewerWallet";
 import { UilTwitter } from "@iconscout/react-unicons";
 import ArweaveIcon from "@/assets/icon/arweave-icon.png";
 
@@ -15,15 +14,7 @@ export type Props = {
 
 const CampaignActions: React.FC<Props> = ({ chain, campaign }) => {
 	return (
-		<Pane
-			display="flex"
-			flexDirection="row"
-			alignItems="center"
-			justifyContent="flex-end"
-		>
-			<Pane marginRight={12}>
-				<ViewerWallet chain={chain} height={50} />
-			</Pane>
+		<>
 			{campaign.advertiser.twitter && (
 				<Pane marginRight={12}>
 					<Tooltip content="Twitter">
@@ -48,7 +39,7 @@ const CampaignActions: React.FC<Props> = ({ chain, campaign }) => {
 					</Pane>
 				</Tooltip>
 			</Pane>
-		</Pane>
+		</>
 	);
 };
 
