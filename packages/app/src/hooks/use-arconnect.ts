@@ -1,16 +1,11 @@
 /**
  * See https://github.com/martonlederer/use-arconnect/blob/master/src/index.ts
  */
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
+import getArConnect from "@/utils/arconnect";
 
-const useArConnect = (): [
-	() => typeof window.arweaveWallet | null,
-	boolean
-] => {
+const useArConnect = (): [typeof getArConnect, boolean] => {
 	const [isLoading, setLoading] = useState(true);
-	const getProvider = useCallback(() => {
-		return window.arweaveWallet;
-	}, []);
 
 	useEffect(() => {
 		if (window.arweaveWallet) {
@@ -38,7 +33,7 @@ const useArConnect = (): [
 		return () => {};
 	}, []);
 
-	return [getProvider, isLoading];
+	return [getArConnect, isLoading];
 };
 
 export default useArConnect;

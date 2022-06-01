@@ -56,13 +56,30 @@ const App = ({ Component, pageProps }: AppProps) => {
 
 	const MasterProvider = combinedProviders.master();
 
+	// return (
+	// 	<MasterProvider>
+	// 		<main id="usher-app">
+	// 			<DefaultSeo defaultTitle="Usher" titleTemplate="%s | Usher" {...seo} />
+	// 			<Component {...pageProps} />
+	// 		</main>
+	// 	</MasterProvider>
+	// );
+
 	return (
-		<MasterProvider>
-			<main id="usher-app">
-				<DefaultSeo defaultTitle="Usher" titleTemplate="%s | Usher" {...seo} />
-				<Component {...pageProps} />
-			</main>
-		</MasterProvider>
+		<QueryClientProvider client={queryClient}>
+			<ThemeProvider value={theme}>
+				<UserProvider>
+					<main id="usher-app">
+						<DefaultSeo
+							defaultTitle="Usher"
+							titleTemplate="%s | Usher"
+							{...seo}
+						/>
+						<Component {...pageProps} />
+					</main>
+				</UserProvider>
+			</ThemeProvider>
+		</QueryClientProvider>
 	);
 };
 
