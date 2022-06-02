@@ -9,7 +9,7 @@
 	"license": "UNLICENSED",
 	"private": true,
 	"scripts": {
-		"arnetwork": "ts-node ./src/arnetwork"
+		"arnetwork": "ts-node ./src/cmd/arnetwork"
 	},
 	"dependencies": {
 		"@ceramicnetwork/http-client": "2.0.0",
