@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import Image from "next/image";
 import {
 	Pane,
@@ -15,6 +15,7 @@ import {
 } from "evergreen-ui";
 import { UilUserCircle, UilWallet } from "@iconscout/react-unicons";
 import { css, cx } from "@linaria/core";
+import { useRouter } from "next/router";
 
 import Anchor from "@/components/Anchor";
 import { useUser } from "@/hooks";
@@ -33,8 +34,7 @@ type Props = {
 const menu = [
 	{
 		href: "/",
-		text: "My Partnerships",
-		auth: true
+		text: "My Partnerships"
 	},
 	{
 		href: "/explore",
@@ -62,11 +62,27 @@ const Header: React.FC<Props> = ({
 	} = useUser();
 	const [currentPathname, setCurrentPathname] = useState("");
 	const loginUrl = useRedir("/login");
+	const router = useRouter();
+
+	// Listen for route change and update the new url pathname
+	const onRouteChangeComplete = useCallback(
+		(url: string) => {
+			if (url !== currentPathname) {
+				setCurrentPathname(url);
+			}
+		},
+		[currentPathname]
+	);
 
 	useEffect(() => {
 		if (typeof window !== "undefined") {
 			setCurrentPathname(window.location.pathname);
 		}
+
+		router.events.on("routeChangeComplete", onRouteChangeComplete);
+		return () => {
+			router.events.off("routeChangeComplete", onRouteChangeComplete);
+		};
 	}, []);
 
 	const ProfileButton = (
@@ -118,32 +134,25 @@ const Header: React.FC<Props> = ({
 					</Pane>
 				</Anchor>
 				<Pane paddingX={16}>
-					{menu
-						.filter((item) => {
-							if (item.auth && wallets.length === 0) {
-								return false;
-							}
-							return true;
-						})
-						.map((item) => (
-							<Anchor
-								key={item.text}
-								href={item.href}
-								external={item.external || false}
-							>
-								<Button
-									appearance="minimal"
-									height={height}
-									boxShadow="none !important"
-									position="relative"
-									className={cx(
-										css`
-											:hover label {
-												color: #000 !important;
-											}
-										`,
-										currentPathname === item.href
-											? css`&:after {
+					{menu.map((item) => (
+						<Anchor
+							key={item.text}
+							href={item.href}
+							external={item.external || false}
+						>
+							<Button
+								appearance="minimal"
+								height={height}
+								boxShadow="none !important"
+								position="relative"
+								className={cx(
+									css`
+										:hover label {
+											color: #000 !important;
+										}
+									`,
+									currentPathname === item.href
+										? css`&:after {
 											content: "";
 											position: absolute;
 											background-color: #3366FF
@@ -152,15 +161,15 @@ const Header: React.FC<Props> = ({
 											bottom: 0;
 											height: 3px;
 										}`
-											: ""
-									)}
-								>
-									<Label size={500} color={colors.gray800} pointerEvents="none">
-										{item.text}
-									</Label>
-								</Button>
-							</Anchor>
-						))}
+										: ""
+								)}
+							>
+								<Label size={500} color={colors.gray800} pointerEvents="none">
+									{item.text}
+								</Label>
+							</Button>
+						</Anchor>
+					))}
 					{wallets.length === 0 ? (
 						<Anchor href={loginUrl}>{ProfileButton}</Anchor>
 					) : (
