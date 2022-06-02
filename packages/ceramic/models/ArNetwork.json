@@ -1,0 +1,9 @@
+{
+	"definitions": {},
+	"schemas": {
+		"Campaigns": "ceramic://k3y52l7qbv1fry3cn9mpyrrgltfyw7l0h0fcfed0aas9og7e0jkcd358y65sdlhc0"
+	},
+	"tiles": {
+		"campaigns": "kjzl6cwe1jw149o67t2qbs9pp3u0m5z6y5cin2qoy41g7t36plve4q4rc9amhax"
+	}
+}
