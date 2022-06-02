@@ -11,6 +11,7 @@ import { ThreeIdProvider } from "@3id/did-provider";
 import { DataModel } from "@glazed/datamodel";
 import { DIDDataStore } from "@glazed/did-datastore";
 import { ModelTypeAliases } from "@glazed/types";
+import { ceramicUtils } from "@/utils/ceramic-client";
 import AffiliateCeramicModel from "@usher/ceramic/models/Affiliate.json";
 
 import { ceramicUrl } from "@/env-config";
@@ -48,6 +49,9 @@ type MagicWallet = {
 		created_at: number;
 	};
 };
+
+const CERAMIC_PARTNERSHIP_KEY = "partnerships";
+const CERAMIC_MAGIC_WALLETS_KEY = "magicWallets";
 
 class Auth {
 	private _did!: DID;
@@ -126,23 +130,27 @@ class Auth {
 		this._did = did;
 
 		// Load the Partnerships Stream
-		const pDefId = this.store.getDefinitionID("partnerships");
-		const partnershipsData = await this.store.get("partnerships");
-		const pId = await this.store.getRecordID(pDefId);
-		console.log("partnershipsData", partnershipsData);
-		if (pId) {
-			console.log("partnership by id", await this.model.loadTile(pId));
-		}
-		const partnerships: Partnership[] = (partnershipsData || []).map(
-			(ref: CampaignReference, i: number) => {
-				return {
-					id: [pId, i].join("/"),
-					campaign: ref
-				};
-			}
-		) as Partnership[];
+		const pDefId = this.store.getDefinitionID(CERAMIC_PARTNERSHIP_KEY);
+		const partnershipsData: { set: CampaignReference[] } | null =
+			await this.store.get(CERAMIC_PARTNERSHIP_KEY);
+		const recordId = await this.store.getRecordID(pDefId);
+		let partnerships: Partnership[] = [];
+		if (recordId) {
+			const setId = ceramicUtils.urlToId(recordId);
+			partnerships = ((partnershipsData || {}).set || []).map(
+				(ref: CampaignReference, i: number) => {
+					return {
+						id: [setId, i].join("/"),
+						campaign: {
+							address: ref.address,
+							chain: ref.chain
+						}
+					};
+				}
+			) as Partnership[];
 
-		this._partnerships = partnerships;
+			this._partnerships = partnerships;
+		}
 
 		this._wallet = {
 			address,
@@ -154,36 +162,32 @@ class Auth {
 
 	// Add Campaign to Partnerships Stream and load new index
 	public async addPartnership(campaign: CampaignReference) {
-		const defId = this.store.getDefinitionID("partnerships");
-		await this.store.merge("partnerships", campaign);
-		const id = await this.store.getRecordID(defId);
-		if (!id) {
+		const set = this._partnerships.map((p) => p.campaign);
+		set.push(campaign);
+		await this.store.set(CERAMIC_PARTNERSHIP_KEY, {
+			set
+		});
+		const defId = this.store.getDefinitionID(CERAMIC_PARTNERSHIP_KEY);
+		const recordId = await this.store.getRecordID(defId);
+		if (!recordId) {
 			throw new Error(
 				`Cannot get Parterships ID at Definition ${defId} for DID ${this._did.id}`
 			);
 		}
-		console.log("partnership by id", await this.model.loadTile(id));
-		const newPartnership = {
-			id: [id, this._partnerships.length].join("/"),
-			campaign
-		};
-		// const response = {
-		// 	current: newPartnership,
-		// 	prev: this._partnerships,
-		// 	next: this._partnerships
-		// };
-		this._partnerships.push(newPartnership);
-		// response.next = this._partnerships;
-		// return response;
+		const setId = ceramicUtils.urlToId(recordId);
+		this._partnerships = set.map((c, i) => ({
+			id: [setId, i].join("/"),
+			campaign: c
+		}));
 		return this._partnerships;
 	}
 
 	public getMagicWallets() {
-		return this.store.get("magicWallets");
+		return this.store.get(CERAMIC_MAGIC_WALLETS_KEY);
 	}
 
 	public addMagicWallet(wallet: MagicWallet) {
-		return this.store.merge("magicWallets", wallet);
+		return this.store.merge(CERAMIC_MAGIC_WALLETS_KEY, wallet);
 	}
 }
 

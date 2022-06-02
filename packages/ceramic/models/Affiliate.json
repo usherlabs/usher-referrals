@@ -1,11 +1,11 @@
 {
 	"definitions": {
-		"magicWallets": "kjzl6cwe1jw149jrknangj5g97wpwwbk5t77xamr8vu91wtmxakcpgt6vtpuw39",
-		"partnerships": "kjzl6cwe1jw14arbgqk87r0l8ugz0b51xsvrftydcwieutjg1zg8xj9b16qd1ds"
+		"partnerships": "kjzl6cwe1jw1492q8rdr83u169dmcp37y0atai469ojt8ovhwjqu0otqtk4gl14",
+		"magicWallets": "kjzl6cwe1jw148dhr1puzkfels3daqt75l5a642j6lnwk37043q6ckzvby34lkj"
 	},
 	"schemas": {
-		"MagicWallets": "ceramic://k3y52l7qbv1frxkiqwr6dd33pl6w0zgdmygo4gs61oqppzaj5uvyphtyzpdx7s8ow",
-		"Partnerships": "ceramic://k3y52l7qbv1fryf9arz24ky5ct6qw7cwdx748of9le96swaw5q1znnfr02mhvbugw"
+		"Partnerships": "ceramic://k3y52l7qbv1frxngx1w1g6xgiqnyjmohf1bmjhl7dyeo3q0og6dbxi3rdy6qb1dds",
+		"MagicWallets": "ceramic://k3y52l7qbv1fryp8oq5r9v3sk8l025fbz4ge73rz54a9d0rkkx4o8g3ye9tysv5s0"
 	},
 	"tiles": {}
 }

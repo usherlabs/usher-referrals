@@ -82,29 +82,32 @@ const CampaignPage = () => {
 				router.push(loginUrl);
 				return;
 			}
+			const errorMessage = () =>
+				toaster.danger(
+					"Oops! Something has gone wrong partnering with this campaign.",
+					{
+						id: "start-partnership-error-message"
+					}
+				);
 			if (!campaign.isLoading && campaign.data) {
 				setPartnering(true);
 				const campaignRef = {
 					chain,
 					address: campaign.data.id
 				};
-				(async () => {
-					try {
-						await addPartnership(selected, campaignRef);
-					} catch (e) {
+				addPartnership(selected, campaignRef)
+					.catch((e) => {
 						if (e instanceof Error) {
 							handleException(e, null);
 						}
-					}
-					setPartnering(false);
-				})();
+						errorMessage();
+					})
+					.finally(() => {
+						setPartnering(false);
+					});
+			} else {
+				errorMessage();
 			}
-			toaster.danger(
-				"Oops! Something has gone wrong partnering with this campaign.",
-				{
-					id: "error"
-				}
-			);
 		},
 		[loginUrl, campaign]
 	);
