@@ -1,0 +1,50 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"title": "ArNetworkRewards",
+	"type": "object",
+	"properties": {
+		"fee": {
+			"type": "object",
+			"properties": {
+				"wallet": {
+					"type": "string"
+				},
+				"multiplier": {
+					"type": "number"
+				},
+				"amount": {
+					"type": "number"
+				},
+				"recurring": {
+					"type": "object",
+					"properties": {
+						"amount": {
+							"type": "number"
+						},
+						"basis": {
+							"type": "integer"
+						}
+					}
+				}
+			}
+		},
+		"set": {
+			"type": "array",
+			"items": {
+				"type": "object",
+				"properties": {
+					"address": {
+						"type": "string"
+					},
+					"amount": {
+						"type": "number"
+					},
+					"complete": {
+						"type": "boolean"
+					}
+				}
+			}
+		}
+	},
+	"required": ["set", "fee"]
+}

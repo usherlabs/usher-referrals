@@ -1,0 +1,23 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"title": "ArCampaignDetails",
+	"type": "object",
+	"properties": {
+		"destination_url": {
+			"type": "string"
+		},
+		"name": {
+			"type": "string"
+		},
+		"description": {
+			"type": "string"
+		},
+		"image": {
+			"type": "string"
+		},
+		"external_link": {
+			"type": "string"
+		}
+	},
+	"required": ["destination_url", "name"]
+}
