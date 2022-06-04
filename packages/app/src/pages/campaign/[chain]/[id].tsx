@@ -24,13 +24,20 @@ import StartPartnership from "@/components/Campaign/StartPartnership";
 import ValueCard from "@/components/ValueCard";
 import VerifyPersonhoodAlert from "@/components/VerifyPersonhoodAlert";
 import ViewerWallet from "@/components/Campaign/ViewerWallet";
+import { useSeedData } from "@/env-config";
 
 const getCampaign = async (id: string, chain: Chains) => {
-	await delay(5000);
-	const campaignsData = (await import("@/seed/campaigns.json")).default;
-	const campaigns = camelcaseKeys(campaignsData, { deep: true });
+	if (useSeedData) {
+		await delay(5000);
+		const campaignsData = (await import("@/seed/campaigns.json")).default;
+		const campaigns = camelcaseKeys(campaignsData, { deep: true });
 
-	return campaigns[0];
+		return campaigns[0];
+	}
+
+	return [];
+
+	// return Campaigns.get(id, chain)
 };
 
 const CampaignPage = () => {

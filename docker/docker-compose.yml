@@ -6,12 +6,16 @@ version: "3.8"
 services:
   db:
     container_name: usher_db
-    image: supabase/postgres
-    command: postgres -c config_file=/etc/postgresql/postgresql.conf
+    image: arangodb:3.9.1
+    environment:
+      - ARANGO_ROOT_PASSWORD=${ARANGO_ROOT_PASSWORD}
     restart: unless-stopped
     ports:
-      - ${POSTGRES_PORT}:5432
-    environment:
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      - ${ARANGO_PORT:-8529}:8529
     volumes:
-      - ./volumes/db/init:/docker-entrypoint-initdb.d
+      - arangodb_data_container:/var/lib/arangodb3
+      - arangodb_apps_data_container:/var/lib/arangodb3-apps
+
+volumes:
+  arangodb_data_container:
+  arangodb_apps_data_container:

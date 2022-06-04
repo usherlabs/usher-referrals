@@ -1,0 +1,17 @@
+
+# https://github.com/supabase/supabase/blob/master/docker/docker-compose.yml
+
+version: "3.8"
+
+services:
+  db:
+    container_name: usher_db
+    image: supabase/postgres
+    command: postgres -c config_file=/etc/postgresql/postgresql.conf
+    restart: unless-stopped
+    ports:
+      - ${POSTGRES_PORT}:5432
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - ./volumes/db/init:/docker-entrypoint-initdb.d

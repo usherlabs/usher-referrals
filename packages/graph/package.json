@@ -1,0 +1,13 @@
+{
+	"name": "@usher/graph",
+	"version": "0.0.1",
+	"description": "Usher Graph Service. Manage ingestion of decentralised data into ArangoDB",
+	"main": "index.ts",
+	"types": "index.d.ts",
+	"repository": "git@gitlab.com:usherlabs/core.git",
+	"author": "Ryan Soury <ryan@usher.so>",
+	"license": "UNLICENSED",
+	"private": true,
+	"devDependencies": {},
+	"dependencies": {}
+}
