@@ -6,13 +6,13 @@
 import chalk from "chalk";
 import { Command } from "commander";
 import { DataModel } from "@glazed/datamodel";
-import ArNetworkModel from "@models/ArNetwork.json";
-import { getCeramic } from "./manager";
+import NetworkModel from "@models/Network.json";
+import { getCeramic } from "../manager";
 
 const getDoc = async () => {
 	const ceramic = await getCeramic();
-	const model = new DataModel({ ceramic, aliases: ArNetworkModel });
-	const doc = await model.loadTile("campaigns");
+	const model = new DataModel({ ceramic, aliases: NetworkModel });
+	const doc = await model.loadTile("ar_campaigns");
 	if (!doc) {
 		console.log(chalk.red(`Cannot load the ArNetwork Campaigns Stream!`));
 		process.exit(1);
@@ -22,7 +22,9 @@ const getDoc = async () => {
 
 const program = new Command();
 
-program.name("ar-network").description("CLI to control the ArNetwork Stream");
+program
+	.name("ar_campaigns")
+	.description("CLI to control the Network ArCampaigns Stream");
 
 program
 	.command("add")

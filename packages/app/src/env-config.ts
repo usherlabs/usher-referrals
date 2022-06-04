@@ -3,6 +3,7 @@
 export const isProd = process.env.NODE_ENV === "production";
 export const isTest = process.env.NODE_ENV === "test";
 export const appName = `${process.env.APP_NAME}@${process.env.APP_VERSION}`;
+export const useSeedData = process.env.NEXT_PUBLIC_USE_SEED_DATA === "true";
 
 /* ========== TRACKING ========== */
 export const sentry = {

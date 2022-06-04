@@ -10,9 +10,8 @@ import { getResolver as get3IDResolver } from "@ceramicnetwork/3id-did-resolver"
 import { ThreeIdProvider } from "@3id/did-provider";
 import { DataModel } from "@glazed/datamodel";
 import { DIDDataStore } from "@glazed/did-datastore";
-import { ModelTypeAliases } from "@glazed/types";
 import { ceramicUtils } from "@/utils/ceramic-client";
-import AffiliateCeramicModel from "@usher/ceramic/models/Affiliate.json";
+import { AffiliateModel } from "@usher/ceramic";
 
 import { ceramicUrl } from "@/env-config";
 import {
@@ -20,27 +19,10 @@ import {
 	Partnership,
 	CampaignReference,
 	Chains,
-	Connections
+	Connections,
+	IDIDDataStore,
+	IDataModel
 } from "@/types";
-
-interface IDIDDataStore
-	extends DIDDataStore<
-		ModelTypeAliases<
-			Record<string, any>,
-			Record<string, string>,
-			Record<string, string>
-		>,
-		string
-	> {}
-interface IDataModel
-	extends DataModel<
-		ModelTypeAliases<
-			Record<string, any>,
-			Record<string, string>,
-			Record<string, string>
-		>,
-		any
-	> {}
 
 type MagicWallet = {
 	arweave?: {
@@ -72,7 +54,7 @@ class Auth {
 		this._ceramic = new CeramicClient(ceramicUrl); // new instance of ceramic client for each DID;
 		const model = new DataModel({
 			ceramic: this._ceramic,
-			aliases: AffiliateCeramicModel
+			aliases: AffiliateModel
 		});
 		const store = new DIDDataStore({ ceramic: this._ceramic, model });
 		this.model = model;
