@@ -257,7 +257,7 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 			const partnerships = await auth.addPartnership(partnership);
 			setUser(
 				produce(user, (draft) => {
-					draft.wallets = user.wallets.map((wallet) => {
+					draft.wallets = draft.wallets.map((wallet, i) => {
 						if (wallet.address === walletAddress) {
 							wallet.partnerships = partnerships;
 						}

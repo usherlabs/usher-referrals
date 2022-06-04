@@ -35,9 +35,7 @@ const getCampaign = async (id: string, chain: Chains) => {
 		return campaigns[0];
 	}
 
-	return [];
-
-	// return Campaigns.get(id, chain)
+	return null;
 };
 
 const CampaignPage = () => {
@@ -51,10 +49,6 @@ const CampaignPage = () => {
 	const campaign = useQuery("campaign", () => getCampaign(id as string, chain));
 	const loginUrl = useRedir("/login");
 	const isLoggedIn = wallets.length > 0;
-
-	if (!campaign.isLoading && !campaign.data) {
-		return <Serve404 />;
-	}
 
 	const [isPartnering, setPartnering] = useState(false);
 
@@ -131,6 +125,10 @@ const CampaignPage = () => {
 	// 		Usher("event", eventPayload);
 	// 	}
 	// }, []);
+
+	if (!campaign.isLoading && !campaign.data) {
+		return <Serve404 />;
+	}
 
 	return (
 		<Pane

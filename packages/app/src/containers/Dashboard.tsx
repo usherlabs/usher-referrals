@@ -100,12 +100,6 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 		};
 	}, [isLoading, wallets, profile, captureEmail]);
 
-	// const onConnect = useCallback(() => {
-	// 	if (!profile.email) {
-	// 		setCaptureEmail(true);
-	// 	}
-	// }, [profile]);
-
 	const onEmailCapture = useCallback(
 		(email: string) => {
 			setProfile({
