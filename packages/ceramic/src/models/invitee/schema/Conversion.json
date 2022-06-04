@@ -35,14 +35,18 @@
 		},
 		"metadata": {
 			"description": "Additional data associated to this conversion",
-			"type": "object",
-			"properties": {
-				"key": {
-					"type": "string"
+			"type": "array",
+			"items": {
+				"type": "object",
+				"properties": {
+					"key": {
+						"type": "string"
+					},
+					"value": {
+						"type": ["boolean", "string", "number"]
+					}
 				},
-				"value": {
-					"type": ["boolean", "string", "number"]
-				}
+				"required": ["key", "value"]
 			}
 		},
 		"commit": {
