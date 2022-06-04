@@ -104,7 +104,11 @@ const InputField: React.FC<Props> = ({
 			>
 				{(isLoading || IconLeft) && (
 					<Pane padding={12} display="flex" alignItems="center" {...iconProps}>
-						{isLoading ? <Spinner size={24} /> : <IconLeft size={iconSize} />}
+						{isLoading ? (
+							<Spinner size={18} />
+						) : (
+							IconLeft && <IconLeft size={iconSize} />
+						)}
 					</Pane>
 				)}
 				<Pane flex={1} width="100%">

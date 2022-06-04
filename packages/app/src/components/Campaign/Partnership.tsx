@@ -65,26 +65,27 @@ const CampaignPartnership: React.FC<Props> = ({ partnership }) => {
 					<Pane display="flex" marginBottom={24}>
 						<ValueCard
 							// value={conversions.total}
-							value={0}
+							value=""
 							ticker="hits"
 							id="total-referrals"
 							label="Affiliate Link Hits"
+							isLoading
 						/>
 					</Pane>
 					<Pane
 						display="flex"
 						flexDirection="row"
 						width="100%"
-						className={css`
-							@media (max-width: 767px) {
-								flexdirection: column !important;
-							}
-						`}
+						// className={css`
+						// 	@media (max-width: 767px) {
+						// 		flexdirection: column !important;
+						// 	}
+						// `}
 					>
 						<Pane display="flex" flex={1}>
 							<ValueCard
 								// value={conversions.pending}
-								value={0}
+								value=""
 								id="pending-conv-count"
 								label="Pending Conversions"
 								iconRight={ConvHelpIcon(
@@ -93,13 +94,14 @@ const CampaignPartnership: React.FC<Props> = ({ partnership }) => {
 								iconProps={{
 									color: colors.gray500
 								}}
+								isLoading
 							/>
 						</Pane>
 						<Pane width={20} />
 						<Pane display="flex" flex={1}>
 							<ValueCard
 								// value={conversions.success}
-								value={0}
+								value=""
 								id="success-conv-count"
 								label="Successful Conversions"
 								iconRight={ConvHelpIcon(
@@ -108,6 +110,7 @@ const CampaignPartnership: React.FC<Props> = ({ partnership }) => {
 								iconProps={{
 									color: colors.gray500
 								}}
+								isLoading
 							/>
 						</Pane>
 					</Pane>
