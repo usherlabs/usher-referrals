@@ -1,0 +1,92 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"title": "NetworkArRewards",
+	"type": "object",
+	"properties": {
+		"fee": {
+			"type": "object",
+			"properties": {
+				"address": {
+					"type": "string",
+					"description": "Wallet address that will receive Advertiser fees"
+				},
+				"multiplier": {
+					"type": "number",
+					"description": "Multiplier applied to the total reward amount to calculate fees"
+				},
+				"amount": {
+					"type": "number",
+					"description": "A flat amount added to the total reward amount to calculate fees"
+				},
+				"recurring": {
+					"description": "In the circumstance where Campaign rewards are unpriced, a recurring fee may apply",
+					"type": "object",
+					"properties": {
+						"amount": {
+							"type": "number"
+						},
+						"basis": {
+							"type": "integer"
+						}
+					}
+				},
+				"minimum": {
+					"description": "A minimum fee applied when rewards are claimed",
+					"type": "number",
+					"required": ["amount"]
+				}
+			},
+			"required": ["address", "minimum"]
+		},
+		"set": {
+			"type": "array",
+			"items": {
+				"type": "object",
+				"properties": {
+					"sig": {
+						"description": "Affiliate DID signature to verify the reward claim",
+						"type": "string"
+					},
+					"address": {
+						"description": "Affiliate destination wallet address",
+						"type": "string"
+					},
+					"amount": {
+						"description": "Reward amount being claimed",
+						"type": "number"
+					},
+					"completed_at": {
+						"description": "Timestamp at which the reward was marked as completed",
+						"type": "integer"
+					},
+					"created_at": {
+						"description": "Timestamp at which the reward was created",
+						"type": "integer"
+					},
+					"conversions": {
+						"description": "Array of conversion identifiers that make up this reward claim",
+						"type": "array",
+						"items": {
+							"type": "string"
+						}
+					},
+					"fee": {
+						"description": "Fee amount calculated by the network and associated to this reward claim",
+						"type": "number"
+					}
+				},
+				"required": [
+					"sig",
+					"campaign",
+					"partnership",
+					"address",
+					"amount",
+					"created_at",
+					"conversions",
+					"fee"
+				]
+			}
+		}
+	},
+	"required": ["set", "fee"]
+}

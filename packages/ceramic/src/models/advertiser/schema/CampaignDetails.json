@@ -1,22 +1,24 @@
 {
 	"$schema": "http://json-schema.org/draft-07/schema#",
-	"title": "ArAdvertiser",
+	"title": "CampaignDetails",
+	"description": "Schema for the CampaignDetails Tile created and associated to each Campaign",
 	"type": "object",
 	"properties": {
-		"name": {
+		"destination_url": {
 			"type": "string"
 		},
-		"icon": {
+		"name": {
 			"type": "string"
 		},
 		"description": {
 			"type": "string"
 		},
-		"external_link": {
+		"image": {
 			"type": "string"
 		},
-		"twitter": {
+		"external_link": {
 			"type": "string"
 		}
-	}
+	},
+	"required": ["destination_url", "name"]
 }

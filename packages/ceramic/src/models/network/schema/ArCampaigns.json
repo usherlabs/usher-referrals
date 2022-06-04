@@ -1,0 +1,15 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"title": "NetworkArCampaigns",
+	"type": "object",
+	"properties": {
+		"set": {
+			"description": "Array of campaign Arweave transaction ids",
+			"type": "array",
+			"items": {
+				"type": "string"
+			}
+		}
+	},
+	"required": ["set"]
+}

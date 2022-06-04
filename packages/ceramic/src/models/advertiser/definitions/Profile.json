@@ -1,0 +1,5 @@
+{
+	"name": "Advertiser Profile",
+	"description": "Usher Advertiser Profile related data",
+	"schema": "ceramic://"
+}
