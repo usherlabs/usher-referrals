@@ -16,4 +16,5 @@ declare module "@iconscout/react-unicons" {
 	export const UilExternalLinkAlt: Icon;
 	export const UilHardHat: Icon;
 	export const UilLockAccess: Icon;
+	export const UilDna: Icon;
 }
