@@ -7,7 +7,19 @@
 			"description": "Array of conversion identifiers indexed by the Network",
 			"type": "array",
 			"items": {
-				"type": "string"
+				"type": "object",
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"action": {
+						"description": "Instruction of the action related to this Conversion. Defaults to 'insert'.",
+						"type": "string",
+						"default": "insert",
+						"enum": ["insert", "delete"]
+					}
+				},
+				"required": ["id"]
 			}
 		}
 	},
