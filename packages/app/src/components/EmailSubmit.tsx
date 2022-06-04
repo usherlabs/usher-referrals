@@ -12,7 +12,7 @@ import {
 import isEmail from "@/utils/is-email";
 
 export type Props = {
-	onSubmit: (value: string) => Promise<void>;
+	onSubmit: ((value: string) => Promise<void>) | ((value: string) => void);
 	disabled?: boolean;
 	loading?: boolean;
 	value?: string;

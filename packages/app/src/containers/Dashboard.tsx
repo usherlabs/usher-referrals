@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect } from "react";
-import { Pane, useTheme, Dialog, SideSheet } from "evergreen-ui";
+import { Pane, useTheme, Dialog, SideSheet, CornerDialog } from "evergreen-ui";
 import isEmpty from "lodash/isEmpty";
-// import useLocalStorage from "use-local-storage";
+import useLocalStorage from "use-local-storage";
 import { useRouter } from "next/router";
 
 import { useUser } from "@/hooks/";
@@ -13,6 +13,7 @@ import Preloader from "@/components/Preloader";
 import WalletsManager from "@/components/WalletsManager";
 import LogoutManager from "@/components/LogoutManager";
 import ProfileSettings from "@/components/ProfileSettings";
+import EmailCapture from "@/components/EmailCapture";
 // import handleException from "@/utils/handle-exception";
 // import * as alerts from "@/utils/alerts";
 import { hcaptchaSiteKey } from "@/env-config";
@@ -49,11 +50,11 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 	const [showSettings, setShowSettings] = useState(false);
 	const router = useRouter();
 	const loginUrl = useRedir("/login");
-	// const [captureEmail, setCaptureEmail] = useLocalStorage<boolean | null>(
-	// 	"get-notified",
-	// 	null
-	// );
-	const captureEmail = false;
+	const [captureEmail, setCaptureEmail] = useLocalStorage<{
+		active: boolean;
+		dismissCount?: number;
+		remindIn?: number;
+	} | null>("get-notified", null);
 	const isCaptchaVerified = isEmpty(hcaptchaSiteKey) ? true : captcha;
 	const [loadingMessage, setLoadingMessage] = useState(
 		loadingMessages[loadingMessageIndex]
@@ -76,6 +77,29 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 		}
 	}, [isLoading, wallets]);
 
+	useEffect(() => {
+		const timeout = setTimeout(() => {
+			if (!isLoading && wallets.length > 0 && !profile.email) {
+				if (captureEmail && !captureEmail.active) {
+					if (captureEmail.remindIn && captureEmail.remindIn !== 0) {
+						if (Date.now() >= captureEmail.remindIn) {
+							setCaptureEmail({
+								...captureEmail,
+								active: true
+							});
+						}
+					}
+				} else {
+					setCaptureEmail({ active: true });
+				}
+			}
+		}, 2000);
+
+		return () => {
+			clearTimeout(timeout);
+		};
+	}, [isLoading, wallets, profile, captureEmail]);
+
 	// const onConnect = useCallback(() => {
 	// 	if (!profile.email) {
 	// 		setCaptureEmail(true);
@@ -88,14 +112,27 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 				...profile,
 				email
 			});
-			// setCaptureEmail(false);
+			setCaptureEmail({
+				...captureEmail,
+				active: false,
+				remindIn: 0
+			});
+			// Save to Graph
 		},
-		[profile]
+		[profile, captureEmail]
 	);
 
-	const onEmailCaptureSkip = useCallback(() => {
-		// setCaptureEmail(false);
-	}, []);
+	const onEmailCaptureDismiss = useCallback(() => {
+		if (captureEmail) {
+			const newDismissCount =
+				(!captureEmail.dismissCount ? 0 : captureEmail.dismissCount) + 1;
+			setCaptureEmail({
+				active: false,
+				dismissCount: newDismissCount,
+				remindIn: Date.now() + 1000 * 60 * 60 * 24 * 3.5 * newDismissCount
+			});
+		}
+	}, [captureEmail]);
 
 	const onWalletToggle = useCallback(() => {
 		if (wallets.length === 0) {
@@ -184,7 +221,7 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 				onCloseComplete={onWalletSideSheetClose}
 				preventBodyScrolling
 			>
-				<WalletsManager />
+				<WalletsManager onClose={onWalletSideSheetClose} />
 			</SideSheet>
 			<Dialog
 				isShown={showLogout}
@@ -206,6 +243,29 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 					<ProfileSettings />
 				</Pane>
 			</Dialog>
+			<CornerDialog
+				title="🔔 Let's keep in touch"
+				isShown={captureEmail?.active || false}
+				onCloseComplete={onEmailCaptureDismiss}
+				hasFooter={false}
+				containerProps={{
+					backgroundColor: colors.gray75,
+					borderRadius: 20
+				}}
+			>
+				<EmailCapture
+					hasHeading={false}
+					hasSkip={false}
+					onSubmit={onEmailCapture}
+					onDismiss={onEmailCaptureDismiss}
+					inputContainerProps={{
+						paddingX: 0,
+						paddingBottom: 0,
+						width: "100%",
+						margin: 0
+					}}
+				/>
+			</CornerDialog>
 		</>
 	);
 };

@@ -9,6 +9,7 @@
 	"license": "UNLICENSED",
 	"private": true,
 	"scripts": {
+		"build": "tsc -p tsconfig.json",
 		"arcampaigns": "ts-node ./src/cmd/arcampaigns"
 	},
 	"dependencies": {
@@ -25,6 +26,6 @@
 	},
 	"devDependencies": {
 		"ts-node": "^10.8.0",
-		"typescript": "^4.7.2"
+		"typescript": "^4.7.3"
 	}
 }
