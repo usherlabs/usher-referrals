@@ -12,31 +12,25 @@
 				},
 				"multiplier": {
 					"type": "number",
-					"description": "Multiplier applied to the total reward amount to calculate fees"
+					"description": "Multiplier applied to the total reward amount to calculate fees.",
+					"minimum": 0,
+					"default": 0
 				},
 				"amount": {
 					"type": "number",
 					"description": "A flat amount added to the total reward amount to calculate fees"
 				},
 				"recurring": {
-					"description": "In the circumstance where Campaign rewards are unpriced, a recurring fee may apply",
-					"type": "object",
-					"properties": {
-						"amount": {
-							"type": "number"
-						},
-						"basis": {
-							"type": "integer"
-						}
-					}
+					"description": "In the circumstance where Campaign rewards are unpriced or unsupported, a recurring fee may apply. This recurring fee amount is multiplied by the number of hours from the last reward claim for the given campaign.",
+					"type": "number",
+					"minimum": 0
 				},
 				"minimum": {
 					"description": "A minimum fee applied when rewards are claimed",
-					"type": "number",
-					"required": ["amount"]
+					"type": "number"
 				}
 			},
-			"required": ["address", "minimum"]
+			"required": ["address"]
 		},
 		"set": {
 			"type": "array",
@@ -52,7 +46,7 @@
 						"type": "string"
 					},
 					"amount": {
-						"description": "Reward amount being claimed",
+						"description": "Reward amount calculated based on the associated conversions",
 						"type": "number"
 					},
 					"completed_at": {
