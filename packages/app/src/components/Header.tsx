@@ -11,7 +11,9 @@ import {
 	Menu,
 	Position,
 	LogOutIcon,
-	CogIcon
+	CogIcon,
+	MenuIcon,
+	SideSheet
 } from "evergreen-ui";
 import { UilUserCircle, UilWallet } from "@iconscout/react-unicons";
 import { css, cx } from "@linaria/core";
@@ -20,8 +22,10 @@ import { useRouter } from "next/router";
 import Anchor from "@/components/Anchor";
 import { useUser } from "@/hooks";
 import useRedir from "@/hooks/use-redir";
+import useScreen from "@/hooks/use-screen";
 
 import LogoImage from "@/assets/logo/Logo-Icon.svg";
+import { Breakpoints } from "@/types";
 
 type Props = {
 	height: number;
@@ -61,8 +65,12 @@ const Header: React.FC<Props> = ({
 		isLoading: isWalletLoading
 	} = useUser();
 	const [currentPathname, setCurrentPathname] = useState("");
+	const [showMobileMenu, setShowMobileMenu] = useState(false);
 	const loginUrl = useRedir("/login");
 	const router = useRouter();
+	// const isMediumScreen = useScreen(Breakpoints.medium, true);
+	const isLargerScreen = useScreen(Breakpoints.xLarge);
+	const isLargeScreen = useScreen(Breakpoints.xLarge, true);
 
 	// Listen for route change and update the new url pathname
 	const onRouteChangeComplete = useCallback(
@@ -85,22 +93,59 @@ const Header: React.FC<Props> = ({
 		};
 	}, []);
 
+	const menuButtonProps = {
+		appearance: "minimal",
+		paddingX: 0,
+		width: height,
+		height,
+		boxShadow: "none !important",
+		className: css`
+			:hover svg {
+				fill: #000 !important;
+			}
+		`
+	};
+
 	const ProfileButton = (
-		<Button
-			appearance="minimal"
-			paddingX={0}
-			width={height}
-			height={height}
-			boxShadow="none !important"
-			className={css`
-				:hover svg {
-					fill: #000 !important;
-				}
-			`}
-		>
+		<Button {...menuButtonProps}>
 			<UilUserCircle size="32" color={colors.gray700} />
 		</Button>
 	);
+
+	const MenuItems = menu.map((item) => (
+		<Anchor key={item.text} href={item.href} external={item.external || false}>
+			<Button
+				appearance="minimal"
+				height={height}
+				boxShadow="none !important"
+				position="relative"
+				className={cx(
+					css`
+						:hover label {
+							color: #000 !important;
+						}
+					`,
+					currentPathname === item.href
+						? css`
+							&:after {
+								content: "";
+								position: absolute;
+								background-color: #3366FF
+								left: 0;
+								right: 0;
+								bottom: 0;
+								height: 3px;
+							}
+						`
+						: ""
+				)}
+			>
+				<Label size={500} color={colors.gray800} pointerEvents="none">
+					{item.text}
+				</Label>
+			</Button>
+		</Anchor>
+	));
 
 	return (
 		<Pane width="100%" background="tint2" height={height} {...props}>
@@ -134,42 +179,7 @@ const Header: React.FC<Props> = ({
 					</Pane>
 				</Anchor>
 				<Pane paddingX={16}>
-					{menu.map((item) => (
-						<Anchor
-							key={item.text}
-							href={item.href}
-							external={item.external || false}
-						>
-							<Button
-								appearance="minimal"
-								height={height}
-								boxShadow="none !important"
-								position="relative"
-								className={cx(
-									css`
-										:hover label {
-											color: #000 !important;
-										}
-									`,
-									currentPathname === item.href
-										? css`&:after {
-											content: "";
-											position: absolute;
-											background-color: #3366FF
-											left: 0;
-											right: 0;
-											bottom: 0;
-											height: 3px;
-										}`
-										: ""
-								)}
-							>
-								<Label size={500} color={colors.gray800} pointerEvents="none">
-									{item.text}
-								</Label>
-							</Button>
-						</Anchor>
-					))}
+					{isLargerScreen && MenuItems}
 					{wallets.length === 0 ? (
 						<Anchor href={loginUrl}>{ProfileButton}</Anchor>
 					) : (
@@ -191,20 +201,7 @@ const Header: React.FC<Props> = ({
 							{ProfileButton}
 						</Popover>
 					)}
-					<Button
-						appearance="minimal"
-						paddingX={0}
-						width={height}
-						height={height}
-						boxShadow="none !important"
-						position="relative"
-						className={css`
-							:hover svg {
-								fill: #000 !important;
-							}
-						`}
-						onClick={onWalletClick}
-					>
+					<Button {...menuButtonProps} onClick={onWalletClick}>
 						<UilWallet size="32" color={colors.gray700} />
 						{walletCount > 0 && (
 							<Label
@@ -230,8 +227,23 @@ const Header: React.FC<Props> = ({
 							</Pane>
 						)}
 					</Button>
+					{isLargeScreen && (
+						<Button
+							{...menuButtonProps}
+							onClick={() => setShowMobileMenu(true)}
+						>
+							<MenuIcon size={32} />
+						</Button>
+					)}
 				</Pane>
 			</Pane>
+			<SideSheet
+				isShown={showMobileMenu}
+				onCloseComplete={() => setShowMobileMenu(false)}
+				preventBodyScrolling
+			>
+				{MenuItems}
+			</SideSheet>
 		</Pane>
 	);
 };

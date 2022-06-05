@@ -8,26 +8,31 @@ import range from "lodash/range";
 import CampaignCard from "@/components/CampaignCard";
 import delay from "@/utils/delay";
 import { Campaign } from "@/types";
+import { useSeedData } from "@/env-config";
 
 const getCampaigns = async (): Promise<Campaign[]> => {
-	await delay(5000);
-	const campaignsData = (await import("@/seed/campaigns.json")).default;
-	const campaigns = camelcaseKeys(campaignsData, { deep: true });
+	if (useSeedData) {
+		await delay(5000);
+		const campaignsData = (await import("@/seed/campaigns.json")).default;
+		const campaigns = camelcaseKeys(campaignsData, { deep: true });
 
-	// return campaigns as Campaign[];
+		// return campaigns as Campaign[];
 
-	const seedCampaigns = [
-		campaigns[0],
-		campaigns[0],
-		campaigns[0],
-		campaigns[0],
-		campaigns[0],
-		campaigns[0],
-		campaigns[0],
-		campaigns[0],
-		campaigns[0]
-	];
-	return seedCampaigns as Campaign[];
+		const seedCampaigns = [
+			campaigns[0],
+			campaigns[0],
+			campaigns[0],
+			campaigns[0],
+			campaigns[0],
+			campaigns[0],
+			campaigns[0],
+			campaigns[0],
+			campaigns[0]
+		];
+		return seedCampaigns as Campaign[];
+	}
+
+	return [];
 };
 
 /**

@@ -149,6 +149,7 @@ const WalletsManager: React.FC<Props> = ({ onClose }) => {
 		setSendFundsLoading(false);
 	}, []);
 
+	/* TODO: Requires testing */
 	const sendFunds = useCallback(async () => {
 		// Send funds in amount to address
 		// Get JWK for the wallet.

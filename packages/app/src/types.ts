@@ -8,6 +8,14 @@ import { ModelTypeAliases } from "@glazed/types";
  * ###### ENUMS ######
  */
 
+export enum Breakpoints {
+	xSmall = 480,
+	small = 600,
+	medium = 768,
+	large = 889,
+	xLarge = 120
+}
+
 export enum Chains {
 	ARWEAVE = "arweave",
 	ETHEREUM = "ethereum"

@@ -74,6 +74,7 @@
 		"react-ga": "^3.3.0",
 		"react-loading-skeleton": "^3.1.0",
 		"react-query": "^3.39.0",
+		"react-responsive": "^9.0.0-beta.8",
 		"react-share": "^4.4.0",
 		"redstone-smartweave": "^0.4.48",
 		"sass": "^1.49.7",

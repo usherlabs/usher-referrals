@@ -7,12 +7,12 @@ import {
 	Tooltip,
 	HelpIcon
 } from "evergreen-ui";
-import { css } from "@linaria/core";
 
-import { Partnership } from "@/types";
+import { Breakpoints, Partnership } from "@/types";
 import AffiliateLink from "@/components/AffiliateLink";
 import ValueCard from "@/components/ValueCard";
 import getInviteLink from "@/utils/get-invite-link";
+import useScreen from "@/hooks/use-screen";
 
 export type Props = {
 	partnership: Partnership;
@@ -20,6 +20,7 @@ export type Props = {
 
 const CampaignPartnership: React.FC<Props> = ({ partnership }) => {
 	const { colors } = useTheme();
+	const isMediumScreen = useScreen(Breakpoints.medium, true);
 
 	// "Users converted by the Advertiser that are pending for processing."
 	const ConvHelpIcon = (content: string) =>
@@ -74,13 +75,8 @@ const CampaignPartnership: React.FC<Props> = ({ partnership }) => {
 					</Pane>
 					<Pane
 						display="flex"
-						flexDirection="row"
+						flexDirection={isMediumScreen ? "column" : "row"}
 						width="100%"
-						// className={css`
-						// 	@media (max-width: 767px) {
-						// 		flexdirection: column !important;
-						// 	}
-						// `}
 					>
 						<Pane display="flex" flex={1}>
 							<ValueCard

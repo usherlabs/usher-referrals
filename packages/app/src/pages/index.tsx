@@ -11,7 +11,7 @@ import {
 } from "evergreen-ui";
 import { useQuery } from "react-query";
 import range from "lodash/range";
-// import camelcaseKeys from "camelcase-keys";
+import camelcaseKeys from "camelcase-keys";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import isEmpty from "lodash/isEmpty";
@@ -23,13 +23,17 @@ import { Campaign } from "@/types";
 import delay from "@/utils/delay";
 import Authenticate from "@/modules/auth/authenticate";
 import Auth from "@/modules/auth/authentication";
+import { useSeedData } from "@/env-config";
 
 const getCampaigns = async (ids: string[]): Promise<Campaign[]> => {
-	await delay(5000);
-	// const campaignsData = (await import("@/seed/campaigns.json")).default;
-	// const campaigns = camelcaseKeys(campaignsData, { deep: true });
+	if (useSeedData) {
+		await delay(2000);
+		const campaignsData = (await import("@/seed/campaigns.json")).default;
+		const campaigns = camelcaseKeys(campaignsData, { deep: true });
 
-	// return campaigns as Campaign[];
+		return campaigns as Campaign[];
+	}
+
 	return [];
 };
 
