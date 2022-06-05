@@ -70,6 +70,13 @@ export type CampaignDetails = {
 	externalLink?: string;
 };
 
+export type CampaignReward = {
+	name: string;
+	ticker: string;
+	type: RewardTypes;
+	limit: number;
+};
+
 export type Campaign = {
 	id: string;
 	owner: string;
@@ -78,12 +85,7 @@ export type Campaign = {
 		rate: number;
 		limit: number;
 	}[];
-	reward: {
-		name: string;
-		ticker: string;
-		type: RewardTypes;
-		limit: number;
-	};
+	reward: CampaignReward;
 	conflictStrategy: CampaignConflictStrategy;
 	details: CampaignDetails;
 	advertiser: Advertiser;

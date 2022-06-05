@@ -6,11 +6,18 @@ import camelcaseKeys from "camelcase-keys";
 
 import { useUser } from "@/hooks/";
 import { MAX_SCREEN_WIDTH } from "@/constants";
-import ClaimButton from "@/components/ClaimButton";
+import ClaimButton from "@/components/Campaign/ClaimButton";
 import Terms from "@/components/Campaign/Terms";
 import Progress from "@/components/Progress";
 import delay from "@/utils/delay";
-import { Chains, Partnership, Campaign, RewardTypes, Wallet } from "@/types";
+import {
+	Chains,
+	Partnership,
+	Campaign,
+	RewardTypes,
+	Wallet,
+	CampaignReward
+} from "@/types";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import useRedir from "@/hooks/use-redir";
@@ -113,6 +120,10 @@ const CampaignPage = () => {
 		[loginUrl, campaign]
 	);
 
+	const onClaim = useCallback(async () => {
+		console.log("Hello world!");
+	}, [viewerWallet]);
+
 	// useEffect(() => {
 	// 	if (user !== null) {
 	// 		const eventPayload = {
@@ -177,7 +188,7 @@ const CampaignPage = () => {
 										/>
 									</Pane>
 								)}
-								<Actions chain={chain} campaign={campaign.data as Campaign} />
+								<Actions campaign={campaign.data as Campaign} />
 							</Pane>
 						</Pane>
 					</Pane>
@@ -293,8 +304,14 @@ const CampaignPage = () => {
 									)}
 								</Pane>
 								<Pane display="flex">
-									{!campaign.isLoading && campaign.data ? (
-										<ClaimButton />
+									{!campaign.isLoading && campaign.data && viewerWallet ? (
+										<ClaimButton
+											onClaim={onClaim}
+											wallet={viewerWallet}
+											amount={10}
+											reward={campaign.data.reward as CampaignReward}
+											active
+										/>
 									) : (
 										<Skeleton
 											style={{

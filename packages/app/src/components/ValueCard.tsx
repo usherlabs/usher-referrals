@@ -14,12 +14,7 @@ type Props = InputFieldProps & {
 
 const ValueCard: React.FC<Props> = ({ value, ticker, ...props }) => {
 	return (
-		<InputField
-			label="Affiliate Link"
-			iconSize={18}
-			background="tint2"
-			{...props}
-		>
+		<InputField iconSize={18} background="tint2" {...props}>
 			<Pane
 				width="100%"
 				display="flex"

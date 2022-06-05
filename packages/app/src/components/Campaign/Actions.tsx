@@ -2,17 +2,16 @@ import React from "react";
 import { Button, Pane, Tooltip } from "evergreen-ui";
 import Image from "next/image";
 
-import { Chains, Campaign } from "@/types";
+import { Campaign } from "@/types";
 import Anchor from "@/components/Anchor";
 import { UilTwitter } from "@iconscout/react-unicons";
 import ArweaveIcon from "@/assets/icon/arweave-icon.png";
 
 export type Props = {
-	chain: Chains;
 	campaign: Campaign;
 };
 
-const CampaignActions: React.FC<Props> = ({ chain, campaign }) => {
+const CampaignActions: React.FC<Props> = ({ campaign }) => {
 	return (
 		<>
 			{campaign.advertiser.twitter && (
