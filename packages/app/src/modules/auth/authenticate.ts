@@ -2,6 +2,7 @@ import { DID } from "dids";
 import * as uint8arrays from "uint8arrays";
 import { Sha256 } from "@aws-crypto/sha256-browser";
 import Arweave from "arweave";
+import { JWKInterface } from "arweave/node/lib/wallet";
 
 import getMagicClient from "@/utils/magic-client";
 import getArweaveClient from "@/utils/arweave-client";
@@ -130,11 +131,7 @@ class Authenticate {
 			arweaveAddress = arAddress;
 		} else {
 			const { data } = magicWallets.arweave;
-			const str = Arweave.utils.b64UrlToString(data);
-			const enc = JSON.parse(str);
-			const dec = await did.decryptJWE(enc);
-			const keyStr = uint8arrays.toString(dec);
-			const jwk = JSON.parse(keyStr);
+			const jwk = this.processMagicArweaveJwk(ethAuth.did, data);
 			arweaveAddress = await arweave.wallets.jwkToAddress(jwk);
 			arweaveKey = jwk;
 		}
@@ -146,6 +143,36 @@ class Authenticate {
 		);
 
 		return [ethAuth, arAuth];
+	}
+
+	public async getMagicArweaveJwk() {
+		const ethAuth = this.auths.find(
+			(a) =>
+				a.wallet.connection === Connections.MAGIC &&
+				a.wallet.chain === Chains.ETHEREUM
+		);
+		if (!ethAuth) {
+			throw new Error("Genisis Magic Wallet not Connected");
+		}
+		const magicWallets = await ethAuth.getMagicWallets();
+		if (!(magicWallets || {}).arweave) {
+			throw new Error("Magic Arweave Wallet not Connected");
+		}
+		const { data } = magicWallets.arweave;
+		const jwk = await this.processMagicArweaveJwk(ethAuth.did, data);
+		return jwk;
+	}
+
+	private async processMagicArweaveJwk(
+		genisisDid: DID,
+		data: string
+	): Promise<JWKInterface> {
+		const str = Arweave.utils.b64UrlToString(data);
+		const enc = JSON.parse(str);
+		const dec = await genisisDid.decryptJWE(enc);
+		const keyStr = uint8arrays.toString(dec);
+		const jwk = JSON.parse(keyStr);
+		return jwk as JWKInterface;
 	}
 
 	private static nativeArweaveProvider(jwk: Object) {

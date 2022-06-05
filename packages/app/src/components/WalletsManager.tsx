@@ -13,7 +13,8 @@ import {
 	Spinner,
 	SendMessageIcon,
 	TextInput,
-	Text
+	Text,
+	Paragraph
 } from "evergreen-ui";
 import { css } from "@linaria/core";
 import CopyToClipboard from "react-copy-to-clipboard";
@@ -22,16 +23,19 @@ import { useQuery } from "react-query";
 import allSettled from "promise.allsettled";
 import isEmpty from "lodash/isEmpty";
 import isNumber from "is-number";
+import ono from "@jsdevtools/ono";
 
 import pascalCase from "@/utils/pascal-case";
 import { Wallet, Chains, Connections } from "@/types";
 import truncate from "@/utils/truncate";
 import getArweaveClient from "@/utils/arweave-client";
 import WalletConnect from "@/components/WalletConnect";
+import Anchor from "@/components/Anchor";
 import InputField from "@/components/InputField";
 import { useArConnect, useUser } from "@/hooks";
 import { connectionImages } from "@/utils/connections-map";
 import handleException from "@/utils/handle-exception";
+import Authenticate from "@/modules/auth";
 
 const arweave = getArweaveClient();
 
@@ -147,7 +151,70 @@ const WalletsManager: React.FC<Props> = ({ onClose }) => {
 
 	const sendFunds = useCallback(async () => {
 		// Send funds in amount to address
-	}, [showSendFunds]);
+		// Get JWK for the wallet.
+		// For all wallets, get the ethereum magic wallet -- this is the source wallet
+		const magicEthWallet = wallets.find(
+			(wallet) =>
+				wallet.chain === Chains.ETHEREUM &&
+				wallet.connection === Connections.MAGIC
+		);
+		if (!magicEthWallet) {
+			return;
+		}
+		if (!showSendFunds) {
+			return;
+		}
+
+		setSendingFunds(true);
+		try {
+			// Get the auth for this wallet
+			const authInstance = Authenticate.getInstance();
+			const jwk = await authInstance.getMagicArweaveJwk();
+			const tx = await arweave.createTransaction(
+				{
+					target: showSendFunds.wallet.address,
+					quantity: arweave.ar.arToWinston(`${showSendFunds.amount}`)
+				},
+				jwk
+			);
+			await arweave.transactions.sign(tx, jwk);
+			const response = await arweave.transactions.post(tx);
+			if (response.status === 200) {
+				toaster.success(`Your funds have been sent!`, {
+					description: (
+						<Paragraph marginTop={8}>
+							Confirmed transaction&nbsp;
+							<Anchor
+								href={`https://viewblock.io/arweave/tx/${tx.id}`}
+								external
+							>
+								<Strong color={colors.blue500} textDecoration="underline">
+									{tx.id}
+								</Strong>
+							</Anchor>
+						</Paragraph>
+					),
+					duration: 30,
+					id: "success-send-funds"
+				});
+			} else {
+				throw ono("Failed to post transcation to Arweave", showSendFunds);
+			}
+		} catch (e) {
+			if (e instanceof Error) {
+				handleException(e, null);
+			}
+			toaster.danger(
+				"A problem has occurred sending your funds. The team has been notified. Please try again later or contact support",
+				{
+					duration: 10,
+					id: "error-send-funds"
+				}
+			);
+		} finally {
+			setSendingFunds(false);
+		}
+	}, [showSendFunds, wallets]);
 
 	if (showWalletConnect) {
 		return (
@@ -398,16 +465,19 @@ const WalletsManager: React.FC<Props> = ({ onClose }) => {
 												flexDirection="row"
 												alignItems="center"
 											>
-												<Button
-													iconBefore={SendMessageIcon}
-													onClick={() => onSendFundsShow(wallet)}
-													height={majorScale(3)}
-													marginRight={12}
-													appearance="minimal"
-													border={`1px solid ${colors.gray300}`}
-												>
-													Send Funds
-												</Button>
+												{wallet.connection === Connections.MAGIC &&
+													wallet.chain === Chains.ARWEAVE && (
+														<Button
+															iconBefore={SendMessageIcon}
+															onClick={() => onSendFundsShow(wallet)}
+															height={majorScale(3)}
+															marginRight={12}
+															appearance="minimal"
+															border={`1px solid ${colors.gray300}`}
+														>
+															Send Funds
+														</Button>
+													)}
 												<Pane display="flex" alignItems="center">
 													{balance ? (
 														<Strong>{balance}</Strong>
