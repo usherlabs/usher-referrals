@@ -6,17 +6,12 @@ import { useRouter } from "next/router";
 
 import { useUser } from "@/hooks/";
 import Header from "@/components/Header";
-// import WalletConnectScreen from "@/screens/WalletConnect";
-// import EmailCaptureScreen from "@/screens/EmailCapture";
-// import CaptchaScreen from "@/screens/Captcha";
 import Preloader from "@/components/Preloader";
 import WalletsManager from "@/components/WalletsManager";
 import LogoutManager from "@/components/LogoutManager";
 import ProfileSettings from "@/components/ProfileSettings";
 import EmailCapture from "@/components/EmailCapture";
 import SideSheet from "@/components/SideSheet";
-// import handleException from "@/utils/handle-exception";
-// import * as alerts from "@/utils/alerts";
 import { hcaptchaSiteKey } from "@/env-config";
 import useRedir from "@/hooks/use-redir";
 
