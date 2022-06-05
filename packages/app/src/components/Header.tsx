@@ -12,8 +12,7 @@ import {
 	Position,
 	LogOutIcon,
 	CogIcon,
-	MenuIcon,
-	SideSheet
+	MenuIcon
 } from "evergreen-ui";
 import { UilUserCircle, UilWallet } from "@iconscout/react-unicons";
 import { css, cx } from "@linaria/core";
@@ -23,6 +22,7 @@ import Anchor from "@/components/Anchor";
 import { useUser } from "@/hooks";
 import useRedir from "@/hooks/use-redir";
 import * as mediaQueries from "@/utils/media-queries";
+import SideSheet from "@/components/SideSheet";
 
 import LogoImage from "@/assets/logo/Logo-Icon.svg";
 

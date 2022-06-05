@@ -14,13 +14,7 @@ const CampaignInfo: React.FC<Props> = ({ campaign }) => {
 
 	return (
 		<>
-			<Heading
-				is="h1"
-				size={900}
-				textAlign="left"
-				width="100%"
-				marginBottom={8}
-			>
+			<Heading is="h1" size={900} width="100%" marginBottom={8}>
 				{campaign.details.name}
 			</Heading>
 			<Heading size={600} fontWeight={400} color={colors.gray900}>

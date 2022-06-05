@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from "react";
-import { Pane, useTheme, Dialog, SideSheet, CornerDialog } from "evergreen-ui";
+import { Pane, useTheme, Dialog, CornerDialog } from "evergreen-ui";
 import isEmpty from "lodash/isEmpty";
 import useLocalStorage from "use-local-storage";
 import { useRouter } from "next/router";
@@ -14,6 +14,7 @@ import WalletsManager from "@/components/WalletsManager";
 import LogoutManager from "@/components/LogoutManager";
 import ProfileSettings from "@/components/ProfileSettings";
 import EmailCapture from "@/components/EmailCapture";
+import SideSheet from "@/components/SideSheet";
 // import handleException from "@/utils/handle-exception";
 // import * as alerts from "@/utils/alerts";
 import { hcaptchaSiteKey } from "@/env-config";

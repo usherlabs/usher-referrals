@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import { useQuery } from "react-query";
 import { Pane, toaster } from "evergreen-ui";
 import camelcaseKeys from "camelcase-keys";
+import { css } from "@linaria/core";
 
 import { useUser } from "@/hooks/";
 import { MAX_SCREEN_WIDTH } from "@/constants";
@@ -32,6 +33,7 @@ import ValueCard from "@/components/ValueCard";
 import VerifyPersonhoodAlert from "@/components/VerifyPersonhoodAlert";
 import ViewerWallet from "@/components/Campaign/ViewerWallet";
 import { useSeedData } from "@/env-config";
+import * as mediaQueries from "@/utils/media-queries";
 
 const getCampaign = async (id: string, chain: Chains) => {
 	if (useSeedData) {
@@ -165,19 +167,58 @@ const CampaignPage = () => {
 						alignItems="flex-start"
 						justifyContent="space-between"
 						width="100%"
+						className={css`
+							${mediaQueries.isLarge} {
+								flex-direction: column !important;
+							}
+						`}
 					>
-						<Pane flex={1}>
+						<Pane
+							flex={1}
+							className={css`
+								${mediaQueries.isLarge} {
+									width: 100%;
+									text-align: center;
+								}
+							`}
+						>
 							<Info campaign={campaign.data as Campaign} />
 						</Pane>
-						<Pane width="40%">
+						<Pane
+							width="40%"
+							className={css`
+								${mediaQueries.isLarge} {
+									width: 100% !important;
+								}
+							`}
+						>
 							<Pane
 								display="flex"
 								flexDirection="row"
 								alignItems="center"
 								justifyContent="flex-end"
+								flexWrap="wrap"
+								className={css`
+									${mediaQueries.isLarge} {
+										justify-content: center !important;
+										margin-top: 24px !important;
+										margin-bottom: 24px !important;
+									}
+								`}
 							>
 								{viewerWallet && (
-									<Pane marginRight={12}>
+									<Pane
+										marginRight={12}
+										className={css`
+											${mediaQueries.isSmall} {
+												width: 100%;
+												margin-bottom: 12px;
+												display: flex;
+												justify-content: center;
+												align-items: center;
+											}
+										`}
+									>
 										<ViewerWallet
 											selected={viewerWallet}
 											options={partnerWallets}
@@ -206,11 +247,11 @@ const CampaignPage = () => {
 				flexDirection="row"
 				width="100%"
 				padding={16}
-				// className={css`
-				// 	@media (max-width: ${TABLET_BREAKPOINT}px) {
-				// 		flex-direction: column !important;
-				// 	}
-				// `}
+				className={css`
+					${mediaQueries.isLarge} {
+						flex-direction: column !important;
+					}
+				`}
 			>
 				<Pane flex={1} margin={6}>
 					{!campaign.isLoading && !isUserLoading ? (
@@ -238,11 +279,11 @@ const CampaignPage = () => {
 				<Pane
 					width="40%"
 					margin={6}
-					// className={css`
-					// 	@media (max-width: ${TABLET_BREAKPOINT}px) {
-					// 		width: 100% !important;
-					// 	}
-					// `}
+					className={css`
+						${mediaQueries.isLarge} {
+							width: 100% !important;
+						}
+					`}
 				>
 					{!campaign.isLoading && campaign.data ? (
 						<>
