@@ -10,7 +10,10 @@ import {
 	Pane,
 	majorScale,
 	ArrowLeftIcon,
-	Spinner
+	Spinner,
+	SendMessageIcon,
+	TextInput,
+	Text
 } from "evergreen-ui";
 import { css } from "@linaria/core";
 import CopyToClipboard from "react-copy-to-clipboard";
@@ -18,14 +21,17 @@ import Image from "next/image";
 import { useQuery } from "react-query";
 import allSettled from "promise.allsettled";
 import isEmpty from "lodash/isEmpty";
+import isNumber from "is-number";
 
 import pascalCase from "@/utils/pascal-case";
 import { Wallet, Chains, Connections } from "@/types";
 import truncate from "@/utils/truncate";
 import getArweaveClient from "@/utils/arweave-client";
 import WalletConnect from "@/components/WalletConnect";
+import InputField from "@/components/InputField";
 import { useArConnect, useUser } from "@/hooks";
 import { connectionImages } from "@/utils/connections-map";
+import handleException from "@/utils/handle-exception";
 
 const arweave = getArweaveClient();
 
@@ -71,6 +77,12 @@ const WalletsManager: React.FC<Props> = ({ onClose }) => {
 	} = useUser();
 	const { colors } = useTheme();
 	const [showWalletConnect, setShowWalletConnect] = useState(false);
+	const [showSendFunds, setShowSendFunds] = useState<{
+		wallet: Wallet;
+		amount: number;
+	} | null>(null);
+	const [isSendingFunds, setSendingFunds] = useState(false);
+	const [isSendFundsLoading, setSendFundsLoading] = useState(false);
 	const balances = useQuery(["balances", wallets], () => getBalances(wallets), {
 		staleTime: 10000
 	});
@@ -110,7 +122,7 @@ const WalletsManager: React.FC<Props> = ({ onClose }) => {
 		});
 	}, []);
 
-	const onWalletConnect = useCallback(() => {
+	const onWalletConnectToggle = useCallback(() => {
 		if (showWalletConnect) {
 			setShowWalletConnect(false);
 			return;
@@ -118,40 +130,163 @@ const WalletsManager: React.FC<Props> = ({ onClose }) => {
 		setShowWalletConnect(true);
 	}, [showWalletConnect]);
 
-	return showWalletConnect ? (
-		<Pane>
-			<Pane padding={10}>
-				<Button
-					appearance="minimal"
-					iconBefore={ArrowLeftIcon}
-					onClick={onWalletConnect}
-					height={majorScale(5)}
+	const onSendFundsShow = useCallback(async (wallet: Wallet) => {
+		setSendFundsLoading(true);
+		try {
+			const winston = await arweave.wallets.getBalance(wallet.address);
+			const ar = arweave.ar.winstonToAr(winston);
+			const amount = parseFloat(ar);
+			setShowSendFunds({ wallet, amount });
+		} catch (e) {
+			if (e instanceof Error) {
+				handleException(e, null);
+			}
+		}
+		setSendFundsLoading(false);
+	}, []);
+
+	const sendFunds = useCallback(async () => {
+		// Send funds in amount to address
+	}, [showSendFunds]);
+
+	if (showWalletConnect) {
+		return (
+			<Pane>
+				<Pane padding={10}>
+					<Button
+						appearance="minimal"
+						iconBefore={ArrowLeftIcon}
+						onClick={onWalletConnectToggle}
+						height={majorScale(5)}
+					>
+						<Label pointerEvents="none">Back to Wallet</Label>
+					</Button>
+				</Pane>
+				<Pane
+					marginBottom={24}
+					paddingTop={10}
+					paddingX={40}
+					paddingBottom={20}
+					borderBottomWidth="1px"
+					borderBottomColor={colors.gray400}
+					borderBottomStyle="solid"
 				>
-					<Label pointerEvents="none">Back to Wallet</Label>
-				</Button>
+					<Heading size={700}>Connect a Wallet</Heading>
+				</Pane>
+				<Pane
+					marginBottom={16}
+					paddingX={40}
+					display="flex"
+					alignItems="center"
+					justifyContent="center"
+				>
+					<WalletConnect hide={hiddenConnections} onConnect={onClose} />
+				</Pane>
 			</Pane>
-			<Pane
-				marginBottom={24}
-				paddingTop={10}
-				paddingX={40}
-				paddingBottom={20}
-				borderBottomWidth="1px"
-				borderBottomColor={colors.gray400}
-				borderBottomStyle="solid"
-			>
-				<Heading size={700}>Connect a Wallet</Heading>
+		);
+	}
+
+	if (showSendFunds) {
+		return (
+			<Pane>
+				<Pane padding={10}>
+					<Button
+						appearance="minimal"
+						iconBefore={ArrowLeftIcon}
+						onClick={() => setShowSendFunds(null)}
+						height={majorScale(5)}
+					>
+						<Label pointerEvents="none">Back to Wallet</Label>
+					</Button>
+				</Pane>
+				<Pane
+					marginBottom={24}
+					paddingTop={10}
+					paddingX={40}
+					paddingBottom={20}
+					borderBottomWidth="1px"
+					borderBottomColor={colors.gray400}
+					borderBottomStyle="solid"
+				>
+					<Heading size={700}>
+						Send funds from {truncate(showSendFunds.wallet.address, 6, 4)}
+					</Heading>
+				</Pane>
+				<Pane marginBottom={16} paddingX={40}>
+					<InputField
+						id="send-funds"
+						label="Enter the amount to send"
+						background="none"
+						isLoading={isSendFundsLoading}
+					>
+						<Pane
+							width="100%"
+							display="flex"
+							flexDirection="row"
+							height={42}
+							alignItems="center"
+							paddingX={8}
+						>
+							<TextInput
+								display="block"
+								flex={1}
+								paddingX={6}
+								onChange={(e: any) => {
+									if (isNumber(e.target.value)) {
+										setShowSendFunds({
+											...showSendFunds,
+											amount: e.target.value
+										});
+									} else if (!e.target.value) {
+										setShowSendFunds({
+											...showSendFunds,
+											amount: 0
+										});
+									}
+								}}
+								borderWidth={0}
+								minWidth={250}
+								marginRight={12}
+								value={showSendFunds.amount}
+								fontSize="1em"
+							/>
+							<Text
+								textDecoration="underline"
+								size={300}
+								fontWeight={700}
+								display="block"
+								paddingX={6}
+								onClick={() => onSendFundsShow(showSendFunds.wallet)}
+								cursor="pointer"
+								className={css`
+									:active {
+										opacity: 0.8;
+									}
+								`}
+							>
+								MAX
+							</Text>
+						</Pane>
+					</InputField>
+					<Pane display="flex" justifyContent="flex-end" width="100%">
+						<Button
+							onClick={sendFunds}
+							isLoading={isSendingFunds}
+							appearance="primary"
+							iconBefore={SendMessageIcon}
+							height={majorScale(5)}
+							marginTop={12}
+							minWidth={200}
+						>
+							<Strong color="#fff">Send Funds</Strong>
+						</Button>
+					</Pane>
+				</Pane>
 			</Pane>
-			<Pane
-				marginBottom={16}
-				paddingX={40}
-				display="flex"
-				alignItems="center"
-				justifyContent="center"
-			>
-				<WalletConnect hide={hiddenConnections} onConnect={onClose} />
-			</Pane>
-		</Pane>
-	) : (
+		);
+	}
+
+	return (
 		<Pane>
 			<Pane
 				marginBottom={24}
@@ -203,16 +338,16 @@ const WalletsManager: React.FC<Props> = ({ onClose }) => {
 									return (
 										<Pane
 											key={wallet.address}
-											display="flex"
-											alignContent="center"
-											flexDirection="row"
-											justifyContent="space-between"
 											padding={16}
 											borderBottom={
 												i === walletsForChain.length - 1
 													? ""
 													: `1px solid ${colors.gray400}`
 											}
+											display="flex"
+											alignContent="center"
+											flexDirection="row"
+											justifyContent="space-between"
 										>
 											<Pane
 												display="flex"
@@ -258,12 +393,28 @@ const WalletsManager: React.FC<Props> = ({ onClose }) => {
 													</Tooltip>
 												</Pane>
 											</Pane>
-											<Pane display="flex" alignItems="center">
-												{balance ? (
-													<Strong>{balance}</Strong>
-												) : (
-													<Spinner size={16} />
-												)}
+											<Pane
+												display="flex"
+												flexDirection="row"
+												alignItems="center"
+											>
+												<Button
+													iconBefore={SendMessageIcon}
+													onClick={() => onSendFundsShow(wallet)}
+													height={majorScale(3)}
+													marginRight={12}
+													appearance="minimal"
+													border={`1px solid ${colors.gray300}`}
+												>
+													Send Funds
+												</Button>
+												<Pane display="flex" alignItems="center">
+													{balance ? (
+														<Strong>{balance}</Strong>
+													) : (
+														<Spinner size={16} />
+													)}
+												</Pane>
 											</Pane>
 										</Pane>
 									);
@@ -288,7 +439,7 @@ const WalletsManager: React.FC<Props> = ({ onClose }) => {
 						<Button
 							height={majorScale(5)}
 							minWidth={260}
-							onClick={onWalletConnect}
+							onClick={onWalletConnectToggle}
 						>
 							<Strong>Connect a Wallet</Strong>
 						</Button>

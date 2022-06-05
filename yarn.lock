@@ -2932,6 +2932,11 @@
   resolved "https://registry.yarnpkg.com/@types/http-cache-semantics/-/http-cache-semantics-4.0.1.tgz#0ea7b61496902b95890dc4c3a116b60cb8dae812"
   integrity sha512-SZs7ekbP8CN0txVG2xVRH6EgKmEm31BOxA07vkFaETzZz1xh+cbt8BcI0slpymvwhx5dlFnQG2rTlPVQn+iRPQ==
 
+"@types/is-number@^7.0.3":
+  version "7.0.3"
+  resolved "https://registry.yarnpkg.com/@types/is-number/-/is-number-7.0.3.tgz#bfb9755dec4fc7a7c771a8eaa32870f6b6946b98"
+  integrity sha512-W+5JnmBqaRxR8NpHncRVww5tRSuvKLHBWEeIXN3BWvxZirL49unZBMHDtwrxnkQW5ZHHVQmsGIkdCXY7GS5WVw==
+
 "@types/istanbul-lib-coverage@*", "@types/istanbul-lib-coverage@^2.0.0", "@types/istanbul-lib-coverage@^2.0.1":
   version "2.0.4"
   resolved "https://registry.yarnpkg.com/@types/istanbul-lib-coverage/-/istanbul-lib-coverage-2.0.4.tgz#8467d4b3c087805d63580480890791277ce35c44"

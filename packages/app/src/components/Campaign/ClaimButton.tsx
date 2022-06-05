@@ -26,6 +26,7 @@ export type Props = {
 	wallet: Wallet;
 	amount: number;
 	reward: CampaignReward;
+	isClaiming?: boolean;
 	processed?: number; // How much of the limit has been processed
 	active?: boolean; // Determined by whether the limit has been reached
 	buttonProps?: ButtonProps;
@@ -33,6 +34,7 @@ export type Props = {
 
 const ClaimButton: React.FC<Props> = ({
 	onClaim,
+	isClaiming = false,
 	wallet,
 	amount,
 	reward,
@@ -179,12 +181,11 @@ const ClaimButton: React.FC<Props> = ({
 						appearance="primary"
 						onClick={onClaim}
 						minWidth={250}
-						position="absolute"
-						left={0}
-						right={0}
-						bottom={0}
-						borderTopLeftRadius={0}
-						borderTopRightRadius={0}
+						position="fixed"
+						left={10}
+						right={10}
+						bottom={10}
+						isLoading={isClaiming}
 					>
 						<Strong color="#fff" fontSize="1.1em">
 							👉&nbsp;&nbsp;Claim Rewards
