@@ -22,10 +22,9 @@ import { useRouter } from "next/router";
 import Anchor from "@/components/Anchor";
 import { useUser } from "@/hooks";
 import useRedir from "@/hooks/use-redir";
-import useScreen from "@/hooks/use-screen";
+import * as mediaQueries from "@/utils/media-queries";
 
 import LogoImage from "@/assets/logo/Logo-Icon.svg";
-import { Breakpoints } from "@/types";
 
 type Props = {
 	height: number;
@@ -68,9 +67,6 @@ const Header: React.FC<Props> = ({
 	const [showMobileMenu, setShowMobileMenu] = useState(false);
 	const loginUrl = useRedir("/login");
 	const router = useRouter();
-	// const isMediumScreen = useScreen(Breakpoints.medium, true);
-	const isLargerScreen = useScreen(Breakpoints.xLarge);
-	const isLargeScreen = useScreen(Breakpoints.xLarge, true);
 
 	// Listen for route change and update the new url pathname
 	const onRouteChangeComplete = useCallback(
@@ -78,6 +74,7 @@ const Header: React.FC<Props> = ({
 			if (url !== currentPathname) {
 				setCurrentPathname(url);
 			}
+			setShowMobileMenu(false);
 		},
 		[currentPathname]
 	);
@@ -173,13 +170,30 @@ const Header: React.FC<Props> = ({
 						>
 							<Image src={LogoImage} height={height - 16} width={height - 16} />
 						</Pane>
-						<Heading size={600} color={colors.gray900}>
+						<Heading
+							size={600}
+							color={colors.gray900}
+							className={css`
+								${mediaQueries.isXSmall} {
+									display: none !important;
+								}
+							`}
+						>
 							Usher
 						</Heading>
 					</Pane>
 				</Anchor>
 				<Pane paddingX={16}>
-					{isLargerScreen && MenuItems}
+					<Pane
+						className={css`
+							display: inline-block;
+							${mediaQueries.isLarge} {
+								display: none !important;
+							}
+						`}
+					>
+						{MenuItems}
+					</Pane>
 					{wallets.length === 0 ? (
 						<Anchor href={loginUrl}>{ProfileButton}</Anchor>
 					) : (
@@ -227,14 +241,20 @@ const Header: React.FC<Props> = ({
 							</Pane>
 						)}
 					</Button>
-					{isLargeScreen && (
-						<Button
-							{...menuButtonProps}
-							onClick={() => setShowMobileMenu(true)}
-						>
-							<MenuIcon size={32} />
-						</Button>
-					)}
+					<Button
+						{...menuButtonProps}
+						onClick={() => setShowMobileMenu(true)}
+						className={cx(
+							menuButtonProps.className,
+							css`
+								${mediaQueries.gtLarge} {
+									display: none !important;
+								}
+							`
+						)}
+					>
+						<MenuIcon size={32} />
+					</Button>
 				</Pane>
 			</Pane>
 			<SideSheet
@@ -242,7 +262,21 @@ const Header: React.FC<Props> = ({
 				onCloseComplete={() => setShowMobileMenu(false)}
 				preventBodyScrolling
 			>
-				{MenuItems}
+				<Pane
+					display="flex"
+					flexDirection="column"
+					width="100%"
+					className={css`
+						button {
+							width: 100%;
+							text-align: left;
+							display: flex;
+							justify-content: flex-start;
+						}
+					`}
+				>
+					{MenuItems}
+				</Pane>
 			</SideSheet>
 		</Pane>
 	);

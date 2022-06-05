@@ -13,7 +13,7 @@ export enum Breakpoints {
 	small = 600,
 	medium = 768,
 	large = 889,
-	xLarge = 120
+	xLarge = 1200
 }
 
 export enum Chains {
