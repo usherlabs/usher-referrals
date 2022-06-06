@@ -1,22 +1,9 @@
 import React, { useCallback } from "react";
-import {
-	Pane,
-	Button,
-	majorScale,
-	Heading,
-	Badge,
-	Text,
-	Label,
-	ArrowRightIcon
-} from "evergreen-ui";
-import Image from "next/image";
+import { Pane, Heading, Badge, Text } from "evergreen-ui";
 import dnt from "date-and-time";
 
 import { useUser } from "@/hooks/";
 import EmailSubmit from "@/components/EmailSubmit";
-import Anchor from "@/components/Anchor";
-
-import MagicLinkIcon from "@/assets/icon/magic-icon.png";
 
 const ProfileSettings: React.FC = () => {
 	const {

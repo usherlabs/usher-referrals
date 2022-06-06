@@ -20,7 +20,8 @@
 		"compile": "tsc --project ./tsconfig.build.json && resolve-tspaths",
 		"cmd:build": "esbuild ./src/cmd.js --bundle --outdir=build --platform=node",
 		"cmd:watch": "esbuild ./src/cmd.js --bundle --outdir=build --platform=node --watch",
-		"ts": "tsc --noEmit"
+		"ts": "tsc --noEmit",
+		"lint": "eslint -c ./.eslintrc ./src/**/*.ts"
 	},
 	"dependencies": {
 		"@ceramicnetwork/http-client": "2.0.0",

@@ -54,8 +54,7 @@ cmd
 	.description("List Campaign Addresses in the Stream Document")
 	.action(async () => {
 		const doc = await getDoc();
-		// console.log(doc.content.set);
-		console.log(doc);
+		console.log(doc.content.set);
 	});
 
 export default cmd;
