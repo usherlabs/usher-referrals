@@ -55,7 +55,7 @@ export type RawCampaign = {
 	}[];
 	reward: {
 		address?: string;
-		limit: number;
+		limit?: number;
 	};
 	conflictStrategy: CampaignConflictStrategy;
 	details: string;
@@ -82,7 +82,7 @@ export type CampaignReward = {
 	name: string;
 	ticker: string;
 	type: RewardTypes;
-	limit: number;
+	limit?: number;
 };
 
 export type Campaign = {
@@ -91,7 +91,7 @@ export type Campaign = {
 	events: {
 		strategy: CampaignStrategies;
 		rate: number;
-		limit: number;
+		limit?: number;
 	}[];
 	reward: CampaignReward;
 	conflictStrategy: CampaignConflictStrategy;

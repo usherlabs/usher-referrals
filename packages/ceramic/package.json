@@ -8,10 +8,7 @@
 	"author": "Ryan Soury <ryan@usher.so>",
 	"license": "UNLICENSED",
 	"private": true,
-	"scripts": {
-		"build": "tsc -p tsconfig.json",
-		"arcampaigns": "ts-node ./src/cmd/arcampaigns"
-	},
+	"scripts": {},
 	"dependencies": {
 		"@ceramicnetwork/http-client": "2.0.0",
 		"@glazed/datamodel": "^0.3.0",
@@ -25,7 +22,10 @@
 		"uint8arrays": "^3.0.0"
 	},
 	"devDependencies": {
+		"@types/node": "^17.0.40",
 		"ts-node": "^10.8.0",
+		"tsconfig-paths": "^4.0.0",
+		"tslib": "^2.4.0",
 		"typescript": "^4.7.3"
 	}
 }

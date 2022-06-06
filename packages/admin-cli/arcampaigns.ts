@@ -6,8 +6,8 @@
 import chalk from "chalk";
 import { Command } from "commander";
 import { DataModel } from "@glazed/datamodel";
-import NetworkModel from "@models/Network.json";
-import { getCeramic } from "../manager";
+import NetworkModel from "../models/Network.json";
+import { getCeramic } from "../src/manager";
 
 const getDoc = async () => {
 	const ceramic = await getCeramic();
@@ -44,9 +44,7 @@ program
 	.argument("<string>", "Arweave Transaction ID")
 	.action(async (id) => {
 		const doc = await getDoc();
-		await doc.update(
-			doc.content.set.filter((address: string) => address !== id)
-		);
+		await doc.update(doc.content.set.filter((txId: string) => txId !== id));
 
 		console.log(chalk.green(`ArNetwork Campaigns Stream updated successfully`));
 	});
@@ -56,7 +54,8 @@ program
 	.description("List Campaign Addresses in the Stream Document")
 	.action(async () => {
 		const doc = await getDoc();
-		console.log(doc.content.set);
+		// console.log(doc.content.set);
+		console.log(doc);
 	});
 
 program.parse();

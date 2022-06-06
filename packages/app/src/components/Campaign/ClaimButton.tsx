@@ -45,7 +45,8 @@ const ClaimButton: React.FC<Props> = ({
 	const { colors } = useTheme();
 	const [showDialog, setShowDialog] = useState(false);
 	const isActive = active && amount > 0;
-	const isComplete = reward.limit > 0 ? processed >= reward.limit : false;
+	const isComplete =
+		reward.limit && reward.limit > 0 ? processed >= reward.limit : false;
 
 	if (isComplete) {
 		return (

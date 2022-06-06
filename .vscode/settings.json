@@ -1,6 +1,6 @@
 {
-	"eslint.workingDirectories": ["./", "./packages/app", "packages/prisma", "packages/ceramic"],
-	"eslint.validate": ["javascript", "javascriptreact"],
+	"eslint.workingDirectories": ["./", "./packages/app", "packages/prisma", "packages/ceramic", "packages/graph", "packages/admin-cli"],
+	"eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact"],
 	"prettier.configPath": "./.prettierrc",
 	"prettier.prettierPath": "./node_modules/prettier"
 }

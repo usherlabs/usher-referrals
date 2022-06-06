@@ -35,13 +35,16 @@ import ViewerWallet from "@/components/Campaign/ViewerWallet";
 import { useSeedData } from "@/env-config";
 import * as mediaQueries from "@/utils/media-queries";
 
-const getCampaign = async (id: string, chain: Chains) => {
+const getCampaign = async (
+	id: string,
+	chain: Chains
+): Promise<Campaign | null> => {
 	if (useSeedData) {
 		await delay(5000);
 		const campaignsData = (await import("@/seed/campaigns.json")).default;
 		const campaigns = camelcaseKeys(campaignsData, { deep: true });
 
-		return campaigns[0];
+		return campaigns[0] as Campaign;
 	}
 
 	return null;
@@ -287,7 +290,7 @@ const CampaignPage = () => {
 				>
 					{!campaign.isLoading && campaign.data ? (
 						<>
-							{campaign.data.reward.limit > 0 && (
+							{campaign.data.reward.limit && campaign.data.reward.limit > 0 && (
 								<Pane
 									background="tint2"
 									borderRadius={8}

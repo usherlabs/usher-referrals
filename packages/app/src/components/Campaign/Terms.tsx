@@ -67,7 +67,8 @@ const Terms: React.FC<Props> = ({ campaign }) => {
 									{event.strategy === CampaignStrategies.PERCENTAGE
 										? "% in"
 										: ""}{" "}
-									{ticker} {event.limit > 0 ? "up to a limit" : ""}
+									{ticker}{" "}
+									{event.limit && event.limit > 0 ? "up to a limit" : ""}
 								</ListItem>
 							))}
 						</UnorderedList>
@@ -82,10 +83,13 @@ const Terms: React.FC<Props> = ({ campaign }) => {
 								: ""}{" "}
 							{ticker}
 						</Strong>{" "}
-						per referral{campaign.events[0].limit > 0 ? " up to a limit" : ""}
+						per referral
+						{campaign.events[0].limit && campaign.events[0].limit > 0
+							? " up to a limit"
+							: ""}
 					</ListItem>
 				)}
-				{campaign.reward.limit > 0 && (
+				{campaign.reward.limit && campaign.reward.limit > 0 && (
 					<ListItem>
 						The campaign will end once{" "}
 						<Strong>
