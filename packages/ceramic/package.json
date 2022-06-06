@@ -16,10 +16,11 @@
 	"private": true,
 	"scripts": {
 		"build": "npm-run-all -s clean compile cmd:build",
-		"clean": "del dist",
-		"compile": "tsc && resolve-tspaths",
-		"cmd:build": "node ./tools/build.js",
-		"cmd:watch": "node ./tools/build.js --watch"
+		"clean": "del dist build",
+		"compile": "tsc --project ./tsconfig.build.json && resolve-tspaths",
+		"cmd:build": "esbuild ./src/cmd.js --bundle --outdir=build --platform=node",
+		"cmd:watch": "esbuild ./src/cmd.js --bundle --outdir=build --platform=node --watch",
+		"ts": "tsc --noEmit"
 	},
 	"dependencies": {
 		"@ceramicnetwork/http-client": "2.0.0",
