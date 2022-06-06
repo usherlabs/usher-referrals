@@ -66,3 +66,13 @@ glaze stream:state kjzl6cwe1jw14a4khio3qvh7jen9decdi4xgvg3xivzo5ms2cig6h7l7rx2tf
   ]
 }
 ```
+
+## Executing Commands
+
+Running commands directly requires the following:
+
+```shell
+node --experimental-specifier-resolution=node --loader ts-node/esm ./cmd/arcampaigns.ts ls
+```
+
+The reason is because the core depedencies are ESM-only.

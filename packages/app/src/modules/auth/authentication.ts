@@ -11,7 +11,7 @@ import { ThreeIdProvider } from "@3id/did-provider";
 import { DataModel } from "@glazed/datamodel";
 import { DIDDataStore } from "@glazed/did-datastore";
 import { ceramicUtils } from "@/utils/ceramic-client";
-import AffiliateModel from "@usher/ceramic/models/Affiliate.json";
+import { AffiliateModel } from "@usher/ceramic";
 
 import { ceramicUrl } from "@/env-config";
 import {

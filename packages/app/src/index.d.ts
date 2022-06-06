@@ -19,3 +19,5 @@ declare module "@iconscout/react-unicons" {
 	export const UilDna: Icon;
 	export const UilCoins: Icon;
 }
+
+declare module "@usher/ceramic";

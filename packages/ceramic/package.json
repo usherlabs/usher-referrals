@@ -2,13 +2,25 @@
 	"name": "@usher/ceramic",
 	"version": "0.0.1",
 	"description": "Usher Ceramic Utility Package",
-	"main": "index.ts",
-	"types": "index.d.ts",
 	"repository": "git@gitlab.com:usherlabs/core.git",
 	"author": "Ryan Soury <ryan@usher.so>",
 	"license": "UNLICENSED",
+	"bin": {
+		"uadmin": "./bin/uadmin"
+	},
+	"files": [
+		"/dist"
+	],
+	"main": "./dist/index.js",
+	"types": "index.d.ts",
 	"private": true,
-	"scripts": {},
+	"scripts": {
+		"build": "npm-run-all -s clean compile cmd:build",
+		"clean": "del dist",
+		"compile": "tsc && resolve-tspaths",
+		"cmd:build": "node ./tools/build.js",
+		"cmd:watch": "node ./tools/build.js --watch"
+	},
 	"dependencies": {
 		"@ceramicnetwork/http-client": "2.0.0",
 		"@glazed/datamodel": "^0.3.0",
@@ -23,6 +35,10 @@
 	},
 	"devDependencies": {
 		"@types/node": "^17.0.40",
+		"del-cli": "^4.0.1",
+		"esbuild": "^0.14.42",
+		"npm-run-all": "^4.1.5",
+		"resolve-tspaths": "^0.6.0",
 		"ts-node": "^10.8.0",
 		"tsconfig-paths": "^4.0.0",
 		"tslib": "^2.4.0",

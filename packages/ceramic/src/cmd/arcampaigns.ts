@@ -6,8 +6,8 @@
 import chalk from "chalk";
 import { Command } from "commander";
 import { DataModel } from "@glazed/datamodel";
-import NetworkModel from "../models/Network.json";
-import { getCeramic } from "../src/manager";
+import { NetworkModel } from "..";
+import { getCeramic } from "../utils/manager";
 
 const getDoc = async () => {
 	const ceramic = await getCeramic();
@@ -20,13 +20,13 @@ const getDoc = async () => {
 	return doc;
 };
 
-const program = new Command();
+const cmd = new Command();
 
-program
-	.name("ar_campaigns")
+cmd
+	.name("arcampaigns")
 	.description("CLI to control the Network ArCampaigns Stream");
 
-program
+cmd
 	.command("add")
 	.description("Add a Campaign Address (Arweave Tx) to the Stream Document")
 	.argument("<string>", "Arweave Transaction ID")
@@ -36,7 +36,7 @@ program
 		await doc.update(newCampaigns);
 	});
 
-program
+cmd
 	.command("rm")
 	.description(
 		"Remove a Campaign Address (Arweave Tx) from the Stream Document"
@@ -49,7 +49,7 @@ program
 		console.log(chalk.green(`ArNetwork Campaigns Stream updated successfully`));
 	});
 
-program
+cmd
 	.command("ls")
 	.description("List Campaign Addresses in the Stream Document")
 	.action(async () => {
@@ -58,4 +58,4 @@ program
 		console.log(doc);
 	});
 
-program.parse();
+export default cmd;
