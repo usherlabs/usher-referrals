@@ -290,7 +290,7 @@ const CampaignPage = () => {
 				>
 					{!campaign.isLoading && campaign.data ? (
 						<>
-							{campaign.data.reward.limit && campaign.data.reward.limit > 0 && (
+							{campaign.data.reward.limit && campaign.data.reward.limit > 0 ? (
 								<Pane
 									background="tint2"
 									borderRadius={8}
@@ -309,7 +309,7 @@ const CampaignPage = () => {
 										showPercentage
 									/>
 								</Pane>
-							)}
+							) : null}
 						</>
 					) : (
 						<Skeleton

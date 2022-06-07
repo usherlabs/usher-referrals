@@ -89,7 +89,7 @@ const Terms: React.FC<Props> = ({ campaign }) => {
 							: ""}
 					</ListItem>
 				)}
-				{campaign.reward.limit && campaign.reward.limit > 0 && (
+				{campaign.reward.limit && campaign.reward.limit > 0 ? (
 					<ListItem>
 						The campaign will end once{" "}
 						<Strong>
@@ -97,7 +97,7 @@ const Terms: React.FC<Props> = ({ campaign }) => {
 						</Strong>{" "}
 						are claimed
 					</ListItem>
-				)}
+				) : null}
 			</UnorderedList>
 			{campaign.details.externalLink && (
 				<Pane borderTop="1px solid rgba(0, 0, 0, 0.1)" paddingTop={10}>
