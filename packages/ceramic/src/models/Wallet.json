@@ -1,13 +1,11 @@
 {
 	"definitions": {
-		"partnerships": "kjzl6cwe1jw1492q8rdr83u169dmcp37y0atai469ojt8ovhwjqu0otqtk4gl14",
-		"magicWallets": "kjzl6cwe1jw148dhr1puzkfels3daqt75l5a642j6lnwk37043q6ckzvby34lkj",
-		"shareableOwner": "kjzl6cwe1jw14867u09trfzuuy7kp2znopc36w0gmp43f4rbsfww1rs96kodzqc"
+		"shareableOwner": "kjzl6cwe1jw14b9utqqaidwoob6oqrn1wvma8i984pk0qpfmmfxq8oqxvandesb",
+		"magicWallets": "kjzl6cwe1jw1479z67703vd670vxfeuu7t237s7nn5y159isw33vtcvlpqkydtr"
 	},
 	"schemas": {
-		"Partnerships": "ceramic://k3y52l7qbv1frxngx1w1g6xgiqnyjmohf1bmjhl7dyeo3q0og6dbxi3rdy6qb1dds",
-		"MagicWallets": "ceramic://k3y52l7qbv1fryp8oq5r9v3sk8l025fbz4ge73rz54a9d0rkkx4o8g3ye9tysv5s0",
-		"ShareableOwner": "ceramic://k3y52l7qbv1fry34kezzk8u6oz1iwmzgfm3ilh5eb4y313qnhk4lumjxka3770a2o"
+		"MagicWallets": "ceramic://k3y52l7qbv1fryjfsbjbs6xyo4v77tssrn3bkbn13pmifna3bxd9jshi5wt77kmio",
+		"ShareableOwnerReference": "ceramic://k3y52l7qbv1fry2nj6q8bngxmufpu5brg89w3btg58l05oqs6g3dxpjorp15u5vr4"
 	},
 	"tiles": {}
 }

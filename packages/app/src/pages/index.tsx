@@ -22,7 +22,7 @@ import Anchor from "@/components/Anchor";
 import { Campaign } from "@/types";
 import delay from "@/utils/delay";
 import Authenticate from "@/modules/auth/authenticate";
-import Auth from "@/modules/auth/authentication";
+import Auth from "@/modules/auth/wallet";
 import { useSeedData } from "@/env-config";
 
 const getCampaigns = async (ids: string[]): Promise<Campaign[]> => {

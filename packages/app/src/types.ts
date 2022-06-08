@@ -121,20 +121,6 @@ export type ExceptionContext =
 	  })
 	| null;
 
-export type Token = {
-	name: string;
-	ticker: string;
-	type: string;
-};
-
-export type Contract = {
-	strategy: string;
-	rate: number;
-	token: Token;
-	limit: number;
-	conflictStrategy: string;
-};
-
 // Server Types
 
 export interface ApiRequest extends NextApiRequest {
@@ -176,10 +162,7 @@ export interface IUserActions {
 	disconnect: (type: Connections) => Promise<void>;
 	setCaptcha: (value: boolean) => void;
 	setProfile: (value: Profile) => void;
-	addPartnership: (
-		walletData: string | Wallet,
-		partnership: CampaignReference
-	) => Promise<void>;
+	addPartnership: (partnership: Partnership) => Promise<void>;
 }
 
 export interface IUserContext extends IUserActions {

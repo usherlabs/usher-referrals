@@ -24,7 +24,7 @@ import {
 	Wallet,
 	Connections,
 	Profile,
-	CampaignReference
+	Partnership
 } from "@/types";
 import delay from "@/utils/delay";
 import handleException, {
@@ -43,6 +43,7 @@ type Props = {
 
 const defaultValues: User = {
 	wallets: [],
+	partnerships: [],
 	verifications: {
 		personhood: null,
 		captcha: false
@@ -246,23 +247,11 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 	);
 
 	const addPartnership = useCallback(
-		async (walletData: string | Wallet, partnership: CampaignReference) => {
-			let walletAddress = "";
-			if (typeof walletData === "string") {
-				walletAddress = walletData;
-			} else {
-				walletAddress = walletData.address;
-			}
-			const auth = await authInstance.getAuth(walletAddress);
-			const partnerships = await auth.addPartnership(partnership);
+		async (partnership: Partnership) => {
+			const partnerships = await authInstance.addPartnership(partnership);
 			setUser(
 				produce(user, (draft) => {
-					draft.wallets = draft.wallets.map((wallet, i) => {
-						if (wallet.address === walletAddress) {
-							wallet.partnerships = partnerships;
-						}
-						return wallet;
-					});
+					draft.partnerships = partnerships;
 				})
 			);
 		},

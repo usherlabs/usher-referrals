@@ -1,13 +1,14 @@
 import { DID } from "dids";
 import * as uint8arrays from "uint8arrays";
-import { Sha256 } from "@aws-crypto/sha256-browser";
 import Arweave from "arweave";
+import { Base64 } from "js-base64";
 import { JWKInterface } from "arweave/node/lib/wallet";
 
 import getMagicClient from "@/utils/magic-client";
 import getArweaveClient from "@/utils/arweave-client";
 import { Chains, Wallet, Connections, Partnership } from "@/types";
-import Auth from "./authentication";
+import WalletAuth from "./wallet";
+import OwnerAuth from "./owner";
 
 const arweave = getArweaveClient();
 const CERAMIC_PARTNERSHIPS_KEY = "partnerships";
@@ -15,19 +16,19 @@ const CERAMIC_PROFILES_KEY = "profiles";
 const NETWORK_DID = "did:key:z6MkwVNrdkjiAzEFoWVq9J1R28gyUpA3Md7Bdx8DaABhQzVX";
 
 class Authenticate {
-	protected auths: Auth[] = [];
+	protected auths: WalletAuth[] = [];
 
-	protected owner: Auth | null = null;
+	protected owner: OwnerAuth | null = null;
 
 	protected partnerships: Partnership[] = [];
 
 	private static instance: Authenticate | null;
 
-	private add(auth: Auth) {
+	private add(auth: WalletAuth) {
 		this.auths.push(auth);
 	}
 
-	private exists(o: DID | Auth) {
+	private exists(o: DID | WalletAuth) {
 		return !!this.auths.find(
 			(auth) => auth.did.id === (o instanceof DID ? o.id : o.did.id)
 		);
@@ -73,18 +74,17 @@ class Authenticate {
 					) => Promise<Uint8Array>;
 			  },
 		connection: Connections
-	): Promise<Auth> {
+	): Promise<WalletAuth> {
 		const arr = uint8arrays.fromString(walletAddress);
 		const sig = await provider.signature(arr, {
 			name: "RSA-PSS",
 			saltLength: 0 // This ensures that no additional salt is produced and added to the message signed.
 		});
 
-		const hash = new Sha256();
-		hash.update(uint8arrays.toString(sig));
-		const entropy = await hash.digest();
+		const str = Base64.fromUint8Array(sig);
+		const entropy = uint8arrays.fromString(str);
 
-		const auth = new Auth();
+		const auth = new WalletAuth();
 		await auth.connect(walletAddress, entropy, Chains.ARWEAVE, connection);
 		const { did } = auth;
 
@@ -92,6 +92,8 @@ class Authenticate {
 		if (!this.exists(did)) {
 			this.add(auth);
 		}
+
+		await this.loadOwnerForAuth(auth);
 
 		return auth;
 	}
@@ -103,17 +105,16 @@ class Authenticate {
 	 * If no existing Magic wallet exists, create a JWK wallet and encrypt with Eth Signer
 	 * Push the encrypted JWK wallet to Ceramic under a "MagicWallets" stream
 	 */
-	public async withMagic(): Promise<Auth[]> {
+	public async withMagic(): Promise<WalletAuth[]> {
 		const { ethProvider } = getMagicClient();
 
 		const signer = ethProvider.getSigner();
 		const address = await signer.getAddress();
 		const sig = await signer.signMessage(address);
-		const hash = new Sha256();
-		hash.update(sig);
-		const entropy = await hash.digest();
+		const enc = Base64.encode(sig);
+		const entropy = uint8arrays.fromString(enc);
 
-		const ethAuth = new Auth();
+		const ethAuth = new WalletAuth();
 		await ethAuth.connect(address, entropy, Chains.ETHEREUM, Connections.MAGIC);
 		const { did } = ethAuth;
 
@@ -133,8 +134,8 @@ class Authenticate {
 			const arAddress = await arweave.wallets.jwkToAddress(key);
 			// Encrypt the wallet.
 			const buf = uint8arrays.fromString(JSON.stringify(key));
-			const enc = await did.createJWE(buf, [did.id]);
-			const encData = Arweave.utils.stringToB64Url(JSON.stringify(enc));
+			const jwe = await did.createJWE(buf, [did.id]);
+			const encData = Arweave.utils.stringToB64Url(JSON.stringify(jwe));
 			ethAuth.addMagicWallet({
 				arweave: {
 					address: arAddress,
@@ -158,35 +159,6 @@ class Authenticate {
 		);
 
 		return [ethAuth, arAuth];
-	}
-
-	/**
-	 * Add Campaign to Partnerships and load new index
-	 * 1. Creates a new partnership stream
-	 * 2. Adds partnership stream to the ShareableOwner DID Data Store
-	 *
-	 * @param   {Partnership}  partnership  new partnership to add
-	 *
-	 * @return  {[type]}                    [return description]
-	 */
-	public async addPartnership(partnership: Partnership) {
-		this.partnerships.push(partnership);
-		await this.store.set(CERAMIC_PARTNERSHIP_KEY, {
-			set
-		});
-		const defId = this.store.getDefinitionID(CERAMIC_PARTNERSHIP_KEY);
-		const recordId = await this.store.getRecordID(defId);
-		if (!recordId) {
-			throw new Error(
-				`Cannot get Parterships ID at Definition ${defId} for DID ${this._did.id}`
-			);
-		}
-		const setId = ceramicUtils.urlToId(recordId);
-		this._partnerships = set.map((c, i) => ({
-			id: [setId, i].join("/"),
-			campaign: c
-		}));
-		return this._partnerships;
 	}
 
 	/**
@@ -222,6 +194,41 @@ class Authenticate {
 		const keyStr = uint8arrays.toString(dec);
 		const jwk = JSON.parse(keyStr);
 		return jwk as JWKInterface;
+	}
+
+	private async loadOwnerForAuth(auth: WalletAuth) {
+		let loadedOwner = null;
+		const shareableOwnerId = await auth.getShareableOwnerId();
+		if (shareableOwnerId) {
+			// Authenticate the shareable owner
+			loadedOwner = new OwnerAuth(shareableOwnerId);
+			const usedId = await loadedOwner.connect();
+			if (usedId !== shareableOwnerId) {
+				// Update the shareable owner id for this wallet
+				await auth.setShareableOwnerId(usedId);
+			}
+		}
+		if (loadedOwner) {
+			if (this.owner) {
+				if (this.owner.id !== loadedOwner.id) {
+					// If the owners are different
+					// Start the migration of loadedOwner into this.owner
+					// TODO: Migration development.
+				}
+			} else {
+				// Set this.owner to loadedOwner
+				this.owner = loadedOwner;
+			}
+		} else if (this.owner) {
+			// If loaded owner is not fetched and this.owner exists, set the auth's owner to this.owner.
+			await auth.setShareableOwnerId(this.owner.id);
+		} else {
+			// If loaded owner is not fetched and this.owner does NOT exists, create a new Shareable owner.
+			// Create a new shareableOwner if none already loaded and none fetched.
+			this.owner = await OwnerAuth.create();
+			// Set the created owner to the auth owner
+			await auth.setShareableOwnerId(this.owner.id);
+		}
 	}
 
 	private static nativeArweaveProvider(jwk: Object) {
