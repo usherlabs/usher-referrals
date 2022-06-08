@@ -54,11 +54,6 @@
 						"type": "integer",
 						"minimum": 0
 					},
-					"created_at": {
-						"description": "Timestamp at which the reward was created",
-						"type": "integer",
-						"minimum": 0
-					},
 					"conversions": {
 						"description": "Array of conversion identifiers that make up this reward claim",
 						"type": "array",
@@ -77,7 +72,6 @@
 					"partnership",
 					"address",
 					"amount",
-					"created_at",
 					"conversions",
 					"fee"
 				]

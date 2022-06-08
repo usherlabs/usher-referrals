@@ -6,9 +6,6 @@
 		"arweave": {
 			"type": "object",
 			"properties": {
-				"created_at": {
-					"type": "number"
-				},
 				"address": {
 					"type": "string"
 				},

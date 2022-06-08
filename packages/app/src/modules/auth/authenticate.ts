@@ -6,13 +6,20 @@ import { JWKInterface } from "arweave/node/lib/wallet";
 
 import getMagicClient from "@/utils/magic-client";
 import getArweaveClient from "@/utils/arweave-client";
-import { Chains, Wallet, Connections } from "@/types";
+import { Chains, Wallet, Connections, Partnership } from "@/types";
 import Auth from "./authentication";
 
 const arweave = getArweaveClient();
+const CERAMIC_PARTNERSHIPS_KEY = "partnerships";
+const CERAMIC_PROFILES_KEY = "profiles";
+const NETWORK_DID = "did:key:z6MkwVNrdkjiAzEFoWVq9J1R28gyUpA3Md7Bdx8DaABhQzVX";
 
 class Authenticate {
 	protected auths: Auth[] = [];
+
+	protected owner: Auth | null = null;
+
+	protected partnerships: Partnership[] = [];
 
 	private static instance: Authenticate | null;
 
@@ -42,6 +49,14 @@ class Authenticate {
 
 	public getAll() {
 		return this.auths;
+	}
+
+	public getPartnerships() {
+		return this.partnerships;
+	}
+
+	public getOwner() {
+		return this.owner;
 	}
 
 	/**
@@ -145,6 +160,40 @@ class Authenticate {
 		return [ethAuth, arAuth];
 	}
 
+	/**
+	 * Add Campaign to Partnerships and load new index
+	 * 1. Creates a new partnership stream
+	 * 2. Adds partnership stream to the ShareableOwner DID Data Store
+	 *
+	 * @param   {Partnership}  partnership  new partnership to add
+	 *
+	 * @return  {[type]}                    [return description]
+	 */
+	public async addPartnership(partnership: Partnership) {
+		this.partnerships.push(partnership);
+		await this.store.set(CERAMIC_PARTNERSHIP_KEY, {
+			set
+		});
+		const defId = this.store.getDefinitionID(CERAMIC_PARTNERSHIP_KEY);
+		const recordId = await this.store.getRecordID(defId);
+		if (!recordId) {
+			throw new Error(
+				`Cannot get Parterships ID at Definition ${defId} for DID ${this._did.id}`
+			);
+		}
+		const setId = ceramicUtils.urlToId(recordId);
+		this._partnerships = set.map((c, i) => ({
+			id: [setId, i].join("/"),
+			campaign: c
+		}));
+		return this._partnerships;
+	}
+
+	/**
+	 * Get JWK associated to Magic Wallet
+	 *
+	 * @return  {JWKInterface}
+	 */
 	public async getMagicArweaveJwk() {
 		const ethAuth = this.auths.find(
 			(a) =>

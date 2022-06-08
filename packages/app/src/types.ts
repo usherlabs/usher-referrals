@@ -47,21 +47,6 @@ export enum RewardTypes {
  * ###### TYPES ######
  */
 
-export type RawCampaign = {
-	events: {
-		strategy: CampaignStrategies;
-		rate: number;
-		limit: number;
-	}[];
-	reward: {
-		address?: string;
-		limit?: number;
-	};
-	conflictStrategy: CampaignConflictStrategy;
-	details: string;
-	advertiser?: string;
-};
-
 export type Advertiser = {
 	name?: string;
 	icon?: string;
@@ -103,17 +88,11 @@ export type Wallet = {
 	chain: Chains;
 	connection: Connections;
 	address: string;
-	partnerships: Partnership[];
-};
-
-export type CampaignReference = {
-	chain: Chains;
-	address: string;
 };
 
 export type Partnership = {
-	id: string;
-	campaign: CampaignReference;
+	chain: Chains;
+	address: string;
 };
 
 export type Profile = {
@@ -122,8 +101,9 @@ export type Profile = {
 
 export type User = {
 	wallets: Wallet[];
+	partnerships: Partnership[];
 	verifications: {
-		personhood: number | null; // here we store the timestamp that the user was verified.
+		personhood: boolean | number | null; // here we store the timestamp that the user was verified.
 		captcha: boolean;
 	};
 	profile: Profile;

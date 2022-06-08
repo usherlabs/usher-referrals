@@ -1,0 +1,5 @@
+{
+	"name": "A shareable owner DID",
+	"description": "A data to authorise a DID that is shared amongst a number DIDs. Used by Usher.so to aggregate data across connected Wallets.",
+	"schema": "ceramic://"
+}

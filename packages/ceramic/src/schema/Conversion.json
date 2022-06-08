@@ -29,10 +29,6 @@
 			"type": "integer",
 			"minimum": 0
 		},
-		"created_at": {
-			"description": "A timestamp indicating when the Conversion was created",
-			"type": "integer"
-		},
 		"native_id": {
 			"description": "An identifier native to the Advertiser applied to the invitee referred user. Used to control the number of conversions processed for a given user.",
 			"type": "string"
@@ -58,13 +54,5 @@
 			"type": "integer"
 		}
 	},
-	"required": [
-		"id",
-		"partnership",
-		"message",
-		"sig",
-		"seed",
-		"event_id",
-		"created_at"
-	]
+	"required": ["id", "partnership", "message", "sig", "seed", "event_id"]
 }

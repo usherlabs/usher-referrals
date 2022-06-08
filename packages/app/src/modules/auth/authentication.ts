@@ -11,13 +11,12 @@ import { ThreeIdProvider } from "@3id/did-provider";
 import { DataModel } from "@glazed/datamodel";
 import { DIDDataStore } from "@glazed/did-datastore";
 import { ceramicUtils } from "@/utils/ceramic-client";
-import { AffiliateModel } from "@usher/ceramic";
+import { WalletModel } from "@usher/ceramic";
 
 import { ceramicUrl } from "@/env-config";
 import {
 	Wallet,
 	Partnership,
-	CampaignReference,
 	Chains,
 	Connections,
 	IDIDDataStore,
@@ -32,17 +31,12 @@ type MagicWallet = {
 	};
 };
 
-const CERAMIC_PARTNERSHIP_KEY = "partnerships";
 const CERAMIC_MAGIC_WALLETS_KEY = "magicWallets";
 
 class Auth {
 	private _did!: DID;
 
 	private _wallet!: Wallet;
-
-	private _partnershipsId: string = ""; // Partnerships Stream ID
-
-	private _partnerships: Partnership[] = [];
 
 	private _ceramic;
 
@@ -54,7 +48,7 @@ class Auth {
 		this._ceramic = new CeramicClient(ceramicUrl); // new instance of ceramic client for each DID;
 		const model = new DataModel({
 			ceramic: this._ceramic,
-			aliases: AffiliateModel
+			aliases: WalletModel
 		});
 		const store = new DIDDataStore({ ceramic: this._ceramic, model });
 		this.model = model;
@@ -67,10 +61,6 @@ class Auth {
 
 	public get wallet() {
 		return this._wallet;
-	}
-
-	public get partnerships() {
-		return this._partnerships;
 	}
 
 	public get address() {
@@ -140,28 +130,6 @@ class Auth {
 			connection,
 			partnerships
 		};
-	}
-
-	// Add Campaign to Partnerships Stream and load new index
-	public async addPartnership(campaign: CampaignReference) {
-		const set = this._partnerships.map((p) => p.campaign);
-		set.push(campaign);
-		await this.store.set(CERAMIC_PARTNERSHIP_KEY, {
-			set
-		});
-		const defId = this.store.getDefinitionID(CERAMIC_PARTNERSHIP_KEY);
-		const recordId = await this.store.getRecordID(defId);
-		if (!recordId) {
-			throw new Error(
-				`Cannot get Parterships ID at Definition ${defId} for DID ${this._did.id}`
-			);
-		}
-		const setId = ceramicUtils.urlToId(recordId);
-		this._partnerships = set.map((c, i) => ({
-			id: [setId, i].join("/"),
-			campaign: c
-		}));
-		return this._partnerships;
 	}
 
 	public getMagicWallets() {
