@@ -74,6 +74,10 @@ abstract class Auth {
 		this._did = did;
 	}
 
+	public getSchema(key: string) {
+		return this.model.getSchemaURL(key);
+	}
+
 	public async getRecordId(key: string) {
 		const defId = this.store.getDefinitionID(key);
 		const recordId = await this.store.getRecordID(defId);

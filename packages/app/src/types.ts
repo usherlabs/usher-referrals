@@ -90,9 +90,14 @@ export type Wallet = {
 	address: string;
 };
 
-export type Partnership = {
+export type CampaignReference = {
 	chain: Chains;
 	address: string;
+};
+
+export type Partnership = {
+	id: string;
+	campaign: CampaignReference;
 };
 
 export type Profile = {

@@ -6,3 +6,6 @@ export const ARCONNECT_FIREFOX_URL =
 export const MAX_SCREEN_WIDTH = 1280 as const;
 
 export const CONVERSION_COOKIE_NAME = "__usher_cid" as const;
+
+export const NETWORK_DID =
+	"did:key:z6MkwVNrdkjiAzEFoWVq9J1R28gyUpA3Md7Bdx8DaABhQzVX" as const;

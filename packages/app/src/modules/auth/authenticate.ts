@@ -6,21 +6,16 @@ import { JWKInterface } from "arweave/node/lib/wallet";
 
 import getMagicClient from "@/utils/magic-client";
 import getArweaveClient from "@/utils/arweave-client";
-import { Chains, Wallet, Connections, Partnership } from "@/types";
+import { Chains, Wallet, Connections } from "@/types";
 import WalletAuth from "./wallet";
 import OwnerAuth from "./owner";
 
 const arweave = getArweaveClient();
-const CERAMIC_PARTNERSHIPS_KEY = "partnerships";
-const CERAMIC_PROFILES_KEY = "profiles";
-const NETWORK_DID = "did:key:z6MkwVNrdkjiAzEFoWVq9J1R28gyUpA3Md7Bdx8DaABhQzVX";
 
 class Authenticate {
 	protected auths: WalletAuth[] = [];
 
 	protected owner: OwnerAuth | null = null;
-
-	protected partnerships: Partnership[] = [];
 
 	private static instance: Authenticate | null;
 
@@ -52,12 +47,15 @@ class Authenticate {
 		return this.auths;
 	}
 
-	public getPartnerships() {
-		return this.partnerships;
-	}
-
 	public getOwner() {
 		return this.owner;
+	}
+
+	public getPartnerships() {
+		if (!this.owner) {
+			return [];
+		}
+		return this.owner?.partnerships;
 	}
 
 	/**
@@ -147,7 +145,7 @@ class Authenticate {
 			arweaveAddress = arAddress;
 		} else {
 			const { data } = magicWallets.arweave;
-			const jwk = this.processMagicArweaveJwk(ethAuth.did, data);
+			const jwk = await this.processMagicArweaveJwk(ethAuth.did, data);
 			arweaveAddress = await arweave.wallets.jwkToAddress(jwk);
 			arweaveKey = jwk;
 		}
@@ -202,7 +200,7 @@ class Authenticate {
 		if (shareableOwnerId) {
 			// Authenticate the shareable owner
 			loadedOwner = new OwnerAuth(shareableOwnerId);
-			const usedId = await loadedOwner.connect();
+			const usedId = await loadedOwner.connect(auth.did);
 			if (usedId !== shareableOwnerId) {
 				// Update the shareable owner id for this wallet
 				await auth.setShareableOwnerId(usedId);
