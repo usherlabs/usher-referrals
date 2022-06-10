@@ -86,6 +86,14 @@ abstract class Auth {
 		}
 		return recordId;
 	}
+
+	public getIndex() {
+		return this.store.getIndex();
+	}
+
+	public iterateIndex() {
+		return this.store.iterator();
+	}
 }
 
 export default Auth;

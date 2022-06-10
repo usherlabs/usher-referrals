@@ -4,7 +4,7 @@
  */
 
 import { Base64 } from "js-base64";
-import { TileDocument } from "@ceramicnetwork/stream-tile";
+import { TileDocument, TileMetadataArgs } from "@ceramicnetwork/stream-tile";
 import { DID } from "dids";
 import { TileLoader } from "@glazed/tile-loader";
 import ono from "@jsdevtools/ono";
@@ -41,11 +41,8 @@ class OwnerAuth extends Auth {
 
 	protected loader: TileLoader;
 
-	constructor(id?: string) {
+	constructor() {
 		super(ShareableOwnerModel);
-		if (id) {
-			this._id = id;
-		}
 		this.loader = new TileLoader({ ceramic: this._ceramic });
 	}
 
@@ -64,9 +61,9 @@ class OwnerAuth extends Auth {
 	 *
 	 * @return  {string}  Stream ID that is considered the current owner
 	 */
-	public async connect(did: DID): Promise<string> {
+	public async connect(id: string, did: DID): Promise<string> {
 		// Iterate over migrated owners
-		let ownerDocId = this.id;
+		let ownerDocId = id;
 		let ownerDoc = null;
 		while (ownerDoc === null) {
 			// @ts-ignore
@@ -160,43 +157,104 @@ class OwnerAuth extends Auth {
 		});
 	}
 
+	public loadDoc(streamId: string) {
+		return TileDocument.load(
+			// @ts-ignore
+			this._ceramic,
+			streamId
+		);
+	}
+
+	/**
+	 * Merge owner into this owner
+	 *
+	 * @param   {WalletAuth}  authority  A Wallet Auth (authority) that manages this owner
+	 * @param   {OwnerAuth}  mergingOwner  Owner to be merged
+	 * @param   {WalletAuth}  mergingAuthority  A Wallet Auth (authority) that manages the owner to be merged
+	 *
+	 * @return  {Promise<void>}
+	 */
+	public async merge(
+		authority: WalletAuth,
+		mergingOwner: OwnerAuth,
+		mergingAuthority: WalletAuth
+	): Promise<void> {
+		const iterator = mergingOwner.iterateIndex();
+		let isDone = false;
+		const setIndex: Record<string, string[]> = [];
+
+		while (!isDone) {
+			const res = await iterator.next();
+			if (res.done) {
+				isDone = true;
+			}
+			if (res.value) {
+				// If set, change all controllers to this.owner
+				if (Array.isArray(res.value.record?.set)) {
+					// We don't await here, because this ownership transfer can run async...
+					const streamIds = res.value.record.set as string[];
+					setIndex[res.value.key] = streamIds;
+					Promise.all(
+						streamIds.map(async (id) => {
+							const doc = await mergingOwner.loadDoc(id);
+							await doc.update(doc.content, {
+								controllers: [this.did.id]
+							});
+						})
+					);
+				}
+			}
+		}
+
+		const ownerIndex = await this.getIndex();
+		await Promise.all(
+			Object.entries(setIndex).map(async ([key, value]) => {
+				const doc = await this.loadDoc(ownerIndex[key]);
+				await doc.update([...doc.content.set, ...value]);
+			})
+		);
+	}
+
 	/**
 	 * Create a new Owner
 	 *
-	 * @return  {[type]}  [return description]
+	 * The Merge function is going to be responsible for aggregating wallets for a single owner
+	 * This method is responsible for creating an owner for a single wallet connection
+	 *
+	 * @return  {string}  owner id
 	 */
-	public async create(walletAuths: WalletAuth[]): Promise<string> {
+	public async create(auth: WalletAuth): Promise<string> {
 		if (this.did) {
 			throw ono("Owner already created");
 		}
+		// Produce keys and authenticate
 		const sec = await nanoid(64);
 		const hash = new Sha256();
 		hash.update(sec);
 		const buf = await hash.digest();
 		const id = uint8arrays.toString(buf);
+		console.log({ id, sec });
 
-		const jwe = await walletAuths[0].did.createJWE(
-			uint8arrays.fromString(sec),
-			walletAuths.map((auth) => auth.did.id)
-		);
+		const secret = uint8arrays.fromString(sec);
+
+		await this.authenticate(id, secret);
+
+		// Encrypt keys and store
+		const jwe = await auth.did.createJWE(secret, [auth.did.id]);
 		const str = JSON.stringify(jwe);
 		const enc = Base64.encode(str);
-		const encBuf = uint8arrays.fromString(enc);
-
-		await this.authenticate(id, encBuf);
-
 		const doc = await TileDocument.create(
 			// @ts-ignore
 			this._ceramic,
 			{
 				owner: {
-					dids: walletAuths.map((auth) => auth.did.id),
+					dids: [auth.did.id],
 					id,
 					secret: enc
 				}
 			},
 			{
-				schema: walletAuths[0].getSchema("ShareableOwner")
+				schema: auth.getSchema("ShareableOwner")
 			}
 		);
 
@@ -204,9 +262,7 @@ class OwnerAuth extends Auth {
 
 		this._id = ownerId;
 
-		await Promise.all(
-			walletAuths.map((auth) => auth.setShareableOwnerId(ownerId))
-		);
+		await auth.setShareableOwnerId(ownerId);
 
 		return ownerId;
 	}

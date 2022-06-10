@@ -65,6 +65,7 @@
 		"next-seo": "^5.1.0",
 		"next-transpile-modules": "^9.0.0",
 		"nookies": "^2.5.2",
+		"p-queue": "^7.2.0",
 		"pino": "^7.11.0",
 		"postmark": "^3.0.1",
 		"promise.allsettled": "^1.0.5",
