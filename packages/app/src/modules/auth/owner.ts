@@ -4,13 +4,14 @@
  */
 
 import { Base64 } from "js-base64";
-import { TileDocument, TileMetadataArgs } from "@ceramicnetwork/stream-tile";
+import { TileDocument } from "@ceramicnetwork/stream-tile";
 import { DID } from "dids";
 import { TileLoader } from "@glazed/tile-loader";
 import ono from "@jsdevtools/ono";
 import { Sha256 } from "@aws-crypto/sha256-js";
 import { nanoid } from "nanoid/async";
 import uint8arrays from "uint8arrays";
+import uniq from "lodash/uniq";
 
 import { ShareableOwnerModel } from "@usher/ceramic";
 
@@ -80,9 +81,7 @@ class OwnerAuth extends Auth {
 		this._id = ownerDocId;
 
 		const { owner } = ownerDoc.content as ShareableOwner;
-		const decoded = Base64.decode(owner.secret);
-		const jwe = JSON.parse(decoded);
-		const secret = await did.decryptJWE(jwe);
+		const secret = await OwnerAuth.decodeSecret(did, owner.secret);
 
 		await this.authenticate(owner.id, secret);
 
@@ -165,23 +164,29 @@ class OwnerAuth extends Auth {
 		);
 	}
 
+	public loadOwnerDoc() {
+		return this.loadDoc(this.id);
+	}
+
 	/**
 	 * Merge owner into this owner
 	 *
-	 * @param   {WalletAuth}  authority  A Wallet Auth (authority) that manages this owner
+	 * * Currently only supports merging Index Records that confirm to the Set.json schema
+	 *
+	 * @param   {DID}  authority  A (Wallet) DID (authority) that manages this owner
 	 * @param   {OwnerAuth}  mergingOwner  Owner to be merged
-	 * @param   {WalletAuth}  mergingAuthority  A Wallet Auth (authority) that manages the owner to be merged
+	 * // @param   {DID}  mergingAuthority  A (Wallet) DID (authority) that manages the owner to be merged
 	 *
 	 * @return  {Promise<void>}
 	 */
 	public async merge(
-		authority: WalletAuth,
-		mergingOwner: OwnerAuth,
-		mergingAuthority: WalletAuth
+		authority: DID,
+		mergingOwner: OwnerAuth
+		// mergingAuthority: DID
 	): Promise<void> {
 		const iterator = mergingOwner.iterateIndex();
 		let isDone = false;
-		const setIndex: Record<string, string[]> = [];
+		const setIndex: Record<string, string[]> = {};
 
 		while (!isDone) {
 			const res = await iterator.next();
@@ -206,13 +211,60 @@ class OwnerAuth extends Auth {
 			}
 		}
 
+		// Merge the sets into the owner sets
+		// The keys between sets should be the same -- as they reference the same definition streams
 		const ownerIndex = await this.getIndex();
 		await Promise.all(
-			Object.entries(setIndex).map(async ([key, value]) => {
-				const doc = await this.loadDoc(ownerIndex[key]);
-				await doc.update([...doc.content.set, ...value]);
+			Object.entries(setIndex).map(async ([key, set]) => {
+				if (ownerIndex[key]) {
+					const doc = await this.loadDoc(ownerIndex[key]);
+					const content = doc.content as { set: string[] };
+					await doc.update(uniq([...content.set, ...set]));
+				} else {
+					// In the circumstance where the key doesn't exist in the owner -- ie. it needs to be created
+					await this.store.setRecord(key, {
+						set
+					});
+				}
+
+				// Remove/Unpin all records on mergingOwner
+				const removingRecordId = await mergingOwner.getRecordId(key, false);
+				const doc = await mergingOwner.loadDoc(removingRecordId);
+				await doc.update({ set: [] }, undefined, { pin: false });
+				await mergingOwner.removeRecord(key);
 			})
 		);
+
+		const shareableOwnerDoc = await mergingOwner.loadOwnerDoc();
+		const shareableOwnerDocContent =
+			shareableOwnerDoc.content as ShareableOwner;
+
+		// Decrypt the secret and re-encrypt with new did recipients
+		const ownerDoc = await this.loadOwnerDoc();
+		const ownerDocContent = ownerDoc.content as ShareableOwner;
+		const secret = await OwnerAuth.decodeSecret(
+			authority,
+			ownerDocContent.owner.secret
+		);
+		const newOwnerDids = uniq([
+			...ownerDocContent.owner.dids,
+			...shareableOwnerDocContent.owner.dids
+		]);
+		const newSecret = await OwnerAuth.encodeSecret(
+			authority,
+			secret,
+			newOwnerDids
+		);
+		await ownerDoc.update({
+			owner: {
+				dids: newOwnerDids,
+				id: ownerDocContent.owner.id,
+				secret: newSecret
+			}
+		});
+
+		// Set the migrate_to value on mergingOwner ShareableOwner Stream
+		await shareableOwnerDoc.update({ migrate_to: this.id });
 	}
 
 	/**
@@ -240,9 +292,7 @@ class OwnerAuth extends Auth {
 		await this.authenticate(id, secret);
 
 		// Encrypt keys and store
-		const jwe = await auth.did.createJWE(secret, [auth.did.id]);
-		const str = JSON.stringify(jwe);
-		const enc = Base64.encode(str);
+		const enc = await OwnerAuth.encodeSecret(auth.did, secret);
 		const doc = await TileDocument.create(
 			// @ts-ignore
 			this._ceramic,
@@ -265,6 +315,33 @@ class OwnerAuth extends Auth {
 		await auth.setShareableOwnerId(ownerId);
 
 		return ownerId;
+	}
+
+	public static async decodeSecret(did: DID, data: string) {
+		const decoded = Base64.decode(data);
+		const jwe = JSON.parse(decoded);
+		const secret = await did.decryptJWE(jwe);
+		return secret;
+	}
+
+	public static async encodeSecret(
+		did: DID,
+		data: Uint8Array,
+		recipients?: string[]
+	) {
+		const jwe = await did.createJWE(data, recipients || [did.id]);
+		const str = JSON.stringify(jwe);
+		const enc = Base64.encode(str);
+		return enc;
+	}
+
+	public static encodeSecretFromString(
+		did: DID,
+		data: string,
+		recipients?: string[]
+	) {
+		const buf = uint8arrays.fromString(data);
+		return this.encodeSecret(did, buf, recipients);
 	}
 }
 

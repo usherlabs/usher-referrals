@@ -78,8 +78,11 @@ abstract class Auth {
 		return this.model.getSchemaURL(key);
 	}
 
-	public async getRecordId(key: string) {
-		const defId = this.store.getDefinitionID(key);
+	public async getRecordId(key: string, isAlias = true) {
+		let defId = key;
+		if (isAlias) {
+			defId = this.store.getDefinitionID(key);
+		}
 		const recordId = await this.store.getRecordID(defId);
 		if (!recordId) {
 			return "";
@@ -87,12 +90,22 @@ abstract class Auth {
 		return recordId;
 	}
 
-	public getIndex() {
-		return this.store.getIndex();
+	public async getIndex() {
+		const index = await this.store.getIndex();
+		if (!index) {
+			return {};
+		}
+		return index;
 	}
 
 	public iterateIndex() {
 		return this.store.iterator();
+	}
+
+	// Notice: this does not change the contents of the record itself, only the index.
+	// https://developers.ceramic.network/reference/glaze/classes/did_datastore.DIDDataStore/#remove
+	public removeRecord(key: string) {
+		return this.store.remove(key);
 	}
 }
 
