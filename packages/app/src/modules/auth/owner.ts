@@ -15,7 +15,7 @@ import uniq from "lodash/uniq";
 
 import { ShareableOwnerModel } from "@usher/ceramic";
 
-import { Partnership, CampaignReference } from "@/types";
+import { Partnership, CampaignReference, Profile } from "@/types";
 import Auth from "./auth";
 import WalletAuth from "./wallet";
 
@@ -40,6 +40,12 @@ class OwnerAuth extends Auth {
 
 	protected _partnerships: Partnership[] = [];
 
+	protected _profile: {
+		id: string;
+		doc: TileDocument<Profile> | null;
+		data: Profile | null;
+	} = { id: "", doc: null, data: null };
+
 	protected loader: TileLoader;
 
 	constructor() {
@@ -53,6 +59,10 @@ class OwnerAuth extends Auth {
 
 	public get partnerships() {
 		return this._partnerships;
+	}
+
+	public get profile() {
+		return this._profile.data;
 	}
 
 	/**
@@ -95,15 +105,14 @@ class OwnerAuth extends Auth {
 			return;
 		}
 		const { set } = setObj as SetObject;
-		const streams = await Promise.all(set.map((id) => this.loader.load(id)));
-
-		const partnerships = streams.map(
-			(stream) =>
-				({
-					id: stream.id.toString(),
-					campaign: stream.content
-				} as Partnership)
+		const streams = await Promise.all(
+			set.map((id) => this.loader.load<CampaignReference>(id))
 		);
+
+		const partnerships = streams.map((stream) => ({
+			id: stream.id.toString(),
+			campaign: stream.content
+		}));
 		this._partnerships = partnerships;
 	}
 
@@ -154,6 +163,59 @@ class OwnerAuth extends Auth {
 			id: doc.id.toString(),
 			campaign
 		});
+	}
+
+	/**
+	 * Load the first profile is the set of profiles
+	 */
+	public async loadProfile() {
+		const setObj = await this.store.get(CERAMIC_PROFILES_KEY);
+		if (!setObj) {
+			return;
+		}
+		const { set = [] } = setObj as SetObject;
+		if (set.length === 0) {
+			return;
+		}
+		const doc = await this.loader.load<Profile>(set[0]);
+
+		this._profile = {
+			id: set[0],
+			// @ts-ignore
+			doc,
+			data: doc.content as Profile
+		};
+	}
+
+	/**
+	 * Update the loaded profile
+	 */
+	public async updateProfile(newProfile: Profile) {
+		const currentProfile = this.profile || {};
+		const profile = {
+			...currentProfile,
+			...newProfile
+		};
+
+		if (this._profile.doc === null) {
+			const doc = await TileDocument.create(
+				// @ts-ignore
+				this._ceramic,
+				profile,
+				undefined,
+				{
+					pin: true
+				}
+			);
+			this._profile = {
+				id: doc.id.toString(),
+				doc,
+				data: doc.content as Profile
+			};
+		} else {
+			await this._profile.doc.update(profile);
+			this._profile.data = this._profile.doc.content as Profile;
+		}
 	}
 
 	public loadDoc(streamId: string) {
