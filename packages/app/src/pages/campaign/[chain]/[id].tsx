@@ -52,7 +52,7 @@ const getCampaign = async (
 
 const CampaignPage = () => {
 	const {
-		user: { wallets },
+		user: { wallets, partnerships },
 		isLoading: isUserLoading,
 		actions: { addPartnership }
 	} = useUser();
@@ -65,69 +65,46 @@ const CampaignPage = () => {
 	const [isPartnering, setPartnering] = useState(false);
 
 	const walletsForChain = wallets.filter((w) => w.chain === chain);
-	const partnerWallets = walletsForChain.filter(
-		(wallet) =>
-			!!wallet.partnerships.find(
-				(p) => p.campaign.address === id && p.campaign.chain === chain
-			)
-	);
-	const partnerships = isLoggedIn
-		? walletsForChain.reduce<Partnership[]>((p, wallet) => {
-				return p.concat(wallet.partnerships);
-		  }, [])
-		: [];
 	const partnership = partnerships.find(
 		(p) => p.campaign.address === id && p.campaign.chain === chain
 	);
-	const [viewerWallet, setViewerWallet] = useState(
-		partnerWallets.length > 0 ? partnerWallets[0] : null
-	);
 
-	useEffect(() => {
-		if (!viewerWallet && partnerWallets.length > 0) {
-			setViewerWallet(partnerWallets[0]);
+	const onStartPartnership = useCallback(() => {
+		if (!isLoggedIn) {
+			router.push(loginUrl);
+			return;
 		}
-	}, [partnerWallets]);
-
-	const onStartPartnership = useCallback(
-		(selected: Wallet | null = null) => {
-			if (!selected) {
-				router.push(loginUrl);
-				return;
-			}
-			const errorMessage = () =>
-				toaster.danger(
-					"Oops! Something has gone wrong partnering with this campaign.",
-					{
-						id: "start-partnership-error-message"
+		const errorMessage = () =>
+			toaster.danger(
+				"Oops! Something has gone wrong partnering with this campaign.",
+				{
+					id: "start-partnership-error-message"
+				}
+			);
+		if (!campaign.isLoading && campaign.data) {
+			setPartnering(true);
+			const campaignRef = {
+				chain,
+				address: campaign.data.id
+			};
+			addPartnership(campaignRef)
+				.catch((e) => {
+					if (e instanceof Error) {
+						handleException(e, null);
 					}
-				);
-			if (!campaign.isLoading && campaign.data) {
-				setPartnering(true);
-				const campaignRef = {
-					chain,
-					address: campaign.data.id
-				};
-				addPartnership(selected, campaignRef)
-					.catch((e) => {
-						if (e instanceof Error) {
-							handleException(e, null);
-						}
-						errorMessage();
-					})
-					.finally(() => {
-						setPartnering(false);
-					});
-			} else {
-				errorMessage();
-			}
-		},
-		[loginUrl, campaign]
-	);
+					errorMessage();
+				})
+				.finally(() => {
+					setPartnering(false);
+				});
+		} else {
+			errorMessage();
+		}
+	}, [loginUrl, campaign]);
 
 	const onClaim = useCallback(async () => {
 		console.log("Hello world!");
-	}, [viewerWallet]);
+	}, []);
 
 	// useEffect(() => {
 	// 	if (user !== null) {
@@ -209,29 +186,6 @@ const CampaignPage = () => {
 									}
 								`}
 							>
-								{viewerWallet && (
-									<Pane
-										marginRight={12}
-										className={css`
-											${mediaQueries.isSmall} {
-												width: 100%;
-												margin-bottom: 12px;
-												display: flex;
-												justify-content: center;
-												align-items: center;
-											}
-										`}
-									>
-										<ViewerWallet
-											selected={viewerWallet}
-											options={partnerWallets}
-											buttonProps={{
-												height: 50
-											}}
-											onSelect={(w: Wallet) => setViewerWallet(w)}
-										/>
-									</Pane>
-								)}
 								<Actions campaign={campaign.data as Campaign} />
 							</Pane>
 						</Pane>

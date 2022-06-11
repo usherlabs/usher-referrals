@@ -24,7 +24,7 @@ import {
 	Wallet,
 	Connections,
 	Profile,
-	Partnership
+	CampaignReference
 } from "@/types";
 import delay from "@/utils/delay";
 import handleException, {
@@ -247,7 +247,7 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 	);
 
 	const addPartnership = useCallback(
-		async (partnership: Partnership) => {
+		async (partnership: CampaignReference) => {
 			const partnerships = await authInstance.addPartnership(partnership);
 			setUser(
 				produce(user, (draft) => {

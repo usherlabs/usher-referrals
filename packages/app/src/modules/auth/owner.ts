@@ -48,6 +48,8 @@ class OwnerAuth extends Auth {
 
 	protected loader: TileLoader;
 
+	protected _authorities: string[];
+
 	constructor() {
 		super(ShareableOwnerModel);
 		this.loader = new TileLoader({ ceramic: this._ceramic });
@@ -55,6 +57,10 @@ class OwnerAuth extends Auth {
 
 	public get id() {
 		return this._id;
+	}
+
+	public get authorities() {
+		return this._authorities;
 	}
 
 	public get partnerships() {
@@ -88,21 +94,23 @@ class OwnerAuth extends Auth {
 			}
 		}
 
-		this._id = ownerDocId;
-
 		const { owner } = ownerDoc.content as ShareableOwner;
 		const secret = await OwnerAuth.decodeSecret(did, owner.secret);
 
 		await this.authenticate(owner.id, secret);
 
+		this._id = ownerDocId;
+
+		this._authorities = owner.dids;
+
 		return ownerDocId;
 	}
 
 	// Load the Partnerships Stream
-	public async loadPartnerships() {
+	public async loadPartnerships(): Promise<Partnership[]> {
 		const setObj = await this.store.get(CERAMIC_PARTNERSHIPS_KEY);
 		if (!setObj) {
-			return;
+			return [];
 		}
 		const { set } = setObj as SetObject;
 		const streams = await Promise.all(
@@ -114,6 +122,8 @@ class OwnerAuth extends Auth {
 			campaign: stream.content
 		}));
 		this._partnerships = partnerships;
+
+		return this._partnerships;
 	}
 
 	/**
@@ -125,7 +135,9 @@ class OwnerAuth extends Auth {
 	 *
 	 * @return  {[type]}                    [return description]
 	 */
-	public async addPartnership(campaign: CampaignReference) {
+	public async addPartnership(
+		campaign: CampaignReference
+	): Promise<Partnership[]> {
 		// Check if Partnership already exists
 		if (
 			this.partnerships.find(
@@ -163,6 +175,8 @@ class OwnerAuth extends Auth {
 			id: doc.id.toString(),
 			campaign
 		});
+
+		return this._partnerships;
 	}
 
 	/**
@@ -372,9 +386,11 @@ class OwnerAuth extends Auth {
 
 		const ownerId = doc.id.toString();
 
+		await auth.setShareableOwnerId(ownerId);
+
 		this._id = ownerId;
 
-		await auth.setShareableOwnerId(ownerId);
+		this._authorities = (doc.content as ShareableOwner).owner.dids;
 
 		return ownerId;
 	}

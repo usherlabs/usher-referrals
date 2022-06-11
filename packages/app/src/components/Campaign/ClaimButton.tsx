@@ -23,7 +23,7 @@ import { UilWallet, UilCoins } from "@iconscout/react-unicons";
 
 export type Props = {
 	onClaim: (() => Promise<void>) | (() => void);
-	wallet: Wallet;
+	wallets: Wallet[];
 	amount: number;
 	reward: CampaignReward;
 	isClaiming?: boolean;
@@ -35,7 +35,7 @@ export type Props = {
 const ClaimButton: React.FC<Props> = ({
 	onClaim,
 	isClaiming = false,
-	wallet,
+	wallets,
 	amount,
 	reward,
 	processed = 0,
@@ -112,7 +112,7 @@ const ClaimButton: React.FC<Props> = ({
 						</Heading>
 						<Paragraph size={500}>will be paid to</Paragraph>
 						<ValueCard
-							value={wallet.address}
+							value={wallets[0].address}
 							id="destination-wallet"
 							iconLeft={() => (
 								<Image

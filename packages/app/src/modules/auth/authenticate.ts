@@ -3,14 +3,17 @@ import * as uint8arrays from "uint8arrays";
 import Arweave from "arweave";
 import { Base64 } from "js-base64";
 import { JWKInterface } from "arweave/node/lib/wallet";
+import PQueue from "p-queue";
+import ono from "@jsdevtools/ono";
 
 import getMagicClient from "@/utils/magic-client";
 import getArweaveClient from "@/utils/arweave-client";
-import { Chains, Wallet, Connections } from "@/types";
+import { Chains, Wallet, Connections, CampaignReference } from "@/types";
 import WalletAuth from "./wallet";
 import OwnerAuth from "./owner";
 
 const arweave = getArweaveClient();
+const queue = new PQueue({ concurrency: 1 });
 
 class Authenticate {
 	protected auths: WalletAuth[] = [];
@@ -55,7 +58,14 @@ class Authenticate {
 		if (!this.owner) {
 			return [];
 		}
-		return this.owner?.partnerships;
+		return this.owner.partnerships;
+	}
+
+	public addPartnership(p: CampaignReference) {
+		if (!this.owner) {
+			throw ono("No owner loaded to add parnterships to");
+		}
+		return this.owner.addPartnership(p);
 	}
 
 	/**
@@ -156,6 +166,9 @@ class Authenticate {
 			Connections.MAGIC
 		);
 
+		await this.loadOwnerForAuth(ethAuth);
+		await this.loadOwnerForAuth(arAuth);
+
 		return [ethAuth, arAuth];
 	}
 
@@ -194,39 +207,77 @@ class Authenticate {
 		return jwk as JWKInterface;
 	}
 
+	/**
+	 * Manage Owner formation for connected wallet
+	 * What we could see here:
+	 * 1. Wallet connects and creates owner
+	 * 2. 2nd Wallet connects immediatley after and Merges its Owner into the Created Owner.
+	 * * This method must be executed sequentially, rather than in parallel to prevent conflicts or missed data dependencies
+	 * * ie. Auth 1 creates wallet, but before it's finished Auth 2 connects it's wallet, and doesn't see that there is an owner loaded.
+	 * * To solve for this, we're creating a micro queue for this process.
+	 *
+	 * @param   {WalletAuth}  auth  Authentication of a Wallet DID
+	 *
+	 * @return  {void}
+	 */
 	private async loadOwnerForAuth(auth: WalletAuth) {
-		let loadedOwner = null;
-		const shareableOwnerId = await auth.getShareableOwnerId();
-		if (shareableOwnerId) {
-			// Authenticate the shareable owner
-			loadedOwner = new OwnerAuth(shareableOwnerId);
-			const usedId = await loadedOwner.connect(auth.did);
-			if (usedId !== shareableOwnerId) {
-				// Update the shareable owner id for this wallet
-				await auth.setShareableOwnerId(usedId);
-			}
-		}
-		if (loadedOwner) {
-			if (this.owner) {
-				if (this.owner.id !== loadedOwner.id) {
-					// If the owners are different
-					// Start the migration of loadedOwner into this.owner
-					// TODO: Migration development.
+		const setOwner = (owner: OwnerAuth) => {
+			this.owner = owner;
+		};
+		const getOwner = () => this.owner;
+
+		await queue.add(async () => {
+			let loadedOwner = null;
+			const shareableOwnerId = await auth.getShareableOwnerId();
+			if (shareableOwnerId) {
+				// Authenticate the shareable owner
+				// The reason for this is to determine whether this auth owner has undergone any migrations.
+				loadedOwner = new OwnerAuth();
+				const usedId = await loadedOwner.connect(shareableOwnerId, auth.did);
+				if (usedId !== shareableOwnerId) {
+					// Update the shareable owner id for this wallet
+					await auth.setShareableOwnerId(usedId);
 				}
-			} else {
-				// Set this.owner to loadedOwner
-				this.owner = loadedOwner;
 			}
-		} else if (this.owner) {
-			// If loaded owner is not fetched and this.owner exists, set the auth's owner to this.owner.
-			await auth.setShareableOwnerId(this.owner.id);
-		} else {
-			// If loaded owner is not fetched and this.owner does NOT exists, create a new Shareable owner.
-			// Create a new shareableOwner if none already loaded and none fetched.
-			this.owner = await OwnerAuth.create();
-			// Set the created owner to the auth owner
-			await auth.setShareableOwnerId(this.owner.id);
-		}
+
+			const owner = getOwner();
+			if (loadedOwner) {
+				if (owner) {
+					// Is there an existing owner?
+					if (owner.id !== loadedOwner.id) {
+						// If the owners are different
+						// Start the migration of loadedOwner into this.owner
+						if (owner.authorities.length === 0) {
+							throw ono(`No authorities for owner: ${owner.id}`);
+						}
+						const ownerAuthority = this.auths.find((a) =>
+							owner.authorities.includes(a.did.id)
+						);
+						if (!ownerAuthority) {
+							throw ono(`No authenticated Wallet DID for owner`, {
+								ownerId: owner.id,
+								wallets: this.auths.map((a) => a.did.id)
+							});
+						}
+						await owner.merge(ownerAuthority.did, loadedOwner);
+					}
+					// If the owners are the same, then we've verified that the owners are the same.
+				} else {
+					// Set this.owner to loadedOwner
+					setOwner(loadedOwner);
+				}
+			} else if (owner) {
+				// If loaded owner is not fetched and this.owner exists, set the auth's owner to this.owner.
+				await auth.setShareableOwnerId(owner.id);
+			} else {
+				// Create new owner for this authentication.
+				// If loaded owner is not fetched and this.owner does NOT exists, create a new Shareable owner.
+				// Create a new shareableOwner if none already loaded and none fetched.
+				const newOwner = new OwnerAuth();
+				await newOwner.create(auth);
+				setOwner(newOwner);
+			}
+		});
 	}
 
 	private static nativeArweaveProvider(jwk: Object) {
