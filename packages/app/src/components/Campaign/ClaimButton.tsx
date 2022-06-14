@@ -10,7 +10,9 @@ import {
 	LockIcon,
 	ButtonProps,
 	Heading,
-	Alert
+	Alert,
+	ExpandAllIcon,
+	SelectMenu
 } from "evergreen-ui";
 import Image from "next/image";
 import { css } from "@linaria/core";
@@ -44,6 +46,7 @@ const ClaimButton: React.FC<Props> = ({
 }) => {
 	const { colors } = useTheme();
 	const [showDialog, setShowDialog] = useState(false);
+	const [selectedWallet, setSelectedWallet] = useState<Wallet>(wallets[0]);
 	const isActive = active && amount > 0;
 	const isComplete =
 		reward.limit && reward.limit > 0 ? processed >= reward.limit : false;
@@ -76,6 +79,32 @@ const ClaimButton: React.FC<Props> = ({
 			</Alert>
 		);
 	}
+
+	const WalletCard = (
+		<ValueCard
+			value={selectedWallet.address}
+			id="destination-wallet"
+			iconLeft={() => (
+				<Image
+					src={connectionImages[selectedWallet.connection]}
+					width={25}
+					height={25}
+				/>
+			)}
+			background="none"
+			{...(wallets.length > 0
+				? {
+						iconRight: () => <ExpandAllIcon size={25} />,
+						className: css`
+							&:hover {
+								background-color: rgba(0, 0, 0, 0.1);
+								cursor: pointer;
+							}
+						`
+				  }
+				: {})}
+		/>
+	);
 
 	return (
 		<>
@@ -111,20 +140,31 @@ const ClaimButton: React.FC<Props> = ({
 							{amount} {reward.ticker.toUpperCase()}
 						</Heading>
 						<Paragraph size={500}>will be paid to</Paragraph>
-						<ValueCard
-							value={wallets[0].address}
-							id="destination-wallet"
-							iconLeft={() => (
-								<Image
-									src={connectionImages[wallet.connection]}
-									width={25}
-									height={25}
-								/>
-							)}
-							background="none"
-						/>
+						{wallets.length > 0 ? (
+							<SelectMenu
+								options={wallets
+									.filter((w) => w.address !== selectedWallet.address)
+									.map((w) => ({
+										label: w.address,
+										value: w.address,
+										icon: connectionImages[w.connection]
+									}))}
+								selected={selectedWallet.address}
+								hasFilter={false}
+								hasTitle={false}
+								onSelect={(item) =>
+									setSelectedWallet(
+										wallets.find((w) => w.address === item.value) || wallets[0]
+									)
+								}
+							>
+								{WalletCard}
+							</SelectMenu>
+						) : (
+							WalletCard
+						)}
 					</Pane>
-					{wallet.chain === Chains.ARWEAVE && (
+					{selectedWallet.chain === Chains.ARWEAVE && (
 						<Pane
 							display="flex"
 							alignItems="flex-start"
@@ -133,7 +173,11 @@ const ClaimButton: React.FC<Props> = ({
 							paddingTop={16}
 							borderTop
 						>
-							<Image src={chainImages[wallet.chain]} width={100} height={100} />
+							<Image
+								src={chainImages[selectedWallet.chain]}
+								width={100}
+								height={100}
+							/>
 							<Pane marginLeft={16}>
 								<Paragraph size={500} marginTop={0} marginBottom={8}>
 									<Strong fontSize="inherit">Arweave</Strong> Blockchain rewards
@@ -146,7 +190,7 @@ const ClaimButton: React.FC<Props> = ({
 							</Pane>
 						</Pane>
 					)}
-					{wallet.connection === Connections.MAGIC && (
+					{selectedWallet.connection === Connections.MAGIC && (
 						<Pane
 							display="flex"
 							alignItems="center"

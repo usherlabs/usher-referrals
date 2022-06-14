@@ -39,13 +39,15 @@ const ProfileSettings: React.FC = () => {
 							<Badge color="green" marginRight={8}>
 								Verified
 							</Badge>
-							<Text>
-								on{" "}
-								{dnt.format(
-									new Date(verifications.personhood * 1000),
-									"ddd, D MMM YYYY"
-								)}
-							</Text>
+							{typeof verifications.personhood === "number" && (
+								<Text>
+									on{" "}
+									{dnt.format(
+										new Date(verifications.personhood * 1000),
+										"ddd, D MMM YYYY"
+									)}
+								</Text>
+							)}
 						</>
 					) : (
 						<Badge color="red">Required</Badge>

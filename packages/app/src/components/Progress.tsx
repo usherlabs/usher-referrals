@@ -1,5 +1,5 @@
 import React from "react";
-import { Pane, useTheme, Label, Text, Strong } from "evergreen-ui";
+import { Pane, useTheme, Label, Text, Strong, Position } from "evergreen-ui";
 import isEmpty from "lodash/isEmpty";
 
 export type Props = {
@@ -23,13 +23,12 @@ const Progress: React.FC<Props> = ({
 	label,
 	showPercentage,
 	message,
-	step,
-	totalSteps
+	step = 0,
+	totalSteps = 0
 }) => {
 	const { colors } = useTheme();
 
 	const barProps = {
-		position: "absolute",
 		left: 0,
 		right: 0,
 		top: 0,
@@ -59,9 +58,10 @@ const Progress: React.FC<Props> = ({
 				overflow="hidden"
 				marginBottom={6}
 			>
-				<Pane background={colors.gray400} {...barProps} />
+				<Pane background={colors.gray400} position="absolute" {...barProps} />
 				<Pane
 					background={colors.blue500}
+					position="absolute"
 					{...barProps}
 					width={`${v}%`}
 					zIndex={5}

@@ -167,7 +167,7 @@ export interface IUserActions {
 	disconnect: (type: Connections) => Promise<void>;
 	setCaptcha: (value: boolean) => void;
 	setProfile: (value: Profile) => void;
-	addPartnership: (partnership: Partnership) => Promise<void>;
+	addPartnership: (partnership: CampaignReference) => Promise<void>;
 }
 
 export interface IUserContext extends IUserActions {

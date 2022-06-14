@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback } from "react";
 import { useRouter } from "next/router";
 import { useQuery } from "react-query";
 import { Pane, toaster } from "evergreen-ui";
@@ -11,14 +11,7 @@ import ClaimButton from "@/components/Campaign/ClaimButton";
 import Terms from "@/components/Campaign/Terms";
 import Progress from "@/components/Progress";
 import delay from "@/utils/delay";
-import {
-	Chains,
-	Partnership,
-	Campaign,
-	RewardTypes,
-	Wallet,
-	CampaignReward
-} from "@/types";
+import { Chains, Campaign, RewardTypes, CampaignReward } from "@/types";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import useRedir from "@/hooks/use-redir";
@@ -31,7 +24,6 @@ import PartnershipUI from "@/components/Campaign/Partnership";
 import StartPartnership from "@/components/Campaign/StartPartnership";
 import ValueCard from "@/components/ValueCard";
 import VerifyPersonhoodAlert from "@/components/VerifyPersonhoodAlert";
-import ViewerWallet from "@/components/Campaign/ViewerWallet";
 import { useSeedData } from "@/env-config";
 import * as mediaQueries from "@/utils/media-queries";
 
@@ -100,7 +92,7 @@ const CampaignPage = () => {
 		} else {
 			errorMessage();
 		}
-	}, [loginUrl, campaign]);
+	}, [loginUrl, isLoggedIn, campaign]);
 
 	const onClaim = useCallback(async () => {
 		console.log("Hello world!");
@@ -220,7 +212,7 @@ const CampaignPage = () => {
 									onStart={onStartPartnership}
 									chain={chain}
 									isLoading={isPartnering}
-									wallets={walletsForChain}
+									hasWallets={walletsForChain.length > 0}
 								/>
 							)}
 						</>
@@ -302,10 +294,10 @@ const CampaignPage = () => {
 									)}
 								</Pane>
 								<Pane display="flex">
-									{!campaign.isLoading && campaign.data && viewerWallet ? (
+									{!campaign.isLoading && campaign.data ? (
 										<ClaimButton
 											onClaim={onClaim}
-											wallet={viewerWallet}
+											wallets={walletsForChain}
 											amount={10}
 											reward={campaign.data.reward as CampaignReward}
 											active

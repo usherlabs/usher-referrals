@@ -8,7 +8,13 @@ import ono from "@jsdevtools/ono";
 
 import getMagicClient from "@/utils/magic-client";
 import getArweaveClient from "@/utils/arweave-client";
-import { Chains, Wallet, Connections, CampaignReference } from "@/types";
+import {
+	Chains,
+	Wallet,
+	Connections,
+	CampaignReference,
+	Profile
+} from "@/types";
 import WalletAuth from "./wallet";
 import OwnerAuth from "./owner";
 
@@ -63,9 +69,23 @@ class Authenticate {
 
 	public addPartnership(p: CampaignReference) {
 		if (!this.owner) {
-			throw ono("No owner loaded to add parnterships to");
+			throw ono("No owner loaded to add partnerships to");
 		}
 		return this.owner.addPartnership(p);
+	}
+
+	public getProfile() {
+		if (!this.owner) {
+			return null;
+		}
+		return this.owner.profile;
+	}
+
+	public updateProfile(p: Profile) {
+		if (!this.owner) {
+			throw ono("No owner loaded to update profile");
+		}
+		return this.owner.updateProfile(p);
 	}
 
 	/**

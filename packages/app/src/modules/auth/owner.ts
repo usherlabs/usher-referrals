@@ -48,7 +48,7 @@ class OwnerAuth extends Auth {
 
 	protected loader: TileLoader;
 
-	protected _authorities: string[];
+	protected _authorities: string[] = [];
 
 	constructor() {
 		super(ShareableOwnerModel);

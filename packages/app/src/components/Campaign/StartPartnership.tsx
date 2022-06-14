@@ -5,29 +5,23 @@ import {
 	Strong,
 	Pane,
 	Paragraph,
-	useTheme,
-	Menu,
-	Popover,
-	ChevronDownIcon
+	useTheme
 } from "evergreen-ui";
 import startCase from "lodash/startCase";
-import Image from "next/image";
 
-import { Chains, Wallet } from "@/types";
-import { connectionImages } from "@/utils/connections-map";
-import truncate from "@/utils/truncate";
+import { Chains } from "@/types";
 
 export type Props = {
 	chain: Chains;
-	onStart: ((selected: Wallet | null) => Promise<void>) | (() => void);
-	wallets: Wallet[];
+	onStart: (() => Promise<void>) | (() => void);
+	hasWallets?: boolean;
 	isLoading?: boolean;
 };
 
 const CampaignStartPartnership: React.FC<Props> = ({
 	chain,
 	onStart,
-	wallets,
+	hasWallets = true,
 	isLoading = false
 }) => {
 	const { colors } = useTheme();
@@ -55,43 +49,10 @@ const CampaignStartPartnership: React.FC<Props> = ({
 			height={300}
 			background="tint2"
 		>
-			{wallets.length > 1 ? (
-				<Popover
-					content={
-						<Menu>
-							<Menu.Group title={`with ${chain} wallet`}>
-								{wallets.map((wallet) => (
-									<Menu.Item
-										key={wallet.address}
-										icon={() => (
-											<Image
-												src={connectionImages[wallet.connection]}
-												width={20}
-												height={20}
-											/>
-										)}
-										onClick={() => onStart(wallet)}
-									>
-										{truncate(wallet.address, 6, 4)}
-									</Menu.Item>
-								))}
-							</Menu.Group>
-						</Menu>
-					}
-				>
-					<Button iconAfter={ChevronDownIcon} {...buttonProps}>
-						{ButtonChild}
-					</Button>
-				</Popover>
-			) : (
-				<Button
-					onClick={() => onStart(wallets.length > 0 ? wallets[0] : null)}
-					{...buttonProps}
-				>
-					{ButtonChild}
-				</Button>
-			)}
-			{wallets.length === 0 && (
+			<Button onClick={() => onStart()} {...buttonProps}>
+				{ButtonChild}
+			</Button>
+			{!hasWallets && (
 				<Paragraph
 					marginTop={8}
 					textAlign="center"

@@ -1,8 +1,8 @@
 import React from "react";
-import { Link, PaneProps } from "evergreen-ui";
+import { Link, LinkProps } from "evergreen-ui";
 import NextLink from "next/link";
 
-export type Props = PaneProps & {
+export type Props = LinkProps & {
 	href: string;
 	external?: boolean;
 	linkProps?: Record<string, any>;
