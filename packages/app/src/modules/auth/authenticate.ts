@@ -1,10 +1,10 @@
 import { DID } from "dids";
 import * as uint8arrays from "uint8arrays";
 import Arweave from "arweave";
-import { Base64 } from "js-base64";
 import { JWKInterface } from "arweave/node/lib/wallet";
 import PQueue from "p-queue";
 import ono from "@jsdevtools/ono";
+import { Sha256 } from "@aws-crypto/sha256-js";
 
 import getMagicClient from "@/utils/magic-client";
 import getArweaveClient from "@/utils/arweave-client";
@@ -109,8 +109,10 @@ class Authenticate {
 			saltLength: 0 // This ensures that no additional salt is produced and added to the message signed.
 		});
 
-		const str = Base64.fromUint8Array(sig);
-		const entropy = uint8arrays.fromString(str);
+		//* We have to SHA256 hash here because the Seed is required to be 32 bytes
+		const hash = new Sha256();
+		hash.update(uint8arrays.toString(sig));
+		const entropy = await hash.digest();
 
 		const auth = new WalletAuth();
 		await auth.connect(walletAddress, entropy, Chains.ARWEAVE, connection);
@@ -139,8 +141,9 @@ class Authenticate {
 		const signer = ethProvider.getSigner();
 		const address = await signer.getAddress();
 		const sig = await signer.signMessage(address);
-		const enc = Base64.encode(sig);
-		const entropy = uint8arrays.fromString(enc);
+		const hash = new Sha256();
+		hash.update(sig);
+		const entropy = await hash.digest();
 
 		const ethAuth = new WalletAuth();
 		await ethAuth.connect(address, entropy, Chains.ETHEREUM, Connections.MAGIC);
@@ -247,8 +250,10 @@ class Authenticate {
 		const getOwner = () => this.owner;
 
 		await queue.add(async () => {
+			console.log(`Loading owner for auth: ${auth.wallet.address}`);
 			let loadedOwner = null;
 			const shareableOwnerId = await auth.getShareableOwnerId();
+			console.log(`Current shareable owner id: ${shareableOwnerId}`);
 			if (shareableOwnerId) {
 				// Authenticate the shareable owner
 				// The reason for this is to determine whether this auth owner has undergone any migrations.
@@ -262,6 +267,7 @@ class Authenticate {
 
 			const owner = getOwner();
 			if (loadedOwner) {
+				console.log(`Owner loaded for Wallet: ${auth.wallet.address}`);
 				if (owner) {
 					// Is there an existing owner?
 					if (owner.id !== loadedOwner.id) {
@@ -287,15 +293,24 @@ class Authenticate {
 					setOwner(loadedOwner);
 				}
 			} else if (owner) {
+				console.log(
+					`No owner loaded for: ${auth.wallet.address} -- setting the Wallet's owner to ${owner.id}`
+				);
 				// If loaded owner is not fetched and this.owner exists, set the auth's owner to this.owner.
 				await auth.setShareableOwnerId(owner.id);
 			} else {
+				console.log(
+					`No owner loaded for: ${auth.wallet.address} -- creating a new owner`
+				);
 				// Create new owner for this authentication.
 				// If loaded owner is not fetched and this.owner does NOT exists, create a new Shareable owner.
 				// Create a new shareableOwner if none already loaded and none fetched.
 				const newOwner = new OwnerAuth();
 				await newOwner.create(auth);
 				setOwner(newOwner);
+				console.log(
+					`New owner ${newOwner.id} created for Wallet: ${auth.wallet.address}`
+				);
 			}
 		});
 	}

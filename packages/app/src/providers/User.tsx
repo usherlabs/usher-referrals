@@ -269,7 +269,7 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 				)
 			);
 
-			// TODO: Fetch verifications and profile here
+			// TODO: Fetch verifications here
 		}),
 		[]
 	);

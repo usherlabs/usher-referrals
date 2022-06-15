@@ -8,9 +8,8 @@ import { TileDocument } from "@ceramicnetwork/stream-tile";
 import { DID } from "dids";
 import { TileLoader } from "@glazed/tile-loader";
 import ono from "@jsdevtools/ono";
-import { Sha256 } from "@aws-crypto/sha256-js";
 import { nanoid } from "nanoid/async";
-import uint8arrays from "uint8arrays";
+import * as uint8arrays from "uint8arrays";
 import uniq from "lodash/uniq";
 
 import { ShareableOwnerModel } from "@usher/ceramic";
@@ -93,6 +92,8 @@ class OwnerAuth extends Auth {
 				ownerDoc = doc;
 			}
 		}
+
+		console.log(`Connected Owner Doc`, ownerDocId, ownerDoc.content);
 
 		const { owner } = ownerDoc.content as ShareableOwner;
 		const secret = await OwnerAuth.decodeSecret(did, owner.secret);
@@ -304,7 +305,7 @@ class OwnerAuth extends Auth {
 				}
 
 				// Remove/Unpin all records on mergingOwner
-				const removingRecordId = await mergingOwner.getRecordId(key, false);
+				const removingRecordId = await mergingOwner.getRecordId(key);
 				const doc = await mergingOwner.loadDoc(removingRecordId);
 				await doc.update({ set: [] }, undefined, { pin: false });
 				await mergingOwner.removeRecord(key);
@@ -356,12 +357,8 @@ class OwnerAuth extends Auth {
 			throw ono("Owner already created");
 		}
 		// Produce keys and authenticate
-		const sec = await nanoid(64);
-		const hash = new Sha256();
-		hash.update(sec);
-		const buf = await hash.digest();
-		const id = uint8arrays.toString(buf);
-		console.log({ id, sec });
+		const sec = await nanoid(32);
+		const id = await nanoid(64);
 
 		const secret = uint8arrays.fromString(sec);
 
@@ -391,6 +388,8 @@ class OwnerAuth extends Auth {
 		this._id = ownerId;
 
 		this._authorities = (doc.content as ShareableOwner).owner.dids;
+
+		console.log(`Created Owner Doc`, ownerId, doc.content);
 
 		return ownerId;
 	}
