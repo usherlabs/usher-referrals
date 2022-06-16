@@ -4,19 +4,24 @@
 	"type": "object",
 	"properties": {
 		"name": {
-			"type": "string"
+			"type": "string",
+			"description": "Name of the Advertiser"
 		},
 		"icon": {
-			"type": "string"
+			"type": "string",
+			"description": "A hosted image URL of the Advertiser's Brand Icon"
 		},
 		"description": {
-			"type": "string"
+			"type": "string",
+			"description": "A description of the Advertiser and their related services or propositions."
 		},
 		"external_link": {
-			"type": "string"
+			"type": "string",
+			"description": "A URL that Partners can visit to learn more about the Advertiser."
 		},
 		"twitter": {
-			"type": "string"
+			"type": "string",
+			"description": "A Twitter URL that Partners can visit to learn more and get updates from the Advertiser."
 		}
 	}
 }

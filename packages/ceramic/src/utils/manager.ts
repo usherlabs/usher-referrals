@@ -6,13 +6,19 @@ import { Ed25519Provider } from "key-did-provider-ed25519";
 import { getResolver } from "key-did-resolver";
 import { fromString } from "uint8arrays";
 
-import { didKey, ceramicUrl } from "./env-config";
+import { didKey, ceramicUrl } from "@/env-config";
 
 export const ceramicInstance = new CeramicClient(ceramicUrl);
 
-export const getCeramic = async () => {
-	// The key must be provided as an environment variable
-	const key = fromString(didKey!, "base16");
+export const getCeramic = async (paramKey?: string) => {
+	const k = paramKey || didKey;
+	if (!k) {
+		throw new Error(
+			"DID Key is required! Either pass via Environment DID_KEY or --key parameter"
+		);
+	}
+
+	const key = fromString(k, "base16");
 	// Create and authenticate the DID
 	const did = new DID({
 		provider: new Ed25519Provider(key),

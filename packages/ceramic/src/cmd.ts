@@ -1,8 +1,12 @@
 import { Command } from "commander";
-import arCampaignsCmd from "./cmd/arcampaigns";
+import schemaCmd from "./cmd/schema";
+import definitionCmd from "./cmd/definition";
+import tileCmd from "./cmd/tile";
 
 const program = new Command();
 
-program.addCommand(arCampaignsCmd);
+program.addCommand(schemaCmd);
+program.addCommand(tileCmd);
+program.addCommand(definitionCmd);
 
 program.parse(process.argv);

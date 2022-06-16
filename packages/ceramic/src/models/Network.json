@@ -2,7 +2,7 @@
 	"definitions": {},
 	"schemas": {
 		"Conversions": "ceramic://k3y52l7qbv1frykye423ok0z8ce6r0mncixjsx69puklq4l2zudt21qkpymoreby8",
-		"ArRewards": "ceramic://k3y52l7qbv1frxzz6mjrwkgb1y4hqpkqbeo9jh0ui58kxy08a9fk10opg0hrztvr4",
+		"ArRewards": "ceramic://k1dpgaqe3i64kjrk893r4nhoi2r8kwu0cpwlelbu0it0vc9d3h51yw18kgtkzepn3trapgsx7bjqmnlju1frs1emch7wal8e90dngxctlub8voophnsh193ik",
 		"ArCampaigns": "ceramic://k3y52l7qbv1frxkr10qquof8qdjaosi0x8d7ar9tzj76o3op2rrnvdnexjrcz0xds"
 	},
 	"tiles": {

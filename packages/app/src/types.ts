@@ -28,8 +28,8 @@ export enum Connections {
 }
 
 export enum CampaignConflictStrategy {
-	OVERWRITE = "OVERWRITE",
-	PASSTHROUGH = "PASSTHROUGH"
+	OVERWRITE = "overwrite",
+	PASSTHROUGH = "passthrough"
 }
 
 export enum CampaignStrategies {

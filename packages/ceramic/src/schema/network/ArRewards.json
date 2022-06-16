@@ -45,14 +45,22 @@
 						"description": "Affiliate destination wallet address",
 						"type": "string"
 					},
+					"campaign": {
+						"description": "Campaign Blockchain Address",
+						"type": "string"
+					},
+					"partnership": {
+						"description": "Partnership Stream Identifier",
+						"type": "string"
+					},
 					"amount": {
 						"description": "Reward amount calculated based on the associated conversions",
 						"type": "number"
 					},
-					"completed_at": {
+					"completed": {
 						"description": "Timestamp at which the reward was marked as completed",
-						"type": "integer",
-						"minimum": 0
+						"type": "boolean",
+						"default": false
 					},
 					"conversions": {
 						"description": "Array of conversion identifiers that make up this reward claim",
@@ -72,6 +80,7 @@
 					"partnership",
 					"address",
 					"amount",
+					"completed",
 					"conversions",
 					"fee"
 				]
