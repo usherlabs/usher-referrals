@@ -1,4 +1,4 @@
-import { ScheduledEvent } from "aws-lambda";
+// import { ScheduledEvent } from "aws-lambda";
 import { CeramicClient } from "@ceramicnetwork/http-client";
 import { NetworkModel } from "@usher/ceramic";
 import { DataModel } from "@glazed/datamodel";
@@ -12,7 +12,8 @@ import log from "@/utils/logger";
 
 // const arweave = getArweave();
 
-export default async (event: ScheduledEvent) => {
+// export default async (event: ScheduledEvent) => {
+export default async () => {
 	const ceramic = new CeramicClient(ceramicUrl);
 	const model = new DataModel({
 		// @ts-ignore
