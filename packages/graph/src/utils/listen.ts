@@ -1,12 +1,15 @@
 import chalk from "chalk";
 import events from "./events";
 import handleException from "./handle-exception";
-import log from './logger';
+import log from "./logger";
 
 class Listen {
-	private intervalInstance: NodeJS.Timer;
+	private intervalInstance: NodeJS.Timer | null = null;
 
-	constructor(private fn: () => Promise<void>, private interval?: number = ) {
+	constructor(
+		private fn: () => Promise<void>,
+		private interval: number = 5 * 60 * 1000
+	) {
 		events.on("PROCESS_EXIT", () => {
 			this.stop();
 		});
@@ -19,13 +22,15 @@ class Listen {
 				log.info(
 					chalk.red(`An error has occurred, but we persist until you cancel.`)
 				);
-				handleException(e)
+				handleException(e);
 			});
 		}, interval);
 	}
 
 	stop() {
-		clearInterval(this.intervalInstance);
+		if (this.intervalInstance !== null) {
+			clearInterval(this.intervalInstance);
+		}
 	}
 }
 

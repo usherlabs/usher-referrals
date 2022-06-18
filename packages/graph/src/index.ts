@@ -1,5 +1,6 @@
 import events from "./utils/events";
 import Conversions from "./conversions";
+import log from "./utils/logger";
 
 // Handle process exit
 process.stdin.resume(); // so the program will not close instantly
@@ -10,7 +11,7 @@ function exitHandler(
 ) {
 	events.emit("PROCESS_EXIT");
 	if (exitCode || exitCode === 0) {
-		console.log(exitCode);
+		log.info(`Exit code:`, exitCode);
 	}
 	if (options.exit) {
 		process.exit();

@@ -14,6 +14,12 @@ class Conversions {
 				ceramic,
 				CERAMIC_CONVERSIONS_STREAM_ID
 			);
+
+			// Check if the latest commit ids have been indexed.
+			// If not, index these updates.
+
+			// Parse out the Conversions to ingest
+			// Validate the conversions -- as would be the case in the validator node
 		});
 
 		return listener;

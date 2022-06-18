@@ -30,6 +30,7 @@
 		"@ceramicnetwork/stream-tile": "^2.2.1",
 		"@sentry/integrations": "^7.2.0",
 		"@sentry/node": "^7.2.0",
+		"chalk": "^5.0.1",
 		"tslog": "^3.3.3"
 	}
 }

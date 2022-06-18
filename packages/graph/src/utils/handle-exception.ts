@@ -1,8 +1,8 @@
 import * as Sentry from "@sentry/node";
 import { RewriteFrames } from "@sentry/integrations";
 
-import log from "./logger";
 import { isProd, sentry } from "@/env-config";
+import log from "./logger";
 
 const sentryOptions = {
 	dsn: sentry.dsn,
