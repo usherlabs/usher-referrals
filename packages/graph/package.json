@@ -2,6 +2,7 @@
 	"name": "@usher/graph",
 	"version": "0.0.1",
 	"description": "Usher Graph Service. Manage ingestion of decentralised data into ArangoDB",
+	"type": "module",
 	"main": "index.ts",
 	"types": "index.d.ts",
 	"repository": "git@gitlab.com:usherlabs/core.git",
@@ -30,6 +31,7 @@
 		"serverless-plugin-include-dependencies": "^5.0.0",
 		"serverless-plugin-typescript": "^2.1.2",
 		"ts-mocha": "^10.0.0",
+		"ts-node": "^10.8.1",
 		"tslib": "^2.4.0",
 		"typescript": "^4.7.4"
 	},
