@@ -1,2 +1,0 @@
-export const CERAMIC_CONVERSIONS_STREAM_ID =
-	"kjzl6cwe1jw14avlcm79epl13jlgkzxzzhdvxovayrvyihq5vyhwjims52dkpz9" as const;

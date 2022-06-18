@@ -3,13 +3,18 @@
 	"display": "Graph",
 	"compilerOptions": {
 		"baseUrl": ".",
-		"outDir": "dist",
-		"rootDir": "src",
+		"preserveConstEnums": true,
+    "strictNullChecks": true,
+    "sourceMap": true,
+    "allowJs": true,
+    "target": "es5",
+    "outDir": ".build",
+    "lib": ["es2015"],
+    "rootDir": "./",
 		"strict": true,
 		"skipLibCheck": true,
 		"esModuleInterop": true,
 		"resolveJsonModule": true,
-		"module": "esnext",
 		"moduleResolution": "node",
 		"types": ["node"],
 		"declaration": true,
@@ -17,7 +22,8 @@
 			"@/*": ["./src/*"]
 		}
 	},
-	"exclude": ["node_modules"],
-	"include": [],
-	"files": ["./src/index.ts"]
+	"exclude": [
+		"node_modules"
+	],
+	"include": ["src/**/*.ts"]
 }

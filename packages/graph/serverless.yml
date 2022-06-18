@@ -1,0 +1,50 @@
+service: usher-graph
+
+frameworkVersion: "3"
+
+plugins:
+  - serverless-plugin-typescript
+  - serverless-plugin-include-dependencies
+  - serverless-plugin-common-excludes
+
+useDotenv: true
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+  region: ${opt:region, 'us-east-1'}
+  memorySize: 512
+  timeout: 900
+  stage: ${opt:stage, 'dev'}
+  environment:
+    NODE_ENV:
+      ${self:custom.nodeEnv.${opt:stage, self:provider.stage}, 'development'}
+    STAGE: ${opt:stage, self:provider.stage}
+    S3_REGION: ${env:S3_REGION, self:provider.region}
+    ARANGO_PASSWORD: ${env:ARANGO_PASSWORD, ""}
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - s3:PutObject
+      Resource: arn:aws:s3:::${env:S3_BUCKET, ""}/*
+  stackTags:
+    Project: "Usher"
+  tags:
+    Project: "Usher"
+
+functions:
+  ingest:
+    description: "Fetch Ceramic data and ingest into Graph"
+    handler: src/index.ingest
+    events:
+      - schedule: rate(5 minutes)
+  backup:
+    description: "Backup the Database on a recurring basis"
+    handler: src/index.backup
+    events:
+      - schedule: rate(1 day)
+
+custom:
+  nodeEnv:
+    dev: development
+    prod: production
