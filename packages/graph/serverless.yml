@@ -21,7 +21,12 @@ provider:
       ${self:custom.nodeEnv.${opt:stage, self:provider.stage}, 'development'}
     STAGE: ${opt:stage, self:provider.stage}
     S3_REGION: ${env:S3_REGION, self:provider.region}
+    CERAMIC_URL: ${env:CERAMIC_URL, ""}
+    ARANGO_URL: ${env:ARANGO_URL, ""}
+    ARANGO_DATABASE: ${env:ARANGO_DATABASE, ""}
+    ARANGO_USERNAME: ${env:ARANGO_USERNAME, ""}
     ARANGO_PASSWORD: ${env:ARANGO_PASSWORD, ""}
+    SENTRY_DSN: ${env:SENTRY_DSN, ""}
   iamRoleStatements:
     - Effect: Allow
       Action:

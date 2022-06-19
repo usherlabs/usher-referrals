@@ -1,13 +1,22 @@
+import pkg from "../package.json";
+
 export const isProd = process.env.NODE_ENV === "production";
 export const isTest = process.env.NODE_ENV === "test";
-export const appName = `${process.env.APP_NAME}@${process.env.APP_VERSION}`;
+export const appName = `${process.env.APP_NAME || pkg.name}@${
+	process.env.APP_VERSION || pkg.version
+}`;
 
 /* ========== TRACKING ========== */
 export const sentry = {
-	dsn: process.env.NEXT_PUBLIC_SENTRY_DSN || "",
-	release: process.env.NEXT_PUBLIC_SENTRY_RELEASE || appName
+	dsn: process.env.SENTRY_DSN || "",
+	release: process.env.SENTRY_RELEASE || appName
 };
 
 /* ========== DATA/API ========== */
 export const ceramicUrl =
-	process.env.NEXT_PUBLIC_CERAMIC_URL || "https://ceramic-clay.3boxlabs.com";
+	process.env.CERAMIC_URL || "https://ceramic-clay.3boxlabs.com";
+
+export const arangoUrl = process.env.ARANGO_URL || "http://127.0.0.1:8529";
+export const arangoDatabase = process.env.ARANGO_DATABASE;
+export const arangoUsername = process.env.ARANGO_USERNAME;
+export const arangoPassword = process.env.ARANGO_PASSWORD;
