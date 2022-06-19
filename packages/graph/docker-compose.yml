@@ -3,7 +3,7 @@ version: "3.8"
 services:
   db:
     container_name: usher_db
-    image: arangodb:3.9
+    image: arangodb/arangodb:${ARANGO_IMAGE_TAG:-3.9.2}
     environment:
       - ARANGO_ROOT_PASSWORD=${ARANGO_ROOT_PASSWORD}
     restart: unless-stopped

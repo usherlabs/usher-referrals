@@ -1,0 +1,4 @@
+{
+	"extends": "./tsconfig.json",
+	"include": ["./src/shims/*.ts", "./src/shims/**/*.ts"]
+}

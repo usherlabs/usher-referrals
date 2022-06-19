@@ -2,6 +2,7 @@
 import { CeramicClient } from "@ceramicnetwork/http-client";
 import { NetworkModel } from "@usher/ceramic";
 import { DataModel } from "@glazed/datamodel";
+// import { DataModel } from "@usher/ceramic/dist/shims/datamodel";
 // import allSettled from "promise.allsettled";
 // import * as uint8arrays from "uint8arrays";
 // import { TileDocument } from "@ceramicnetwork/stream-tile";
