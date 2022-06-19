@@ -15,12 +15,11 @@
 	"types": "index.d.ts",
 	"private": true,
 	"scripts": {
-		"build": "npm-run-all -s clean compile cmd:build shims:build",
+		"build": "npm-run-all -s clean compile cmd:build",
 		"clean": "del dist build shims",
 		"compile": "tsc --project ./tsconfig.build.json && resolve-tspaths",
 		"cmd:build": "esbuild ./src/cmd.js --bundle --outdir=build --platform=node",
 		"cmd:watch": "esbuild ./src/cmd.js --bundle --outdir=build --platform=node --watch",
-		"shims:build": "tsc --emitDeclarationOnly -p ./tsconfig.shims.json && esbuild ./src/shims/* --bundle --outdir=dist/shims --platform=node",
 		"ts": "tsc --noEmit",
 		"lint": "eslint -c ./.eslintrc ./src/**/*.ts"
 	},
