@@ -72,6 +72,7 @@ export type CampaignReward = {
 
 export type Campaign = {
 	id: string;
+	chain: Chains;
 	owner: string;
 	events: {
 		strategy: CampaignStrategies;

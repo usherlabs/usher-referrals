@@ -20,3 +20,7 @@ export const arangoUrl = process.env.ARANGO_URL || "http://127.0.0.1:8529";
 export const arangoDatabase = process.env.ARANGO_DATABASE;
 export const arangoUsername = process.env.ARANGO_USERNAME;
 export const arangoPassword = process.env.ARANGO_PASSWORD;
+
+export const s3Region = process.env.S3_REGION;
+export const s3Bucket = process.env.S3_BUCKET;
+export const s3Root = process.env.S3_ROOT;

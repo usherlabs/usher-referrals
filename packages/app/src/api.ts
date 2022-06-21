@@ -1,4 +1,5 @@
 import ky from "ky";
+import { Chains, Campaign } from "@/types";
 
 // const formatQs = (o: Record<string, string>) => {
 // 	const searchParams = new URLSearchParams(o);
@@ -32,4 +33,20 @@ export const bot = () => ({
 				}
 			})
 			.json()
+});
+
+export const campaigns = () => ({
+	get: (
+		id?: string,
+		chain?: Chains
+	): Promise<{ success: boolean; data: Campaign[] }> => {
+		const params = new URLSearchParams();
+		if (id) {
+			params.set("id", id);
+		}
+		if (chain) {
+			params.set("chain", chain);
+		}
+		return request.get(`campaigns${params.toString()}`).json();
+	}
 });

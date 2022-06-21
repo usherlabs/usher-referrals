@@ -21,6 +21,8 @@ provider:
       ${self:custom.nodeEnv.${opt:stage, self:provider.stage}, 'development'}
     STAGE: ${opt:stage, self:provider.stage}
     S3_REGION: ${env:S3_REGION, self:provider.region}
+    S3_BUCKET: ${env:S3_BUCKET, ""}
+    S3_ROOT: ${env:S3_ROOT, ""}
     CERAMIC_URL: ${env:CERAMIC_URL, ""}
     ARANGO_URL: ${env:ARANGO_URL, ""}
     ARANGO_DATABASE: ${env:ARANGO_DATABASE, ""}

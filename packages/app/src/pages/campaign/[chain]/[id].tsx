@@ -26,6 +26,7 @@ import ValueCard from "@/components/ValueCard";
 import VerifyPersonhoodAlert from "@/components/VerifyPersonhoodAlert";
 import { useSeedData } from "@/env-config";
 import * as mediaQueries from "@/utils/media-queries";
+import * as api from "@/api";
 
 const getCampaign = async (
 	id: string,
@@ -39,7 +40,9 @@ const getCampaign = async (
 		return campaigns[0] as Campaign;
 	}
 
-	return null;
+	const campaigns = await api.campaigns().get(id, chain);
+
+	return campaigns.data.length > 0 ? campaigns.data[0] : null;
 };
 
 const CampaignPage = () => {
