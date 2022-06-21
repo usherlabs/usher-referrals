@@ -14,6 +14,10 @@ import EmailCapture from "@/components/EmailCapture";
 import SideSheet from "@/components/SideSheet";
 import { hcaptchaSiteKey } from "@/env-config";
 import useRedir from "@/hooks/use-redir";
+import Captcha from "@/components/Captcha";
+import delay from "@/utils/delay";
+import * as api from "@/api";
+import Authenticate from "@/modules/auth";
 
 type Props = {
 	children: React.ReactNode;
@@ -38,7 +42,7 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 			verifications: { captcha }
 		},
 		isLoading,
-		actions: { setProfile }
+		actions: { setProfile, setCaptcha }
 	} = useUser();
 	const [isPreloading, setPreloading] = useState(true);
 	const [showWallets, setShowWallets] = useState(false);
@@ -158,6 +162,25 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 		setShowSettings(false);
 	}, []);
 
+	const onCaptchaSuccess = useCallback(
+		async (token: string) => {
+			const authInstance = Authenticate.getInstance();
+			const authToken = await authInstance.getAuthToken();
+			const { success: isSuccess } = await api.captcha(authToken).post(token);
+			if (isSuccess) {
+				await delay(1000);
+				setCaptcha(true);
+				return true;
+			}
+			return false;
+		},
+		[wallets]
+	);
+
+	if (!isLoading && wallets.length > 0 && !isCaptchaVerified) {
+		return <Captcha onSuccess={onCaptchaSuccess} />;
+	}
+
 	return (
 		<>
 			<Pane>
@@ -192,17 +215,6 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 					position="relative"
 					paddingTop={HEADER_HEIGHT}
 				>
-					{/* {isEmpty(wallets) && <WalletConnectScreen />}
-					{isEmpty(profile.email) && !isEmpty(wallets) && captureEmail && (
-						<EmailCaptureScreen
-							onSkip={onEmailCaptureSkip}
-							onCapture={onEmailCapture}
-						/>
-					)}
-					{!isEmpty(wallets) && !isCaptchaVerified && !captureEmail && (
-						<CaptchaScreen />
-					)}
-					{!isEmpty(wallets) && isCaptchaVerified && !captureEmail && children} */}
 					{children}
 				</Pane>
 			</Pane>

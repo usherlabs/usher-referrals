@@ -173,6 +173,7 @@ export interface IUserActions {
 	connect: (type: Connections) => Promise<void>;
 	disconnect: (type: Connections) => Promise<void>;
 	setCaptcha: (value: boolean) => void;
+	setPersonhood: (value: boolean) => void;
 	setProfile: (value: Profile) => void;
 	addPartnership: (partnership: CampaignReference) => Promise<void>;
 }

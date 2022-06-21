@@ -33,7 +33,7 @@ import handleException, {
 import { identifyUser } from "@/utils/signals";
 import Authenticate from "@/modules/auth";
 import getMagicClient from "@/utils/magic-client";
-// import * as api from "@/api";
+import * as api from "@/api";
 
 import LogoImage from "@/assets/logo/Logo-Icon.svg";
 
@@ -63,6 +63,9 @@ export const UserContext = createContext<IUserContext>({
 		// ...
 	},
 	setCaptcha() {
+		// ...
+	},
+	setPersonhood() {
 		// ...
 	},
 	setProfile() {
@@ -235,6 +238,17 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 		[user]
 	);
 
+	const setPersonhood = useCallback(
+		(value: number | boolean) => {
+			setUser(
+				produce(user, (draft) => {
+					draft.verifications.personhood = value;
+				})
+			);
+		},
+		[user]
+	);
+
 	const setProfile = useCallback(
 		(profile: Profile) => {
 			setUser(
@@ -269,7 +283,16 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 				)
 			);
 
-			// TODO: Fetch verifications here
+			const authToken = await authInstance.getAuthToken();
+			const [captcha, personhood] = await allSettled<
+				[{ success: boolean }, { success: boolean; createdAt?: number }]
+			>([api.captcha(authToken).get(), api.personhood(authToken).get()]);
+			if (captcha.status === "fulfilled" && captcha.value.success) {
+				setCaptcha(true);
+			}
+			if (personhood.status === "fulfilled" && personhood.value.success) {
+				setPersonhood(personhood.value.createdAt || true);
+			}
 		}),
 		[]
 	);
@@ -301,6 +324,7 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 			connect,
 			disconnect: disconnectWallet,
 			setCaptcha,
+			setPersonhood,
 			setProfile,
 			addPartnership
 		}),

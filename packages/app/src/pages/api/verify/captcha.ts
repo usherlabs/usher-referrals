@@ -21,11 +21,20 @@ handler
 		try {
 			// Fetch captcha entry associated to either of the user DIDs
 			// Works by: For each verified DID, walk the captcha edge and return the latest entry
+			// TODO: Test these queries.
+			console.log(`
+			FOR d IN DOCUMENT("Dids", [${req.user.map(({ did }) => `"${did}"`).join(", ")}])
+			FOR e IN 1..1 OUTBOUND d Verification
+				FILTER e.success == true
+				SORT e.created_at DESC
+				LIMIT 1
+				RETURN e
+			`);
 			const cursor = await arango.query(aql`
 				FOR d IN DOCUMENT("Dids", [${req.user.map(({ did }) => `"${did}"`).join(", ")}])
-					FOR e IN 1..1 OUTBOUND d CaptchaEntry
+					FOR e IN 1..1 OUTBOUND d Verification
 						FILTER e.success == true
-						SORT e.created_at
+						SORT e.created_at DESC
 						LIMIT 1
 						RETURN e
 			`);
@@ -66,7 +75,7 @@ handler
 
 		const response: { success: boolean } = await captcha(token);
 
-		req.log.info({ captcha: { response } }, "Captcha repsonse");
+		req.log.info({ captcha: { response } }, "Captcha response");
 
 		// Save Captcha result to the DB
 		const cursor = await arango.query(aql`
@@ -81,7 +90,7 @@ handler
 				INSERT {
 					_from: CONCAT("Dids/", d._key),
 					_to: CONCAT("CaptchaEntries/", inserted._key)
-				} INTO CaptchaEntry
+				} INTO Verifications
 				RETURN NEW
 		`);
 

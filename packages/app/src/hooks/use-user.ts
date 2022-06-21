@@ -9,6 +9,7 @@ function useUser() {
 		connect,
 		disconnect,
 		setCaptcha,
+		setPersonhood,
 		setProfile,
 		addPartnership
 	} = useContext(UserContext);
@@ -20,6 +21,7 @@ function useUser() {
 			connect,
 			disconnect,
 			setCaptcha,
+			setPersonhood,
 			setProfile,
 			addPartnership
 		}

@@ -22,7 +22,7 @@ export const captcha = (authToken?: string) => {
 	return {
 		post: (token: string): Promise<{ success: boolean }> => {
 			return request
-				.post("captcha", {
+				.post(`${authToken ? "verify/" : ""}captcha`, {
 					headers,
 					json: {
 						token
@@ -30,8 +30,28 @@ export const captcha = (authToken?: string) => {
 				})
 				.json();
 		},
-		get: (id: string): Promise<{ success: boolean }> =>
-			request.get(`captcha?id=${id}`, { headers }).json()
+		get: (): Promise<{ success: boolean }> =>
+			request.get(`verify/captcha`, { headers }).json()
+	};
+};
+
+export const personhood = (authToken: string) => {
+	const headers = {
+		Authorization: `Bearer ${authToken}`
+	};
+	return {
+		post: (token: string): Promise<{ success: boolean }> => {
+			return request
+				.post("verify/personhood", {
+					headers,
+					json: {
+						token
+					}
+				})
+				.json();
+		},
+		get: (): Promise<{ success: boolean }> =>
+			request.get(`verify/personhood`, { headers }).json()
 	};
 };
 
