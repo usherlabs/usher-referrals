@@ -45,11 +45,12 @@ functions:
     handler: src/index.ingest
     events:
       - schedule: rate(5 minutes)
-  backup:
-    description: "Backup the Database on a recurring basis"
-    handler: src/index.backup
-    events:
-      - schedule: rate(1 day)
+  # TODO: Commented out as this will be re-added and tested post deployment
+  # backup:
+  #   description: "Backup the Database on a recurring basis"
+  #   handler: src/index.backup
+  #   events:
+  #     - schedule: rate(1 day)
 
 custom:
   nodeEnv:

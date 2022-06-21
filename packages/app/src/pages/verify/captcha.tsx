@@ -17,13 +17,9 @@ const Screen = () => {
 
 	const onSuccess = useCallback(
 		async (token: string) => {
-			const auth = Authenticate.getInstance();
-			const dids = wallets
-				.map((wallet) => auth.getAuth(wallet.address)?.did?.id)
-				.filter((id) => typeof id === "string");
-			const { success: isSuccess } = await api
-				.captcha()
-				.post(token, dids as string[]);
+			const authInstance = Authenticate.getInstance();
+			const authToken = await authInstance.getAuthToken();
+			const { success: isSuccess } = await api.captcha(authToken).post(token);
 			if (isSuccess) {
 				await delay(1000);
 				setCaptcha(true);

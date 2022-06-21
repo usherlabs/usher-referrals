@@ -19,13 +19,14 @@ import isEmpty from "lodash/isEmpty";
 import { useUser } from "@/hooks";
 import CampaignCard from "@/components/CampaignCard";
 import Anchor from "@/components/Anchor";
-import { Campaign } from "@/types";
+import { Campaign, CampaignReference } from "@/types";
 import delay from "@/utils/delay";
 import Authenticate from "@/modules/auth/authenticate";
 import Auth from "@/modules/auth/wallet";
 import { useSeedData } from "@/env-config";
+import * as api from "@/api";
 
-const getCampaigns = async (ids: string[]): Promise<Campaign[]> => {
+const getCampaigns = async (refs: CampaignReference[]): Promise<Campaign[]> => {
 	if (useSeedData) {
 		await delay(2000);
 		const campaignsData = (await import("@/seed/campaigns.json")).default;
@@ -34,7 +35,9 @@ const getCampaigns = async (ids: string[]): Promise<Campaign[]> => {
 		return campaigns as Campaign[];
 	}
 
-	return [];
+	const campaigns = await api.campaigns().get(refs);
+
+	return campaigns.data;
 };
 
 const authInstance = Authenticate.getInstance();

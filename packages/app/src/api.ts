@@ -1,5 +1,6 @@
 import ky from "ky";
-import { Chains, Campaign } from "@/types";
+import { Base64 } from "js-base64";
+import { CampaignReference, Campaign } from "@/types";
 
 // const formatQs = (o: Record<string, string>) => {
 // 	const searchParams = new URLSearchParams(o);
@@ -10,19 +11,29 @@ export const request = ky.create({
 	prefixUrl: "/api"
 });
 
-export const captcha = () => ({
-	post: (token: string, id?: string[]): Promise<{ success: boolean }> =>
-		request
-			.post("captcha", {
-				json: {
-					token,
-					id
-				}
-			})
-			.json(),
-	get: (id: string): Promise<{ success: boolean }> =>
-		request.get(`captcha?id=${id}`).json()
-});
+export const captcha = (authToken?: string) => {
+	let headers = {};
+	if (authToken) {
+		headers = {
+			Authorization: `Bearer ${authToken}`
+		};
+	}
+
+	return {
+		post: (token: string): Promise<{ success: boolean }> => {
+			return request
+				.post("captcha", {
+					headers,
+					json: {
+						token
+					}
+				})
+				.json();
+		},
+		get: (id: string): Promise<{ success: boolean }> =>
+			request.get(`captcha?id=${id}`, { headers }).json()
+	};
+};
 
 export const bot = () => ({
 	post: (requestId: string): Promise<{ success: boolean }> =>
@@ -37,16 +48,15 @@ export const bot = () => ({
 
 export const campaigns = () => ({
 	get: (
-		id?: string,
-		chain?: Chains
+		references?: CampaignReference[]
 	): Promise<{ success: boolean; data: Campaign[] }> => {
-		const params = new URLSearchParams();
-		if (id) {
-			params.set("id", id);
+		let qs = "";
+		if (references && references.length > 0) {
+			const params = new URLSearchParams();
+			const q = Base64.encodeURI(JSON.stringify(references));
+			params.set("q", q);
+			qs = params.toString();
 		}
-		if (chain) {
-			params.set("chain", chain);
-		}
-		return request.get(`campaigns${params.toString()}`).json();
+		return request.get(`campaigns${qs}`).json();
 	}
 });

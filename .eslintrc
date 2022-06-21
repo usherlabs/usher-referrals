@@ -17,7 +17,8 @@
         "endOfLine": "auto"
       }
     ],
-		"no-unused-vars": ["error", { "ignoreRestSiblings": true }]
+		"no-unused-vars": ["error", { "ignoreRestSiblings": true }],
+		"no-underscore-dangle": "off"
   },
   "overrides": [
     // Configuration for TypeScript files

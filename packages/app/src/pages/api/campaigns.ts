@@ -1,6 +1,7 @@
 import { aql } from "arangojs";
+import { Base64 } from "js-base64";
 
-import { ApiResponse, ApiRequest } from "@/types";
+import { ApiResponse, ApiRequest, CampaignReference } from "@/types";
 import getHandler from "@/server/middleware";
 import getArangoClient from "@/utils/arango-client";
 
@@ -9,12 +10,19 @@ const arango = getArangoClient();
 
 // Initializing the cors middleware
 handler.get(async (req: ApiRequest, res: ApiResponse) => {
-	const { chain, id } = req.query;
+	const { q } = req.query;
 
-	const filter = [
-		id ? `c.id == "${id}"` : true,
-		chain ? `c.chain == "${chain}"` : true
-	].join(" AND ");
+	let filter = "true";
+	if (typeof q === "string") {
+		const json = Base64.decode(q);
+		const refs = JSON.parse(json) as CampaignReference[];
+		filter = refs
+			.map((ref) =>
+				[`c.id == "${ref.address}"`, `c.chain == "${ref.chain}"`].join(" AND ")
+			)
+			.map((f) => `(${f})`)
+			.join(" OR ");
+	}
 
 	const cursor = await arango.query(aql`
 		FOR c IN Campaigns

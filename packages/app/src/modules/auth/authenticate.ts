@@ -5,6 +5,7 @@ import { JWKInterface } from "arweave/node/lib/wallet";
 import PQueue from "p-queue";
 import ono from "@jsdevtools/ono";
 import { Sha256 } from "@aws-crypto/sha256-js";
+import { Base64 } from "js-base64";
 
 import getMagicClient from "@/utils/magic-client";
 import getArweaveClient from "@/utils/arweave-client";
@@ -58,6 +59,24 @@ class Authenticate {
 
 	public getOwner() {
 		return this.owner;
+	}
+
+	public async getAuthToken() {
+		const parts = await Promise.all(
+			this.auths.map(async (auth) => {
+				const sig = await auth.did.createJWS(auth.did.id);
+				return [auth.did.id, sig, [auth.wallet.chain, auth.wallet.address]];
+			})
+		);
+		if (this.owner) {
+			const sig = await this.owner.did.createJWS(this.owner.did.id);
+			const ownerPart = [this.owner.did.id, sig];
+			parts.push(ownerPart);
+		}
+		const s = JSON.stringify(parts);
+		const token = Base64.encode(s);
+
+		return token;
 	}
 
 	public getPartnerships() {

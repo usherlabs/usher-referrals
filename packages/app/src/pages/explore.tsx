@@ -9,6 +9,7 @@ import CampaignCard from "@/components/CampaignCard";
 import delay from "@/utils/delay";
 import { Campaign } from "@/types";
 import { useSeedData } from "@/env-config";
+import * as api from "@/api";
 
 const getCampaigns = async (): Promise<Campaign[]> => {
 	if (useSeedData) {
@@ -32,7 +33,9 @@ const getCampaigns = async (): Promise<Campaign[]> => {
 		return seedCampaigns as Campaign[];
 	}
 
-	return [];
+	const campaigns = await api.campaigns().get();
+
+	return campaigns.data;
 };
 
 /**

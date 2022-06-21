@@ -135,7 +135,13 @@ export interface ApiRequest extends NextApiRequest {
 
 export interface AuthApiRequest extends ApiRequest {
 	token: string;
-	user: User;
+	user: {
+		did: string;
+		wallet: {
+			chain: string;
+			address: string;
+		};
+	}[]; // An array of verified dids
 }
 
 export interface ApiResponse extends NextApiResponse {}

@@ -40,7 +40,12 @@ const getCampaign = async (
 		return campaigns[0] as Campaign;
 	}
 
-	const campaigns = await api.campaigns().get(id, chain);
+	const campaigns = await api.campaigns().get([
+		{
+			address: id,
+			chain
+		}
+	]);
 
 	return campaigns.data.length > 0 ? campaigns.data[0] : null;
 };
