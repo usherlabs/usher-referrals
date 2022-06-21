@@ -10,7 +10,7 @@ import { didKey, ceramicUrl } from "@/env-config";
 
 export const ceramicInstance = new CeramicClient(ceramicUrl);
 
-export const getCeramic = async (paramKey?: string) => {
+export const getNetworkDID = async (paramKey?: string) => {
 	const k = paramKey || didKey;
 	if (!k) {
 		throw new Error(
@@ -25,6 +25,12 @@ export const getCeramic = async (paramKey?: string) => {
 		resolver: getResolver()
 	});
 	await did.authenticate();
+
+	return did;
+};
+
+export const getCeramic = async (paramKey?: string) => {
+	const did = await getNetworkDID(paramKey);
 
 	// Connect to the local Ceramic node
 	ceramicInstance.did = did;

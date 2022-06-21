@@ -1,0 +1,35 @@
+INSERT {
+	"owner": "ksFTLgrwQGtNrhRz6MWyd3a4lvK1Oh-QF1HYcEeeFVk",
+	"events": [
+		{
+			"strategy": "flat",
+			"rate": 0.1,
+			"limit": 250000
+		}
+	],
+	"reward": {
+		"name": "Arweave",
+		"ticker": "AR",
+		"type": "token",
+		"limit": 0
+	},
+	"conflict_strategy": "PASSTHROUGH",
+	"details": {
+		"destination_url": "https://app.ardrive.io/#/sign-in?ref=usher",
+		"name": "ArDrive Referral Program",
+		"description": "Refer users to ArDrive and earn when files are uploaded.",
+		"image": "https://ardrive.io/wp-content/uploads/2021/07/Gallery-Angle-PS3000-scaled.jpg",
+		"external_link": "https://ardrive.io/"
+	},
+	"advertiser": {
+		"name": "ArDrive",
+		"icon": "https://ardrive.io/wp-content/uploads/2021/06/AD-LOGO-PS1600-210x79.png",
+		"description": "Upload files forever!",
+		"external_link": "https://ardrive.io/",
+		"twitter": "https://twitter.com/ardriveapp"
+	},
+	"internal": {
+		"address": "",
+		"key": ""
+	}
+} INTO Campaigns

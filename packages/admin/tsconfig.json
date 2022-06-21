@@ -1,16 +1,10 @@
 {
 	"$schema": "https://json.schemastore.org/tsconfig",
-	"display": "Graph",
+	"display": "Admin",
 	"compilerOptions": {
 		"baseUrl": ".",
-		"preserveConstEnums": true,
-    "strictNullChecks": true,
-    "sourceMap": true,
-    "allowJs": true,
-    "target": "es5",
-    "outDir": ".build",
-    "lib": ["es2015"],
-    "rootDir": "./",
+		"outDir": "dist",
+		"rootDir": "src",
 		"strict": true,
 		"skipLibCheck": true,
 		"esModuleInterop": true,
@@ -22,8 +16,6 @@
 			"@/*": ["./src/*"]
 		}
 	},
-	"exclude": [
-		"node_modules"
-	],
-	"include": ["src/**/*.ts", "index.d.ts", "scripts/**/*.ts"]
+	"include": ["**/*.ts", "**/*.tsx"],
+	"exclude": ["node_modules"]
 }

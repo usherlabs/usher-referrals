@@ -130,12 +130,12 @@ export default async () => {
 						tileLoader.load<Partnership>(doc.content.partnership)
 					)
 				);
-				const conversions = conversionStreams.map((c, i) => ({
-					id: chunk[i],
-					...c,
+				const conversions = conversionStreams.map((c, j) => ({
+					...c.content,
+					id: c.id.toString(),
 					partnership: {
-						id: partnerships[i].id.toString(),
-						partnerships: partnerships[i].content
+						id: partnerships[j].id.toString(),
+						partnerships: partnerships[j].content
 					}
 				}));
 			})
