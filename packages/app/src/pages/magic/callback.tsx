@@ -9,7 +9,7 @@ import UserProvider from "@/providers/User";
 import Preloader from "@/components/Preloader";
 import { useUser } from "@/hooks";
 import { Connections } from "@/types";
-import getMagicClient from "@/utils/magic-client";
+import { getMagicClient } from "@/utils/magic-client";
 
 // https://github.com/pubkey/broadcast-channel -- to prevent multiple tabs from processing the same connection.
 

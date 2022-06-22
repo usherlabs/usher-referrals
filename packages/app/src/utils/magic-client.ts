@@ -67,7 +67,7 @@ export class PlugNPlayExtension extends Extension.Internal<
 let magicClient: Magic<[PlugNPlayExtension, OAuthExtension]>;
 let ethProvider: ethers.providers.Web3Provider;
 
-export default () => {
+export const getMagicClient = () => {
 	if (!magicClient) {
 		magicClient = new Magic(magicPublicKey!, {
 			extensions: [new PlugNPlayExtension(), new OAuthExtension()]

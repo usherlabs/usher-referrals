@@ -9,7 +9,7 @@ import {
 
 let db: Database | null | undefined;
 
-export default () => {
+export const getArangoClient = () => {
 	if (!db) {
 		db = new Database({
 			url: arangoUrl,

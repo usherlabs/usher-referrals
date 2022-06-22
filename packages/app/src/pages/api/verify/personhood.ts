@@ -4,7 +4,7 @@ import { aql } from "arangojs";
 import { AuthApiRequest, ApiResponse } from "@/types";
 import getHandler from "@/server/middleware";
 import withAuth from "@/server/middleware/auth";
-import getArangoClient from "@/utils/arango-client";
+import { getArangoClient } from "@/utils/arango-client";
 
 const handler = getHandler();
 

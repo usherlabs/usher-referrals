@@ -6,8 +6,8 @@ import PQueue from "p-queue";
 import ono from "@jsdevtools/ono";
 import { Base64 } from "js-base64";
 
-import getMagicClient from "@/utils/magic-client";
-import getArweaveClient from "@/utils/arweave-client";
+import { getMagicClient } from "@/utils/magic-client";
+import { getArweaveClient } from "@/utils/arweave-client";
 import {
 	Chains,
 	Wallet,

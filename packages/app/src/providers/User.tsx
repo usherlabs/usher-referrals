@@ -32,7 +32,7 @@ import handleException, {
 } from "@/utils/handle-exception";
 import { identifyUser } from "@/utils/signals";
 import Authenticate from "@/modules/auth";
-import getMagicClient from "@/utils/magic-client";
+import { getMagicClient } from "@/utils/magic-client";
 import * as api from "@/api";
 
 import LogoImage from "@/assets/logo/Logo-Icon.svg";

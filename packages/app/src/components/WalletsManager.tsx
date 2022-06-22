@@ -28,7 +28,7 @@ import ono from "@jsdevtools/ono";
 import pascalCase from "@/utils/pascal-case";
 import { Wallet, Chains, Connections } from "@/types";
 import truncate from "@/utils/truncate";
-import getArweaveClient from "@/utils/arweave-client";
+import { getArweaveClient } from "@/utils/arweave-client";
 import WalletConnect from "@/components/WalletConnect";
 import Anchor from "@/components/Anchor";
 import InputField from "@/components/InputField";

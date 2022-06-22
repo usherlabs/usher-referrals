@@ -1,7 +1,7 @@
 import Arweave from "arweave";
 
 let arweave: Arweave;
-export default () => {
+export const getArweaveClient = () => {
 	if (!arweave) {
 		arweave = Arweave.init({
 			host: "arweave.net",

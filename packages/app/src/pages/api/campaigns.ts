@@ -3,7 +3,7 @@ import { Base64 } from "js-base64";
 
 import { ApiResponse, ApiRequest, CampaignReference } from "@/types";
 import getHandler from "@/server/middleware";
-import getArangoClient from "@/utils/arango-client";
+import { getArangoClient } from "@/utils/arango-client";
 
 const handler = getHandler();
 const arango = getArangoClient();

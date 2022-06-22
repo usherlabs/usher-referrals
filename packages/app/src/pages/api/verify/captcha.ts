@@ -5,7 +5,7 @@ import { AuthApiRequest, ApiResponse } from "@/types";
 import getHandler from "@/server/middleware";
 import withAuth from "@/server/middleware/auth";
 import captcha from "@/server/captcha";
-import getArangoClient from "@/utils/arango-client";
+import { getArangoClient } from "@/utils/arango-client";
 
 const handler = getHandler();
 
