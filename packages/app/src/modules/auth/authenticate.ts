@@ -4,7 +4,6 @@ import Arweave from "arweave";
 import { JWKInterface } from "arweave/node/lib/wallet";
 import PQueue from "p-queue";
 import ono from "@jsdevtools/ono";
-import { Sha256 } from "@aws-crypto/sha256-js";
 import { Base64 } from "js-base64";
 
 import getMagicClient from "@/utils/magic-client";
@@ -111,7 +110,8 @@ class Authenticate {
 	 * Deterministically produce a secret for DID production
 	 */
 	public async withArweave(
-		walletAddress: string,
+		address: string,
+		connection: Connections,
 		provider:
 			| typeof window.arweaveWallet
 			| {
@@ -119,22 +119,24 @@ class Authenticate {
 						data: Uint8Array,
 						algorithm: RsaPssParams
 					) => Promise<Uint8Array>;
-			  },
-		connection: Connections
+			  }
 	): Promise<WalletAuth> {
-		const arr = uint8arrays.fromString(walletAddress);
-		const sig = await provider.signature(arr, {
-			name: "RSA-PSS",
-			saltLength: 0 // This ensures that no additional salt is produced and added to the message signed.
-		});
-
-		//* We have to SHA256 hash here because the Seed is required to be 32 bytes
-		const hash = new Sha256();
-		hash.update(uint8arrays.toString(sig));
-		const entropy = await hash.digest();
-
-		const auth = new WalletAuth();
-		await auth.connect(walletAddress, entropy, Chains.ARWEAVE, connection);
+		const auth = new WalletAuth(
+			{
+				address,
+				chain: Chains.ARWEAVE,
+				connection
+			},
+			async (key: string) => {
+				const arr = uint8arrays.fromString(key);
+				const sig = await provider.signature(arr, {
+					name: "RSA-PSS",
+					saltLength: 0 // This ensures that no additional salt is produced and added to the message signed.
+				});
+				return uint8arrays.toString(sig);
+			}
+		);
+		await auth.connect();
 		const { did } = auth;
 
 		// If wallet DID does not exist, push and activate it
@@ -159,13 +161,15 @@ class Authenticate {
 
 		const signer = ethProvider.getSigner();
 		const address = await signer.getAddress();
-		const sig = await signer.signMessage(address);
-		const hash = new Sha256();
-		hash.update(sig);
-		const entropy = await hash.digest();
-
-		const ethAuth = new WalletAuth();
-		await ethAuth.connect(address, entropy, Chains.ETHEREUM, Connections.MAGIC);
+		const ethAuth = new WalletAuth(
+			{
+				address,
+				chain: Chains.ETHEREUM,
+				connection: Connections.MAGIC
+			},
+			(key: string) => signer.signMessage(key)
+		);
+		await ethAuth.connect();
 		const { did } = ethAuth;
 
 		// If wallet DID does not exist, push and activate it
@@ -204,8 +208,8 @@ class Authenticate {
 
 		const arAuth = await this.withArweave(
 			arweaveAddress,
-			Authenticate.nativeArweaveProvider(arweaveKey),
-			Connections.MAGIC
+			Connections.MAGIC,
+			Authenticate.nativeArweaveProvider(arweaveKey)
 		);
 
 		await this.loadOwnerForAuth(ethAuth);

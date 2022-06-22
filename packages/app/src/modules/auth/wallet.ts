@@ -4,8 +4,9 @@
  * A class representing a single authentication (wallet connection)
  */
 import { WalletModel } from "@usher/ceramic";
+import { Sha256 } from "@aws-crypto/sha256-js";
 
-import { Wallet, Chains, Connections } from "@/types";
+import { Wallet } from "@/types";
 import Auth from "./auth";
 
 type MagicWallet = {
@@ -20,9 +21,10 @@ const CERAMIC_MAGIC_WALLETS_KEY = "magicWallets";
 const CERAMIC_SHAREABLE_OWNER_KEY = "shareableOwner";
 
 class WalletAuth extends Auth {
-	private _wallet!: Wallet;
-
-	constructor() {
+	constructor(
+		protected _wallet: Wallet,
+		protected sign: (key: string) => Promise<string>
+	) {
 		super(WalletModel);
 	}
 
@@ -34,19 +36,17 @@ class WalletAuth extends Auth {
 		return this._wallet.address;
 	}
 
-	public async connect(
-		address: string,
-		secret: Uint8Array,
-		chain: Chains,
-		connection: Connections
-	) {
-		await this.authenticate([chain, address].join(":"), secret);
+	public async connect() {
+		const wallet = this._wallet;
+		const id = [wallet.chain, wallet.address].join(":");
+		const sig = await this.sign(id);
 
-		this._wallet = {
-			address,
-			chain,
-			connection
-		};
+		//* We have to SHA256 hash here because the Seed is required to be 32 bytes
+		const hash = new Sha256();
+		hash.update(sig);
+		const entropy = await hash.digest();
+
+		await this.authenticate(id, entropy);
 	}
 
 	/**
