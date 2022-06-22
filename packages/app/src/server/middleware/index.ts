@@ -54,7 +54,14 @@ export default function getHandler() {
 		pino({
 			name: appName,
 			level: logLevel || "info",
-			prettyPrint: !isProd
+			transport: !isProd
+				? {
+						target: "pino-pretty",
+						options: {
+							colorize: true
+						}
+				  }
+				: undefined
 		})
 	);
 
