@@ -1,50 +1,67 @@
-import { GetServerSideProps } from "next";
-import openid from "openid-client";
-import { setCookie } from "nookies";
+/**
+ * We render a page first to load the user -- the use the dids to associate the result
+ */
 
-import { getHumanodeOpenIdClient } from "@/utils/humanode-client";
+import { useEffect } from "react";
+import Image from "next/image";
+import { Pane, toaster } from "evergreen-ui";
+import Preloader from "@/components/Preloader";
+import { getAuthRequest } from "@/api";
+import Authenticate from "@/modules/auth";
+
+import LogoImage from "@/assets/logo/Logo.png";
 
 const VerifyStart = () => {
-	return null;
-};
+	useEffect(() => {
+		(async () => {
+			const authInstance = Authenticate.getInstance();
+			const authToken = await authInstance.getAuthToken();
+			const request = getAuthRequest(authToken);
+			const queryParams = new URLSearchParams(window.location.search);
+			const redir = queryParams.get("redir");
+			let qs = "";
+			if (redir) {
+				qs = `?redir=${redir}`;
+			}
+			const response: { success: boolean; redirectUri: string } = await request
+				.get(`verify/start${qs}`)
+				.json();
 
-/**
- * 1. Create a pending conversion
- * 2. Store that conversion id in the cookie
- * 3. Redirect to Advertiser Affiliate Referral URL
- *
- * @return  {Object}  props
- */
-export const getServerSideProps: GetServerSideProps = async (ctx) => {
-	const {
-		res,
-		query: { redir }
-	} = ctx;
-	const client = await getHumanodeOpenIdClient();
+			if (response.success) {
+				window.location.href = response.redirectUri;
+			} else {
+				toaster.danger(
+					"Something has gone wrong initiating the verification. Please refresh the page or contact support."
+				);
+			}
+		})();
+		return () => {};
+	}, []);
 
-	// Set up codeVerifier and save it as a cookie for later use.
-	const codeVerifier = openid.generators.codeVerifier(64);
-	setCookie(ctx, "hn_code_verifier", codeVerifier, {
-		maxAge: 60 * 60
-	});
-
-	// Set up codeChallenge for login flow.
-	const codeChallenge = openid.generators.codeChallenge(codeVerifier);
-
-	// Get the redirect URI.
-	const redirectUri = client.authorizationUrl({
-		scope: "openid",
-		code_challenge: codeChallenge,
-		code_challenge_method: "S256",
-		state: JSON.stringify({ redir }) // can be some arbitrary state
-	});
-
-	res.writeHead(302, {
-		Location: redirectUri
-	});
-	res.end();
-
-	return { props: {} };
+	return (
+		<Pane
+			display="flex"
+			flexDirection="column"
+			marginY="0"
+			marginX="auto"
+			minHeight="100vh"
+			position="relative"
+		>
+			<Preloader message={`Redirecting you to Personhood Verification...`} />
+			<Pane
+				zIndex={100}
+				position="fixed"
+				bottom={20}
+				left={0}
+				right={0}
+				display="flex"
+				alignItems="center"
+				justifyContent="center"
+			>
+				<Image src={LogoImage} width={150} objectFit="contain" />
+			</Pane>
+		</Pane>
+	);
 };
 
 export default VerifyStart;

@@ -11,39 +11,40 @@ export const request = ky.create({
 	prefixUrl: "/api"
 });
 
-export const captcha = (authToken?: string) => {
-	let headers = {};
-	if (authToken) {
-		headers = {
+export const getAuthRequest = (authToken: string) =>
+	request.extend({
+		headers: {
 			Authorization: `Bearer ${authToken}`
-		};
+		}
+	});
+
+export const captcha = (authToken?: string) => {
+	let req = request;
+	if (authToken) {
+		req = getAuthRequest(authToken);
 	}
 
 	return {
 		post: (token: string): Promise<{ success: boolean }> => {
-			return request
+			return req
 				.post(`${authToken ? "verify/" : ""}captcha`, {
-					headers,
 					json: {
 						token
 					}
 				})
 				.json();
 		},
-		get: (): Promise<{ success: boolean }> =>
-			request.get(`verify/captcha`, { headers }).json()
+		get: (): Promise<{ success: boolean }> => req.get(`verify/captcha`).json()
 	};
 };
 
 export const personhood = (authToken: string) => {
-	const headers = {
-		Authorization: `Bearer ${authToken}`
-	};
+	const req = getAuthRequest(authToken);
+
 	return {
 		post: (token: string): Promise<{ success: boolean }> => {
-			return request
+			return req
 				.post("verify/personhood", {
-					headers,
 					json: {
 						token
 					}
@@ -51,7 +52,7 @@ export const personhood = (authToken: string) => {
 				.json();
 		},
 		get: (): Promise<{ success: boolean }> =>
-			request.get(`verify/personhood`, { headers }).json()
+			req.get(`verify/personhood`).json()
 	};
 };
 
