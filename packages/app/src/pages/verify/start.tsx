@@ -2,41 +2,59 @@
  * We render a page first to load the user -- the use the dids to associate the result
  */
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
+import { useRouter } from "next/router";
 import { Pane, toaster } from "evergreen-ui";
 import Preloader from "@/components/Preloader";
 import { getAuthRequest } from "@/api";
 import Authenticate from "@/modules/auth";
+import { useUser } from "@/hooks";
 
 import LogoImage from "@/assets/logo/Logo.png";
 
 const VerifyStart = () => {
-	useEffect(() => {
-		(async () => {
-			const authInstance = Authenticate.getInstance();
-			const authToken = await authInstance.getAuthToken();
-			const request = getAuthRequest(authToken);
-			const queryParams = new URLSearchParams(window.location.search);
-			const redir = queryParams.get("redir");
-			let qs = "";
-			if (redir) {
-				qs = `?redir=${redir}`;
-			}
-			const response: { success: boolean; redirectUri: string } = await request
-				.get(`verify/start${qs}`)
-				.json();
+	const {
+		user: { wallets },
+		isLoading
+	} = useUser();
+	const router = useRouter();
+	const [isMounted, setMounted] = useState(false);
 
-			if (response.success) {
-				window.location.href = response.redirectUri;
-			} else {
-				toaster.danger(
-					"Something has gone wrong initiating the verification. Please refresh the page or contact support."
-				);
+	useEffect(() => {
+		if (isLoading && !isMounted) {
+			// Set mount when user starts loading
+			setMounted(true);
+		}
+		if (!isLoading && isMounted) {
+			if (wallets.length === 0) {
+				toaster.notify("To start a verification, please login!");
+				router.push("/login"); // redirect to login page if no wallets authenticated.
+				return () => {};
 			}
-		})();
+			(async () => {
+				const authInstance = Authenticate.getInstance();
+				const authToken = await authInstance.getAuthToken();
+				const request = getAuthRequest(authToken);
+				const { redir } = router.query;
+				let qs = "";
+				if (redir) {
+					qs = `?redir=${redir}`;
+				}
+				const response: { success: boolean; redirectUri: string } =
+					await request.get(`verify/start${qs}`).json();
+
+				if (response.success) {
+					window.location.href = response.redirectUri;
+				} else {
+					toaster.danger(
+						"Something has gone wrong initiating the verification. Please refresh the page or contact support."
+					);
+				}
+			})();
+		}
 		return () => {};
-	}, []);
+	}, [isLoading, wallets, isMounted]);
 
 	return (
 		<Pane
