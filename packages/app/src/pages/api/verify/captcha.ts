@@ -21,17 +21,20 @@ handler
 		try {
 			// Fetch captcha entry associated to either of the user DIDs
 			// Works by: For each verified DID, walk the captcha edge and return the latest entry
+			//! IMPORTANT:
+			//* Be sure to pass raw javascript variables to the AQL Templates... rather than constructing the Query items
 			const cursor = await arango.query(aql`
-				FOR d IN DOCUMENT("Dids", [${req.user.map(({ did }) => `"${did}"`).join(", ")}])
+				FOR d IN DOCUMENT("Dids", ${req.user.map(({ did }) => did)})
 					FOR e IN 1..1 OUTBOUND d Verifications
-						FILTER STARTS_WITH(e._to, "CaptchaEntries/")
-						LET c = DOCUMENT("CaptchaEntries/", e._to)
-						SORT c.created_at DESC
+						FILTER e.success == true
+						SORT e.created_at DESC
 						LIMIT 1
 						RETURN e
 			`);
 
 			const results = await cursor.all();
+
+			req.log.debug({ results }, "captcha fetch results");
 
 			return res.json({
 				success: results.length > 0

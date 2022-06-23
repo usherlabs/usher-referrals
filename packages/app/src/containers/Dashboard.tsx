@@ -1,5 +1,13 @@
 import React, { useState, useCallback, useEffect } from "react";
-import { Pane, useTheme, Dialog, CornerDialog, toaster } from "evergreen-ui";
+import {
+	Pane,
+	useTheme,
+	Dialog,
+	CornerDialog,
+	toaster,
+	Heading,
+	Spinner
+} from "evergreen-ui";
 import isEmpty from "lodash/isEmpty";
 import useLocalStorage from "use-local-storage";
 import { useRouter } from "next/router";
@@ -49,6 +57,9 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 	const [showWallets, setShowWallets] = useState(false);
 	const [showLogout, setShowLogout] = useState(false);
 	const [showSettings, setShowSettings] = useState(false);
+	const [userLoadingMessage, setUserLoadingMessage] = useState(
+		"Loading your account..."
+	);
 	const router = useRouter();
 	const loginUrl = useRedir("/login");
 	const [captureEmail, setCaptureEmail] = useLocalStorage<{
@@ -79,27 +90,25 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 	}, [isLoading, wallets]);
 
 	useEffect(() => {
-		const timeout = setTimeout(() => {
-			if (!isLoading && wallets.length > 0 && !profile.email) {
-				if (captureEmail && !captureEmail.active) {
-					if (captureEmail.remindIn && captureEmail.remindIn !== 0) {
-						if (Date.now() >= captureEmail.remindIn) {
-							setCaptureEmail({
-								...captureEmail,
-								active: true
-							});
-						}
+		if (!isLoading && !profile.email) {
+			if (captureEmail) {
+				if (
+					!captureEmail.active &&
+					captureEmail.remindIn &&
+					captureEmail.remindIn !== 0
+				) {
+					if (Date.now() >= captureEmail.remindIn) {
+						setCaptureEmail({
+							...captureEmail,
+							active: true
+						});
 					}
-				} else {
-					setCaptureEmail({ active: true });
 				}
+			} else {
+				setCaptureEmail({ active: true });
 			}
-		}, 2000);
-
-		return () => {
-			clearTimeout(timeout);
-		};
-	}, [isLoading, wallets, profile, captureEmail]);
+		}
+	}, [isLoading, profile, captureEmail]);
 
 	const onEmailCapture = useCallback(
 		(email: string) => {
@@ -279,6 +288,22 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 						margin: 0
 					}}
 				/>
+			</CornerDialog>
+			<CornerDialog
+				isShown={isLoading}
+				hasClose={false}
+				hasFooter={false}
+				containerProps={{
+					backgroundColor: colors.gray75,
+					borderRadius: 20
+				}}
+			>
+				<Pane display="flex" alignItems="center" justifyContent="center">
+					<Spinner size={24} marginRight={10} />
+					<Heading is="h4" size={600} fontWeight={900}>
+						{userLoadingMessage}
+					</Heading>
+				</Pane>
 			</CornerDialog>
 		</>
 	);
