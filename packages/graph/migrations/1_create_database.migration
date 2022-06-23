@@ -1,0 +1,6 @@
+type: database
+action: create
+name: usher
+allowed:
+  - username: ${db_username}
+    password: ${db_password}

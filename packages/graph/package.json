@@ -13,7 +13,8 @@
 		"ts": "tsc --noEmit",
 		"test": "ts-mocha -p ./tsconfig.json --paths -r esbuild-register tests/**/*.test.ts",
 		"test:jest": "jest",
-		"lint": "eslint -c ./.eslintrc ./src/**/*.ts"
+		"lint": "eslint -c ./.eslintrc ./src/**/*.ts",
+		"migrate": "arangomigo ./.arangomigo.yml"
 	},
 	"dependencies": {
 		"@ceramicnetwork/http-client": "^2.2.0",

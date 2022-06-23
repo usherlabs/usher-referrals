@@ -32,7 +32,7 @@ handler
 			`);
 			const cursor = await arango.query(aql`
 				FOR d IN DOCUMENT("Dids", [${req.user.map(({ did }) => `"${did}"`).join(", ")}])
-					FOR e IN 1..1 OUTBOUND d Verification
+					FOR e IN 1..1 OUTBOUND d Verifications
 						FILTER e.success == true
 						SORT e.created_at DESC
 						LIMIT 1

@@ -1,0 +1,10 @@
+type: graph
+action: create
+name: Verified
+edgedefinitions:
+  - collection: Verifications
+    from:
+      - Dids
+    to:
+      - CaptchaEntries
+      - PersonhoodEntries

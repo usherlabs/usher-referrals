@@ -10,9 +10,5 @@ services:
     ports:
       - ${ARANGO_PORT:-8529}:8529
     volumes:
-      - arangodb_data_container:/var/lib/arangodb3
-      - arangodb_apps_data_container:/var/lib/arangodb3-apps
-
-volumes:
-  arangodb_data_container:
-  arangodb_apps_data_container:
+      - ./volumes/lib/arangodb3:/var/lib/arangodb3
+      - ./volumes/lib/arangodb3-apps:/var/lib/arangodb3-apps
