@@ -1,5 +1,7 @@
 INSERT {
+	"_key": "arweave:ida4Pebl2uULdI_rN8waEw65mVH9uIFTY1JyeZt1PBM",
 	"id": "ida4Pebl2uULdI_rN8waEw65mVH9uIFTY1JyeZt1PBM",
+	"chain": "arweave",
 	"owner": "ksFTLgrwQGtNrhRz6MWyd3a4lvK1Oh-QF1HYcEeeFVk",
 	"events": [
 		{

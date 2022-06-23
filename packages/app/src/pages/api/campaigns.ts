@@ -12,23 +12,32 @@ const arango = getArangoClient();
 handler.get(async (req: ApiRequest, res: ApiResponse) => {
 	const { q } = req.query;
 
-	let filter = "true";
+	let keys: string[] = [];
 	if (typeof q === "string") {
-		const json = Base64.decode(q);
-		const refs = JSON.parse(json) as CampaignReference[];
-		filter = refs
-			.map((ref) =>
-				[`c.id == "${ref.address}"`, `c.chain == "${ref.chain}"`].join(" AND ")
-			)
-			.map((f) => `(${f})`)
-			.join(" OR ");
+		try {
+			const json = Base64.decode(q);
+			const refs = JSON.parse(json) as CampaignReference[];
+			keys = refs.map((ref) => `"${ref.chain}:${ref.address}"`);
+		} catch (e) {
+			return res.status(400).json({
+				success: false,
+				data: []
+			});
+		}
 	}
 
-	const cursor = await arango.query(aql`
-		FOR c IN Campaigns
-			FILTER ${filter}
-			RETURN c
-	`);
+	let query;
+	if (keys.length > 0) {
+		query = aql`
+			RETURN DOCUMENT("Campaigns", ${keys.join(", ")})
+		`;
+	} else {
+		query = aql`
+			FOR c IN Campaigns
+				RETURN c
+		`;
+	}
+	const cursor = await arango.query(query);
 
 	const campaigns = await cursor.all();
 
