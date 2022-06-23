@@ -91,12 +91,10 @@ const getWallets = async (type: Connections): Promise<Wallet[]> => {
 			if (arconnect) {
 				try {
 					const arweaveWalletAddress = await arconnect.getActiveAddress();
-					await authInstance.withArweave(arweaveWalletAddress, arconnect, type);
+					await authInstance.withArweave(arweaveWalletAddress, type, arconnect);
 					wallets = authInstance.getWallets();
 				} catch (e) {
-					if (e instanceof Error) {
-						handleException(e, null);
-					}
+					handleException(e);
 				}
 			}
 			break;
@@ -112,9 +110,7 @@ const getWallets = async (type: Connections): Promise<Wallet[]> => {
 					wallets = authInstance.getWallets();
 				}
 			} catch (e) {
-				if (e instanceof Error) {
-					handleException(e, null);
-				}
+				handleException(e);
 			}
 			break;
 		}

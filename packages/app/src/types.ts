@@ -129,26 +129,27 @@ export type ExceptionContext =
 
 // Server Types
 
+export type AuthUser = {
+	did: string;
+	wallet: {
+		chain: string;
+		address: string;
+	};
+}[]; // An array of verified dids
+
+/**
+ * ###### INTERFACES ######
+ */
 export interface ApiRequest extends NextApiRequest {
 	// log: BaseLogger;
 }
 
 export interface AuthApiRequest extends ApiRequest {
 	token: string;
-	user: {
-		did: string;
-		wallet: {
-			chain: string;
-			address: string;
-		};
-	}[]; // An array of verified dids
+	user: AuthUser;
 }
 
 export interface ApiResponse extends NextApiResponse {}
-
-/**
- * ###### INTERFACES ######
- */
 
 export interface IDIDDataStore
 	extends DIDDataStore<

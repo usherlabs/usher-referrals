@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from "react";
-import { Pane, useTheme, Dialog, CornerDialog } from "evergreen-ui";
+import { Pane, useTheme, Dialog, CornerDialog, toaster } from "evergreen-ui";
 import isEmpty from "lodash/isEmpty";
 import useLocalStorage from "use-local-storage";
 import { useRouter } from "next/router";
@@ -18,6 +18,7 @@ import Captcha from "@/components/Captcha";
 import delay from "@/utils/delay";
 import * as api from "@/api";
 import Authenticate from "@/modules/auth";
+import handleException from "@/utils/handle-exception";
 
 type Props = {
 	children: React.ReactNode;
@@ -164,13 +165,20 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 
 	const onCaptchaSuccess = useCallback(
 		async (token: string) => {
-			const authInstance = Authenticate.getInstance();
-			const authToken = await authInstance.getAuthToken();
-			const { success: isSuccess } = await api.captcha(authToken).post(token);
-			if (isSuccess) {
-				await delay(1000);
-				setCaptcha(true);
-				return true;
+			try {
+				const authInstance = Authenticate.getInstance();
+				const authToken = await authInstance.getAuthToken();
+				const { success: isSuccess } = await api.captcha(authToken).post(token);
+				if (isSuccess) {
+					await delay(1000);
+					setCaptcha(true);
+					return true;
+				}
+			} catch (e) {
+				handleException(e);
+				toaster.danger(
+					"Something has gone wrong. Please refresh and try again."
+				);
 			}
 			return false;
 		},
@@ -178,7 +186,11 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 	);
 
 	if (!isLoading && wallets.length > 0 && !isCaptchaVerified) {
-		return <Captcha onSuccess={onCaptchaSuccess} />;
+		return (
+			<Pane display="flex" minHeight="100vh" width="100%">
+				<Captcha onSuccess={onCaptchaSuccess} />
+			</Pane>
+		);
 	}
 
 	return (

@@ -13,7 +13,7 @@ export const onError = (
 	req: NextApiRequest,
 	res: NextApiResponse
 ) => {
-	handleException(err, null);
+	handleException(err);
 
 	const output: {
 		success: boolean;

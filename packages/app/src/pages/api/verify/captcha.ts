@@ -21,20 +21,12 @@ handler
 		try {
 			// Fetch captcha entry associated to either of the user DIDs
 			// Works by: For each verified DID, walk the captcha edge and return the latest entry
-			// TODO: Test these queries.
-			console.log(`
-			FOR d IN DOCUMENT("Dids", [${req.user.map(({ did }) => `"${did}"`).join(", ")}])
-			FOR e IN 1..1 OUTBOUND d Verification
-				FILTER e.success == true
-				SORT e.created_at DESC
-				LIMIT 1
-				RETURN e
-			`);
 			const cursor = await arango.query(aql`
 				FOR d IN DOCUMENT("Dids", [${req.user.map(({ did }) => `"${did}"`).join(", ")}])
 					FOR e IN 1..1 OUTBOUND d Verifications
-						FILTER e.success == true
-						SORT e.created_at DESC
+						FILTER STARTS_WITH(e._to, "CaptchaEntries/")
+						LET c = DOCUMENT("CaptchaEntries/", e._to)
+						SORT c.created_at DESC
 						LIMIT 1
 						RETURN e
 			`);
@@ -46,7 +38,7 @@ handler
 			});
 		} catch (e) {
 			req.log.error(e);
-			return res.json({
+			return res.status(400).json({
 				success: false
 			});
 		}
@@ -79,19 +71,34 @@ handler
 
 		// Save Captcha result to the DB
 		const cursor = await arango.query(aql`
+			LET user = ${req.user}
+			LET dids = (
+				FOR u IN user
+					UPSERT { _key: u.did }
+					INSERT { _key: u.did, wallet: u.wallet }
+					UPDATE { wallet: u.wallet }
+					IN Dids OPTIONS { waitForSync: true }
+					RETURN u.did
+			)
 			INSERT {
-				"success": true,
-				"created_at": ${Date.now()},
-				"response": "${JSON.stringify(response)}"
+				success: true,
+				created_at: ${Date.now()},
+				response: ${JSON.stringify(response)}
 			}
-			INTO CaptchaEntries
+			INTO CaptchaEntries OPTIONS { waitForSync: true }
 			LET inserted = NEW
-			FOR d IN DOCUMENT("Dids", [${req.user.map(({ did }) => `"${did}"`).join(", ")}])
-				INSERT {
-					_from: CONCAT("Dids/", d._key),
-					_to: CONCAT("CaptchaEntries/", inserted._key)
-				} INTO Verifications
-				RETURN NEW
+			LET edges = (
+				FOR d IN dids
+					INSERT {
+						_from: CONCAT("Dids/", d),
+						_to: CONCAT("CaptchaEntries/", inserted._key)
+					} INTO Verifications
+					RETURN NEW
+			)
+			RETURN {
+				inserted: inserted,
+				edges: edges
+			}
 		`);
 
 		const results = await cursor.all();

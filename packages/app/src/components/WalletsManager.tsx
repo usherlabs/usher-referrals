@@ -142,9 +142,7 @@ const WalletsManager: React.FC<Props> = ({ onClose }) => {
 			const amount = parseFloat(ar);
 			setShowSendFunds({ wallet, amount });
 		} catch (e) {
-			if (e instanceof Error) {
-				handleException(e, null);
-			}
+			handleException(e);
 		}
 		setSendFundsLoading(false);
 	}, []);
@@ -202,9 +200,7 @@ const WalletsManager: React.FC<Props> = ({ onClose }) => {
 				throw ono("Failed to post transcation to Arweave", showSendFunds);
 			}
 		} catch (e) {
-			if (e instanceof Error) {
-				handleException(e, null);
-			}
+			handleException(e);
 			toaster.danger(
 				"A problem has occurred sending your funds. The team has been notified. Please try again later or contact support",
 				{

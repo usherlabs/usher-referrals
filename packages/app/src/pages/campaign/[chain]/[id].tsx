@@ -89,9 +89,7 @@ const CampaignPage = () => {
 			};
 			addPartnership(campaignRef)
 				.catch((e) => {
-					if (e instanceof Error) {
-						handleException(e, null);
-					}
+					handleException(e);
 					errorMessage();
 				})
 				.finally(() => {

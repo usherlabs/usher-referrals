@@ -30,6 +30,7 @@
 		"@magic-sdk/pnp": "^2.1.1",
 		"@magic-sdk/types": "^7.1.1",
 		"@sentry/nextjs": "^6.19.2",
+		"@stablelib/random": "^1.0.1",
 		"@supabase/supabase-js": "^1.34.0",
 		"@usher/ceramic": "*",
 		"arangojs": "^7.8.0",

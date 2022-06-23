@@ -48,7 +48,10 @@ export const setUser = (user: User | null) => {
 	});
 };
 
-const handleException = (err: Exception, ctx: ExceptionContext) => {
+const handleException = (
+	err: Exception | Error | any, // type any here in case it's a random unknown error...
+	ctx?: ExceptionContext
+) => {
 	if (!sentry.dsn || !isProd) {
 		console.log(err, ctx); // eslint-disable-line
 	}
@@ -60,7 +63,7 @@ const handleException = (err: Exception, ctx: ExceptionContext) => {
 			scope.setFingerprint([err.message]);
 		}
 
-		if (err.statusCode) {
+		if ("statusCode" in err && err.statusCode) {
 			scope.setExtra("statusCode", err.statusCode);
 		}
 

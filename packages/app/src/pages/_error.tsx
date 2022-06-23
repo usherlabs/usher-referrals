@@ -36,7 +36,7 @@ class ErrorPage extends React.Component<ErrorPageProps> {
 			}
 
 			if (err) {
-				handleException(err, null);
+				handleException(err);
 
 				return NextErrorInitialProps;
 			}
@@ -50,7 +50,7 @@ class ErrorPage extends React.Component<ErrorPageProps> {
 			//    componentDidMount, etc) that was caught by Next.js's React NextError
 			//    Boundary. Read more about what types of exceptions are caught by NextError
 			//    Boundaries: https://reactjs.org/docs/NextError-boundaries.html
-			handleException(err, null);
+			handleException(err);
 
 			return NextErrorInitialProps;
 		}
@@ -73,7 +73,7 @@ class ErrorPage extends React.Component<ErrorPageProps> {
 			// getInitialProps is not called in case of
 			// https://github.com/zeit/next.js/issues/8592. As a workaround, we pass
 			// err via _app.js so it can be captured
-			handleException(err, null);
+			handleException(err);
 		}
 
 		return <NextError statusCode={statusCode} />;
