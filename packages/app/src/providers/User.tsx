@@ -192,7 +192,7 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 	const walletsLoading = isArConnectLoading;
 
 	const saveUser = useCallback((saved: User) => {
-		// console.log("SAVED USER", saved);
+		console.log("SAVED USER", saved);
 		setUser(saved);
 		setErrorTrackingUser(saved);
 		identifyUser(
@@ -277,39 +277,53 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 	const loadUser = useCallback(
 		once(async () => {
 			console.log("Loading user ...");
-			await allSettled(
+			const res = await allSettled<Wallet[]>(
 				Object.values(Connections).map((value) =>
 					getWallets(value).then((fetched) => {
 						saveWallets(fetched);
+						return fetched;
 					})
 				)
 			);
+			// Reverse iterate over the array to get the first fulfilled result.
+			let fetchedWallets: Wallet[] = [];
+			for (let i = res.length - 1; i >= 0; i -= 1) {
+				if (res[i].status === "fulfilled") {
+					// @ts-ignore
+					fetchedWallets = res[i].value;
+					break;
+				}
+			}
 			console.log("Wallets loaded. Fetching verifications ...");
+			console.log(fetchedWallets);
 
 			// set partnerships and profile state
 			const partnerships = authInstance.getPartnerships();
 			const profile = authInstance.getProfile();
-			setUser(
-				produce(user, (draft) => {
-					draft.partnerships = partnerships;
-					if (profile) {
-						draft.profile = profile;
-					}
-				})
-			);
 
 			// Load verifications
 			const authToken = await authInstance.getAuthToken();
 			const [captcha, personhood] = await allSettled<
 				[{ success: boolean }, { success: boolean; createdAt?: number }]
 			>([api.captcha(authToken).get(), api.personhood(authToken).get()]);
-			if (captcha.status === "fulfilled" && captcha.value.success) {
-				setCaptcha(true);
-			}
-			if (personhood.status === "fulfilled" && personhood.value.success) {
-				setPersonhood(personhood.value.createdAt || true);
-			}
 			console.log("Verifications loaded.");
+
+			setUser(
+				produce(user, (draft) => {
+					draft.wallets = fetchedWallets;
+					draft.partnerships = partnerships;
+					if (profile) {
+						draft.profile = profile;
+					}
+					draft.verifications = {
+						personhood:
+							personhood.status === "fulfilled" && personhood.value.success
+								? personhood.value.createdAt || true
+								: false,
+						captcha: captcha.status === "fulfilled" && captcha.value.success
+					};
+				})
+			);
 		}),
 		[]
 	);
