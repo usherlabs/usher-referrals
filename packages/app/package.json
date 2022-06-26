@@ -36,7 +36,6 @@
 		"camelcase-keys": "^7.0.2",
 		"cors": "^2.8.5",
 		"date-and-time": "^2.3.1",
-		"did-jwt": "^6.2.0",
 		"dids": "^3.1.0",
 		"dotenv-cli": "^5.0.0",
 		"es6-shim": "^0.35.6",
