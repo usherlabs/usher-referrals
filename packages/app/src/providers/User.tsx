@@ -271,24 +271,32 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 	// Only called once on page load
 	const loadUser = useCallback(
 		once(async () => {
+			console.log("Loading user ...");
 			await allSettled(
 				Object.values(Connections).map((value) =>
 					getWallets(value).then((fetched) => {
+						console.log(fetched);
 						saveWallets(fetched);
 					})
 				)
 			);
+			console.log("Wallets loaded. Fetching verifications ...");
 
-			const authToken = await authInstance.getAuthToken();
-			const [captcha, personhood] = await allSettled<
-				[{ success: boolean }, { success: boolean; createdAt?: number }]
-			>([api.captcha(authToken).get(), api.personhood(authToken).get()]);
-			if (captcha.status === "fulfilled" && captcha.value.success) {
-				setCaptcha(true);
-			}
-			if (personhood.status === "fulfilled" && personhood.value.success) {
-				setPersonhood(personhood.value.createdAt || true);
-			}
+			// Load verifications
+			// const authToken = await authInstance.getAuthToken();
+			// const [captcha, personhood] = await allSettled<
+			// 	[{ success: boolean }, { success: boolean; createdAt?: number }]
+			// >([api.captcha(authToken).get(), api.personhood(authToken).get()]);
+			// if (captcha.status === "fulfilled" && captcha.value.success) {
+			// 	setCaptcha(true);
+			// }
+			// if (personhood.status === "fulfilled" && personhood.value.success) {
+			// 	setPersonhood(personhood.value.createdAt || true);
+			// }
+
+			// Load partnerships and profiles
+
+			// console.log("Verifications loaded.");
 		}),
 		[]
 	);

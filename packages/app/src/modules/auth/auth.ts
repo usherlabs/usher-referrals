@@ -67,11 +67,11 @@ abstract class Auth {
 		});
 		// Authenticate the DID using the 3ID provider from 3ID Connect, this will trigger the
 		// authentication flow using 3ID Connect and the Ethereum provider
-		await did.authenticate();
+		// await did.authenticate();
 
-		this._ceramic.did = did;
+		// this._ceramic.did = did;
 
-		this._did = did;
+		// this._did = did;
 	}
 
 	public getSchema(key: string) {

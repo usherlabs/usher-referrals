@@ -266,7 +266,7 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 					<ProfileSettings />
 				</Pane>
 			</Dialog>
-			<CornerDialog
+			{/* <CornerDialog
 				title="🔔 Let's keep in touch"
 				isShown={captureEmail?.active || false}
 				onCloseComplete={onEmailCaptureDismiss}
@@ -304,7 +304,7 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 						{userLoadingMessage}
 					</Heading>
 				</Pane>
-			</CornerDialog>
+			</CornerDialog> */}
 		</>
 	);
 };

@@ -109,6 +109,7 @@ class OwnerAuth extends Auth {
 
 	// Load the Partnerships Stream
 	public async loadPartnerships(): Promise<Partnership[]> {
+		console.log("load partnerships");
 		const setObj = await this.store.get(CERAMIC_PARTNERSHIPS_KEY);
 		if (!setObj) {
 			return [];
@@ -117,6 +118,7 @@ class OwnerAuth extends Auth {
 		const streams = await Promise.all(
 			set.map((id) => this.loader.load<CampaignReference>(id))
 		);
+		console.log("partnerships", streams);
 
 		const partnerships = streams.map((stream) => ({
 			id: stream.id.toString(),
@@ -234,11 +236,7 @@ class OwnerAuth extends Auth {
 	}
 
 	public loadDoc(streamId: string) {
-		return TileDocument.load(
-			// @ts-ignore
-			this._ceramic,
-			streamId
-		);
+		return this.loader.load(streamId);
 	}
 
 	public loadOwnerDoc() {

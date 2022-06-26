@@ -21,10 +21,7 @@ const CERAMIC_MAGIC_WALLETS_KEY = "magicWallets";
 const CERAMIC_SHAREABLE_OWNER_KEY = "shareableOwner";
 
 class WalletAuth extends Auth {
-	constructor(
-		protected _wallet: Wallet,
-		protected sign: (key: string) => Promise<string>
-	) {
+	constructor(protected _wallet: Wallet, private key: string) {
 		super(WalletModel);
 	}
 
@@ -40,13 +37,12 @@ class WalletAuth extends Auth {
 		const wallet = this._wallet;
 		const id = [wallet.chain, wallet.address].join(":");
 		const sig = await this.sign(id);
+		const key = [id, sig].join("|");
 
-		//* We have to SHA256 hash here because the Seed is required to be 32 bytes
-		const hash = new Sha256();
-		hash.update(sig);
-		const entropy = await hash.digest();
+		console.log("connecting to wallet: ", id);
+		await this.authenticate(this.key);
 
-		await this.authenticate(id, entropy);
+		console.log(await this.store.getIndex());
 	}
 
 	/**

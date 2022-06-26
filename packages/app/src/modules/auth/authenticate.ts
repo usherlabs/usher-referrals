@@ -67,11 +67,18 @@ class Authenticate {
 		return this.owner;
 	}
 
+	/**
+	 * A method to retrieve a verifiable token
+	 * For use with Server communication
+	 *
+	 * @return  {string}  AuthToken
+	 */
 	public async getAuthToken() {
-		const nonce = await randomString();
+		const nonce = randomString();
+		console.log(nonce);
 		const parts = await Promise.all(
 			this.auths.map(async (auth) => {
-				const sig = await auth.did.createJWS(nonce);
+				const sig = await auth.did.createJWS(nonce, { did: auth.did.id });
 				return [
 					auth.did.id,
 					fromDagJWS(sig),
@@ -80,7 +87,9 @@ class Authenticate {
 			})
 		);
 		if (this.owner) {
-			const sig = await this.owner.did.createJWS(nonce);
+			const sig = await this.owner.did.createJWS(nonce, {
+				did: this.owner.did.id
+			});
 			const ownerPart = [this.owner.did.id, fromDagJWS(sig)];
 			parts.push(ownerPart);
 		}
@@ -156,7 +165,7 @@ class Authenticate {
 			this.add(auth);
 		}
 
-		await this.loadOwnerForAuth(auth);
+		// await this.loadOwnerForAuth(auth);
 
 		return auth;
 	}
