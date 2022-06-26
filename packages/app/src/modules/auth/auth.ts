@@ -55,7 +55,7 @@ abstract class Auth {
 		p.set(prefix);
 		p.set(key, prefix.length);
 
-		console.log("connecting to wallet: ", uint8arrays.toString(p));
+		// console.log("connecting to wallet: ", uint8arrays.toString(p));
 
 		//* We have to SHA256 hash here because the Seed is required to be 32 bytes
 		let entropy = p;

@@ -75,7 +75,6 @@ class Authenticate {
 	 */
 	public async getAuthToken() {
 		const nonce = randomString();
-		console.log(nonce);
 		const parts = await Promise.all(
 			this.auths.map(async (auth) => {
 				const sig = await auth.did.createJWS(nonce, { did: auth.did.id });
