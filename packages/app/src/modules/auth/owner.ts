@@ -363,7 +363,10 @@ class OwnerAuth extends Auth {
 		await this.authenticate(id, secret);
 
 		// Encrypt keys and store
-		const enc = await OwnerAuth.encodeSecret(auth.did, secret);
+		const enc = await OwnerAuth.encodeSecret(
+			auth.did,
+			uint8arrays.fromString(sec)
+		);
 		const doc = await TileDocument.create(
 			// @ts-ignore
 			this._ceramic,

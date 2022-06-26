@@ -6,10 +6,11 @@
 import { DID } from "dids";
 import { CeramicClient } from "@ceramicnetwork/http-client";
 import { getResolver as getKeyResolver } from "key-did-resolver";
-import { getResolver as get3IDResolver } from "@ceramicnetwork/3id-did-resolver";
-import { ThreeIdProvider } from "@3id/did-provider";
+import { Ed25519Provider } from "key-did-provider-ed25519";
 import { DataModel } from "@glazed/datamodel";
 import { DIDDataStore } from "@glazed/did-datastore";
+import { Sha256 } from "@aws-crypto/sha256-js";
+import * as uint8arrays from "uint8arrays";
 
 import { ceramicUrl } from "@/env-config";
 import { IDIDDataStore, IDataModel } from "@/types";
@@ -48,30 +49,34 @@ abstract class Auth {
 		return this._ceramic;
 	}
 
-	public async authenticate(id: string, secret: Uint8Array) {
-		// Connect/Auth DID
-		const threeIDAuth = await ThreeIdProvider.create({
-			ceramic: this._ceramic,
-			authId: id,
-			authSecret: secret,
-			getPermission: (request: any) => Promise.resolve(request.payload.paths)
-		});
+	public async authenticate(id: string, key: Uint8Array) {
+		const prefix = uint8arrays.fromString(`${id}|`);
+		const p = new Uint8Array(prefix.length + key.length);
+		p.set(prefix);
+		p.set(key, prefix.length);
+
+		console.log("connecting to wallet: ", uint8arrays.toString(p));
+
+		//* We have to SHA256 hash here because the Seed is required to be 32 bytes
+		let entropy = p;
+		if (entropy.byteLength !== 32) {
+			const hash = new Sha256();
+			hash.update(entropy);
+			entropy = await hash.digest();
+		}
 
 		const did = new DID({
 			// Get the DID provider from the 3ID Connect instance
-			provider: threeIDAuth.getDidProvider(),
-			resolver: {
-				...get3IDResolver(this._ceramic),
-				...getKeyResolver()
-			}
+			provider: new Ed25519Provider(entropy),
+			resolver: getKeyResolver()
 		});
 		// Authenticate the DID using the 3ID provider from 3ID Connect, this will trigger the
 		// authentication flow using 3ID Connect and the Ethereum provider
-		// await did.authenticate();
+		await did.authenticate();
 
-		// this._ceramic.did = did;
+		this._ceramic.did = did;
 
-		// this._did = did;
+		this._did = did;
 	}
 
 	public getSchema(key: string) {

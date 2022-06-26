@@ -142,22 +142,16 @@ class Authenticate {
 					) => Promise<Uint8Array>;
 			  }
 	): Promise<WalletAuth> {
-		const auth = new WalletAuth(
-			{
-				address,
-				chain: Chains.ARWEAVE,
-				connection
-			},
-			async (key: string) => {
-				const arr = uint8arrays.fromString(key);
-				const sig = await provider.signature(arr, {
-					name: "RSA-PSS",
-					saltLength: 0 // This ensures that no additional salt is produced and added to the message signed.
-				});
-				return uint8arrays.toString(sig);
-			}
-		);
-		await auth.connect();
+		const auth = new WalletAuth({
+			address,
+			chain: Chains.ARWEAVE,
+			connection
+		});
+		const sig = await provider.signature(uint8arrays.fromString(auth.id), {
+			name: "RSA-PSS",
+			saltLength: 0 // This ensures that no additional salt is produced and added to the message signed.
+		});
+		await auth.connect(sig);
 		const { did } = auth;
 
 		// If wallet DID does not exist, push and activate it
@@ -165,7 +159,7 @@ class Authenticate {
 			this.add(auth);
 		}
 
-		// await this.loadOwnerForAuth(auth);
+		await this.loadOwnerForAuth(auth);
 
 		return auth;
 	}
@@ -182,15 +176,13 @@ class Authenticate {
 
 		const signer = ethProvider.getSigner();
 		const address = await signer.getAddress();
-		const ethAuth = new WalletAuth(
-			{
-				address,
-				chain: Chains.ETHEREUM,
-				connection: Connections.MAGIC
-			},
-			(key: string) => signer.signMessage(key)
-		);
-		await ethAuth.connect();
+		const ethAuth = new WalletAuth({
+			address,
+			chain: Chains.ETHEREUM,
+			connection: Connections.MAGIC
+		});
+		const sig = await signer.signMessage(ethAuth.id);
+		await ethAuth.connect(uint8arrays.fromString(sig));
 		const { did } = ethAuth;
 
 		// If wallet DID does not exist, push and activate it

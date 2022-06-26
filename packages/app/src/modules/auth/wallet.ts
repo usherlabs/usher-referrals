@@ -4,7 +4,7 @@
  * A class representing a single authentication (wallet connection)
  */
 import { WalletModel } from "@usher/ceramic";
-import { Sha256 } from "@aws-crypto/sha256-js";
+import * as uint8arrays from "uint8arrays";
 
 import { Wallet } from "@/types";
 import Auth from "./auth";
@@ -21,7 +21,7 @@ const CERAMIC_MAGIC_WALLETS_KEY = "magicWallets";
 const CERAMIC_SHAREABLE_OWNER_KEY = "shareableOwner";
 
 class WalletAuth extends Auth {
-	constructor(protected _wallet: Wallet, private key: string) {
+	constructor(protected _wallet: Wallet) {
 		super(WalletModel);
 	}
 
@@ -33,15 +33,16 @@ class WalletAuth extends Auth {
 		return this._wallet.address;
 	}
 
-	public async connect() {
+	public get id() {
 		const wallet = this._wallet;
 		const id = [wallet.chain, wallet.address].join(":");
-		const sig = await this.sign(id);
-		const key = [id, sig].join("|");
+		return id;
+	}
 
-		console.log("connecting to wallet: ", id);
-		await this.authenticate(this.key);
+	public async connect(sig: Uint8Array) {
+		await this.authenticate(this.id, sig);
 
+		console.log("connected did", this.did);
 		console.log(await this.store.getIndex());
 	}
 
