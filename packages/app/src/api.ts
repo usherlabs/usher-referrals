@@ -76,7 +76,7 @@ export const campaigns = () => ({
 			const params = new URLSearchParams();
 			const q = Base64.encodeURI(JSON.stringify(references));
 			params.set("q", q);
-			qs = params.toString();
+			qs = `?${params.toString()}`;
 		}
 		return request.get(`campaigns${qs}`).json();
 	}

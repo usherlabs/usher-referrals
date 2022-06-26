@@ -3,7 +3,7 @@ import { Base64 } from "js-base64";
 import { DagJWS, DID } from "dids";
 import { getResolver as getKeyResolver } from "key-did-resolver";
 import isEmpty from "lodash/isEmpty";
-import util from "util";
+// import util from "util";
 
 import { AuthApiRequest, ApiResponse } from "@/types";
 
@@ -14,7 +14,7 @@ const verify = async (did: string, sig: DagJWS): Promise<boolean> => {
 		}
 	});
 	const result = await instance.verifyJWS(sig, { issuer: did });
-	console.log(`verification`, util.inspect(result, false, null, true));
+	// console.log(`verification`, util.inspect(result, false, null, true));
 	if (result.kid) {
 		return true;
 	}

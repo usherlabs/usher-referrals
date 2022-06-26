@@ -29,9 +29,15 @@ import * as mediaQueries from "@/utils/media-queries";
 import * as api from "@/api";
 
 const getCampaign = async (
-	id: string,
+	address: string,
 	chain: Chains
 ): Promise<Campaign | null> => {
+	console.log("hello world?", { address, chain });
+
+	if (!address || !chain) {
+		return null;
+	}
+
 	if (useSeedData) {
 		await delay(5000);
 		const campaignsData = (await import("@/seed/campaigns.json")).default;
@@ -42,7 +48,7 @@ const getCampaign = async (
 
 	const campaigns = await api.campaigns().get([
 		{
-			address: id,
+			address,
 			chain
 		}
 	]);
@@ -58,7 +64,8 @@ const CampaignPage = () => {
 	} = useUser();
 	const router = useRouter();
 	const { id, chain } = router.query as { id: string; chain: Chains };
-	const campaign = useQuery("campaign", () => getCampaign(id as string, chain));
+	// TODO: This `getCampaign` is not receiving the id and chain -- could be caching  on first input which is undefined.
+	const campaign = useQuery("campaign", () => getCampaign(id, chain));
 	const loginUrl = useRedir("/login");
 	const isLoggedIn = wallets.length > 0;
 

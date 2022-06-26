@@ -1,4 +1,4 @@
-import { DagJWS, DID } from "dids";
+import { DID } from "dids";
 import * as uint8arrays from "uint8arrays";
 import Arweave from "arweave";
 import { JWKInterface } from "arweave/node/lib/wallet";

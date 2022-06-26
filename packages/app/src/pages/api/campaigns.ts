@@ -17,6 +17,7 @@ handler.get(async (req: ApiRequest, res: ApiResponse) => {
 		try {
 			const json = Base64.decode(q);
 			const refs = JSON.parse(json) as CampaignReference[];
+			console.log("refs", refs);
 			keys = refs.map((ref) => `"${ref.chain}:${ref.address}"`);
 		} catch (e) {
 			return res.status(400).json({
@@ -26,10 +27,12 @@ handler.get(async (req: ApiRequest, res: ApiResponse) => {
 		}
 	}
 
+	req.log.info({ keys }, "Get campaigns for keys");
+
 	let query;
 	if (keys.length > 0) {
 		query = aql`
-			RETURN DOCUMENT("Campaigns", ${keys.join(", ")})
+			RETURN DOCUMENT("Campaigns", ${keys})
 		`;
 	} else {
 		query = aql`
@@ -41,14 +44,18 @@ handler.get(async (req: ApiRequest, res: ApiResponse) => {
 
 	const campaigns = await cursor.all();
 
-	const data = campaigns.map((campaign) =>
-		Object.entries(campaign).reduce<typeof campaign>((acc, [key, value]) => {
-			if (key.charAt(0) !== "_") {
-				acc[key] = value;
-			}
-			return acc;
-		}, {})
-	);
+	console.log("campaigns result", campaigns);
+
+	const data = campaigns
+		.filter((campaign) => campaign !== null)
+		.map((campaign) =>
+			Object.entries(campaign).reduce<typeof campaign>((acc, [key, value]) => {
+				if (key.charAt(0) !== "_") {
+					acc[key] = value;
+				}
+				return acc;
+			}, {})
+		);
 
 	return res.json({
 		success: true,
