@@ -11,6 +11,7 @@ import {
 import isEmpty from "lodash/isEmpty";
 import useLocalStorage from "use-local-storage";
 import { useRouter } from "next/router";
+import Script from "next/script";
 
 import { useUser } from "@/hooks/";
 import Header from "@/components/Header";
@@ -57,9 +58,6 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 	const [showWallets, setShowWallets] = useState(false);
 	const [showLogout, setShowLogout] = useState(false);
 	const [showSettings, setShowSettings] = useState(false);
-	const [userLoadingMessage, setUserLoadingMessage] = useState(
-		"Loading your account..."
-	);
 	const router = useRouter();
 	const loginUrl = useRedir("/login");
 	const [captureEmail, setCaptureEmail] = useLocalStorage<{
@@ -67,6 +65,7 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 		dismissCount?: number;
 		remindIn?: number;
 	} | null>("get-notified", null);
+	const [isCapturingEmail, setCapturingEmail] = useState(false);
 	const isCaptchaVerified = isEmpty(hcaptchaSiteKey) ? true : captcha;
 	const [loadingMessage, setLoadingMessage] = useState(
 		loadingMessages[loadingMessageIndex]
@@ -111,8 +110,9 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 	}, [isLoading, profile, captureEmail]);
 
 	const onEmailCapture = useCallback(
-		(email: string) => {
-			setProfile({
+		async (email: string) => {
+			setCapturingEmail(true);
+			await setProfile({
 				...profile,
 				email
 			});
@@ -121,13 +121,14 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 				active: false,
 				remindIn: 0
 			});
-			// Save to Graph
+			toaster.success("Profile updated!");
+			setCapturingEmail(false);
 		},
 		[profile, captureEmail]
 	);
 
 	const onEmailCaptureDismiss = useCallback(() => {
-		if (captureEmail) {
+		if (captureEmail && captureEmail.remindIn !== 0) {
 			const newDismissCount =
 				(!captureEmail.dismissCount ? 0 : captureEmail.dismissCount) + 1;
 			setCaptureEmail({
@@ -266,14 +267,15 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 					<ProfileSettings />
 				</Pane>
 			</Dialog>
-			{/* <CornerDialog
+			<CornerDialog
 				title="🔔 Let's keep in touch"
-				isShown={captureEmail?.active || false}
+				isShown={!isLoading && (captureEmail?.active || false)}
 				onCloseComplete={onEmailCaptureDismiss}
 				hasFooter={false}
 				containerProps={{
 					backgroundColor: colors.gray75,
-					borderRadius: 20
+					borderRadius: 20,
+					zIndex: 5
 				}}
 			>
 				<EmailCapture
@@ -287,6 +289,7 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 						width: "100%",
 						margin: 0
 					}}
+					isLoading={isCapturingEmail}
 				/>
 			</CornerDialog>
 			<CornerDialog
@@ -295,16 +298,23 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 				hasFooter={false}
 				containerProps={{
 					backgroundColor: colors.gray75,
-					borderRadius: 20
+					borderRadius: 100,
+					zIndex: 6,
+					paddingTop: 10,
+					paddingRight: 20,
+					paddingLeft: 20,
+					paddingBottom: 20,
+					width: 300
 				}}
 			>
 				<Pane display="flex" alignItems="center" justifyContent="center">
 					<Spinner size={24} marginRight={10} />
 					<Heading is="h4" size={600} fontWeight={900}>
-						{userLoadingMessage}
+						Loading your account...
 					</Heading>
 				</Pane>
-			</CornerDialog> */}
+			</CornerDialog>
+			{/* <Script src="//marketing.usher.so/form/generate.js?id=1" /> */}
 		</>
 	);
 };

@@ -11,6 +11,7 @@ import UserProvider from "@/providers/User";
 import { setup as setupSignals } from "@/utils/signals";
 import "@/styles/styles.scss";
 import DashboardContainer from "@/containers/Dashboard";
+import "@/integrations";
 
 const queryClient = new QueryClient();
 

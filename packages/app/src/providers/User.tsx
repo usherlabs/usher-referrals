@@ -34,6 +34,7 @@ import { identifyUser } from "@/utils/signals";
 import Authenticate from "@/modules/auth";
 import { getMagicClient } from "@/utils/magic-client";
 import * as api from "@/api";
+import { events, AppEvents } from "@/utils/events";
 
 import LogoImage from "@/assets/logo/Logo-Icon.svg";
 
@@ -246,7 +247,11 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 	);
 
 	const setProfile = useCallback(
-		(profile: Profile) => {
+		async (profile: Profile) => {
+			// Save profile to Ceramic
+			await authInstance.updateProfile(profile);
+			events.emit(AppEvents.PROFILE_SAVE, profile);
+
 			setUser(
 				produce(user, (draft) => {
 					draft.profile = profile;
@@ -275,7 +280,6 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 			await allSettled(
 				Object.values(Connections).map((value) =>
 					getWallets(value).then((fetched) => {
-						console.log(fetched);
 						saveWallets(fetched);
 					})
 				)

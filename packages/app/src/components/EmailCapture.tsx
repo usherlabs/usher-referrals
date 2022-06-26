@@ -21,6 +21,7 @@ export type Props = {
 	hasHeading?: boolean;
 	hasSkip?: boolean;
 	inputContainerProps?: PaneProps;
+	isLoading?: boolean;
 };
 
 const EmailCaptureScreen: React.FC<Props> = ({
@@ -28,10 +29,9 @@ const EmailCaptureScreen: React.FC<Props> = ({
 	hasSkip = true,
 	onDismiss,
 	onSubmit,
-	inputContainerProps
+	inputContainerProps,
+	isLoading = false
 }) => {
-	const { isLoading } = useUser();
-
 	return (
 		<Pane
 			display="flex"

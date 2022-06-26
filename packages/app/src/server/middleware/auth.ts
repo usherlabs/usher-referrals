@@ -2,8 +2,6 @@ import nextConnect from "next-connect";
 import { Base64 } from "js-base64";
 import { DID } from "dids";
 import { getResolver as getKeyResolver } from "key-did-resolver";
-import { getResolver as get3IDResolver } from "@ceramicnetwork/3id-did-resolver";
-import { ceramic } from "@/utils/ceramic-client";
 import isEmpty from "lodash/isEmpty";
 import util from "util";
 
@@ -12,7 +10,6 @@ import { AuthApiRequest, ApiResponse } from "@/types";
 const verify = async (did: string, sig: string): Promise<boolean> => {
 	const instance = new DID({
 		resolver: {
-			...get3IDResolver(ceramic),
 			...getKeyResolver()
 		}
 	});

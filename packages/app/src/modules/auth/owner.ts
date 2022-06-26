@@ -14,6 +14,7 @@ import uniq from "lodash/uniq";
 
 import { ShareableOwnerModel } from "@usher/ceramic";
 
+import { NETWORK_DID } from "@/constants";
 import { Partnership, CampaignReference, Profile } from "@/types";
 import Auth from "./auth";
 import WalletAuth from "./wallet";
@@ -32,7 +33,7 @@ type SetObject = {
 };
 
 const CERAMIC_PARTNERSHIPS_KEY = "partnerships";
-const CERAMIC_PROFILES_KEY = "profiles";
+const CERAMIC_PROFILES_KEY = "userProfiles";
 
 class OwnerAuth extends Auth {
 	protected _id: string = ""; // id of stream for content
@@ -41,7 +42,7 @@ class OwnerAuth extends Auth {
 
 	protected _profile: {
 		id: string;
-		doc: TileDocument<Profile> | null;
+		doc: TileDocument<Record<string, string>> | null;
 		data: Profile | null;
 	} = { id: "", doc: null, data: null };
 
@@ -195,12 +196,36 @@ class OwnerAuth extends Auth {
 			return;
 		}
 		const doc = await this.loader.load<Profile>(set[0]);
+		const profileData: Profile = {
+			email: ""
+		};
+		const entries = await Promise.all(
+			Object.entries(doc.content).map(async ([key, value]) => {
+				let v = new Uint8Array();
+				try {
+					const jwe = JSON.parse(Base64.decode(value));
+					const dec = await this.did.decryptJWE(jwe);
+					v = dec;
+				} catch (e) {
+					// ...
+				}
+				return {
+					key,
+					value: v
+				};
+			})
+		);
+		entries.forEach(({ key, value }) => {
+			if (key === "email") {
+				profileData[key] = uint8arrays.toString(value);
+			}
+		});
 
 		this._profile = {
 			id: set[0],
 			// @ts-ignore
 			doc,
-			data: doc.content as Profile
+			data: profileData
 		};
 	}
 
@@ -213,19 +238,41 @@ class OwnerAuth extends Auth {
 			...currentProfile,
 			...newProfile
 		};
+		const entries = await Promise.all(
+			Object.entries(profile).map(async ([key, value]) => {
+				const jwe = await this.did.createJWE(uint8arrays.fromString(value), [
+					this.did.id,
+					NETWORK_DID
+				]);
+				const res = Base64.encode(JSON.stringify(jwe));
+				return {
+					key,
+					value: res
+				};
+			})
+		);
+		const encProfiles: Record<string, string> = {};
+		entries.forEach(({ key, value }) => {
+			encProfiles[key] = value;
+		});
 
 		if (this._profile.doc === null) {
 			const doc = await TileDocument.create(
 				// @ts-ignore
 				this._ceramic,
-				profile,
-				undefined,
+				encProfiles,
+				{
+					schema: this.model.getSchemaURL("userProfile")
+				},
 				{
 					pin: true
 				}
 			);
+			const id = doc.id.toString();
+			await this.store.set(CERAMIC_PROFILES_KEY, { set: [id] });
+
 			this._profile = {
-				id: doc.id.toString(),
+				id,
 				doc,
 				data: doc.content as Profile
 			};
