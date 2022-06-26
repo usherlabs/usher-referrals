@@ -303,6 +303,13 @@ class Authenticate {
 			const owner = getOwner();
 			if (loadedOwner) {
 				console.log(`Owner loaded for Wallet: ${auth.wallet.address}`);
+				// Load data for loaded owner if one exists
+				// This way we only attempt to load this data, for the loaded owner this actually going to be used (not a migrated owner)
+				await Promise.all([
+					loadedOwner.loadPartnerships(),
+					loadedOwner.loadProfile()
+				]);
+
 				if (owner) {
 					// Is there an existing owner?
 					if (owner.id !== loadedOwner.id) {

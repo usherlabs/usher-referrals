@@ -104,9 +104,6 @@ class OwnerAuth extends Auth {
 
 		this._authorities = owner.dids;
 
-		// Load this during connect to be used when merging
-		await Promise.all([this.loadPartnerships(), this.loadProfile()]);
-
 		return ownerDocId;
 	}
 

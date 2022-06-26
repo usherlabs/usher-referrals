@@ -41,9 +41,6 @@ class WalletAuth extends Auth {
 
 	public async connect(sig: Uint8Array) {
 		await this.authenticate(this.id, sig);
-
-		console.log("connected did", this.did);
-		console.log(await this.store.getIndex());
 	}
 
 	/**
