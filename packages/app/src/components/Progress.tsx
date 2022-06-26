@@ -1,5 +1,5 @@
 import React from "react";
-import { Pane, useTheme, Label, Text, Strong, Position } from "evergreen-ui";
+import { Pane, useTheme, Label, Text, Strong } from "evergreen-ui";
 import isEmpty from "lodash/isEmpty";
 
 export type Props = {

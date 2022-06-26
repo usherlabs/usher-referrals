@@ -308,22 +308,21 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 			>([api.captcha(authToken).get(), api.personhood(authToken).get()]);
 			console.log("Verifications loaded.");
 
-			setUser(
-				produce(user, (draft) => {
-					draft.wallets = fetchedWallets;
-					draft.partnerships = partnerships;
-					if (profile) {
-						draft.profile = profile;
-					}
-					draft.verifications = {
-						personhood:
-							personhood.status === "fulfilled" && personhood.value.success
-								? personhood.value.createdAt || true
-								: false,
-						captcha: captcha.status === "fulfilled" && captcha.value.success
-					};
-				})
-			);
+			const newUser = produce(user, (draft) => {
+				draft.wallets = fetchedWallets;
+				draft.partnerships = partnerships;
+				if (profile) {
+					draft.profile = profile;
+				}
+				draft.verifications = {
+					personhood:
+						personhood.status === "fulfilled" && personhood.value.success
+							? personhood.value.createdAt || true
+							: false,
+					captcha: captcha.status === "fulfilled" && captcha.value.success
+				};
+			});
+			saveUser(newUser);
 		}),
 		[]
 	);

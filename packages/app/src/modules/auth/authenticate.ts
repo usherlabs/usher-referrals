@@ -5,6 +5,7 @@ import { JWKInterface } from "arweave/node/lib/wallet";
 import PQueue from "p-queue";
 import ono from "@jsdevtools/ono";
 import { Base64 } from "js-base64";
+import { randomString } from "@stablelib/random";
 
 import { getMagicClient } from "@/utils/magic-client";
 import { getArweaveClient } from "@/utils/arweave-client";
@@ -15,18 +16,11 @@ import {
 	CampaignReference,
 	Profile
 } from "@/types";
-import { randomString } from "@/utils/random-string";
 import WalletAuth from "./wallet";
 import OwnerAuth from "./owner";
 
 const arweave = getArweaveClient();
 const queue = new PQueue({ concurrency: 1 });
-
-// Implementation of https://github.com/ceramicnetwork/js-did/blob/main/src/utils.ts#L26
-const fromDagJWS = (jws: DagJWS): string => {
-	if (jws.signatures.length > 1) throw new Error("Cant convert to compact jws");
-	return `${jws.signatures[0].protected}.${jws.payload}.${jws.signatures[0].signature}`;
-};
 
 class Authenticate {
 	protected auths: WalletAuth[] = [];
@@ -74,22 +68,18 @@ class Authenticate {
 	 * @return  {string}  AuthToken
 	 */
 	public async getAuthToken() {
-		const nonce = randomString();
+		const nonce = randomString(32);
 		const parts = await Promise.all(
 			this.auths.map(async (auth) => {
 				const sig = await auth.did.createJWS(nonce, { did: auth.did.id });
-				return [
-					auth.did.id,
-					fromDagJWS(sig),
-					[auth.wallet.chain, auth.wallet.address]
-				];
+				return [auth.did.id, sig, [auth.wallet.chain, auth.wallet.address]];
 			})
 		);
 		if (this.owner) {
 			const sig = await this.owner.did.createJWS(nonce, {
 				did: this.owner.did.id
 			});
-			const ownerPart = [this.owner.did.id, fromDagJWS(sig)];
+			const ownerPart = [this.owner.did.id, sig];
 			parts.push(ownerPart);
 		}
 		const s = JSON.stringify(parts);

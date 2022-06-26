@@ -8,7 +8,6 @@ import {
 	PaneProps
 } from "evergreen-ui";
 
-import { useUser } from "@/hooks/";
 import EmailSubmit from "@/components/EmailSubmit";
 
 /**

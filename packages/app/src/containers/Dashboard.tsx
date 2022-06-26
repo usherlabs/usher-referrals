@@ -121,7 +121,7 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 				active: false,
 				remindIn: 0
 			});
-			toaster.success("Profile updated!");
+			toaster.success("Profile encrypted and saved!");
 			setCapturingEmail(false);
 		},
 		[profile, captureEmail]

@@ -1,13 +1,13 @@
 import nextConnect from "next-connect";
 import { Base64 } from "js-base64";
-import { DID } from "dids";
+import { DagJWS, DID } from "dids";
 import { getResolver as getKeyResolver } from "key-did-resolver";
 import isEmpty from "lodash/isEmpty";
 import util from "util";
 
 import { AuthApiRequest, ApiResponse } from "@/types";
 
-const verify = async (did: string, sig: string): Promise<boolean> => {
+const verify = async (did: string, sig: DagJWS): Promise<boolean> => {
 	const instance = new DID({
 		resolver: {
 			...getKeyResolver()
@@ -47,8 +47,8 @@ const withAuth = nextConnect().use(
 					payload.map(
 						async ([did, sig, wallet]: [
 							string,
-							string,
-							[string, string, string] | undefined
+							DagJWS,
+							string[] | undefined
 						]) => {
 							try {
 								const verified = await verify(did, sig);
@@ -64,7 +64,7 @@ const withAuth = nextConnect().use(
 									};
 								}
 							} catch (e) {
-								// TODO: Failing without error ... sometimes...
+								//* This will fail if the Signature Payload includes sepcial characters
 								req.log.debug(
 									{ error: e, did, sig, wallet },
 									"Cannot verify JWS for DID"
@@ -77,7 +77,6 @@ const withAuth = nextConnect().use(
 			).filter((did) => typeof did !== null && !isEmpty(did));
 
 			if (user.length === 0) {
-				// TODO: This is transiently being hit... like the JWS token is expiring or something
 				req.log.debug("No user loaded");
 				return res.status(403).json({
 					success: false

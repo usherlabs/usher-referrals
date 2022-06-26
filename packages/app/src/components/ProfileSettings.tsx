@@ -1,19 +1,38 @@
-import React, { useCallback } from "react";
-import { Pane, Heading, Badge, Text } from "evergreen-ui";
+import React, { useCallback, useState } from "react";
+import { Pane, Heading, Badge, Text, toaster } from "evergreen-ui";
 import dnt from "date-and-time";
 
 import { useUser } from "@/hooks/";
 import EmailSubmit from "@/components/EmailSubmit";
+import handleException from "@/utils/handle-exception";
 
 const ProfileSettings: React.FC = () => {
 	const {
-		user: { verifications, profile }
+		user: { verifications, profile },
+		actions: { setProfile }
 	} = useUser();
+	const [isSubmitting, setSubmitting] = useState(false);
 
-	const onEmailSubmit = useCallback(async (value: string) => {
-		// Do something with email
-		// TODO: We need to store email in ArangoDB -- this graphed wallet mesh is what we're going to depend on for more than verificaiton.
-	}, []);
+	const onEmailSubmit = useCallback(
+		async (value: string) => {
+			setSubmitting(true);
+			try {
+				const newProfile = {
+					...profile,
+					email: value
+				};
+				await setProfile(newProfile);
+				toaster.success("Profile encrypted and saved!");
+			} catch (e) {
+				handleException(e);
+				toaster.danger(
+					"An issue occurred saving your profile. Please refresh and try again."
+				);
+			}
+			setSubmitting(false);
+		},
+		[profile]
+	);
 
 	return (
 		<Pane display="flex" flexDirection="column">
@@ -21,7 +40,11 @@ const ProfileSettings: React.FC = () => {
 				<Heading size={500} marginBottom={8}>
 					Email Address
 				</Heading>
-				<EmailSubmit onSubmit={onEmailSubmit} value={profile.email} />
+				<EmailSubmit
+					onSubmit={onEmailSubmit}
+					value={profile.email}
+					loading={isSubmitting}
+				/>
 				<Text display="block" paddingTop={8}>
 					Get notified when rewards are confirmed, and on other important
 					updates to Usher.
