@@ -10,56 +10,38 @@ import { useRouter } from "next/router";
 import { Pane, toaster } from "evergreen-ui";
 import Preloader from "@/components/Preloader";
 import { getAuthRequest } from "@/api";
-import { useUser } from "@/hooks";
 
 import LogoImage from "@/assets/logo/Logo.png";
 
 const VerifyStart = () => {
-	const {
-		user: { wallets },
-		isLoading
-	} = useUser();
 	const router = useRouter();
+	const { token, redir } = router.query;
 
 	useEffect(() => {
-		if (!isLoading && wallets.length > 0) {
-			const { token, redir } = router.query;
-			if (!token) {
-				toaster.danger(
-					"Cannot start verification. Authentication is missing. Please connect a wallet starting verification."
-				);
-				return () => {};
-			}
-			(async () => {
-				const authToken = token as string;
-				const request = getAuthRequest(authToken);
-				let qs = "";
-				if (redir) {
-					qs = `?redir=${redir}`;
-				}
-				const response: { success: boolean; redirectUri: string } =
-					await request.get(`verify/start${qs}`).json();
-
-				if (response.success) {
-					// window.location.href = response.redirectUri;
-					console.log("redirectUri", response.redirectUri);
-				} else {
-					toaster.danger(
-						"Something has gone wrong initiating the verification. Please refresh the page or contact support."
-					);
-				}
-			})();
+		if (!token) {
+			return () => {};
 		}
-		const timeout = setTimeout(() => {
-			if (!isLoading && wallets.length === 0) {
-				toaster.notify("To start a verification, please login!");
-				router.push("/login"); // redirect to login page if no wallets authenticated.
+		(async () => {
+			const authToken = token as string;
+			const request = getAuthRequest(authToken);
+			let qs = "";
+			if (redir) {
+				qs = `?redir=${redir}`;
 			}
-		}, 5000);
-		return () => {
-			clearTimeout(timeout);
-		};
-	}, [isLoading, wallets]);
+			const response: { success: boolean; redirectUri: string } = await request
+				.get(`verify/start${qs}`)
+				.json();
+
+			if (response.success) {
+				window.location.href = response.redirectUri;
+			} else {
+				toaster.danger(
+					"Something has gone wrong initiating the verification. Please refresh the page or contact support."
+				);
+			}
+		})();
+		return () => {};
+	}, [token, redir]);
 
 	return (
 		<Pane

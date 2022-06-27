@@ -5,6 +5,8 @@ export const isTest = process.env.NODE_ENV === "test";
 export const appName = `${process.env.APP_NAME}@${process.env.APP_VERSION}`;
 export const useSeedData = process.env.NEXT_PUBLIC_USE_SEED_DATA === "true";
 
+export const ngrokUrl = process.env.NEXT_PUBLIC_NGROK_URL;
+
 /* ========== TRACKING ========== */
 export const sentry = {
 	dsn: process.env.NEXT_PUBLIC_SENTRY_DSN || "",

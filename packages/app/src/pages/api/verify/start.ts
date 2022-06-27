@@ -31,7 +31,9 @@ handler.use(withAuth).get(async (req: AuthApiRequest, res: ApiResponse) => {
 		scope: "openid",
 		code_challenge: codeChallenge,
 		code_challenge_method: "S256",
-		state: Base64.encodeURI(JSON.stringify({ redir, dids })) // can be some arbitrary state
+		state: Base64.encodeURI(
+			JSON.stringify({ redir: `/verify/complete?redir=${redir}`, dids })
+		) // can be some arbitrary state
 	});
 
 	return res.json({

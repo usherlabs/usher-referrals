@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import {
 	Alert,
 	Paragraph,
@@ -7,12 +7,14 @@ import {
 	majorScale,
 	Pane,
 	Dialog,
-	useTheme
+	useTheme,
+	toaster
 } from "evergreen-ui";
 import { isMobile } from "react-device-detect";
 import { UilDna, UilSelfie, UilShieldCheck } from "@iconscout/react-unicons";
 import CopyToClipboard from "react-copy-to-clipboard";
-import QRCode from "react-qr-code";
+import { QRCodeSVG } from "qrcode.react";
+import { isProd, ngrokUrl } from "@/env-config";
 
 import Authenticate from "@/modules/auth";
 
@@ -27,7 +29,11 @@ const VerifyPersonhoodAlert = () => {
 		setLoading(true);
 		const authInstance = Authenticate.getInstance();
 		const authToken = await authInstance.getAuthToken();
-		let vUrl = `/verify/start?token=${authToken}`;
+		let { origin } = window.location;
+		if (!isProd && ngrokUrl) {
+			origin = ngrokUrl;
+		}
+		let vUrl = `${origin}/verify/start?token=${authToken}`;
 		if (isMobile) {
 			vUrl += `&redir=${window.location.pathname + window.location.search}`;
 			window.location.href = vUrl;
@@ -36,6 +42,12 @@ const VerifyPersonhoodAlert = () => {
 			setLoading(false);
 		}
 	}, [isMobile, verifyUrl]);
+
+	const onVerifyCopy = useCallback(async () => {
+		toaster.notify("Copied!", {
+			id: "copied"
+		});
+	}, []);
 
 	return (
 		<>
@@ -141,11 +153,11 @@ const VerifyPersonhoodAlert = () => {
 							marginTop={32}
 						>
 							<Pane marginBottom={12}>
-								<QRCode value={verifyUrl} size={128} />
+								<QRCodeSVG value={verifyUrl} size={300} />
 								<Paragraph>Scan the QR Code on your Mobile Device</Paragraph>
 								<Paragraph>OR</Paragraph>
 							</Pane>
-							<CopyToClipboard text={verifyUrl}>
+							<CopyToClipboard text={verifyUrl} onCopy={onVerifyCopy}>
 								<Button height={majorScale(5)} minWidth={250}>
 									<Strong fontSize="1.1em">👉&nbsp;&nbsp;Copy Link</Strong>
 								</Button>
