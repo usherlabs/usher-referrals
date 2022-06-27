@@ -3,6 +3,7 @@
  */
 import { aql } from "arangojs";
 import { setCookie, parseCookies } from "nookies";
+import { Base64 } from "js-base64";
 
 import { publicUrl } from "@/server/env-config";
 import { AuthApiRequest, ApiResponse } from "@/types";
@@ -24,7 +25,7 @@ handler.get(async (req: AuthApiRequest, res: ApiResponse) => {
 	const params = client.callbackParams(req);
 	let redir = "/";
 	try {
-		const state = JSON.parse(params.state || "{}");
+		const state = JSON.parse(params.state ? Base64.decode(params.state) : "{}");
 		if (state.redir) {
 			redir = state.redir;
 		}

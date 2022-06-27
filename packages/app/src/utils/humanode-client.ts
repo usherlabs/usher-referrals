@@ -16,19 +16,13 @@ export const getHumanodeOpenIdClient = async () => {
 		"https://auth.staging.oauth2.humanode.io"
 	);
 
-	const redirectUris = [
-		"http://localhost:3000/api/verify/callback",
-		"https://app.usher.so/api/verify/callback"
-	];
-	if (publicUrl) {
-		redirectUris.push(`${publicUrl}/api/verify/callback`);
-	}
-
 	// Set up the common hackathon client.
 	const client = new humanodeIssuer.Client({
 		client_id: humanodeClientId,
 		client_secret: humanodeClientSecret,
-		redirect_uris: redirectUris,
+		redirect_uris: [
+			`${publicUrl || "http://localhost:3000"}/api/verify/callback`
+		],
 		response_types: ["code"],
 		token_endpoint_auth_method: "client_secret_post"
 	});

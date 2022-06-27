@@ -2,7 +2,7 @@
  * We render a page first to load the user -- the use the dids to associate the result
  */
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { Pane, toaster } from "evergreen-ui";
@@ -19,19 +19,9 @@ const VerifyStart = () => {
 		isLoading
 	} = useUser();
 	const router = useRouter();
-	const [isMounted, setMounted] = useState(false);
 
 	useEffect(() => {
-		if (isLoading && !isMounted) {
-			// Set mount when user starts loading
-			setMounted(true);
-		}
-		if (!isLoading && isMounted) {
-			if (wallets.length === 0) {
-				toaster.notify("To start a verification, please login!");
-				router.push("/login"); // redirect to login page if no wallets authenticated.
-				return () => {};
-			}
+		if (!isLoading && wallets.length > 0) {
 			(async () => {
 				const authInstance = Authenticate.getInstance();
 				const authToken = await authInstance.getAuthToken();
@@ -46,6 +36,7 @@ const VerifyStart = () => {
 
 				if (response.success) {
 					window.location.href = response.redirectUri;
+					// console.log("redirectUri", response.redirectUri);
 				} else {
 					toaster.danger(
 						"Something has gone wrong initiating the verification. Please refresh the page or contact support."
@@ -53,8 +44,16 @@ const VerifyStart = () => {
 				}
 			})();
 		}
-		return () => {};
-	}, [isLoading, wallets, isMounted]);
+		const timeout = setTimeout(() => {
+			if (!isLoading && wallets.length === 0) {
+				toaster.notify("To start a verification, please login!");
+				router.push("/login"); // redirect to login page if no wallets authenticated.
+			}
+		}, 5000);
+		return () => {
+			clearTimeout(timeout);
+		};
+	}, [isLoading, wallets]);
 
 	return (
 		<Pane

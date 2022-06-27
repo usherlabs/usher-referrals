@@ -10,14 +10,16 @@ import {
 	useTheme
 } from "evergreen-ui";
 import { UilDna } from "@iconscout/react-unicons";
+import { useRedir } from "@/hooks";
 
 const VerifyPersonhoodAlert = () => {
 	const { colors } = useTheme();
 	const [showDialog, setShowDialog] = useState(false);
+	const verifyUrl = useRedir("/verify/start");
 
 	const onStart = useCallback(() => {
-		window.open("/verify/start");
-	}, []);
+		window.open(verifyUrl);
+	}, [verifyUrl]);
 
 	return (
 		<>

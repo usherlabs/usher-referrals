@@ -3,6 +3,7 @@
  */
 import { setCookie } from "nookies";
 import openid from "openid-client";
+import { Base64 } from "js-base64";
 
 import { AuthApiRequest, ApiResponse } from "@/types";
 import getHandler from "@/server/middleware";
@@ -30,7 +31,7 @@ handler.use(withAuth).get(async (req: AuthApiRequest, res: ApiResponse) => {
 		scope: "openid",
 		code_challenge: codeChallenge,
 		code_challenge_method: "S256",
-		state: JSON.stringify({ redir, dids }) // can be some arbitrary state
+		state: Base64.encodeURI(JSON.stringify({ redir, dids })) // can be some arbitrary state
 	});
 
 	return res.json({
