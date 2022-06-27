@@ -1,16 +1,15 @@
-import { useState, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import { useRouter } from "next/router";
-import { useQuery } from "react-query";
 import { Pane, toaster } from "evergreen-ui";
 import camelcaseKeys from "camelcase-keys";
 import { css } from "@linaria/core";
+import { aql } from "arangojs";
 
 import { useUser } from "@/hooks/";
 import { MAX_SCREEN_WIDTH } from "@/constants";
 import ClaimButton from "@/components/Campaign/ClaimButton";
 import Terms from "@/components/Campaign/Terms";
 import Progress from "@/components/Progress";
-import delay from "@/utils/delay";
 import { Chains, Campaign, RewardTypes, CampaignReward } from "@/types";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
@@ -26,48 +25,24 @@ import ValueCard from "@/components/ValueCard";
 import VerifyPersonhoodAlert from "@/components/VerifyPersonhoodAlert";
 import { useSeedData } from "@/env-config";
 import * as mediaQueries from "@/utils/media-queries";
-import * as api from "@/api";
+import { getArangoClient } from "@/utils/arango-client";
 
-const getCampaign = async (
-	address: string,
-	chain: Chains
-): Promise<Campaign | null> => {
-	console.log("hello world?", { address, chain });
-
-	if (!address || !chain) {
-		return null;
-	}
-
-	if (useSeedData) {
-		await delay(5000);
-		const campaignsData = (await import("@/seed/campaigns.json")).default;
-		const campaigns = camelcaseKeys(campaignsData, { deep: true });
-
-		return campaigns[0] as Campaign;
-	}
-
-	const campaigns = await api.campaigns().get([
-		{
-			address,
-			chain
-		}
-	]);
-
-	return campaigns.data.length > 0 ? campaigns.data[0] : null;
+type CampaignPageProps = {
+	id: string;
+	chain: Chains;
+	campaign: Campaign;
 };
 
-const CampaignPage = () => {
+const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 	const {
 		user: { wallets, partnerships },
 		isLoading: isUserLoading,
 		actions: { addPartnership }
 	} = useUser();
 	const router = useRouter();
-	const { id, chain } = router.query as { id: string; chain: Chains };
-	// TODO: This `getCampaign` is not receiving the id and chain -- could be caching  on first input which is undefined.
-	const campaign = useQuery("campaign", () => getCampaign(id, chain));
 	const loginUrl = useRedir("/login");
 	const isLoggedIn = wallets.length > 0;
+	const isLoading = router.isFallback;
 
 	const [isPartnering, setPartnering] = useState(false);
 
@@ -85,16 +60,22 @@ const CampaignPage = () => {
 			toaster.danger(
 				"Oops! Something has gone wrong partnering with this campaign.",
 				{
-					id: "start-partnership-error-message"
+					id: "start-partnership"
 				}
 			);
-		if (!campaign.isLoading && campaign.data) {
+		if (campaign) {
 			setPartnering(true);
 			const campaignRef = {
 				chain,
-				address: campaign.data.id
+				address: id
 			};
 			addPartnership(campaignRef)
+				.then(() => {
+					toaster.success(
+						`You are now a partner! Share your link to start earning.`,
+						{ id: "start-partnership" }
+					);
+				})
 				.catch((e) => {
 					handleException(e);
 					errorMessage();
@@ -124,7 +105,7 @@ const CampaignPage = () => {
 	// 	}
 	// }, []);
 
-	if (!campaign.isLoading && !campaign.data) {
+	if (!campaign) {
 		return <Serve404 />;
 	}
 
@@ -137,15 +118,15 @@ const CampaignPage = () => {
 			marginX="auto"
 			width="100%"
 		>
-			{!campaign.isLoading &&
-			campaign.data &&
-			(campaign.data.details.image || campaign.data.advertiser.icon) ? (
-				<Banner campaign={campaign.data as Campaign} />
+			{!isLoading &&
+			campaign &&
+			(campaign.details.image || campaign.advertiser.icon) ? (
+				<Banner campaign={campaign} />
 			) : (
 				<Pane paddingY={16} />
 			)}
 			<Pane paddingTop={24} paddingBottom={0} paddingX={16} width="100%">
-				{!campaign.isLoading && campaign.data ? (
+				{!isLoading && campaign ? (
 					<Pane
 						display="flex"
 						flexDirection="row"
@@ -167,7 +148,7 @@ const CampaignPage = () => {
 								}
 							`}
 						>
-							<Info campaign={campaign.data as Campaign} />
+							<Info campaign={campaign as Campaign} />
 						</Pane>
 						<Pane
 							width="40%"
@@ -191,7 +172,7 @@ const CampaignPage = () => {
 									}
 								`}
 							>
-								<Actions campaign={campaign.data as Campaign} />
+								<Actions campaign={campaign as Campaign} />
 							</Pane>
 						</Pane>
 					</Pane>
@@ -216,7 +197,7 @@ const CampaignPage = () => {
 				`}
 			>
 				<Pane flex={1} margin={6}>
-					{!campaign.isLoading && !isUserLoading ? (
+					{!isLoading && !isUserLoading ? (
 						<>
 							{partnership ? (
 								<PartnershipUI partnership={partnership} />
@@ -247,9 +228,9 @@ const CampaignPage = () => {
 						}
 					`}
 				>
-					{!campaign.isLoading && campaign.data ? (
+					{!isLoading && campaign ? (
 						<>
-							{campaign.data.reward.limit && campaign.data.reward.limit > 0 ? (
+							{campaign.reward.limit && campaign.reward.limit > 0 ? (
 								<Pane
 									background="tint2"
 									borderRadius={8}
@@ -258,11 +239,11 @@ const CampaignPage = () => {
 								>
 									<Progress
 										value={0}
-										label={`${0} / ${campaign.data.reward.limit} ${
-											campaign.data.reward.ticker
+										label={`${0} / ${campaign.reward.limit} ${
+											campaign.reward.ticker
 										}${
-											campaign.data.reward.type !== RewardTypes.TOKEN
-												? ` ${campaign.data.reward.type.toUpperCase()}s`
+											campaign.reward.type !== RewardTypes.TOKEN
+												? ` ${campaign.reward.type.toUpperCase()}s`
 												: ""
 										} Claimed`}
 										showPercentage
@@ -288,10 +269,10 @@ const CampaignPage = () => {
 								marginBottom={24}
 							>
 								<Pane display="flex" marginBottom={24}>
-									{!campaign.isLoading && campaign.data ? (
+									{!isLoading && campaign ? (
 										<ValueCard
 											// isLoading={false}
-											ticker={campaign.data.reward.ticker}
+											ticker={campaign.reward.ticker}
 											// value={claimableRewards}
 											value={0}
 											id="claimable-rewards"
@@ -307,12 +288,12 @@ const CampaignPage = () => {
 									)}
 								</Pane>
 								<Pane display="flex">
-									{!campaign.isLoading && campaign.data ? (
+									{!isLoading && campaign ? (
 										<ClaimButton
 											onClaim={onClaim}
 											wallets={walletsForChain}
 											amount={10}
-											reward={campaign.data.reward as CampaignReward}
+											reward={campaign.reward as CampaignReward}
 											active
 										/>
 									) : (
@@ -340,8 +321,8 @@ const CampaignPage = () => {
 						</>
 					)}
 					<Pane marginBottom={12}>
-						{!campaign.isLoading && campaign.data ? (
-							<Terms campaign={campaign.data as Campaign} />
+						{!isLoading && campaign ? (
+							<Terms campaign={campaign as Campaign} />
 						) : (
 							<Skeleton
 								style={{
@@ -355,6 +336,100 @@ const CampaignPage = () => {
 			</Pane>
 		</Pane>
 	);
+};
+
+// Executes at build time
+export async function getStaticPaths() {
+	if (useSeedData) {
+		const campaignsData = (await import("@/seed/campaigns.json")).default;
+		const campaigns = camelcaseKeys(campaignsData, { deep: true });
+
+		return {
+			paths: campaigns.map((c) => ({
+				params: {
+					id: c.id,
+					chain: c.chain
+				}
+			})),
+			fallback: false
+		};
+	}
+
+	const arango = getArangoClient();
+	const cursor = await arango.query(aql`
+		FOR c IN Campaigns
+			RETURN {
+				"id": c.id,
+				"chain": c.chain
+			}
+	`);
+
+	const campaigns = await cursor.all();
+
+	return {
+		paths: campaigns.map((c) => ({
+			params: {
+				id: c.id as string,
+				chain: c.chain as string
+			}
+		})),
+		fallback: false
+	};
+}
+
+export const getStaticProps = async ({
+	params
+}: {
+	params: { id: string; chain: string };
+}) => {
+	if (useSeedData) {
+		const campaignsData = (await import("@/seed/campaigns.json")).default;
+		const campaigns = camelcaseKeys(campaignsData, { deep: true });
+
+		return {
+			props: {
+				campaign: campaigns[0] as Campaign
+			}
+		};
+	}
+
+	const { id, chain } = params;
+
+	const arango = getArangoClient();
+	const docId = [chain, id].join(":");
+	const cursor = await arango.query(aql`
+		RETURN DOCUMENT("Campaigns", ${docId})
+	`);
+
+	const results = await cursor.all();
+
+	if (results.length > 0) {
+		const campaign = Object.entries(results[0]).reduce<typeof results[0]>(
+			(acc, [key, value]) => {
+				if (key.charAt(0) !== "_") {
+					acc[key] = value;
+				}
+				return acc;
+			},
+			{}
+		);
+
+		return {
+			props: {
+				id,
+				chain,
+				campaign
+			}
+		};
+	}
+
+	return {
+		props: {
+			id,
+			chain,
+			campaign: null
+		}
+	};
 };
 
 export default CampaignPage;

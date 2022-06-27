@@ -1,11 +1,11 @@
 import React from "react";
 import { Button, Pane, Tooltip } from "evergreen-ui";
-import Image from "next/image";
+// import Image from "next/image";
 
 import { Campaign } from "@/types";
 import Anchor from "@/components/Anchor";
 import { UilTwitter } from "@iconscout/react-unicons";
-import ArweaveIcon from "@/assets/icon/arweave-icon.png";
+// import ArweaveIcon from "@/assets/icon/arweave-icon.png";
 
 export type Props = {
 	campaign: Campaign;
@@ -27,6 +27,7 @@ const CampaignActions: React.FC<Props> = ({ campaign }) => {
 					</Tooltip>
 				</Pane>
 			)}
+			{/* Pausing this for now as we're using centralised campaign store
 			<Pane>
 				<Tooltip content="View on Arweave">
 					<Pane>
@@ -37,7 +38,7 @@ const CampaignActions: React.FC<Props> = ({ campaign }) => {
 						</Anchor>
 					</Pane>
 				</Tooltip>
-			</Pane>
+			</Pane> */}
 		</>
 	);
 };
