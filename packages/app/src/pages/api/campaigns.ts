@@ -1,5 +1,6 @@
 import { aql } from "arangojs";
 import { Base64 } from "js-base64";
+import isEmpty from "lodash/isEmpty";
 
 import { ApiResponse, ApiRequest, CampaignReference } from "@/types";
 import getHandler from "@/server/middleware";
@@ -18,7 +19,7 @@ handler.get(async (req: ApiRequest, res: ApiResponse) => {
 			const json = Base64.decode(q);
 			const refs = JSON.parse(json) as CampaignReference[];
 			console.log("refs", refs);
-			keys = refs.map((ref) => `"${ref.chain}:${ref.address}"`);
+			keys = refs.map((ref) => `${ref.chain}:${ref.address}`);
 		} catch (e) {
 			return res.status(400).json({
 				success: false,
@@ -32,7 +33,8 @@ handler.get(async (req: ApiRequest, res: ApiResponse) => {
 	let query;
 	if (keys.length > 0) {
 		query = aql`
-			RETURN DOCUMENT("Campaigns", ${keys})
+			FOR c IN DOCUMENT("Campaigns", ${keys})
+				RETURN c
 		`;
 	} else {
 		query = aql`
@@ -42,24 +44,27 @@ handler.get(async (req: ApiRequest, res: ApiResponse) => {
 	}
 	const cursor = await arango.query(query);
 
-	const campaigns = await cursor.all();
+	const campaigns = [];
+	for await (const result of cursor) {
+		if (result !== null && !isEmpty(result)) {
+			const campaign = Object.entries(result).reduce<typeof result>(
+				(acc, [key, value]) => {
+					if (key.charAt(0) !== "_") {
+						acc[key] = value;
+					}
+					return acc;
+				},
+				{}
+			);
+			campaigns.push(campaign);
+		}
+	}
 
-	console.log("campaigns result", campaigns);
-
-	const data = campaigns
-		.filter((campaign) => campaign !== null)
-		.map((campaign) =>
-			Object.entries(campaign).reduce<typeof campaign>((acc, [key, value]) => {
-				if (key.charAt(0) !== "_") {
-					acc[key] = value;
-				}
-				return acc;
-			}, {})
-		);
+	req.log.debug({ campaigns }, "campaigns result");
 
 	return res.json({
 		success: true,
-		data
+		data: campaigns
 	});
 });
 

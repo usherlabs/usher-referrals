@@ -9,7 +9,7 @@ import {
 	Dialog,
 	useTheme
 } from "evergreen-ui";
-import { UilDna, UilHardHat } from "@iconscout/react-unicons";
+import { UilDna } from "@iconscout/react-unicons";
 
 const VerifyPersonhoodAlert = () => {
 	const { colors } = useTheme();
@@ -49,24 +49,6 @@ const VerifyPersonhoodAlert = () => {
 						<Paragraph size={500} marginY={0}>
 							To protect our Advertisers from bad actors, we require partners to
 							verify their personhood to claim their rewards.
-						</Paragraph>
-					</Pane>
-				</Pane>
-				<Pane
-					display="flex"
-					alignItems="center"
-					flexDirection="row"
-					marginBottom={12}
-				>
-					<UilHardHat size="80" color={colors.orange500} />
-					<Pane marginLeft={16}>
-						<Paragraph size={500} marginTop={0} marginBottom={8}>
-							We are working to remove the requirement for document
-							identification, but we are not quite there yet.
-						</Paragraph>
-						<Paragraph size={500} marginY={0}>
-							As of now, we require you to undergo a KYC process to perform the
-							verification.
 						</Paragraph>
 					</Pane>
 				</Pane>

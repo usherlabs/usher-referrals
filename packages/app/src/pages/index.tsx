@@ -43,17 +43,13 @@ const getCampaigns = async (refs: CampaignReference[]): Promise<Campaign[]> => {
 
 const Partnerships = () => {
 	const {
-		user: { wallets, partnerships },
+		user: { partnerships },
 		isLoading: isUserLoading
 	} = useUser();
-	const campaigns = useQuery(
-		"active-campaigns",
-		() => getCampaigns(partnerships.map(({ campaign }) => campaign)),
-		{
-			cacheTime: 15 * 60000
-		}
+	const campaigns = useQuery(["active-campaigns", partnerships], () =>
+		getCampaigns(partnerships.map(({ campaign }) => campaign))
 	);
-	const isAuthLoading = wallets.length === 0 && isUserLoading;
+	const isLoading = isUserLoading || campaigns.isLoading;
 
 	return (
 		<Pane
@@ -76,7 +72,8 @@ const Partnerships = () => {
 				My Partnerships
 			</Heading>
 			<Pane width="100%" display="flex" flexWrap="wrap">
-				{(isAuthLoading || (campaigns.isLoading && !campaigns.data)) &&
+				{isLoading &&
+					isEmpty(campaigns.data) &&
 					range(4).map((i) => (
 						<Pane padding={16} width="25%" minWidth="300px" key={i}>
 							<Skeleton
@@ -88,36 +85,33 @@ const Partnerships = () => {
 							/>
 						</Pane>
 					))}
-				{!isAuthLoading &&
-					!campaigns.isLoading &&
-					(!campaigns.data || isEmpty(campaigns.data)) && (
-						<Pane paddingX={16}>
-							<Heading size={700} marginBottom={8}>
-								Start by engaging campaigns
-							</Heading>
-							<Paragraph size={500} marginBottom={24} fontSize="1.1em">
-								You do not have any active partnerships. Explore &amp; discover
-								campaigns to get started!
-							</Paragraph>
-							<Anchor href="/explore">
-								<Button
-									appearance="primary"
-									minWidth={300}
-									height={majorScale(7)}
-								>
-									<Strong color="#fff" size={500} fontSize="1.2em">
-										👉&nbsp;&nbsp;Get started
-									</Strong>
-								</Button>
-							</Anchor>
-						</Pane>
-					)}
-				{!isAuthLoading &&
-					!campaigns.isLoading &&
-					campaigns.data &&
-					campaigns.data.map((campaign) => {
-						return <CampaignCard campaign={campaign} key={campaign.id} />;
-					})}
+				{!isLoading && isEmpty(campaigns.data) && (
+					<Pane paddingX={16}>
+						<Heading size={700} marginBottom={8}>
+							Start by engaging campaigns
+						</Heading>
+						<Paragraph size={500} marginBottom={24} fontSize="1.1em">
+							You do not have any active partnerships. Explore &amp; discover
+							campaigns to get started!
+						</Paragraph>
+						<Anchor href="/explore">
+							<Button
+								appearance="primary"
+								minWidth={300}
+								height={majorScale(7)}
+							>
+								<Strong color="#fff" size={500} fontSize="1.2em">
+									👉&nbsp;&nbsp;Get started
+								</Strong>
+							</Button>
+						</Anchor>
+					</Pane>
+				)}
+				{!isLoading && campaigns.data && !isEmpty(campaigns.data)
+					? campaigns.data.map((campaign) => {
+							return <CampaignCard campaign={campaign} key={campaign.id} />;
+					  })
+					: null}
 			</Pane>
 		</Pane>
 	);
