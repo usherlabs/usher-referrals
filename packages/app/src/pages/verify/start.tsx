@@ -1,5 +1,7 @@
 /**
  * We render a page first to load the user -- the use the dids to associate the result
+ *
+ * This page will accept the authentication token via the query parameter.
  */
 
 import { useEffect } from "react";
@@ -8,7 +10,6 @@ import { useRouter } from "next/router";
 import { Pane, toaster } from "evergreen-ui";
 import Preloader from "@/components/Preloader";
 import { getAuthRequest } from "@/api";
-import Authenticate from "@/modules/auth";
 import { useUser } from "@/hooks";
 
 import LogoImage from "@/assets/logo/Logo.png";
@@ -22,11 +23,16 @@ const VerifyStart = () => {
 
 	useEffect(() => {
 		if (!isLoading && wallets.length > 0) {
+			const { token, redir } = router.query;
+			if (!token) {
+				toaster.danger(
+					"Cannot start verification. Authentication is missing. Please connect a wallet starting verification."
+				);
+				return () => {};
+			}
 			(async () => {
-				const authInstance = Authenticate.getInstance();
-				const authToken = await authInstance.getAuthToken();
+				const authToken = token as string;
 				const request = getAuthRequest(authToken);
-				const { redir } = router.query;
 				let qs = "";
 				if (redir) {
 					qs = `?redir=${redir}`;
@@ -35,8 +41,8 @@ const VerifyStart = () => {
 					await request.get(`verify/start${qs}`).json();
 
 				if (response.success) {
-					window.location.href = response.redirectUri;
-					// console.log("redirectUri", response.redirectUri);
+					// window.location.href = response.redirectUri;
+					console.log("redirectUri", response.redirectUri);
 				} else {
 					toaster.danger(
 						"Something has gone wrong initiating the verification. Please refresh the page or contact support."
@@ -79,6 +85,14 @@ const VerifyStart = () => {
 			</Pane>
 		</Pane>
 	);
+};
+
+export const getStaticProps = async () => {
+	return {
+		props: {
+			noUser: true
+		}
+	};
 };
 
 export default VerifyStart;

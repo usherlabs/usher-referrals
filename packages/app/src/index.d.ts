@@ -18,6 +18,8 @@ declare module "@iconscout/react-unicons" {
 	export const UilLockAccess: Icon;
 	export const UilDna: Icon;
 	export const UilCoins: Icon;
+	export const UilSelfie: Icon;
+	export const UilShieldCheck: Icon;
 }
 
 declare module "@usher/ceramic";
