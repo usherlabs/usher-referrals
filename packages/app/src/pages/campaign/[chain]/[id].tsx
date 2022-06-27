@@ -412,13 +412,21 @@ export const getStaticProps = async ({
 				return acc;
 			},
 			{}
-		);
+		) as Campaign;
 
 		return {
 			props: {
 				id,
 				chain,
-				campaign
+				campaign,
+				seo: {
+					title: campaign.details.name,
+					description:
+						campaign.details.description ||
+						`Learn and earn by partnering up with ${
+							campaign.advertiser.name || campaign.details.name
+						}`
+				}
 			}
 		};
 	}
