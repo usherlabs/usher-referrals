@@ -152,6 +152,7 @@ class OwnerAuth extends Auth {
 			throw ono("Partnership already exists", campaign);
 		}
 
+		console.log(`Creating Partnership...`);
 		const doc = await TileDocument.create(
 			// @ts-ignore
 			this._ceramic,
@@ -165,6 +166,8 @@ class OwnerAuth extends Auth {
 			}
 		);
 
+		console.log(`Partership created with stream id`, doc.id.toString());
+
 		let set: string[] = [];
 		const setObj = await this.store.get(CERAMIC_PARTNERSHIPS_KEY);
 		if (setObj) {
@@ -175,10 +178,15 @@ class OwnerAuth extends Auth {
 
 		await this.store.set(CERAMIC_PARTNERSHIPS_KEY, { set });
 
-		this._partnerships.push({
-			id: doc.id.toString(),
-			campaign
-		});
+		console.log(`Partership added to DID set`, { set });
+
+		this._partnerships = [
+			...this._partnerships,
+			{
+				id: doc.id.toString(),
+				campaign
+			}
+		];
 
 		return this._partnerships;
 	}

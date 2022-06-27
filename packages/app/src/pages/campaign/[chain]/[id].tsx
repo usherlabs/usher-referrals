@@ -401,7 +401,7 @@ export const getStaticProps = async ({
 		RETURN DOCUMENT("Campaigns", ${docId})
 	`);
 
-	const results = await cursor.all();
+	const results = (await cursor.all()).filter((res) => res !== null);
 
 	if (results.length > 0) {
 		const campaign = Object.entries(results[0]).reduce<typeof results[0]>(

@@ -75,16 +75,18 @@ const getCampaigns = async (): Promise<Campaign[]> => {
 
 	const campaigns = [];
 	for await (const result of cursor) {
-		const campaign = Object.entries(result).reduce<typeof result>(
-			(acc, [key, value]) => {
-				if (key.charAt(0) !== "_") {
-					acc[key] = value;
-				}
-				return acc;
-			},
-			{}
-		);
-		campaigns.push(campaign);
+		if (result !== null) {
+			const campaign = Object.entries(result).reduce<typeof result>(
+				(acc, [key, value]) => {
+					if (key.charAt(0) !== "_") {
+						acc[key] = value;
+					}
+					return acc;
+				},
+				{}
+			);
+			campaigns.push(campaign);
+		}
 	}
 
 	return campaigns;
