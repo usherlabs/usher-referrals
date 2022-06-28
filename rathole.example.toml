@@ -1,0 +1,6 @@
+[client]
+remote_addr = "ngrok.usher.so:2333"
+
+[client.services.my_nas_ssh]
+token = "insert_auth_token"
+local_addr = "127.0.0.1:3000"

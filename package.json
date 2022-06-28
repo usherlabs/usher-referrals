@@ -9,7 +9,8 @@
 	"private": true,
 	"scripts": {
 		"clean": "del packages/*/node_modules node_modules",
-		"format": "prettier --write \"**/*.{js,jsx,mjs,ts,tsx,json,css,scss,md}\""
+		"format": "prettier --write \"**/*.{js,jsx,mjs,ts,tsx,json,css,scss,md}\"",
+		"ngrok": "rathole ./rathole.toml"
 	},
 	"devDependencies": {
 		"@typescript-eslint/eslint-plugin": "^5.27.0",

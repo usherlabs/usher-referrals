@@ -37,6 +37,8 @@ dist
 # misc
 .DS_Store
 package.json.lerna_backup
+rh_client.toml
+rathole.toml
 
 # debug
 npm-debug.log*
