@@ -3,8 +3,16 @@ import openid from "openid-client";
 import {
 	publicUrl,
 	humanodeClientId,
-	humanodeClientSecret
+	humanodeClientSecret,
+	isProd
 } from "@/server/env-config";
+import { ngrokUrl } from "@/env-config";
+
+export const getRedirectUri = () => {
+	return `${
+		!isProd && ngrokUrl ? ngrokUrl : publicUrl || "http://localhost:3000"
+	}/api/verify/callback`;
+};
 
 export const getHumanodeOpenIdClient = async () => {
 	if (!humanodeClientId || !humanodeClientSecret) {
@@ -20,9 +28,7 @@ export const getHumanodeOpenIdClient = async () => {
 	const client = new humanodeIssuer.Client({
 		client_id: humanodeClientId,
 		client_secret: humanodeClientSecret,
-		redirect_uris: [
-			`${publicUrl || "http://localhost:3000"}/api/verify/callback`
-		],
+		redirect_uris: [getRedirectUri()],
 		response_types: ["code"],
 		token_endpoint_auth_method: "client_secret_post"
 	});

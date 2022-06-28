@@ -32,7 +32,10 @@ handler.use(withAuth).get(async (req: AuthApiRequest, res: ApiResponse) => {
 		code_challenge: codeChallenge,
 		code_challenge_method: "S256",
 		state: Base64.encodeURI(
-			JSON.stringify({ redir: `/verify/complete?redir=${redir}`, dids })
+			JSON.stringify({
+				redir: `/verify/complete${redir ? `?redir=${redir}` : ""}`,
+				dids
+			})
 		) // can be some arbitrary state
 	});
 

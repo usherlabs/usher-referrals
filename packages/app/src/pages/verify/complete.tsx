@@ -32,7 +32,7 @@ const VerifyComplete = () => {
 			<Pane display="flex" alignItems="center" width={100} marginBottom={24}>
 				<UilDna size="100" color={colors.blue500} />
 			</Pane>
-			<Heading size={800} marginBottom={10}>
+			<Heading size={800} marginBottom={10} textAlign="center">
 				Your account has been verified!
 			</Heading>
 			{redir ? (
@@ -49,7 +49,7 @@ const VerifyComplete = () => {
 					</Button>
 				</Anchor>
 			) : (
-				<Text size={600}>
+				<Text size={600} textAlign="center">
 					Revist and refresh Usher on your original device to continue.
 				</Text>
 			)}

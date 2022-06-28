@@ -31,6 +31,10 @@ const CampaignCard: React.FC<Props> = ({ campaign }) => {
 							box-shadow: 0 10px 13px rgba(0, 0, 0, 0.1);
 							transform: translateY(-5px);
 						}
+						&:active {
+							box-shadow: 0 2.5px 3.5px rgba(0, 0, 0, 0.1) !important;
+							transform: translateY(-1px) !important;
+						}
 					`}
 				>
 					<Pane

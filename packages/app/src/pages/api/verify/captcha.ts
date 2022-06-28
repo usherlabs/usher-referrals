@@ -86,7 +86,7 @@ handler
 			INSERT {
 				success: true,
 				created_at: ${Date.now()},
-				response: ${JSON.stringify(response)}
+				response: ${response}
 			}
 			INTO CaptchaEntries OPTIONS { waitForSync: true }
 			LET inserted = NEW

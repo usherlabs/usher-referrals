@@ -33,7 +33,7 @@ const VerifyStart = () => {
 				.json();
 
 			if (response.success) {
-				window.location.href = response.redirectUri;
+				window.location.replace(response.redirectUri);
 			} else {
 				toaster.danger(
 					"Something has gone wrong initiating the verification. Please refresh the page or contact support."
