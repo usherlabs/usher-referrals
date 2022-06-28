@@ -35,7 +35,7 @@ type CampaignPageProps = {
 
 const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 	const {
-		user: { wallets, partnerships },
+		user: { wallets, partnerships, verifications },
 		isLoading: isUserLoading,
 		actions: { addPartnership }
 	} = useUser();
@@ -266,7 +266,7 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 								padding={12}
 								background="tint2"
 								borderRadius={8}
-								marginBottom={24}
+								marginBottom={20}
 							>
 								<Pane display="flex" marginBottom={24}>
 									{!isLoading && campaign ? (
@@ -294,7 +294,9 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 											wallets={walletsForChain}
 											amount={10}
 											reward={campaign.reward as CampaignReward}
-											active
+											active={
+												!!verifications.personhood && !!verifications.captcha
+											}
 										/>
 									) : (
 										<Skeleton

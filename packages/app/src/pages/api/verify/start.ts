@@ -14,7 +14,6 @@ const handler = getHandler();
 
 handler.use(withAuth).get(async (req: AuthApiRequest, res: ApiResponse) => {
 	const { redir } = req.query;
-	const dids = req.user.map(({ did }) => did);
 	const client = await getHumanodeOpenIdClient();
 
 	// Set up codeVerifier and save it as a cookie for later use.
@@ -33,8 +32,8 @@ handler.use(withAuth).get(async (req: AuthApiRequest, res: ApiResponse) => {
 		code_challenge_method: "S256",
 		state: Base64.encodeURI(
 			JSON.stringify({
-				redir: `/verify/complete${redir ? `?redir=${redir}` : ""}`,
-				dids
+				redir,
+				user: req.user
 			})
 		) // can be some arbitrary state
 	});

@@ -5,7 +5,7 @@ import { aql } from "arangojs";
 import { setCookie, parseCookies } from "nookies";
 import { Base64 } from "js-base64";
 
-import { AuthApiRequest, ApiResponse } from "@/types";
+import { AuthUser, AuthApiRequest, ApiResponse } from "@/types";
 import getHandler from "@/server/middleware";
 import { getArangoClient } from "@/utils/arango-client";
 import {
@@ -28,20 +28,28 @@ handler.get(async (req: AuthApiRequest, res: ApiResponse) => {
 	// Get callback params with auth code.
 	const params = client.callbackParams(req);
 	let redir = "/verify/complete";
+	let user = null;
 	try {
 		const state = JSON.parse(params.state ? Base64.decode(params.state) : "{}");
 		if (state.redir) {
-			redir = state.redir;
+			redir += `?redir=${state.redir}`;
 		}
+		user = state.user as AuthUser;
 	} catch (e) {
 		// ...
+	}
+
+	const failureRedir = `/verify/failure`;
+	if (user === null) {
+		req.log.error("No user for personhood authentication");
+		return res.redirect(302, failureRedir);
 	}
 
 	// If callback params have an error instead of auth code
 	// render error page with description.
 	if ("error" in params) {
 		req.log.error(params, "Failed to process the Humanode PoP Verification");
-		return res.redirect(302, redir);
+		return res.redirect(302, failureRedir);
 	}
 
 	req.log.info("Processed the Humanode PoP Verification");
@@ -61,11 +69,21 @@ handler.get(async (req: AuthApiRequest, res: ApiResponse) => {
 		}
 	);
 
-	req.log.info("Personhood verification completed!");
+	const idToken = tokenSet.id_token || "";
+	const [id] = idToken.split(".");
+
+	req.log.info({ id }, "Personhood verification completed!");
+
+	// Search for personhood entry already associated to this user
+	// If it the same id -- pass the check
+	// If it is a different id -- return error
+
+	// Search for this personhood verify id not associated to this user
+	// If this person has already verified for another account -- return error
 
 	// Save Captcha result to the DB
 	const cursor = await arango.query(aql`
-		LET user = ${req.user}
+		LET user = ${user}
 		LET dids = (
 			FOR u IN user
 				UPSERT { _key: u.did }
@@ -77,6 +95,7 @@ handler.get(async (req: AuthApiRequest, res: ApiResponse) => {
 		INSERT {
 			"success": true,
 			"created_at": ${Date.now()},
+			"id": ${id},
 			"response": ${tokenSet}
 		}
 		INTO PersonhoodEntries OPTIONS { waitForSync: true }

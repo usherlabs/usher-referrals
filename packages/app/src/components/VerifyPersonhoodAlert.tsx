@@ -15,6 +15,7 @@ import { UilDna, UilSelfie, UilShieldCheck } from "@iconscout/react-unicons";
 import CopyToClipboard from "react-copy-to-clipboard";
 import { QRCodeSVG } from "qrcode.react";
 import { isProd, ngrokUrl } from "@/env-config";
+import { css } from "@linaria/core";
 
 import Authenticate from "@/modules/auth";
 
@@ -51,7 +52,20 @@ const VerifyPersonhoodAlert = () => {
 
 	return (
 		<>
-			<Alert intent="warning" title="Unlock Claims">
+			<Alert
+				intent="warning"
+				title="Unlock Claims"
+				className={css`
+					h4 {
+						font-size: 1em;
+						margin: 1px 0 10px 0;
+					}
+					svg {
+						height: 20px;
+						width: 20px;
+					}
+				`}
+			>
 				<Paragraph marginBottom={12}>
 					Verify your personhood to unlock the ability to submit claims.
 				</Paragraph>

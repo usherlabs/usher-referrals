@@ -116,7 +116,7 @@ const ClaimButton: React.FC<Props> = ({
 				width="100%"
 				{...buttonProps}
 				iconBefore={isActive ? () => <UilCoins size="28" /> : LockIcon}
-				onClick={() => setShowDialog(true)}
+				onClick={isActive ? () => setShowDialog(true) : () => null}
 				pointerEvents={isActive ? "auto" : "none"}
 			>
 				<Strong color="inherit" fontSize="1.1em">

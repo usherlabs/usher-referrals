@@ -21,18 +21,23 @@ const VerifyComplete = () => {
 			display="flex"
 			flexDirection="column"
 			padding={16}
-			maxWidth={1280}
+			maxWidth={600}
 			marginY="0"
 			marginX="auto"
 			minHeight="100vh"
 			position="relative"
-			alignItems="center"
+			alignItems="flex-start"
 			justifyContent="center"
 		>
-			<Pane display="flex" alignItems="center" width={100} marginBottom={24}>
+			<Pane
+				display="flex"
+				alignItems="flex-start"
+				width={100}
+				marginBottom={24}
+			>
 				<UilDna size="100" color={colors.blue500} />
 			</Pane>
-			<Heading size={800} marginBottom={10} textAlign="center">
+			<Heading size={800} marginBottom={10}>
 				Your account has been verified!
 			</Heading>
 			{redir ? (
@@ -49,7 +54,7 @@ const VerifyComplete = () => {
 					</Button>
 				</Anchor>
 			) : (
-				<Text size={600} textAlign="center">
+				<Text size={600}>
 					Revist and refresh Usher on your original device to continue.
 				</Text>
 			)}
