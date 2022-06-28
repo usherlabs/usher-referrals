@@ -4,6 +4,7 @@
 import { aql } from "arangojs";
 import { setCookie, parseCookies } from "nookies";
 import { Base64 } from "js-base64";
+import jwtDecode, { JwtPayload } from "jwt-decode";
 
 import { AuthUser, AuthApiRequest, ApiResponse } from "@/types";
 import getHandler from "@/server/middleware";
@@ -59,6 +60,11 @@ handler.get(async (req: AuthApiRequest, res: ApiResponse) => {
 		state: params.state,
 		code_verifier: codeVerifier
 	});
+	if (!tokenSet.id_token) {
+		req.log.error({ tokenSet }, "Failed to extract ID Token from Token Set");
+		return res.redirect(302, failureRedir);
+	}
+
 	// Save JWT.
 	setCookie(
 		{ res },
@@ -69,27 +75,73 @@ handler.get(async (req: AuthApiRequest, res: ApiResponse) => {
 		}
 	);
 
-	const idToken = tokenSet.id_token || "";
-	const [id] = idToken.split(".");
+	// Use the `sub` property to uniquely identify the face.
+	const dec = jwtDecode<JwtPayload>(tokenSet.id_token);
+	const id = dec.sub;
 
 	req.log.info({ id }, "Personhood verification completed!");
 
 	// Search for personhood entry already associated to this user
+	// Start by searching for all DIDs associated to the authenticated DIDs
 	// If it the same id -- pass the check
 	// If it is a different id -- return error
+	const thirdPartyVerifierCursor = await arango.query(aql`
+		FOR d IN DOCUMENT("Dids", ${req.user.map(({ did }) => did)})
+			FOR did IN 1..100 ANY d Related
+        COLLECT _id = did._id
+        LET doc = DOCUMENT(_id)
+        FOR e IN 1..1 OUTBOUND doc Verifications
+					FILTER STARTS_WITH(e._id, "PersonhoodEntries") AND e.success == true
+					FILTER e.id != ${id}
+					COLLECT v_id = e._id
+					LET entry = DOCUMENT(v_id)
+					SORT entry.created_at DESC
+					RETURN entry
+	`);
 
-	// Search for this personhood verify id not associated to this user
+	const thirdPartyVerifierResults = await thirdPartyVerifierCursor.all();
+	if (thirdPartyVerifierResults.length > 0) {
+		req.log.warn(
+			{ id, thirdPartyVerifierResults },
+			"User/Account already verified by a third-party"
+		);
+		return res.redirect(302, failureRedir);
+	}
+
+	// Search for this personhood verify id where it is NOT associated to this user
+	// ? This will return a set of DIDs that are NOT associated to the authenticated user, but are related to the verified person
+	// ? Indicates that the verified user has verified for another set of DIDs
 	// If this person has already verified for another account -- return error
+	const searchCursor = await arango.query(aql`
+		LET dids = (
+			FOR d IN DOCUMENT("Dids", ${req.user.map(({ did }) => did)})
+				FOR did IN 1..100 ANY d Related
+					COLLECT _id = did._id
+					LET doc = DOCUMENT(_id)
+					RETURN doc._key
+		)
+		FOR p IN PersonhoodEntries
+			FILTER p.id == ${id}
+			FOR did IN 1..1 INBOUND p Verifications
+				FILTER POSITION(dids, did._key) == false
+					RETURN did
+	`);
 
-	// Save Captcha result to the DB
+	// If searchResults yields dids, then this person has already verified for another (account) set dids
+	const searchResults = await searchCursor.all();
+	if (searchResults.length > 0) {
+		req.log.warn(
+			{ id, nonAssociatedDids: searchResults },
+			"Person has already verified for a set of unauthenticated dids"
+		);
+		return res.redirect(302, failureRedir);
+	}
+
+	// Save Personhood result to the DB
 	const cursor = await arango.query(aql`
 		LET user = ${user}
 		LET dids = (
 			FOR u IN user
-				UPSERT { _key: u.did }
-				INSERT { _key: u.did, wallet: u.wallet }
-				UPDATE { wallet: u.wallet }
-				IN Dids OPTIONS { waitForSync: true }
 				RETURN u.did
 		)
 		INSERT {

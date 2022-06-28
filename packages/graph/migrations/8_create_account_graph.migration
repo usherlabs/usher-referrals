@@ -1,0 +1,9 @@
+type: graph
+action: create
+name: Accounts
+edgedefinitions:
+  - collection: Related
+    from:
+      - Dids
+    to:
+      - Dids

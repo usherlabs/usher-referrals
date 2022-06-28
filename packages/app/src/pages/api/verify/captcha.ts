@@ -26,10 +26,11 @@ handler
 			const cursor = await arango.query(aql`
 				FOR d IN DOCUMENT("Dids", ${req.user.map(({ did }) => did)})
 					FOR e IN 1..1 OUTBOUND d Verifications
-						FILTER e.success == true
-						SORT e.created_at DESC
-						LIMIT 1
-						RETURN e
+						FILTER STARTS_WITH(e._id, "CaptchaEntries") AND e.success == true
+						COLLECT _id = e._id
+						LET ce = DOCUMENT(_id)
+						SORT ce.created_at DESC
+						RETURN ce
 			`);
 
 			const results = await cursor.all();
@@ -77,10 +78,6 @@ handler
 			LET user = ${req.user}
 			LET dids = (
 				FOR u IN user
-					UPSERT { _key: u.did }
-					INSERT { _key: u.did, wallet: u.wallet }
-					UPDATE { wallet: u.wallet }
-					IN Dids OPTIONS { waitForSync: true }
 					RETURN u.did
 			)
 			INSERT {

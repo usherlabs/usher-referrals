@@ -44,7 +44,7 @@ const VerifyComplete = () => {
 				Your verification failed!
 			</Heading>
 			<Paragraph size={600} textAlign="left">
-				Actions to consider:
+				Please consider:
 			</Paragraph>
 			<UnorderedList marginBottom={12}>
 				<ListItem fontSize="1em">

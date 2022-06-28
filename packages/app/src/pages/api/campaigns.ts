@@ -18,7 +18,7 @@ handler.get(async (req: ApiRequest, res: ApiResponse) => {
 		try {
 			const json = Base64.decode(q);
 			const refs = JSON.parse(json) as CampaignReference[];
-			console.log("refs", refs);
+			// console.log("refs", refs);
 			keys = refs.map((ref) => `${ref.chain}:${ref.address}`);
 		} catch (e) {
 			return res.status(400).json({

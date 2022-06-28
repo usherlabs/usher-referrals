@@ -3,9 +3,13 @@ import { Base64 } from "js-base64";
 import { DagJWS, DID } from "dids";
 import { getResolver as getKeyResolver } from "key-did-resolver";
 import isEmpty from "lodash/isEmpty";
+import { aql } from "arangojs";
 // import util from "util";
 
+import { getArangoClient } from "@/utils/arango-client";
 import { AuthApiRequest, ApiResponse } from "@/types";
+
+const arango = getArangoClient();
 
 const verify = async (did: string, sig: DagJWS): Promise<boolean> => {
 	const instance = new DID({
@@ -86,6 +90,34 @@ const withAuth = nextConnect().use(
 			req.user = user;
 
 			req.log.debug({ user: req.user }, "User auth request");
+
+			await arango.query(aql`
+				LET user = ${req.user}
+				LET dids = (
+					FOR u IN user
+						UPSERT { _key: u.did }
+						INSERT { _key: u.did, wallet: u.wallet }
+						UPDATE { wallet: u.wallet }
+						IN Dids OPTIONS { waitForSync: true }
+						RETURN u.did
+				)
+				FOR a IN dids
+					FOR b IN dids
+						FILTER a != b
+						LET didA = CONCAT("Dids/", a)
+						LET didB = CONCAT("Dids/", b)
+						LET edge = (
+								FOR r IN Related
+										FILTER r._from == didA AND r._to == didB
+										RETURN r
+						)
+						FILTER COUNT(edge) == 0
+							INSERT {
+								_from: didA,
+								_to: didB
+							} INTO Related OPTIONS { waitForSync: true }
+							RETURN NEW
+			`);
 
 			return next();
 		} catch (e) {
