@@ -91,6 +91,8 @@ const withAuth = nextConnect().use(
 
 			req.log.debug({ user: req.user }, "User auth request");
 
+			// ? Here we simply update the authenticated dids with data, and ensure there are relations between dids.
+			// ? If Dids associated to two clusters of Dids are authenticated, then those clusters will have a relation
 			await arango.query(aql`
 				LET user = ${req.user}
 				LET dids = (

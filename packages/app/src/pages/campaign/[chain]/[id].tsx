@@ -310,7 +310,7 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 							</Pane>
 							<Pane marginBottom={12}>
 								{!isUserLoading ? (
-									<VerifyPersonhoodAlert />
+									<>{!verifications.personhood && <VerifyPersonhoodAlert />}</>
 								) : (
 									<Skeleton
 										style={{

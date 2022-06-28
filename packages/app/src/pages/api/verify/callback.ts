@@ -81,16 +81,17 @@ handler.get(async (req: AuthApiRequest, res: ApiResponse) => {
 
 	req.log.info({ id }, "Personhood verification completed!");
 
+	const dids = user.map(({ did }) => did);
+
 	// Search for personhood entry already associated to this user
 	// Start by searching for all DIDs associated to the authenticated DIDs
 	// If it the same id -- pass the check
 	// If it is a different id -- return error
 	const thirdPartyVerifierCursor = await arango.query(aql`
-		FOR d IN DOCUMENT("Dids", ${req.user.map(({ did }) => did)})
+		FOR d IN DOCUMENT("Dids", ${dids})
 			FOR did IN 1..100 ANY d Related
         COLLECT _id = did._id
-        LET doc = DOCUMENT(_id)
-        FOR e IN 1..1 OUTBOUND doc Verifications
+        FOR e IN 1..1 OUTBOUND _id Verifications
 					FILTER STARTS_WITH(e._id, "PersonhoodEntries") AND e.success == true
 					FILTER e.id != ${id}
 					COLLECT v_id = e._id
@@ -114,7 +115,7 @@ handler.get(async (req: AuthApiRequest, res: ApiResponse) => {
 	// If this person has already verified for another account -- return error
 	const searchCursor = await arango.query(aql`
 		LET dids = (
-			FOR d IN DOCUMENT("Dids", ${req.user.map(({ did }) => did)})
+			FOR d IN DOCUMENT("Dids", ${dids})
 				FOR did IN 1..100 ANY d Related
 					COLLECT _id = did._id
 					LET doc = DOCUMENT(_id)
@@ -139,11 +140,7 @@ handler.get(async (req: AuthApiRequest, res: ApiResponse) => {
 
 	// Save Personhood result to the DB
 	const cursor = await arango.query(aql`
-		LET user = ${user}
-		LET dids = (
-			FOR u IN user
-				RETURN u.did
-		)
+		LET dids = ${dids}
 		INSERT {
 			"success": true,
 			"created_at": ${Date.now()},
