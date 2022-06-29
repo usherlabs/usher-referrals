@@ -4972,7 +4972,7 @@ ceramic-cacao@^1.0.0:
     caip "^1.0.0"
     multiformats "^9.5.1"
 
-ceramic-cacao@^1.1.1:
+ceramic-cacao@^1.1.0, ceramic-cacao@^1.1.1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/ceramic-cacao/-/ceramic-cacao-1.1.1.tgz#2efecca677e4d4bf7308692d894b78fe3392eacc"
   integrity sha512-p/IO5/EmUBhD0hbSpJaXTN8bKHYNZ8zDou3m2170wfbb+fJFf71kzWEsT/WV3JlWNBgkKEhwgbe9YGVOP2shoA==
@@ -6047,6 +6047,20 @@ dids@^3.0.0, dids@^3.1.0:
   dependencies:
     "@stablelib/random" "^1.0.1"
     ceramic-cacao "^1.0.0"
+    dag-jose-utils "^2.0.0"
+    did-jwt "^6.0.0"
+    did-resolver "^3.1.5"
+    multiformats "^9.4.10"
+    rpc-utils "^0.6.1"
+    uint8arrays "^3.0.0"
+
+dids@^3.2.0:
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/dids/-/dids-3.2.0.tgz#92a907aabc68cc0bd25b80e282bed34485233a92"
+  integrity sha512-p6PUUvlX/BYqnrX192KM0DW/h1dohbMohFSwSv7hxjHr7Sp26jAIu6M59f2HNJaSwE7k0lTqLz9tuDtE/QbWZA==
+  dependencies:
+    "@stablelib/random" "^1.0.1"
+    ceramic-cacao "^1.1.0"
     dag-jose-utils "^2.0.0"
     did-jwt "^6.0.0"
     did-resolver "^3.1.5"
