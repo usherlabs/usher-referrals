@@ -5,6 +5,8 @@ import { Ed25519Provider } from "key-did-provider-ed25519";
 
 import { didKey } from "@/server/env-config";
 
+console.log("DID KEY", didKey);
+
 export const getAppDID = async () => {
 	if (!didKey) {
 		throw new Error(

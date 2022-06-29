@@ -98,7 +98,7 @@ const withAuth = nextConnect().use(
 				LET dids = (
 					FOR u IN user
 						UPSERT { _key: u.did }
-						INSERT { _key: u.did, wallet: u.wallet }
+						INSERT { _key: u.did, wallet: u.wallet, created_at: ${Date.now()} }
 						UPDATE { wallet: u.wallet }
 						IN Dids OPTIONS { waitForSync: true }
 						RETURN u.did

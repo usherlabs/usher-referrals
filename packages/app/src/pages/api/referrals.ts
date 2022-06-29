@@ -4,6 +4,7 @@ import * as uint8arrays from "uint8arrays";
 import { TileLoader } from "@glazed/tile-loader";
 import { aql } from "arangojs";
 import { ShareableOwnerModel } from "@usher/ceramic";
+import isEmpty from "lodash/isEmpty";
 
 import { ApiResponse, ApiRequest, CampaignReference } from "@/types";
 import getHandler from "@/server/middleware";
@@ -94,7 +95,9 @@ handler.post(async (req: ApiRequest, res: ApiResponse) => {
 	const checkCursor = await arango.query(aql`
 		RETURN DOCUMENT("Partnerships", ${partnership})
 	`);
-	const checkResults = await checkCursor.all();
+	const checkResults = (await checkCursor.all()).map(
+		(result) => !isEmpty(result)
+	);
 	if (checkResults.length > 0) {
 		req.log.info(
 			{ partnership, results: checkResults },
@@ -114,7 +117,7 @@ handler.post(async (req: ApiRequest, res: ApiResponse) => {
 			} INTO Engagements OPTIONS { waitForSync: true }
 			LET ce = NEW
 			UPSERT { _key: ${controller} }
-			INSERT { _key: ${controller} }
+			INSERT { _key: ${controller}, created_at: ${Date.now()} }
 			UPDATE {}
 			IN Dids OPTIONS { waitForSync: true }
 			INSERT {
@@ -135,7 +138,9 @@ handler.post(async (req: ApiRequest, res: ApiResponse) => {
 
 	// Create the conversion and the referral edge
 	const cursor = await arango.query(aql`
-		INSERT {} INTO Conversions OPTIONS { waitForSync: true }
+		INSERT {
+			created_at: ${Date.now()}
+		} INTO Conversions OPTIONS { waitForSync: true }
 		LET c = NEW
 		INSERT {
 			_from: CONCAT("Partnerships/", ${partnership}),
