@@ -7,17 +7,16 @@ import { useRouter } from "next/router";
 import { TileLoader } from "@glazed/tile-loader";
 import { isEmpty } from "lodash";
 import ono from "@jsdevtools/ono";
-import { Base64 } from "js-base64";
 
 import { ceramic } from "@/utils/ceramic-client";
-import { CONVERSION_COOKIE_NAME, NETWORK_DID } from "@/constants";
+import { CONVERSION_COOKIE_NAME } from "@/constants";
 import { botdPublicKey } from "@/env-config";
 import Preloader from "@/components/Preloader";
 import Captcha from "@/components/Captcha";
 import * as api from "@/api";
 import handleException from "@/utils/handle-exception";
 import LogoImage from "@/assets/logo/Logo.png";
-import { CampaignReference } from "@/types";
+import { CampaignReference, Referral, CampaignConflictStrategy } from "@/types";
 
 const loader = new TileLoader({ ceramic });
 
@@ -60,59 +59,31 @@ const Invite = () => {
 
 		const { destinationUrl } = campaign.details;
 
-		const cookies = parseCookies();
-		const token = cookies[CONVERSION_COOKIE_NAME];
+		let existingToken;
+		// If the campaign conflict strategy is to NOT always overwrite the referral, then check for an existing token
+		if (campaign.conflictStrategy !== CampaignConflictStrategy.OVERWRITE) {
+			const cookies = parseCookies();
+			existingToken = cookies[CONVERSION_COOKIE_NAME] as string;
+		}
 
-		// TODO: Decrypt this token to determine if it's related.
-		// let isExistingConvIdRelated = false;
-		// if (cid) {
-		// 	try {
-		// 		const dec = JSON.parse(Base64.decode(token)) as Conversion;
-		// 		dec.token;
-		// 	} catch (e) {
-		// 		// ...
-		// 	}
-		// }
+		const referral: { success: boolean; data: Referral } = await api
+			.referrals()
+			.post(id as string, existingToken);
 
-		const referral = api.referrals().post({
-			token
-		});
-
-		const {
-			success,
-			convId: existingConvId,
-			isRelated // Determines whether the existing ConvID is related to the Invite Link Id
-		} = await getDestinationUrl(id, cid);
-
-		if (!success) {
+		if (!referral.success) {
 			onError();
 			return;
 		}
 
-		// If the Smart Contract has NOT defined that new Affiliate Links will overwrite the conversion
+		// If the Terms have NOT defined that new Affiliate Links will overwrite the conversion
 		// The default behaviour is to simply skip replacing the conversion cookie if a valid one exists
-		if (
-			inviteConflictStrategy === CONTRACT_INVITE_CONFLICT_STRATEGY.OVERWRITE ||
-			!existingConvId
-		) {
-			// If a valid converison tracking id is NOT already in cookie
-			const { convId } = await createConversion(id);
-			if (convId) {
-				setCookie(null, CONVERSION_COOKIE_NAME, convId, {
-					maxAge: 30 * 60 * 60, // lasts 30 days -- //* This can be configured ...eventually.
-					path: "/"
-				});
-			}
-		} else if (existingConvId && isRelated) {
-			// Extend the duration of the Cookie if the Invite Link ID is related to the Conversion ID in the Cookie
-			setCookie(null, CONVERSION_COOKIE_NAME, existingConvId, {
-				maxAge: 30 * 60 * 60, // lasts 30 days -- //* This can be configured ...eventually.
-				path: "/"
-			});
-		}
+		setCookie(null, CONVERSION_COOKIE_NAME, referral.data.token, {
+			maxAge: 30 * 24 * 60 * 60, // 30 days
+			path: "/"
+		});
 
 		// Redirect to Advertiser Affiliate Referral URL
-		window.location.replace(url);
+		window.location.replace(destinationUrl);
 	}, [id]);
 
 	const onCaptchaSuccess = useCallback(
@@ -121,7 +92,9 @@ const Invite = () => {
 			const { success: isSuccess } = await api.captcha().post(token);
 			if (isSuccess) {
 				processInvite();
+				return true;
 			}
+			return false;
 		},
 		[id]
 	);
@@ -157,7 +130,7 @@ const Invite = () => {
 			minHeight="100vh"
 			position="relative"
 		>
-			{!isContractLoading && showCaptcha ? (
+			{showCaptcha ? (
 				<Captcha onSuccess={onCaptchaSuccess} />
 			) : (
 				<Preloader message={`You've been invited...`} />

@@ -19,7 +19,7 @@ handler.use(withAuth).get(async (req: AuthApiRequest, res: ApiResponse) => {
 	// Set up codeVerifier and save it as a cookie for later use.
 	const codeVerifier = openid.generators.codeVerifier(64);
 	setCookie({ res }, "hn_code_verifier", codeVerifier, {
-		maxAge: 60 * 60
+		maxAge: 30 * 24 * 60 * 60 // 30 days
 	});
 
 	// Set up codeChallenge for login flow.

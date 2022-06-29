@@ -1,8 +1,7 @@
 import { aql } from "arangojs";
-import { Base64 } from "js-base64";
 import isEmpty from "lodash/isEmpty";
 
-import { ApiResponse, ApiRequest, CampaignReference } from "@/types";
+import { ApiResponse, ApiRequest } from "@/types";
 import getHandler from "@/server/middleware";
 import { getArangoClient } from "@/utils/arango-client";
 
@@ -15,17 +14,7 @@ handler.get(async (req: ApiRequest, res: ApiResponse) => {
 
 	let keys: string[] = [];
 	if (typeof q === "string") {
-		try {
-			const json = Base64.decode(q);
-			const refs = JSON.parse(json) as CampaignReference[];
-			// console.log("refs", refs);
-			keys = refs.map((ref) => `${ref.chain}:${ref.address}`);
-		} catch (e) {
-			return res.status(400).json({
-				success: false,
-				data: []
-			});
-		}
+		keys = q.split(","); // array of chain:address
 	}
 
 	req.log.info({ keys }, "Get campaigns for keys");

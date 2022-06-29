@@ -1,6 +1,10 @@
 import ky from "ky";
-import { Base64 } from "js-base64";
-import { CampaignReference, Campaign } from "@/types";
+import {
+	CampaignReference,
+	Campaign,
+	PartnershipMetrics,
+	Referral
+} from "@/types";
 
 // const formatQs = (o: Record<string, string>) => {
 // 	const searchParams = new URLSearchParams(o);
@@ -69,15 +73,56 @@ export const bot = () => ({
 
 export const campaigns = () => ({
 	get: (
-		references?: CampaignReference[]
+		references?: CampaignReference | CampaignReference[]
 	): Promise<{ success: boolean; data: Campaign[] }> => {
 		let qs = "";
-		if (references && references.length > 0) {
+		if (references) {
+			if (!Array.isArray(references)) {
+				references = [references];
+			}
+			if (references.length > 0) {
+				const params = new URLSearchParams();
+				const q = references
+					.map((ref) => [ref.chain, ref.address].join(":"))
+					.join(",");
+				params.set("q", q);
+				qs = `?${params.toString()}`;
+			}
+		}
+		return request.get(`campaigns${qs}`).json();
+	}
+});
+
+export const partnerships = () => ({
+	get: (
+		ids: string | string[]
+	): Promise<{ success: boolean; data: PartnershipMetrics }> => {
+		let qs = "";
+		if (!Array.isArray(ids)) {
+			ids = [ids];
+		}
+		if (ids.length > 0) {
 			const params = new URLSearchParams();
-			const q = Base64.encodeURI(JSON.stringify(references));
+			const q = ids.join(",");
 			params.set("q", q);
 			qs = `?${params.toString()}`;
 		}
-		return request.get(`campaigns${qs}`).json();
+		return request.get(`partnerships${qs}`).json();
+	}
+});
+
+export const referrals = () => ({
+	post: (
+		partnership: string,
+		token?: string
+	): Promise<{ success: boolean; data: Referral }> => {
+		return request
+			.post(`referrals`, {
+				json: {
+					partnership,
+					token
+				}
+			})
+			.json();
 	}
 });

@@ -115,6 +115,21 @@ export type User = {
 	profile: Profile;
 };
 
+export type PartnershipMetrics = {
+	partnerships: string[];
+	hits: number;
+	conversions: {
+		pending: number;
+		successful: number;
+	};
+	rewards: number;
+};
+
+export type Referral = {
+	isNew: boolean;
+	token: string;
+};
+
 export type Exception = Error & {
 	statusCode?: number;
 };
@@ -136,11 +151,6 @@ export type AuthUser = {
 		address: string;
 	};
 }[]; // An array of verified dids
-
-export type Referral = {
-	token: string;
-	callbackUrl: string;
-};
 
 /**
  * ###### INTERFACES ######
