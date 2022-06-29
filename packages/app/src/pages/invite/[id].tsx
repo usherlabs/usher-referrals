@@ -5,15 +5,14 @@ const Invite = () => {
 };
 
 export const getServerSideProps = async ({
-	res,
-	query: { id }
+	res
 }: {
 	res: ApiResponse;
 	query: { id: string };
 }) => {
 	res.writeHead(302, {
 		// or 301
-		Location: `https://uap.usher.so/invite/${id}`
+		Location: `https://go.usher.so/nft`
 	});
 	res.end();
 };

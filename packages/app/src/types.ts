@@ -137,6 +137,11 @@ export type AuthUser = {
 	};
 }[]; // An array of verified dids
 
+export type Referral = {
+	token: string;
+	callbackUrl: string;
+};
+
 /**
  * ###### INTERFACES ######
  */

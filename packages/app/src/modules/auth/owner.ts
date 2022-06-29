@@ -14,7 +14,7 @@ import uniq from "lodash/uniq";
 
 import { ShareableOwnerModel } from "@usher/ceramic";
 
-import { NETWORK_DID } from "@/constants";
+import { APP_DID } from "@/constants";
 import { Partnership, CampaignReference, Profile } from "@/types";
 import Auth from "./auth";
 import WalletAuth from "./wallet";
@@ -250,7 +250,7 @@ class OwnerAuth extends Auth {
 			Object.entries(profile).map(async ([key, value]) => {
 				const jwe = await this.did.createJWE(uint8arrays.fromString(value), [
 					this.did.id,
-					NETWORK_DID
+					APP_DID // Share with App
 				]);
 				const res = Base64.encode(JSON.stringify(jwe));
 				return {

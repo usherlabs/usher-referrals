@@ -24,3 +24,5 @@ export const arangoPassword = process.env.ARANGO_PASSWORD;
 
 export const humanodeClientId = process.env.HUMANODE_CLIENT_ID;
 export const humanodeClientSecret = process.env.HUMANODE_CLIENT_SECRET;
+
+export const didKey = process.env.DID_KEY;
