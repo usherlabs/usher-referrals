@@ -7,6 +7,7 @@ import { useRouter } from "next/router";
 import { TileLoader } from "@glazed/tile-loader";
 import { isEmpty } from "lodash";
 import ono from "@jsdevtools/ono";
+import { ShareableOwnerModel } from "@usher/ceramic";
 
 import { ceramic } from "@/utils/ceramic-client";
 import { CONVERSION_COOKIE_NAME } from "@/constants";
@@ -22,11 +23,12 @@ const loader = new TileLoader({ ceramic });
 
 const onError = () => window.location.replace(`/link-error`);
 
+// TODO: TEST THIS PAGE -- and subsequent processes.
 const Invite = () => {
 	const [showCaptcha, setShowCaptcha] = useState(false);
 	const router = useRouter();
 	const { id } = router.query;
-	// const [{ inviteConflictStrategy }, isContractLoading] = useContract(); // TODO: Pass in the id here to determine the correct Contract to fetch
+	console.log("id", id);
 
 	const processInvite = useCallback(async () => {
 		// Start by fetching the campaign data for the given campaign
@@ -40,6 +42,23 @@ const Invite = () => {
 		}
 
 		const partnershipStream = await loader.load(partnershipId);
+		if (
+			!(
+				partnershipStream.content.address &&
+				partnershipStream.content.chain &&
+				partnershipStream.controllers.length > 0 &&
+				partnershipStream.metadata.schema ===
+					ShareableOwnerModel.schemas.partnership
+			)
+		) {
+			handleException(
+				ono("Partnership is invalid", {
+					partnershipId
+				})
+			);
+			onError();
+		}
+
 		const campaignRef = partnershipStream.content as CampaignReference;
 
 		const campaigns = await api.campaigns().get([campaignRef]);
@@ -151,12 +170,12 @@ const Invite = () => {
 	);
 };
 
-export const getStaticProps = async () => {
+export async function getStaticProps() {
 	return {
 		props: {
 			noUser: true
 		}
 	};
-};
+}
 
 export default Invite;
