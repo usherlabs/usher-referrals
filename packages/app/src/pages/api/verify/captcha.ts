@@ -20,12 +20,12 @@ handler
 	.get(async (req: AuthApiRequest, res: ApiResponse) => {
 		try {
 			// Fetch captcha entry associated to either of the user DIDs
-			// Works by: For each verified DID, walk the captcha edge and return the latest entry
+			// Works by: For each verified DID, walk the Verifications edge, Filter where the Result is a Captcha and return the latest entry
 			//! IMPORTANT:
 			//* Be sure to pass raw javascript variables to the AQL Templates... rather than constructing the Query items
 			const cursor = await arango.query(aql`
-				FOR d IN DOCUMENT("Dids", ${req.user.map(({ did }) => did)})
-					FOR e IN 1..1 OUTBOUND d Verifications
+				FOR d IN ${req.user.map(({ did }) => did)}
+					FOR e IN 1..1 OUTBOUND CONCAT("Dids/", d) Verifications
 						FILTER STARTS_WITH(e._id, "CaptchaEntries") AND e.success == true
 						COLLECT _id = e._id
 						LET ce = DOCUMENT(_id)

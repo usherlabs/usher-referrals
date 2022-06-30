@@ -9,7 +9,7 @@ import {
 } from "evergreen-ui";
 import { css } from "@linaria/core";
 
-import { Partnership } from "@/types";
+import { Partnership, PartnershipMetrics } from "@/types";
 import AffiliateLink from "@/components/AffiliateLink";
 import ValueCard from "@/components/ValueCard";
 import getInviteLink from "@/utils/get-invite-link";
@@ -17,9 +17,13 @@ import * as mediaQueries from "@/utils/media-queries";
 
 export type Props = {
 	partnership: Partnership;
+	metrics: {
+		isLoading: boolean;
+		data: PartnershipMetrics | null;
+	};
 };
 
-const CampaignPartnership: React.FC<Props> = ({ partnership }) => {
+const CampaignPartnership: React.FC<Props> = ({ partnership, metrics }) => {
 	const { colors } = useTheme();
 
 	// "Users converted by the Advertiser that are pending for processing."
@@ -65,12 +69,11 @@ const CampaignPartnership: React.FC<Props> = ({ partnership }) => {
 				>
 					<Pane display="flex" marginBottom={24}>
 						<ValueCard
-							// value={conversions.total}
-							value=""
+							value={metrics.data ? metrics.data.hits : ""}
 							ticker="hits"
 							id="total-referrals"
 							label="Affiliate Link Hits"
-							isLoading
+							isLoading={metrics.isLoading}
 						/>
 					</Pane>
 					<Pane
@@ -85,33 +88,31 @@ const CampaignPartnership: React.FC<Props> = ({ partnership }) => {
 					>
 						<Pane display="flex" flex={1}>
 							<ValueCard
-								// value={conversions.pending}
-								value=""
+								value={metrics.data ? metrics.data.conversions.pending : ""}
 								id="pending-conv-count"
 								label="Pending Conversions"
 								iconRight={ConvHelpIcon(
-									"Pending Conversions are referrals that have been converted to users on the advertising partner's application. These are considered pending as conversions are yet to have associated rewards allocated."
+									"Conversions that have been indexed but are yet to be validated."
 								)}
 								iconProps={{
 									color: colors.gray500
 								}}
-								isLoading
+								isLoading={metrics.isLoading}
 							/>
 						</Pane>
 						<Pane width={20} />
 						<Pane display="flex" flex={1}>
 							<ValueCard
-								// value={conversions.success}
-								value=""
+								value={metrics.data ? metrics.data.conversions.successful : ""}
 								id="success-conv-count"
 								label="Successful Conversions"
 								iconRight={ConvHelpIcon(
-									"Successful Conversions are converted referrals where rewards are guaranteed for the Affiliate."
+									"Conversions that have been validated and have rewards allocated."
 								)}
 								iconProps={{
 									color: colors.gray500
 								}}
-								isLoading
+								isLoading={metrics.isLoading}
 							/>
 						</Pane>
 					</Pane>

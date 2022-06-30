@@ -4,13 +4,20 @@ import { Pane, toaster } from "evergreen-ui";
 import camelcaseKeys from "camelcase-keys";
 import { css } from "@linaria/core";
 import { aql } from "arangojs";
+import { useQuery } from "react-query";
 
 import { useUser } from "@/hooks/";
 import { MAX_SCREEN_WIDTH } from "@/constants";
 import ClaimButton from "@/components/Campaign/ClaimButton";
 import Terms from "@/components/Campaign/Terms";
 import Progress from "@/components/Progress";
-import { Chains, Campaign, RewardTypes, CampaignReward } from "@/types";
+import {
+	Chains,
+	Campaign,
+	RewardTypes,
+	CampaignReward,
+	PartnershipMetrics
+} from "@/types";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import useRedir from "@/hooks/use-redir";
@@ -26,11 +33,38 @@ import VerifyPersonhoodAlert from "@/components/VerifyPersonhoodAlert";
 import { useSeedData } from "@/env-config";
 import * as mediaQueries from "@/utils/media-queries";
 import { getArangoClient } from "@/utils/arango-client";
+import * as api from "@/api";
 
 type CampaignPageProps = {
 	id: string;
 	chain: Chains;
 	campaign: Campaign;
+};
+
+const defaultMetrics = {
+	partnerships: [],
+	hits: 0,
+	conversions: {
+		pending: 0,
+		successful: 0
+	},
+	rewards: 0
+};
+
+const getPartnershipMetrics = async (
+	ids: string[]
+): Promise<PartnershipMetrics | null> => {
+	if (ids.length === 0) {
+		return null;
+	}
+
+	const response = await api.partnerships().get(ids);
+
+	if (!response.success) {
+		return null;
+	}
+
+	return response.data as PartnershipMetrics;
 };
 
 const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
@@ -47,8 +81,14 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 	const [isPartnering, setPartnering] = useState(false);
 
 	const walletsForChain = wallets.filter((w) => w.chain === chain);
-	const partnership = partnerships.find(
+	const viewingPartnerships = partnerships.filter(
 		(p) => p.campaign.address === id && p.campaign.chain === chain
+	);
+	const partnership =
+		viewingPartnerships.length > 0 ? viewingPartnerships[0] : null; // get the first partnership for link usage.
+
+	const metrics = useQuery(["partnership-metrics", viewingPartnerships], () =>
+		getPartnershipMetrics(viewingPartnerships.map((p) => p.id))
 	);
 
 	const onStartPartnership = useCallback(() => {
@@ -200,7 +240,13 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 					{!isLoading && !isUserLoading ? (
 						<>
 							{partnership ? (
-								<PartnershipUI partnership={partnership} />
+								<PartnershipUI
+									partnership={partnership}
+									metrics={{
+										isLoading: metrics.isLoading,
+										data: metrics.data || null
+									}}
+								/>
 							) : (
 								<StartPartnership
 									onStart={onStartPartnership}
@@ -271,10 +317,9 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 								<Pane display="flex" marginBottom={24}>
 									{!isLoading && campaign ? (
 										<ValueCard
-											// isLoading={false}
+											isLoading={metrics.isLoading}
 											ticker={campaign.reward.ticker}
-											// value={claimableRewards}
-											value={0}
+											value={metrics.data ? metrics.data.rewards : 0}
 											id="claimable-rewards"
 											label="Claimable Rewards"
 										/>

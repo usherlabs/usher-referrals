@@ -29,19 +29,21 @@ handler.get(async (req: ApiRequest, res: ApiResponse) => {
 
 	const cursor = await arango.query(aql`
 		FOR p IN DOCUMENT("Partnerships", ${ids})
-			LET conversions = (
+			LET referrals = (
 				FOR c IN 1..1 OUTBOUND p Referrals
 				RETURN c
 			)
-			LET pending_conversions = (
-				FOR conv IN conversions
-					FILTER conv.event_id != null
+			LET conversions_length = (
+				FOR r IN referrals
+					FILTER r.event_id != null
+						COLLECT WITH COUNT INTO length
+						RETURN length
 			)
 			RETURN {
 				id: p._key,
-				hits: COUNT(conversions),
-				pending_conversions: pending_conversions,
-				successful_conversions: pending_conversions,
+				hits: COUNT(referrals),
+				pending_conversions: conversions_length,
+				successful_conversions: conversions_length,
 				rewards: p.rewards
 			}
 	`);
