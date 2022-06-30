@@ -108,6 +108,7 @@ handler.post(async (req: ApiRequest, res: ApiResponse) => {
 		const cursor = await arango.query(aql`
 			INSERT {
 				_key: ${stream.id.toString()},
+				created_at: ${Date.now()},
 				rewards: 0
 			} INTO Partnerships OPTIONS { waitForSync: true }
 			LET p = NEW

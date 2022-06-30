@@ -58,17 +58,24 @@ const Terms: React.FC<Props> = ({ campaign }) => {
 				</ListItem>
 				{campaign.events.length > 1 ? (
 					<ListItem fontSize="1em">
-						Earn rewards at different points throughout the referred user
-						journey.
+						Earn different rewards at multiple events throughout referred
+						users&apos; journey.
 						<UnorderedList>
 							{campaign.events.map((event) => (
 								<ListItem>
+									{typeof campaign.events[0].perCommit !== "undefined" &&
+									!!campaign.events[0].perCommit
+										? "At least "
+										: ""}
 									{event.rate}
 									{event.strategy === CampaignStrategies.PERCENTAGE
 										? "% in"
 										: ""}{" "}
 									{ticker}{" "}
-									{event.limit && event.limit > 0 ? "up to a limit" : ""}
+									{event.nativeLimit && event.nativeLimit > 0
+										? "up to a limit"
+										: ""}
+									{event.description ? ` when ${event.description}` : ""}
 								</ListItem>
 							))}
 						</UnorderedList>
@@ -76,6 +83,10 @@ const Terms: React.FC<Props> = ({ campaign }) => {
 				) : (
 					<ListItem fontSize="1em">
 						Earn{" "}
+						{typeof campaign.events[0].perCommit !== "undefined" &&
+						!!campaign.events[0].perCommit
+							? "at least "
+							: ""}
 						<Strong>
 							{campaign.events[0].rate}
 							{campaign.events[0].strategy === CampaignStrategies.PERCENTAGE
@@ -84,8 +95,12 @@ const Terms: React.FC<Props> = ({ campaign }) => {
 							{ticker}
 						</Strong>{" "}
 						per referral
-						{campaign.events[0].limit && campaign.events[0].limit > 0
+						{campaign.events[0].nativeLimit &&
+						campaign.events[0].nativeLimit > 0
 							? " up to a limit"
+							: ""}
+						{campaign.events[0].description
+							? ` when ${campaign.events[0].description}`
 							: ""}
 					</ListItem>
 				)}
