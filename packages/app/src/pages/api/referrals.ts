@@ -66,6 +66,8 @@ handler.post(async (req: ApiRequest, res: ApiResponse) => {
 		});
 	}
 
+	req.log.debug({ partnership }, "Partnership is valid for this referral");
+
 	if (token) {
 		try {
 			const jwe = JSON.parse(Base64.decode(token));

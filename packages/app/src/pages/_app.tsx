@@ -5,17 +5,23 @@ import { AppProps } from "next/app";
 import { DefaultSeo } from "next-seo";
 import { ThemeProvider, mergeTheme, defaultTheme } from "evergreen-ui";
 import { QueryClient, QueryClientProvider } from "react-query";
+import { useRouter } from "next/router";
 import "modern-normalize";
 
 import UserProvider from "@/providers/User";
 import { setup as setupSignals } from "@/utils/signals";
 import "@/styles/styles.scss";
 import DashboardContainer from "@/containers/Dashboard";
+import Preloader from "@/components/Preloader";
 import "@/integrations";
 
 const queryClient = new QueryClient();
 
+const dynamicStaticPathnames = ["/inv/[id]"];
+
 const App = ({ Component, pageProps }: AppProps) => {
+	const router = useRouter();
+
 	const theme = mergeTheme(defaultTheme, {
 		// See https://github.com/segmentio/evergreen/blob/master/src/themes/deprecated/foundational-styles/fontFamilies.js
 		fontFamilies: {
@@ -44,21 +50,21 @@ const App = ({ Component, pageProps }: AppProps) => {
 
 	const { seo = {}, noUser = false } = pageProps;
 
-	// return (
-	// 	<MasterProvider>
-	// 		<main id="usher-app">
-	// 			<DefaultSeo defaultTitle="Usher" titleTemplate="%s | Usher" {...seo} />
-	// 			<Component {...pageProps} />
-	// 		</main>
-	// 	</MasterProvider>
-	// );
-
 	const AppMain = (
 		<main id="usher-app">
 			<DefaultSeo defaultTitle="Usher" titleTemplate="%s | Usher" {...seo} />
 			<Component {...pageProps} />
 		</main>
 	);
+
+	// Used for dynamic routes that use getStaticProps
+	if (router.isFallback && dynamicStaticPathnames.includes(router.pathname)) {
+		return (
+			<ThemeProvider value={theme}>
+				<Preloader />
+			</ThemeProvider>
+		);
+	}
 
 	return (
 		<QueryClientProvider client={queryClient}>

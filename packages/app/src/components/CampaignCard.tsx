@@ -14,7 +14,6 @@ export type Props = {
 const CampaignCard: React.FC<Props> = ({ campaign }) => {
 	const { colors } = useTheme();
 	const rColor = useRandomColor();
-	console.log(campaign);
 
 	return (
 		<Pane padding={16} width="25%" minWidth="300px">

@@ -2,7 +2,7 @@ import React from "react";
 import { Pane, Label, Spinner } from "evergreen-ui";
 
 export type Props = {
-	message: string;
+	message?: string;
 };
 
 const Preloader: React.FC<Props> = ({ message, ...props }) => (

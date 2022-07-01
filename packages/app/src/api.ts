@@ -61,11 +61,11 @@ export const personhood = (authToken: string) => {
 };
 
 export const bot = () => ({
-	post: (requestId: string): Promise<{ success: boolean }> =>
+	post: (token: string): Promise<{ success: boolean }> =>
 		request
 			.post("bot", {
 				json: {
-					requestId
+					token
 				}
 			})
 			.json()

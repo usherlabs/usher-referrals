@@ -41,16 +41,6 @@ type CampaignPageProps = {
 	campaign: Campaign;
 };
 
-const defaultMetrics = {
-	partnerships: [],
-	hits: 0,
-	conversions: {
-		pending: 0,
-		successful: 0
-	},
-	rewards: 0
-};
-
 const getPartnershipMetrics = async (
 	ids: string[]
 ): Promise<PartnershipMetrics | null> => {
@@ -415,19 +405,19 @@ export async function getStaticPaths() {
 
 	return {
 		paths: campaigns.map((c) => ({
-			params: {
-				id: c.id as string,
-				chain: c.chain as string
-			}
+			id: c.id as string,
+			chain: c.chain as string
 		})),
-		fallback: false
+		fallback: true
 	};
 }
 
 export const getStaticProps = async ({
-	params
+	id,
+	chain
 }: {
-	params: { id: string; chain: string };
+	id: string;
+	chain: string;
 }) => {
 	if (useSeedData) {
 		const campaignsData = (await import("@/seed/campaigns.json")).default;
@@ -439,8 +429,6 @@ export const getStaticProps = async ({
 			}
 		};
 	}
-
-	const { id, chain } = params;
 
 	const arango = getArangoClient();
 	const docId = [chain, id].join(":");

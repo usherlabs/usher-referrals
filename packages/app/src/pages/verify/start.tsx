@@ -63,7 +63,7 @@ const VerifyStart = () => {
 				alignItems="center"
 				justifyContent="center"
 			>
-				<Image src={LogoImage} width={150} objectFit="contain" />
+				<Image src={LogoImage} width={120} objectFit="contain" />
 			</Pane>
 		</Pane>
 	);

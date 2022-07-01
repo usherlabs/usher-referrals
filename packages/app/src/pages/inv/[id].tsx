@@ -21,18 +21,22 @@ import { CampaignReference, Referral, CampaignConflictStrategy } from "@/types";
 
 const loader = new TileLoader({ ceramic });
 
-const onError = () => window.location.replace(`/link-error`);
+const onError = () => {
+	// window.location.replace(`/link-error`)
+};
 
-// TODO: TEST THIS PAGE -- and subsequent processes.
-const Invite = () => {
+type Props = {
+	id: string;
+};
+
+const Invite: React.FC<Props> = () => {
 	const [showCaptcha, setShowCaptcha] = useState(false);
 	const router = useRouter();
-	const { id } = router.query;
-	console.log("id", id);
+	const id = router.query.id as string;
 
 	const processInvite = useCallback(async () => {
 		// Start by fetching the campaign data for the given campaign
-		const partnershipId = id as string;
+		const partnershipId = id;
 		if (!partnershipId) {
 			handleException(
 				ono("Invite being processed when there is no partnershipId")
@@ -76,8 +80,6 @@ const Invite = () => {
 
 		const campaign = campaigns.data[0];
 
-		const { destinationUrl } = campaign.details;
-
 		let existingToken;
 		// If the campaign conflict strategy is to NOT always overwrite the referral, then check for an existing token
 		if (campaign.conflictStrategy !== CampaignConflictStrategy.OVERWRITE) {
@@ -87,7 +89,7 @@ const Invite = () => {
 
 		const referral: { success: boolean; data: Referral } = await api
 			.referrals()
-			.post(id as string, existingToken);
+			.post(id, existingToken);
 
 		if (!referral.success) {
 			onError();
@@ -102,7 +104,7 @@ const Invite = () => {
 		});
 
 		// Redirect to Advertiser Affiliate Referral URL
-		window.location.replace(destinationUrl);
+		// window.location.replace(campaign.details.destinationUrl);
 	}, [id]);
 
 	const onCaptchaSuccess = useCallback(
@@ -123,14 +125,23 @@ const Invite = () => {
 			return () => {};
 		}
 		(async () => {
-			// Initialize an agent at application startup.
-			const botd = await Botd.load({ publicKey: botdPublicKey });
+			let shouldCaptcha = false;
+			try {
+				// Initialize an agent at application startup.
+				const botd = await Botd.load({ publicKey: botdPublicKey });
 
-			// Get the visitor identifier when you need it.
-			const { requestId } = (await botd.detect()) as { requestId: string };
+				// Get the visitor identifier when you need it.
+				const { requestId } = (await botd.detect()) as { requestId: string };
 
-			const result = await api.bot().post(requestId);
-			if (!result.success) {
+				const result = await api.bot().post(requestId);
+
+				shouldCaptcha = !result.success;
+			} catch (e) {
+				handleException(e);
+				shouldCaptcha = true;
+			}
+
+			if (shouldCaptcha) {
 				setShowCaptcha(true);
 				return;
 			}
@@ -164,16 +175,27 @@ const Invite = () => {
 				alignItems="center"
 				justifyContent="center"
 			>
-				<Image src={LogoImage} width={150} objectFit="contain" />
+				<Image src={LogoImage} width={120} objectFit="contain" />
 			</Pane>
 		</Pane>
 	);
 };
 
+export async function getStaticPaths() {
+	return {
+		paths: [], // Generate not pages at build time
+		fallback: true // If there's not page, load, generate the page, and then serve the generated page...
+	};
+}
+
 export async function getStaticProps() {
 	return {
 		props: {
-			noUser: true
+			noUser: true,
+			seo: {
+				title: "You've been invited...",
+				description: `You are being redirected to the Brand's URL...`
+			}
 		}
 	};
 }
