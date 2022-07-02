@@ -20,36 +20,31 @@ handler.get(async (req: ApiRequest, res: ApiResponse) => {
 
 	req.log.info({ keys }, "Get campaigns for keys");
 
-	let query;
+	let source = aql`Campaigns`;
 	if (keys.length > 0) {
-		query = aql`
-			FOR c IN DOCUMENT("Campaigns", ${keys})
-				RETURN c
-		`;
-	} else {
-		query = aql`
-			FOR c IN Campaigns
-				RETURN c
-		`;
+		source = aql`DOCUMENT("Campaigns", ${keys})`;
 	}
-	const cursor = await arango.query(query);
-
-	let campaigns = [];
-	for await (const result of cursor) {
-		if (result !== null && !isEmpty(result)) {
-			const campaign = Object.entries(result).reduce<typeof result>(
-				(acc, [key, value]) => {
-					if (key.charAt(0) !== "_") {
-						acc[key] = value;
+	const cursor = await arango.query(aql`
+		FOR c IN ${source}
+			LET rewards_claimed = (
+				FOR cl IN 1..1 INBOUND c Verifications
+					FILTER STARTS_WITH(cl._id, "Claims")
+					COLLECT AGGREGATE amount = SUM(cl.amount)
+					RETURN amount
+			)
+			LET campaign = KEEP(c, ATTRIBUTES(c, true))
+			RETURN MERGE(
+					campaign,
+					{
+							rewards_claimed: TO_NUMBER(rewards_claimed[0])
 					}
-					return acc;
-				},
-				{}
-			);
-			campaigns.push(campaign);
-		}
-	}
-	campaigns = camelcaseKeys(campaigns, { deep: true });
+			)
+	`);
+
+	const campaigns = camelcaseKeys(
+		(await cursor.all()).filter((result) => !isEmpty(result)),
+		{ deep: true }
+	);
 
 	req.log.debug({ campaigns }, "campaigns result");
 

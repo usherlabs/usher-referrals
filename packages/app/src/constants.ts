@@ -9,3 +9,5 @@ export const CONVERSION_COOKIE_NAME = "__usher_cid" as const;
 
 export const APP_DID =
 	"did:key:z6MknpBzdxp69WYL4zRdsdRVSyq48iw5WsYdSGXSonXyGRoW" as const;
+
+export const REFERRAL_TOKEN_DELIMITER = "_" as const;

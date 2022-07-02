@@ -11,7 +11,7 @@
 		"test": "jest",
 		"test:watch": "jest --watch",
 		"test:ci": "jest --ci",
-		"clean": "rimraf .turbo .next out"
+		"clean": "del .turbo .next out"
 	},
 	"dependencies": {
 		"@aws-crypto/sha256-js": "^2.0.1",
@@ -32,7 +32,6 @@
 		"@magic-sdk/types": "^7.1.1",
 		"@sentry/nextjs": "^6.19.2",
 		"@stablelib/random": "^1.0.1",
-		"@supabase/supabase-js": "^1.34.0",
 		"@usher/ceramic": "*",
 		"arangojs": "^7.8.0",
 		"arweave": "^1.10.23",
@@ -83,13 +82,10 @@
 		"react-ga": "^3.3.0",
 		"react-loading-skeleton": "^3.1.0",
 		"react-query": "^3.39.0",
-		"react-share": "^4.4.0",
-		"redstone-smartweave": "^0.4.48",
 		"sass": "^1.49.7",
 		"uint8arrays": "^3.0.0",
 		"url-join": "^5.0.0",
 		"use-local-storage": "^2.3.6",
-		"usher-js": "^0.0.6",
 		"zod": "^3.14.4"
 	},
 	"devDependencies": {
@@ -117,6 +113,7 @@
 		"babel-plugin-add-react-displayname": "^0.0.5",
 		"babel-plugin-transform-remove-console": "^6.9.4",
 		"cssnano": "^5.1.7",
+		"del-cli": "^4.0.1",
 		"dotenv": "^16.0.0",
 		"eslint": "8.8.0",
 		"jest": "^28.1.1",
@@ -126,7 +123,6 @@
 		"next-secure-headers": "^2.2.0",
 		"pino-pretty": "^8.1.0",
 		"postcss": "^8.4.12",
-		"rimraf": "^3.0.2",
 		"typescript": "^4.6.3"
 	}
 }

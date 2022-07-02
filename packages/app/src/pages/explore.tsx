@@ -1,6 +1,7 @@
 import { Pane, Heading } from "evergreen-ui";
 import camelcaseKeys from "camelcase-keys";
 import { aql } from "arangojs";
+import isEmpty from "lodash/isEmpty";
 
 import CampaignCard from "@/components/CampaignCard";
 import { Campaign } from "@/types";
@@ -70,24 +71,10 @@ const getCampaigns = async (): Promise<Campaign[]> => {
 	const arango = getArangoClient();
 	const cursor = await arango.query(aql`
 		FOR c IN Campaigns
-			RETURN c
+			RETURN KEEP(c, ATTRIBUTES(c, true))
 	`);
 
-	const campaigns = [];
-	for await (const result of cursor) {
-		if (result !== null) {
-			const campaign = Object.entries(result).reduce<typeof result>(
-				(acc, [key, value]) => {
-					if (key.charAt(0) !== "_") {
-						acc[key] = value;
-					}
-					return acc;
-				},
-				{}
-			);
-			campaigns.push(campaign);
-		}
-	}
+	const campaigns = (await cursor.all()).filter((result) => !isEmpty(result));
 
 	return campaigns;
 };

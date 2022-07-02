@@ -42,36 +42,40 @@ handler.get(async (req: ApiRequest, res: ApiResponse) => {
 			RETURN {
 				id: p._key,
 				hits: COUNT(referrals),
-				pending_conversions: conversions_length,
-				successful_conversions: conversions_length,
-				rewards: p.rewards
+				pending_conversions: TO_NUMBER(conversions_length),
+				successful_conversions: TO_NUMBER(conversions_length),
+				rewards: TO_NUMBER(p.rewards)
 			}
 	`);
 
 	const results = await cursor.all();
 
+	const data = results.reduce<PartnershipMetrics>(
+		(acc, val) => {
+			acc.partnerships.push(val.id);
+			acc.hits += val.hits;
+			acc.conversions.pending += val.pending_conversions;
+			acc.conversions.successful += val.successful_conversions;
+			acc.rewards += val.rewards;
+
+			return acc;
+		},
+		{
+			partnerships: [],
+			hits: 0,
+			conversions: {
+				pending: 0,
+				successful: 0
+			},
+			rewards: 0
+		}
+	);
+
+	req.log.info({ data }, "Partnership metrics fetched");
+
 	return res.json({
 		success: true,
-		data: results.reduce<PartnershipMetrics>(
-			(acc, val) => {
-				acc.partnerships.push(val.id);
-				acc.hits += val.hits;
-				acc.conversions.pending += val.pending_conversions;
-				acc.conversions.successful += val.successful_conversions;
-				acc.rewards += val.rewards;
-
-				return acc;
-			},
-			{
-				partnerships: [],
-				hits: 0,
-				conversions: {
-					pending: 0,
-					successful: 0
-				},
-				rewards: 0
-			}
-		)
+		data
 	});
 });
 

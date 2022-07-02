@@ -20,6 +20,7 @@ import withAuth from "@/server/middleware/auth";
 import { getAppDID } from "@/server/did";
 import { getArangoClient } from "@/utils/arango-client";
 import { ceramic } from "@/utils/ceramic-client";
+import { REFERRAL_TOKEN_DELIMITER } from "@/constants";
 
 const handler = getHandler();
 
@@ -76,9 +77,9 @@ handler
 			});
 		}
 
-		const sp = message.split(".");
+		const sp = message.split(REFERRAL_TOKEN_DELIMITER);
 		const id = sp.shift();
-		const partnership = sp.join(".");
+		const partnership = sp.join(REFERRAL_TOKEN_DELIMITER);
 
 		req.log.debug({ token, partnership, id }, "Token is valid");
 
@@ -151,7 +152,7 @@ handler
 			message,
 			sig,
 			createdAt: Date.now(),
-			expiresIn: 10 * 60 * 60 * 1000 // 10 minutes in milliseconds
+			expiresIn: 10 * 60 * 1000 // 10 minutes in milliseconds
 		};
 		const jwe = await did.createJWE(
 			uint8arrays.fromString(Base64.encode(JSON.stringify(rawCode))),
@@ -207,6 +208,36 @@ handler
 			});
 		}
 
+		// Validate that conversion is not already converted
+		// Check conversion id of the token
+		const convCheckCursor = await arango.query(aql`
+			RETURN DOCUMENT("Conversions", ${raw.id})
+		`);
+
+		const convCheckResult = (await convCheckCursor.all()).filter(
+			(result) => !isEmpty(result)
+		);
+		if (convCheckResult.length === 0) {
+			req.log.error(
+				{ vars: { raw } },
+				"Conversion does not exist within index"
+			);
+			return res.status(400).json({
+				success: false
+			});
+		}
+
+		req.log.debug({ vars: { raw } }, "Conversion exists");
+
+		// Check if the result is already converted
+		const [convResult] = convCheckResult;
+		if (convResult.converted_at) {
+			req.log.error({ vars: { raw } }, "Seed conversion already converted");
+			return res.status(400).json({
+				success: false
+			});
+		}
+
 		const stream = await loader.load(raw.partnership);
 		// Validate that the provided partnership is valid
 		if (
@@ -217,11 +248,13 @@ handler
 		) {
 			req.log.info(
 				{
-					code,
-					raw,
-					streamContent: stream.content,
-					schema: stream.metadata.schema,
-					modelSchema: ShareableOwnerModel.schemas.partnership
+					vars: {
+						code,
+						raw,
+						streamContent: stream.content,
+						schema: stream.metadata.schema,
+						modelSchema: ShareableOwnerModel.schemas.partnership
+					}
 				},
 				"Partnership is invalid"
 			);
@@ -254,7 +287,10 @@ handler
 		// Validate the Conversion Data
 		// 1. Event exists
 		if (typeof campaign.events[conversion.eventId] === "undefined") {
-			req.log.error({ campaign, conversion }, "Event ID does not exist");
+			req.log.error(
+				{ vars: { campaign, conversion } },
+				"Event ID does not exist"
+			);
 			return res.status(400).json({
 				success: false,
 				message: "Event ID does not exist"
@@ -279,7 +315,10 @@ handler
 				const nativeIdCheckResults = await nativeIdCheckCursor.all();
 				const [length] = nativeIdCheckResults;
 				if (length > 0) {
-					req.log.warn({ campaign, conversion }, "Native ID already Converted");
+					req.log.warn(
+						{ vars: { campaign, conversion } },
+						"Native ID already Converted"
+					);
 					return res.json({
 						success: false,
 						message: "Native ID already Converted"
@@ -296,7 +335,10 @@ handler
 				const remainingCommittable = event.nativeLimit - processed;
 				if (remainingCommittable <= 0) {
 					// Cannot commit any more for this native id
-					req.log.warn({ campaign, conversion }, "Native ID already Converted");
+					req.log.warn(
+						{ vars: { campaign, conversion } },
+						"Native ID already Converted"
+					);
 					return res.json({
 						success: false,
 						message: "Native ID already Converted"
@@ -314,7 +356,7 @@ handler
 			// If nativeLimit is defined, but no commit is defined: (we're being very explicit with requiring commit value)
 			// Return an error if the event is configured to recieve values that is does not
 			const errMsg = `'nativeLimit' is configured for the Event, but Converison does not include 'commit'`;
-			req.log.warn({ campaign, conversion }, errMsg);
+			req.log.warn({ vars: { campaign, conversion } }, errMsg);
 			return res.json({
 				success: false,
 				message: errMsg
@@ -324,13 +366,15 @@ handler
 		// Determine the reward amount
 		let rewards = rate;
 		// Only apply perCommit logic, there is a commit value
-		if (typeof event.perCommit !== "undefined" && event.perCommit) {
+		if (typeof event.perCommit === "number" && event.perCommit > 0) {
 			if (typeof commit === "number") {
-				rewards = rate * commit;
+				// This allows for arbitrary commit values to be anything -- and for perCommit to determine a multiplier.
+				// ie. for data based reward can be per 1kb by commit (X bytes / 1000 bytes) * rate.
+				rewards = rate * (commit / event.perCommit);
 			} else {
 				// Return an error if the event is configured to recieve values that is does not
 				const errMsg = `'perCommit' is configured for Event, but Converison does not include 'commit'`;
-				req.log.warn({ campaign, conversion }, errMsg);
+				req.log.warn({ vars: { campaign, conversion } }, errMsg);
 				return res.json({
 					success: false,
 					message: errMsg
@@ -348,7 +392,7 @@ handler
 				rewards *= amount;
 			} else {
 				const errMsg = `'amount' missing from 'metadata' for percentage based conversion event`;
-				req.log.warn({ campaign, conversion }, errMsg);
+				req.log.warn({ vars: { campaign, conversion } }, errMsg);
 				return res.json({
 					success: false,
 					message: errMsg
@@ -357,15 +401,15 @@ handler
 		}
 
 		req.log.info(
-			{ rate, commit, rewards, campaign, conversion },
+			{ vars: { rate, commit, rewards, campaign, conversion } },
 			"Saving conversion..."
 		);
 		// Save the Conversion Data
 		// Update the associated Partnership's reward amount
 		const saveCursor = await arango.query(aql`
-			UPDATE {
-				_key: ${raw.id},
-				partnership: ${raw.partnership}
+			LET pDoc = DOCUMENT("Partnerships", ${partnershipId})
+			UPDATE { _key: ${raw.id}, } WITH {
+				partnership: ${partnershipId},
 				message: ${raw.message},
 				sig: ${raw.sig},
 				event_id: ${conversion.eventId},
@@ -374,13 +418,14 @@ handler
 				metadata: ${conversion.metadata || null},
 				commit: ${commit || null}
 			} IN Conversions OPTIONS { waitForSync: true }
-			UPDATE {
-				_key: ${partnershipId}
-				rewards: ${rewards}
+			LET conversion = NEW
+			UPDATE pDoc WITH {
+				rewards: SUM([pDoc.rewards, ${rewards}])
 			} IN Partnerships OPTIONS { waitForSync: true }
+			LET partnership = NEW
 			RETURN {
-				conversion: DOCUMENT("Conversions", ${raw.id}),
-				partnership: DOCUMENT("Partnerships", ${partnershipId})
+				conversion,
+				partnership
 			}
 		`);
 

@@ -5,6 +5,7 @@ import camelcaseKeys from "camelcase-keys";
 import { css } from "@linaria/core";
 import { aql } from "arangojs";
 import { useQuery } from "react-query";
+import isEmpty from "lodash/isEmpty";
 
 import { useUser } from "@/hooks/";
 import { MAX_SCREEN_WIDTH } from "@/constants";
@@ -80,6 +81,15 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 	const metrics = useQuery(["partnership-metrics", viewingPartnerships], () =>
 		getPartnershipMetrics(viewingPartnerships.map((p) => p.id))
 	);
+
+	// Ensure that the user knows what they're being rewarded regardless of their internal rewards calculation.
+	let claimableRewards = metrics.data ? metrics.data.rewards : 0;
+	if (!!campaign.rewardsClaimed && !!campaign.reward.limit) {
+		const remainingRewards = campaign.reward.limit - campaign.rewardsClaimed;
+		if (claimableRewards > remainingRewards) {
+			claimableRewards = remainingRewards;
+		}
+	}
 
 	const onStartPartnership = useCallback(() => {
 		if (!isLoggedIn) {
@@ -274,10 +284,12 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 									marginBottom={12}
 								>
 									<Progress
-										value={0}
-										label={`${0} / ${campaign.reward.limit} ${
-											campaign.reward.ticker
-										}${
+										value={
+											(campaign.rewardsClaimed || 0) / campaign.reward.limit
+										}
+										label={`${campaign.rewardsClaimed || 0} / ${
+											campaign.reward.limit
+										} ${campaign.reward.ticker}${
 											campaign.reward.type !== RewardTypes.TOKEN
 												? ` ${campaign.reward.type.toUpperCase()}s`
 												: ""
@@ -309,7 +321,7 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 										<ValueCard
 											isLoading={metrics.isLoading}
 											ticker={campaign.reward.ticker}
-											value={metrics.data ? metrics.data.rewards : 0}
+											value={claimableRewards}
 											id="claimable-rewards"
 											label="Claimable Rewards"
 										/>
@@ -435,21 +447,26 @@ export const getStaticProps = async ({
 	const arango = getArangoClient();
 	const docId = [chain, id].join(":");
 	const cursor = await arango.query(aql`
-		RETURN DOCUMENT("Campaigns", ${docId})
+		LET c = DOCUMENT("Campaigns", ${docId})
+		LET rewards_claimed = (
+			FOR cl IN 1..1 INBOUND c Verifications
+				FILTER STARTS_WITH(cl._id, "Claims")
+				COLLECT AGGREGATE amount = SUM(cl.amount)
+				RETURN amount
+		)
+		LET campaign = KEEP(c, ATTRIBUTES(c, true))
+		RETURN MERGE(
+				campaign,
+				{
+						rewards_claimed: TO_NUMBER(rewards_claimed[0])
+				}
+		)
 	`);
 
-	const results = (await cursor.all()).filter((res) => res !== null);
+	const results = (await cursor.all()).filter((result) => !isEmpty(result));
 
 	if (results.length > 0) {
-		const campaign = Object.entries(results[0]).reduce<typeof results[0]>(
-			(acc, [key, value]) => {
-				if (key.charAt(0) !== "_") {
-					acc[key] = value;
-				}
-				return acc;
-			},
-			{}
-		) as Campaign;
+		const [campaign] = results;
 
 		return {
 			props: {

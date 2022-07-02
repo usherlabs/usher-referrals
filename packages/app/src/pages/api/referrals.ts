@@ -12,6 +12,7 @@ import getHandler from "@/server/middleware";
 import { getAppDID } from "@/server/did";
 import { ceramic } from "@/utils/ceramic-client";
 import { getArangoClient } from "@/utils/arango-client";
+import { REFERRAL_TOKEN_DELIMITER } from "@/constants";
 
 const handler = getHandler();
 
@@ -54,11 +55,13 @@ handler.post(async (req: ApiRequest, res: ApiResponse) => {
 	) {
 		req.log.info(
 			{
-				partnership,
-				campaignRef,
-				controller,
-				schema: stream.metadata.schema,
-				modelSchema: ShareableOwnerModel.schemas.partnership
+				vars: {
+					partnership,
+					campaignRef,
+					controller,
+					schema: stream.metadata.schema,
+					modelSchema: ShareableOwnerModel.schemas.partnership
+				}
 			},
 			"Partnership is invalid"
 		);
@@ -73,10 +76,10 @@ handler.post(async (req: ApiRequest, res: ApiResponse) => {
 		try {
 			const jwe = JSON.parse(Base64.decode(token));
 			const raw = await did.decryptJWE(jwe);
-			const sp = uint8arrays.toString(raw).split(".");
+			const sp = uint8arrays.toString(raw).split(REFERRAL_TOKEN_DELIMITER);
 			// const referralId =
 			sp.shift();
-			const partnershipIdFromToken = sp.join(".");
+			const partnershipIdFromToken = sp.join(REFERRAL_TOKEN_DELIMITER);
 			if (partnershipIdFromToken === partnership) {
 				return res.json({
 					success: true,
@@ -88,7 +91,7 @@ handler.post(async (req: ApiRequest, res: ApiResponse) => {
 			}
 		} catch (e) {
 			req.log.warn(
-				{ token, partnership },
+				{ vars: { token, partnership } },
 				"Could not decrypt conversion cookie token"
 			);
 		}
@@ -103,11 +106,14 @@ handler.post(async (req: ApiRequest, res: ApiResponse) => {
 	);
 	if (checkResults.length > 0) {
 		req.log.info(
-			{ partnership, results: checkResults },
+			{ vars: { partnership, results: checkResults } },
 			"Partnership already indexed"
 		);
 	} else {
-		req.log.info({ partnership, controller }, "Indexing Partnership...");
+		req.log.info(
+			{ vars: { partnership, controller } },
+			"Indexing Partnership..."
+		);
 		const partnershipId = stream.id.toString();
 		try {
 			const cursor = await arango.query(aql`
@@ -177,7 +183,7 @@ handler.post(async (req: ApiRequest, res: ApiResponse) => {
 	const [{ conversion }] = results;
 	const conversionId = conversion._key;
 
-	const raw = [conversionId, partnership].join(".");
+	const raw = [conversionId, partnership].join(REFERRAL_TOKEN_DELIMITER);
 	const jwe = await did.createJWE(uint8arrays.fromString(raw), [did.id]);
 	const newToken = Base64.encodeURI(JSON.stringify(jwe));
 

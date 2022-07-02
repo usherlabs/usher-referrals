@@ -85,8 +85,8 @@ export type Campaign = {
 		// 		the referred user can continue converting until the total of Conversion.commit meets this nativeLimit
 		nativeLimit?: number;
 		// If no reward "perCommit" is defined, the behaviour is standard (ie. X reward rate per Conversion)
-		// Otherwise, the reward amount can be relative to the commit value in the conversion -- ie. reward = rate * commit
-		perCommit?: boolean;
+		// Otherwise, the reward amount can be relative to the commit value in the conversion -- ie. reward = rate * (commit / perCommit)
+		perCommit?: number;
 		// Some description for when the event will trigger.
 		description?: string;
 	}[];
@@ -94,6 +94,7 @@ export type Campaign = {
 	conflictStrategy: CampaignConflictStrategy;
 	details: CampaignDetails;
 	advertiser: Advertiser;
+	rewardsClaimed?: number;
 };
 
 export type Wallet = {
