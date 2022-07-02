@@ -1,5 +1,6 @@
 import { aql } from "arangojs";
 import isEmpty from "lodash/isEmpty";
+import camelcaseKeys from "camelcase-keys";
 
 import { ApiResponse, ApiRequest } from "@/types";
 import getHandler from "@/server/middleware";
@@ -33,7 +34,7 @@ handler.get(async (req: ApiRequest, res: ApiResponse) => {
 	}
 	const cursor = await arango.query(query);
 
-	const campaigns = [];
+	let campaigns = [];
 	for await (const result of cursor) {
 		if (result !== null && !isEmpty(result)) {
 			const campaign = Object.entries(result).reduce<typeof result>(
@@ -48,6 +49,7 @@ handler.get(async (req: ApiRequest, res: ApiResponse) => {
 			campaigns.push(campaign);
 		}
 	}
+	campaigns = camelcaseKeys(campaigns, { deep: true });
 
 	req.log.debug({ campaigns }, "campaigns result");
 

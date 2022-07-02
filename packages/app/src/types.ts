@@ -149,9 +149,9 @@ export type Conversion = {
 	eventId: number;
 	createdAt: number;
 	convertedAt: number;
-	nativeId: string;
-	metadata: Record<string, string | number | boolean>;
-	commit: number;
+	nativeId: string | null;
+	metadata: Record<string, string | number | boolean> | null;
+	commit: number | null;
 };
 
 export type Exception = Error & {

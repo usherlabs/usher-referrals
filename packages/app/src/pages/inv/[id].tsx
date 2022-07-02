@@ -104,6 +104,7 @@ const Invite: React.FC<Props> = () => {
 		});
 
 		// Redirect to Advertiser Affiliate Referral URL
+		console.log({ referral, url: campaign.details.destinationUrl });
 		// window.location.replace(campaign.details.destinationUrl);
 	}, [id]);
 

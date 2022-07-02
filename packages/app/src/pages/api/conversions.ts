@@ -31,8 +31,8 @@ const schema = z.object({
 	code: z.string(),
 	eventId: z.number(),
 	nativeId: z.string().optional(),
-	metadata: z.record(z.union([z.string(), z.number(), z.boolean()])),
-	commit: z.number()
+	metadata: z.record(z.union([z.string(), z.number(), z.boolean()])).optional(),
+	commit: z.number().optional()
 });
 
 const isPartnershipStreamValid = (stream: TileDocument<CampaignReference>) => {
@@ -80,10 +80,12 @@ handler
 		const id = sp.shift();
 		const partnership = sp.join(".");
 
+		req.log.debug({ token, partnership, id }, "Token is valid");
+
 		// Check conversion id of the token
 		const checkCursor = await arango.query(aql`
-		RETURN DOCUMENT("Conversions", ${id})
-	`);
+			RETURN DOCUMENT("Conversions", ${id})
+		`);
 
 		const checkResult = (await checkCursor.all()).filter(
 			(result) => !isEmpty(result)
@@ -97,6 +99,9 @@ handler
 				success: false
 			});
 		}
+
+		req.log.debug({ id }, "Conversion exists");
+
 		// Check if the result is already converted
 		const [result] = checkResult;
 		if (result.converted_at) {
@@ -133,6 +138,8 @@ handler
 				success: false
 			});
 		}
+
+		req.log.debug({ partnership }, "Partnership is valid");
 
 		// Once all is valid, sign the message
 		const jws = await did.createJWS(message);
@@ -257,59 +264,83 @@ handler
 		// 2. native_id is unique for that given Campaign and event_id -- unless there is a nativeLimit
 		let { rate } = event;
 		let { commit } = conversion;
-		if (typeof event.nativeLimit === "undefined") {
-			const nativeIdCheckCursor = await arango.query(aql`
-				FOR c IN 1..1 OUTBOUND CONCAT("Partnerships/", ${partnershipId}) Referrals
-					FILTER c.native_id == ${conversion.nativeId} AND c.event_id == ${conversion.eventId}
-					COLLECT WITH COUNT INTO length
-					RETURN length
-			`);
-			const nativeIdCheckResults = await nativeIdCheckCursor.all();
-			const [length] = nativeIdCheckResults;
-			if (length > 0) {
-				req.log.warn({ campaign, conversion }, "Native ID already Converted");
-				return res.json({
-					success: false,
-					message: "Native ID already Converted"
-				});
+		if (
+			typeof conversion.nativeId === "string" &&
+			!isEmpty(conversion.nativeId)
+		) {
+			// Only check for native id related uniqueness if native_id is provided.
+			if (typeof event.nativeLimit === "undefined") {
+				const nativeIdCheckCursor = await arango.query(aql`
+					FOR c IN 1..1 OUTBOUND CONCAT("Partnerships/", ${partnershipId}) Referrals
+						FILTER c.native_id == ${conversion.nativeId} AND c.event_id == ${conversion.eventId}
+						COLLECT WITH COUNT INTO length
+						RETURN length
+				`);
+				const nativeIdCheckResults = await nativeIdCheckCursor.all();
+				const [length] = nativeIdCheckResults;
+				if (length > 0) {
+					req.log.warn({ campaign, conversion }, "Native ID already Converted");
+					return res.json({
+						success: false,
+						message: "Native ID already Converted"
+					});
+				}
+			} else if (typeof commit === "number") {
+				const processedCheckCursor = await arango.query(aql`
+					FOR c IN 1..1 OUTBOUND CONCAT("Partnerships/", ${partnershipId}) Referrals
+						FILTER c.native_id == ${conversion.nativeId} AND c.event_id == ${conversion.eventId}
+						COLLECT AGGREGATE processed = SUM(c.commit)
+						RETURN processed
+				`);
+				const [processed] = await processedCheckCursor.all();
+				const remainingCommittable = event.nativeLimit - processed;
+				if (remainingCommittable <= 0) {
+					// Cannot commit any more for this native id
+					req.log.warn({ campaign, conversion }, "Native ID already Converted");
+					return res.json({
+						success: false,
+						message: "Native ID already Converted"
+					});
+				}
+
+				let ratePercentage = 1;
+				if (remainingCommittable < commit) {
+					commit = remainingCommittable;
+					ratePercentage = remainingCommittable / commit;
+				}
+				rate = ratePercentage * event.rate;
 			}
 		} else {
-			const processedCheckCursor = await arango.query(aql`
-				FOR c IN 1..1 OUTBOUND CONCAT("Partnerships/", ${partnershipId}) Referrals
-					FILTER c.native_id == ${conversion.nativeId} AND c.event_id == ${conversion.eventId}
-					COLLECT AGGREGATE processed = SUM(c.commit)
-					RETURN processed
-			`);
-			const [processed] = await processedCheckCursor.all();
-			const remainingCommittable = event.nativeLimit - processed;
-			if (remainingCommittable <= 0) {
-				// Cannot commit any more for this native id
-				req.log.warn({ campaign, conversion }, "Native ID already Converted");
-				return res.json({
-					success: false,
-					message: "Native ID already Converted"
-				});
-			}
-
-			let ratePercentage = 1;
-			let toBeCommit = conversion.commit;
-			if (remainingCommittable < toBeCommit) {
-				toBeCommit = remainingCommittable;
-				ratePercentage = remainingCommittable / toBeCommit;
-			}
-			rate = ratePercentage * event.rate;
-			commit = toBeCommit;
+			// If nativeLimit is defined, but no commit is defined: (we're being very explicit with requiring commit value)
+			// Return an error if the event is configured to recieve values that is does not
+			const errMsg = `'nativeLimit' is configured for the Event, but Converison does not include 'commit'`;
+			req.log.warn({ campaign, conversion }, errMsg);
+			return res.json({
+				success: false,
+				message: errMsg
+			});
 		}
 
 		// Determine the reward amount
 		let rewards = rate;
+		// Only apply perCommit logic, there is a commit value
 		if (typeof event.perCommit !== "undefined" && event.perCommit) {
-			rewards = rate * commit;
+			if (typeof commit === "number") {
+				rewards = rate * commit;
+			} else {
+				// Return an error if the event is configured to recieve values that is does not
+				const errMsg = `'perCommit' is configured for Event, but Converison does not include 'commit'`;
+				req.log.warn({ campaign, conversion }, errMsg);
+				return res.json({
+					success: false,
+					message: errMsg
+				});
+			}
 		}
 
 		// Add Percentage base Rate calculation -- based on amount in metadata
 		if (event.strategy === CampaignStrategies.PERCENTAGE) {
-			let { amount } = conversion.metadata;
+			let amount = conversion.metadata?.amount;
 			if (typeof amount === "string") {
 				amount = parseFloat(amount);
 			}
@@ -338,10 +369,10 @@ handler
 				message: ${raw.message},
 				sig: ${raw.sig},
 				event_id: ${conversion.eventId},
-				native_id: ${conversion.nativeId},
 				converted_at: ${Date.now()},
-				metadata: ${conversion.metadata},
-				commit: ${commit}
+				native_id: ${conversion.nativeId || null},
+				metadata: ${conversion.metadata || null},
+				commit: ${commit || null}
 			} IN Conversions OPTIONS { waitForSync: true }
 			UPDATE {
 				_key: ${partnershipId}

@@ -179,7 +179,7 @@ handler.post(async (req: ApiRequest, res: ApiResponse) => {
 
 	const raw = [conversionId, partnership].join(".");
 	const jwe = await did.createJWE(uint8arrays.fromString(raw), [did.id]);
-	const newToken = Base64.encode(JSON.stringify(jwe));
+	const newToken = Base64.encodeURI(JSON.stringify(jwe));
 
 	return res.json({
 		success: true,
