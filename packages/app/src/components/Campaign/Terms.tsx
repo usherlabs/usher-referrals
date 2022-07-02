@@ -40,14 +40,19 @@ const Terms: React.FC<Props> = ({ campaign }) => {
 					font-size: 1em;
 					margin: 1px 0 10px 0;
 				}
+				li,
+				strong {
+					font-size: inherit;
+				}
 				svg {
 					height: 20px;
 					width: 20px;
 				}
 			`}
+			fontSize="0.95em"
 		>
 			<UnorderedList marginBottom={12}>
-				<ListItem fontSize="1em">
+				<ListItem>
 					Rewards are paid in{" "}
 					<Strong>
 						{name} ({ticker})
@@ -57,9 +62,8 @@ const Terms: React.FC<Props> = ({ campaign }) => {
 					)}
 				</ListItem>
 				{campaign.events.length > 1 ? (
-					<ListItem fontSize="1em">
-						Earn different rewards at multiple events throughout referred
-						users&apos; journey.
+					<ListItem>
+						Rewards are earned at multiple events
 						<UnorderedList>
 							{campaign.events.map((event) => (
 								<ListItem>
@@ -81,7 +85,7 @@ const Terms: React.FC<Props> = ({ campaign }) => {
 						</UnorderedList>
 					</ListItem>
 				) : (
-					<ListItem fontSize="1em">
+					<ListItem>
 						Earn{" "}
 						{typeof campaign.events[0].perCommit !== "undefined" &&
 						!!campaign.events[0].perCommit
