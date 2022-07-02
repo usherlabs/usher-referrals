@@ -3,6 +3,7 @@ import { Base64 } from "js-base64";
 import * as uint8arrays from "uint8arrays";
 import { TileLoader } from "@glazed/tile-loader";
 import { aql } from "arangojs";
+import { ArangoError } from "arangojs/error";
 import { ShareableOwnerModel } from "@usher/ceramic";
 import isEmpty from "lodash/isEmpty";
 
@@ -97,7 +98,7 @@ handler.post(async (req: ApiRequest, res: ApiResponse) => {
 	const checkCursor = await arango.query(aql`
 		RETURN DOCUMENT("Partnerships", ${partnership})
 	`);
-	const checkResults = (await checkCursor.all()).map(
+	const checkResults = (await checkCursor.all()).filter(
 		(result) => !isEmpty(result)
 	);
 	if (checkResults.length > 0) {
@@ -106,37 +107,52 @@ handler.post(async (req: ApiRequest, res: ApiResponse) => {
 			"Partnership already indexed"
 		);
 	} else {
-		req.log.info({ partnership }, "Creating Partnership...");
-		const cursor = await arango.query(aql`
+		req.log.info({ partnership, controller }, "Indexing Partnership...");
+		const partnershipId = stream.id.toString();
+		try {
+			const cursor = await arango.query(aql`
 			INSERT {
-				_key: ${stream.id.toString()},
+				_key: ${partnershipId},
 				created_at: ${Date.now()},
 				rewards: 0
 			} INTO Partnerships OPTIONS { waitForSync: true }
 			LET p = NEW
-			INSERT {
-				_from: p._id,
-				_to: ${`Campaigns/${[campaignRef.chain, campaignRef.address].join(":")}`}
-			} INTO Engagements OPTIONS { waitForSync: true }
-			LET ce = NEW
 			UPSERT { _key: ${controller} }
 			INSERT { _key: ${controller}, created_at: ${Date.now()} }
 			UPDATE {}
 			IN Dids OPTIONS { waitForSync: true }
-			INSERT {
-				_from: CONCAT("Dids/", ${controller}),
-				_to: p._id
-			} INTO Engagements OPTIONS { waitForSync: true }
-			LET pe = NEW
+			LET edges = (
+				FOR params IN [
+					{
+						_from: p._id,
+						_to: ${`Campaigns/${[campaignRef.chain, campaignRef.address].join(":")}`}
+					},
+					{
+						_from: CONCAT("Dids/", ${controller}),
+						_to: p._id
+					}
+				]
+					INSERT {
+						_from: params._from,
+						_to: params._to
+					} INTO Engagements
+					RETURN NEW
+			)
 			RETURN {
-				partnership: p,
-				campaignEngagement: ce,
-				parternshipEngagement: pe
+				p,
+				edges
 			}
 		`);
 
-		const results = await cursor.all();
-		req.log.info({ results }, "Partnership indexed");
+			const results = await cursor.all();
+			req.log.info({ results }, "Partnership indexed");
+		} catch (e) {
+			if (e instanceof ArangoError && e.errorNum === 1200) {
+				req.log.warn({ conflictErr: e }, "Arango Conflict Error");
+			} else {
+				throw e;
+			}
+		}
 	}
 
 	// Create the conversion and the referral edge
@@ -166,7 +182,7 @@ handler.post(async (req: ApiRequest, res: ApiResponse) => {
 	const newToken = Base64.encode(JSON.stringify(jwe));
 
 	return res.json({
-		success: false,
+		success: true,
 		data: {
 			isNew: true,
 			token: newToken

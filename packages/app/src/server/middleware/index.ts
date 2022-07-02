@@ -14,6 +14,7 @@ export const onError = (
 	res: NextApiResponse
 ) => {
 	handleException(err);
+	req.log.error({ err }, "500 Error Response");
 
 	const output: {
 		success: boolean;

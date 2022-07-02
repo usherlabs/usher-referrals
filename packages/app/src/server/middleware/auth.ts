@@ -4,6 +4,7 @@ import { DagJWS, DID } from "dids";
 import { getResolver as getKeyResolver } from "key-did-resolver";
 import isEmpty from "lodash/isEmpty";
 import { aql } from "arangojs";
+import { ArangoError } from "arangojs/error";
 // import util from "util";
 
 import { getArangoClient } from "@/utils/arango-client";
@@ -91,35 +92,45 @@ const withAuth = nextConnect().use(
 
 			req.log.debug({ user: req.user }, "User auth request");
 
-			// ? Here we simply update the authenticated dids with data, and ensure there are relations between dids.
-			// ? If Dids associated to two clusters of Dids are authenticated, then those clusters will have a relation
-			await arango.query(aql`
-				LET user = ${req.user}
-				LET dids = (
-					FOR u IN user
-						UPSERT { _key: u.did }
-						INSERT { _key: u.did, wallet: u.wallet, created_at: ${Date.now()} }
-						UPDATE { wallet: u.wallet }
-						IN Dids OPTIONS { waitForSync: true }
-						RETURN u.did
-				)
-				FOR a IN dids
-					FOR b IN dids
-						FILTER a != b
-						LET didA = CONCAT("Dids/", a)
-						LET didB = CONCAT("Dids/", b)
-						LET edge = (
-								FOR r IN Related
-										FILTER r._from == didA AND r._to == didB
-										RETURN r
-						)
-						FILTER COUNT(edge) == 0
-							INSERT {
-								_from: didA,
-								_to: didB
-							} INTO Related OPTIONS { waitForSync: true }
-							RETURN NEW
-			`);
+			try {
+				// ? Here we simply update the authenticated dids with data, and ensure there are relations between dids.
+				// ? If Dids associated to two clusters of Dids are authenticated, then those clusters will have a relation
+				await arango.query(
+					aql`
+					LET user = ${req.user}
+					LET dids = (
+						FOR u IN user
+							UPSERT { _key: u.did }
+							INSERT { _key: u.did, wallet: u.wallet, created_at: ${Date.now()} }
+							UPDATE { wallet: u.wallet }
+							IN Dids OPTIONS { waitForSync: true }
+							RETURN u.did
+					)
+					FOR a IN dids
+						FOR b IN dids
+							FILTER a != b
+							LET didA = CONCAT("Dids/", a)
+							LET didB = CONCAT("Dids/", b)
+							LET edge = (
+									FOR r IN Related
+											FILTER r._from == didA AND r._to == didB
+											RETURN r
+							)
+							FILTER COUNT(edge) == 0
+								INSERT {
+									_from: didA,
+									_to: didB
+								} INTO Related OPTIONS { waitForSync: true }
+								RETURN NEW
+				`
+				);
+			} catch (e) {
+				if (e instanceof ArangoError && e.errorNum === 1200) {
+					req.log.warn({ conflictErr: e }, "Arango Conflict Error");
+				} else {
+					throw e;
+				}
+			}
 
 			return next();
 		} catch (e) {

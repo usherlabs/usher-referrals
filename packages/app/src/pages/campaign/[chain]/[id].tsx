@@ -405,19 +405,19 @@ export async function getStaticPaths() {
 
 	return {
 		paths: campaigns.map((c) => ({
-			id: c.id as string,
-			chain: c.chain as string
+			params: {
+				id: c.id as string,
+				chain: c.chain as string
+			}
 		})),
 		fallback: true
 	};
 }
 
 export const getStaticProps = async ({
-	id,
-	chain
+	params
 }: {
-	id: string;
-	chain: string;
+	params: { id: string; chain: string };
 }) => {
 	if (useSeedData) {
 		const campaignsData = (await import("@/seed/campaigns.json")).default;
@@ -429,6 +429,8 @@ export const getStaticProps = async ({
 			}
 		};
 	}
+
+	const { id, chain } = params;
 
 	const arango = getArangoClient();
 	const docId = [chain, id].join(":");
