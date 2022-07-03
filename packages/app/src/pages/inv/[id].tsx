@@ -10,7 +10,7 @@ import ono from "@jsdevtools/ono";
 import { ShareableOwnerModel } from "@usher/ceramic";
 
 import { ceramic } from "@/utils/ceramic-client";
-import { CONVERSION_COOKIE_NAME } from "@/constants";
+import { CONVERSION_COOKIE_NAME, CONVERSION_COOKIE_OPTIONS } from "@/constants";
 import { botdPublicKey } from "@/env-config";
 import Preloader from "@/components/Preloader";
 import Captcha from "@/components/Captcha";
@@ -98,10 +98,12 @@ const Invite: React.FC<Props> = () => {
 
 		// If the Terms have NOT defined that new Affiliate Links will overwrite the conversion
 		// The default behaviour is to simply skip replacing the conversion cookie if a valid one exists
-		setCookie(null, CONVERSION_COOKIE_NAME, referral.data.token, {
-			maxAge: 30 * 24 * 60 * 60, // 30 days
-			path: "/satellite"
-		});
+		setCookie(
+			null,
+			CONVERSION_COOKIE_NAME,
+			referral.data.token,
+			CONVERSION_COOKIE_OPTIONS
+		);
 
 		// Redirect to Advertiser Affiliate Referral URL
 		// console.log({ referral, url: campaign.details.destinationUrl });
