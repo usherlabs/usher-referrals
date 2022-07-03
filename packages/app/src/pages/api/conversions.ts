@@ -1,7 +1,6 @@
 import { TileDocument } from "@ceramicnetwork/stream-tile";
 import { z } from "zod";
 import { Base64 } from "js-base64";
-import cors from "cors";
 import * as uint8arrays from "uint8arrays";
 import { aql } from "arangojs";
 import isEmpty from "lodash/isEmpty";
@@ -60,7 +59,6 @@ const isPartnershipStreamValid = (stream: TileDocument<CampaignReference>) => {
 
 // Initializing the cors middleware
 handler
-	.use(cors())
 	.use(withAuth)
 	.get(async (req: ApiRequest, res: ApiResponse) => {
 		let body: z.infer<typeof startSchema>;
@@ -401,16 +399,16 @@ handler
 					ratePercentage = remainingCommittable / commit;
 				}
 				rate = ratePercentage * event.rate;
+			} else {
+				// If nativeLimit is defined, but no commit is defined: (we're being very explicit with requiring commit value)
+				// Return an error if the event is configured to recieve values that is does not
+				const errMsg = `'nativeLimit' is configured for the Event, but Converison does not include 'commit'`;
+				req.log.warn({ vars: { campaign, conversion } }, errMsg);
+				return res.json({
+					success: false,
+					message: errMsg
+				});
 			}
-		} else {
-			// If nativeLimit is defined, but no commit is defined: (we're being very explicit with requiring commit value)
-			// Return an error if the event is configured to recieve values that is does not
-			const errMsg = `'nativeLimit' is configured for the Event, but Converison does not include 'commit'`;
-			req.log.warn({ vars: { campaign, conversion } }, errMsg);
-			return res.json({
-				success: false,
-				message: errMsg
-			});
 		}
 
 		// Determine the reward amount
@@ -484,7 +482,11 @@ handler
 		req.log.info({ saveResults }, "Conversion and Partnership Saved!");
 
 		return res.json({
-			success: true
+			success: true,
+			data: {
+				conversion: saveResults[0].conversion._key,
+				partnership: saveResults[0].partnership._key
+			}
 		});
 	});
 

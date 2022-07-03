@@ -84,10 +84,12 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 
 	// Ensure that the user knows what they're being rewarded regardless of their internal rewards calculation.
 	let claimableRewards = metrics.data ? metrics.data.rewards : 0;
-	if (!!campaign.rewardsClaimed && !!campaign.reward.limit) {
-		const remainingRewards = campaign.reward.limit - campaign.rewardsClaimed;
-		if (claimableRewards > remainingRewards) {
-			claimableRewards = remainingRewards;
+	if (campaign) {
+		if (!!campaign.rewardsClaimed && !!campaign.reward.limit) {
+			const remainingRewards = campaign.reward.limit - campaign.rewardsClaimed;
+			if (claimableRewards > remainingRewards) {
+				claimableRewards = remainingRewards;
+			}
 		}
 	}
 

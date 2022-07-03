@@ -155,6 +155,15 @@ export type Conversion = {
 	commit: number | null;
 };
 
+export type ConversionTrack = {
+	id: string; // Campaign ID
+	chain: string;
+	eventId: number;
+	nativeId?: string;
+	metadata?: Record<string, string | number | boolean>;
+	commit?: number;
+};
+
 export type Exception = Error & {
 	statusCode?: number;
 };
