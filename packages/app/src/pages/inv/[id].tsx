@@ -100,7 +100,7 @@ const Invite: React.FC<Props> = () => {
 		// The default behaviour is to simply skip replacing the conversion cookie if a valid one exists
 		setCookie(null, CONVERSION_COOKIE_NAME, referral.data.token, {
 			maxAge: 30 * 24 * 60 * 60, // 30 days
-			path: "/"
+			path: "/satellite"
 		});
 
 		// Redirect to Advertiser Affiliate Referral URL

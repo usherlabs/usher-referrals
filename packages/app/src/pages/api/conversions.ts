@@ -30,10 +30,18 @@ const loader = new TileLoader({ ceramic });
 
 const schema = z.object({
 	code: z.string(),
+	id: z.string(),
+	chain: z.string(),
 	eventId: z.number(),
 	nativeId: z.string().optional(),
 	metadata: z.record(z.union([z.string(), z.number(), z.boolean()])).optional(),
 	commit: z.number().optional()
+});
+
+const startSchema = z.object({
+	id: z.string(),
+	chain: z.string(),
+	token: z.string()
 });
 
 const isPartnershipStreamValid = (stream: TileDocument<CampaignReference>) => {
@@ -55,7 +63,15 @@ handler
 	.use(cors())
 	.use(withAuth)
 	.get(async (req: ApiRequest, res: ApiResponse) => {
-		const { token } = req.query;
+		let body: z.infer<typeof startSchema>;
+		try {
+			body = await startSchema.parseAsync(req.query);
+		} catch (e) {
+			return res.status(400).json({
+				success: false
+			});
+		}
+		const { token, id: campaignId, chain: campaignChain } = body;
 
 		if (!token) {
 			return res.status(400).json({
@@ -141,6 +157,23 @@ handler
 		}
 
 		req.log.debug({ partnership }, "Partnership is valid");
+
+		// Ensure the Advertiser provided chain and id matches the token's data
+		if (
+			campaignId !== stream.content.address ||
+			campaignChain !== stream.content.chain
+		) {
+			req.log.info(
+				{
+					body,
+					streamContent: stream.content
+				},
+				"Payload does not match token"
+			);
+			return res.status(400).json({
+				success: false
+			});
+		}
 
 		// Once all is valid, sign the message
 		const jws = await did.createJWS(message);
@@ -238,7 +271,7 @@ handler
 			});
 		}
 
-		const stream = await loader.load(raw.partnership);
+		const stream = await loader.load<CampaignReference>(raw.partnership);
 		// Validate that the provided partnership is valid
 		if (
 			!isPartnershipStreamValid(
@@ -264,7 +297,24 @@ handler
 		}
 
 		const partnershipId = stream.id.toString();
-		const campaignRef = stream.content as CampaignReference;
+		const campaignRef = stream.content;
+
+		// Ensure the Advertiser provided chain and id matches the token's data
+		if (
+			conversion.id !== campaignRef.address ||
+			conversion.chain !== campaignRef.chain
+		) {
+			req.log.info(
+				{
+					body,
+					campaignRef
+				},
+				"Payload does not match partnership"
+			);
+			return res.status(400).json({
+				success: false
+			});
+		}
 
 		// Pull the campaign
 		//* In the future, we'll be pulling the campaign data from Smart Contracts.

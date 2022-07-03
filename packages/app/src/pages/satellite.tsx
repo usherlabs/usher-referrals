@@ -13,8 +13,8 @@ const Satellite = () => {
 		console.log("SATELLITE:", cookies); //! DEV
 
 		bus.on("ping", () => {
-			bus.emit("cid", {
-				cid: cookies[CONVERSION_COOKIE_NAME] || ""
+			bus.emit("conversion", {
+				token: cookies[CONVERSION_COOKIE_NAME] || ""
 			});
 		});
 		bus.on("consume", () => {
