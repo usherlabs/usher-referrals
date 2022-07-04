@@ -37,7 +37,11 @@ abstract class Auth {
 			ceramic: this._ceramic,
 			aliases
 		});
-		const store = new DIDDataStore({ ceramic: this._ceramic, model });
+		const store = new DIDDataStore({
+			// @ts-ignore
+			ceramic: this._ceramic,
+			model
+		});
 		this.model = model;
 		this.store = store;
 	}
