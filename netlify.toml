@@ -1,5 +1,5 @@
 [build]
-command = "next build"
+command = "yarn turbo run build"
 base = "."
 publish = "./packages/app/.next"
 
