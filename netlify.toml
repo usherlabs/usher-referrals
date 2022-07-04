@@ -3,8 +3,5 @@ command = "yarn turbo run build"
 base = "."
 publish = "./packages/app/.next"
 
-[build.environment]
-NEXT_USE_NETLIFY_EDGE = "true"
-
 [[plugins]]
 package = "@netlify/plugin-nextjs"
