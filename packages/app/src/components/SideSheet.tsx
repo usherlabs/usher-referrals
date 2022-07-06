@@ -20,7 +20,8 @@ const MobileFriendlySideSheet: React.FC<SideSheetProps> = ({
 			{...props}
 			containerProps={{
 				...props.containerProps,
-				position: "relative"
+				position: "relative",
+				maxWidth: "100%"
 			}}
 		>
 			{children}

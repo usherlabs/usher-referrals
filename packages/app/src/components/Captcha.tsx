@@ -1,9 +1,10 @@
 import React, { useState, useCallback } from "react";
 import { Pane, Heading, Text, Spinner, toaster } from "evergreen-ui";
 import HCaptcha from "@hcaptcha/react-hcaptcha";
+import { css } from "@linaria/core";
 
-// import PropTypes from "prop-types";
 import { hcaptchaSiteKey } from "@/env-config";
+import * as mediaQueries from "@/utils/media-queries";
 
 const sitekey = hcaptchaSiteKey as string;
 
@@ -39,6 +40,11 @@ const CaptchaContainer: React.FC<Props> = ({ onSuccess }) => {
 			alignItems="center"
 			justifyContent="center"
 			padding={32}
+			className={css`
+				${mediaQueries.isLarge} {
+					padding: 10px;
+				}
+			`}
 		>
 			<Heading is="h1" size={800} marginBottom={12}>
 				You&apos;re not a bot are you?

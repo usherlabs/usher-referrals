@@ -12,7 +12,8 @@ import {
 	Position,
 	LogOutIcon,
 	CogIcon,
-	MenuIcon
+	MenuIcon,
+	Badge
 } from "evergreen-ui";
 import { UilUserCircle, UilWallet } from "@iconscout/react-unicons";
 import { css, cx } from "@linaria/core";
@@ -100,6 +101,11 @@ const Header: React.FC<Props> = ({
 			:hover svg {
 				fill: #000 !important;
 			}
+			${mediaQueries.isLarge} {
+				width: auto;
+				padding-left: 10px;
+				padding-right: 10px;
+			}
 		`
 	};
 
@@ -181,6 +187,9 @@ const Header: React.FC<Props> = ({
 						>
 							Usher
 						</Heading>
+						<Badge color="yellow" marginX={8}>
+							ALPHA
+						</Badge>
 					</Pane>
 				</Anchor>
 				<Pane paddingX={16}>
