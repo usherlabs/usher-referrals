@@ -11,7 +11,6 @@ import {
 import isEmpty from "lodash/isEmpty";
 import useLocalStorage from "use-local-storage";
 import { useRouter } from "next/router";
-import Script from "next/script";
 
 import { useUser } from "@/hooks/";
 import Header from "@/components/Header";
@@ -21,6 +20,7 @@ import LogoutManager from "@/components/LogoutManager";
 import ProfileSettings from "@/components/ProfileSettings";
 import EmailCapture from "@/components/EmailCapture";
 import SideSheet from "@/components/SideSheet";
+import Footer from "@/components/Footer";
 import { hcaptchaSiteKey } from "@/env-config";
 import useRedir from "@/hooks/use-redir";
 import Captcha from "@/components/Captcha";
@@ -237,7 +237,8 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 					position="relative"
 					paddingTop={HEADER_HEIGHT}
 				>
-					{children}
+					<Pane flex="1">{children}</Pane>
+					<Footer />
 				</Pane>
 			</Pane>
 			<SideSheet
