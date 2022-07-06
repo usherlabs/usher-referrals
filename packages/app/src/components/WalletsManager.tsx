@@ -33,7 +33,7 @@ import WalletConnect from "@/components/WalletConnect";
 import Anchor from "@/components/Anchor";
 import InputField from "@/components/InputField";
 import { useArConnect, useUser } from "@/hooks";
-import { connectionImages } from "@/utils/connections-map";
+import { connectionImages } from "@/utils/images-map";
 import handleException from "@/utils/handle-exception";
 import Authenticate from "@/modules/auth";
 

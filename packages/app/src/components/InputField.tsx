@@ -58,26 +58,28 @@ const InputField: React.FC<Props> = ({
 	return (
 		<Pane width="100%" {...props}>
 			<Pane width="100%">
-				<Pane
-					is="label"
-					display="block"
-					htmlFor={id}
-					marginBottom={6}
-					{...labelProps}
-				>
-					{isRequired && (
-						<Paragraph
-							fontWeight={900}
-							opacity="0.5"
-							textTransform="uppercase"
-							fontSize={10}
-							letterSpacing={1}
-						>
-							Required
-						</Paragraph>
-					)}
-					<Strong size={labelSize}>{label}</Strong>
-				</Pane>
+				{(label || isRequired) && (
+					<Pane
+						is="label"
+						display="block"
+						htmlFor={id}
+						marginBottom={6}
+						{...labelProps}
+					>
+						{isRequired && (
+							<Paragraph
+								fontWeight={900}
+								opacity="0.5"
+								textTransform="uppercase"
+								fontSize={10}
+								letterSpacing={1}
+							>
+								Required
+							</Paragraph>
+						)}
+						<Strong size={labelSize}>{label}</Strong>
+					</Pane>
+				)}
 				{typeof description === "string" && description ? (
 					<Paragraph marginBottom={12} width="100%" {...descriptionProps}>
 						{description}

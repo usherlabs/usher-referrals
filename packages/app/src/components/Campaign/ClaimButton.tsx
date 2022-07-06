@@ -11,7 +11,7 @@ import {
 	ButtonProps,
 	Heading,
 	Alert,
-	ExpandAllIcon,
+	ChevronDownIcon,
 	SelectMenu
 } from "evergreen-ui";
 import Image from "next/image";
@@ -20,8 +20,9 @@ import { css } from "@linaria/core";
 import { Wallet, CampaignReward, Chains, Connections } from "@/types";
 import ValueCard from "@/components/ValueCard";
 import Anchor from "@/components/Anchor";
-import { chainImages, connectionImages } from "@/utils/connections-map";
+import { chainImages, connectionImages } from "@/utils/images-map";
 import { UilWallet, UilCoins } from "@iconscout/react-unicons";
+import truncate from "@/utils/truncate";
 
 export type Props = {
 	onClaim: (() => Promise<void>) | (() => void);
@@ -82,7 +83,7 @@ const ClaimButton: React.FC<Props> = ({
 
 	const WalletCard = (
 		<ValueCard
-			value={selectedWallet.address}
+			value={truncate(selectedWallet.address, 16, 10)}
 			id="destination-wallet"
 			iconLeft={() => (
 				<Image
@@ -92,9 +93,16 @@ const ClaimButton: React.FC<Props> = ({
 				/>
 			)}
 			background="none"
-			{...(wallets.length > 0
+			backgroundColor="transparent"
+			inputContainerProps={{
+				background: "none",
+				border: "none"
+			}}
+			{...(wallets.length > 1
 				? {
-						iconRight: () => <ExpandAllIcon size={25} />,
+						iconRight: () => (
+							<ChevronDownIcon size={22} opacity={0.5} background="#ff" />
+						),
 						className: css`
 							&:hover {
 								background-color: rgba(0, 0, 0, 0.1);
@@ -140,29 +148,72 @@ const ClaimButton: React.FC<Props> = ({
 							{amount} {reward.ticker.toUpperCase()}
 						</Heading>
 						<Paragraph size={500}>will be paid to</Paragraph>
-						{wallets.length > 0 ? (
-							<SelectMenu
-								options={wallets
-									.filter((w) => w.address !== selectedWallet.address)
-									.map((w) => ({
-										label: w.address,
-										value: w.address,
-										icon: connectionImages[w.connection]
-									}))}
-								selected={selectedWallet.address}
-								hasFilter={false}
-								hasTitle={false}
-								onSelect={(item) =>
-									setSelectedWallet(
-										wallets.find((w) => w.address === item.value) || wallets[0]
-									)
+						<Pane
+							border={`1px solid rgb(220, 220, 220)`}
+							borderRadius={8}
+							marginTop={12}
+							width="100%"
+							className={css`
+								[role="button"] {
+									width: 100%;
 								}
-							>
-								{WalletCard}
-							</SelectMenu>
-						) : (
-							WalletCard
-						)}
+								[role="button"] > div {
+									border-radius: 8px;
+								}
+							`}
+						>
+							{wallets.length > 1 ? (
+								<SelectMenu
+									options={wallets
+										// options={[
+										// 	wallets[0],
+										// 	wallets[0],
+										// 	wallets[0],
+										// 	wallets[0],
+										// 	wallets[0]
+										// ]
+										// 	.map((w) => {
+										// 		return {
+										// 			...w,
+										// 			address: `${w.address}_123`
+										// 		};
+										// 	})
+										.filter((w) => w.address !== selectedWallet.address)
+										.map((w) => ({
+											label: truncate(w.address, 10, 6),
+											value: w.address,
+											icon: connectionImages[w.connection]?.src
+										}))}
+									selected={selectedWallet.address}
+									hasFilter={false}
+									hasTitle={false}
+									onSelect={(item) =>
+										setSelectedWallet(
+											wallets.find((w) => w.address === item.value) ||
+												wallets[0]
+										)
+									}
+									width={300}
+									statelessProps={{
+										className: css`
+											div {
+												font-size: 14px;
+											}
+
+											img {
+												height: 24px;
+												width: 24px;
+												padding: 0;
+											}
+										`
+									}}
+								>
+									<Pane>{WalletCard}</Pane>
+								</SelectMenu>
+							) : (
+								WalletCard
+							)}
+						</Pane>
 					</Pane>
 					{selectedWallet.chain === Chains.ARWEAVE && (
 						<Pane

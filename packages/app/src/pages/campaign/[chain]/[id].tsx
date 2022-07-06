@@ -85,7 +85,6 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 	// Ensure that the user knows what they're being rewarded regardless of their internal rewards calculation.
 	let claimableRewards = metrics.data ? metrics.data.rewards : 0;
 	if (campaign) {
-		console.log(campaign);
 		if (
 			typeof campaign.rewardsClaimed === "number" &&
 			typeof campaign.reward.limit === "number" &&
@@ -346,7 +345,7 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 										<ClaimButton
 											onClaim={onClaim}
 											wallets={walletsForChain}
-											amount={10}
+											amount={claimableRewards}
 											reward={campaign.reward as CampaignReward}
 											active={
 												!!verifications.personhood && !!verifications.captcha

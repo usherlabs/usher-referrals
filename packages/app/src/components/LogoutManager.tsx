@@ -4,7 +4,7 @@ import Image from "next/image";
 
 import { Connections } from "@/types";
 import { useUser } from "@/hooks/";
-import { connectionImages } from "@/utils/connections-map";
+import { connectionImages } from "@/utils/images-map";
 import pascalCase from "@/utils/pascal-case";
 
 const LogoutManager: React.FC = () => {

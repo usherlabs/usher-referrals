@@ -18,7 +18,7 @@ import Image from "next/image";
 
 import truncate from "@/utils/truncate";
 import { Wallet } from "@/types";
-import { connectionImages } from "@/utils/connections-map";
+import { connectionImages } from "@/utils/images-map";
 
 export type Props = {
 	selected: Wallet;
