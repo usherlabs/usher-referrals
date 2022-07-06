@@ -65,10 +65,9 @@ const Terms: React.FC<Props> = ({ campaign }) => {
 					<ListItem>
 						Rewards are earned at multiple events
 						<UnorderedList>
-							{campaign.events.map((event) => (
-								<ListItem>
-									{typeof campaign.events[0].perCommit !== "undefined" &&
-									!!campaign.events[0].perCommit
+							{campaign.events.map((event, i) => (
+								<ListItem key={`${i}-${event.strategy}-${event.rate}`}>
+									{typeof event.perCommit !== "undefined" && !!event.perCommit
 										? "At least "
 										: ""}
 									{event.rate}

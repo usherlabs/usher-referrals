@@ -81,6 +81,7 @@ const authInstance = Authenticate.getInstance();
 
 // Only fetch user on page load
 let isUserFetched = false;
+export const userFetched = () => isUserFetched;
 
 // Returns wallets that have been authenticated. Uses the provided connection to authenticate a new connection.
 const getWallets = async (type: Connections): Promise<Wallet[]> => {

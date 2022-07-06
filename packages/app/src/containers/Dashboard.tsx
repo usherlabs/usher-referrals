@@ -28,6 +28,7 @@ import delay from "@/utils/delay";
 import * as api from "@/api";
 import Authenticate from "@/modules/auth";
 import handleException from "@/utils/handle-exception";
+import { userFetched } from "@/providers/User";
 
 type Props = {
 	children: React.ReactNode;
@@ -89,7 +90,8 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 	}, [isLoading, wallets]);
 
 	useEffect(() => {
-		if (!isLoading && !profile.email) {
+		// User is fetched, not loading, authorised, and does already have an profile.email
+		if (!isLoading && !profile.email && userFetched() && wallets.length > 0) {
 			if (captureEmail) {
 				if (
 					!captureEmail.active &&
@@ -107,7 +109,7 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 				setCaptureEmail({ active: true });
 			}
 		}
-	}, [isLoading, profile, captureEmail]);
+	}, [isLoading, profile, captureEmail, wallets]);
 
 	const onEmailCapture = useCallback(
 		async (email: string) => {
