@@ -10,7 +10,7 @@ import {
 import { css } from "@linaria/core";
 
 import { Partnership, PartnershipMetrics } from "@/types";
-import AffiliateLink from "@/components/AffiliateLink";
+import InviteLink from "@/components/InviteLink";
 import ValueCard from "@/components/ValueCard";
 import getInviteLink from "@/utils/get-invite-link";
 import * as mediaQueries from "@/utils/media-queries";
@@ -41,10 +41,7 @@ const CampaignPartnership: React.FC<Props> = ({ partnership, metrics }) => {
 		<>
 			<Pane padding={12} background="tint2" borderRadius={8} marginBottom={12}>
 				<Pane display="flex" flexDirection="column">
-					<AffiliateLink
-						link={getInviteLink(partnership.id)}
-						marginBottom={12}
-					/>
+					<InviteLink link={getInviteLink(partnership.id)} marginBottom={12} />
 					<Pane
 						display="flex"
 						flexDirection="row"
@@ -52,7 +49,8 @@ const CampaignPartnership: React.FC<Props> = ({ partnership, metrics }) => {
 						justifyContent="space-between"
 					>
 						<Paragraph width="100%">
-							👆&nbsp;&nbsp;Click and Copy to share this Affiliate link and earn
+							👆&nbsp;&nbsp;Click and Copy to share the Usher Invite link and
+							earn
 						</Paragraph>
 					</Pane>
 				</Pane>
@@ -72,7 +70,7 @@ const CampaignPartnership: React.FC<Props> = ({ partnership, metrics }) => {
 							value={metrics.data ? metrics.data.hits : ""}
 							ticker="hits"
 							id="total-referrals"
-							label="Affiliate Link Hits"
+							label="Link Hits"
 							isLoading={metrics.isLoading}
 						/>
 					</Pane>

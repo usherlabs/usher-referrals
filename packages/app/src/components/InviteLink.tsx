@@ -15,11 +15,11 @@ export type Props = PaneProps & {
 	link?: string;
 };
 
-const AffiliateLink: React.FC<Props> = ({ link, ...props }) => {
+const InviteLink: React.FC<Props> = ({ link, ...props }) => {
 	const { colors } = useTheme();
 
 	const onCopy = useCallback(() => {
-		toaster.notify("Affiliate link has been copied!", {
+		toaster.notify("Invite link has been copied!", {
 			id: "link-copy"
 		});
 	}, []);
@@ -27,8 +27,8 @@ const AffiliateLink: React.FC<Props> = ({ link, ...props }) => {
 	return (
 		<CopyToClipboard text={link || ""} onCopy={onCopy}>
 			<InputField
-				id="affiliate-link"
-				label="Affiliate Link"
+				id="invite-link"
+				label="Invite Link"
 				iconRight={ClipboardIcon}
 				iconSize={18}
 				iconProps={{
@@ -61,8 +61,8 @@ const AffiliateLink: React.FC<Props> = ({ link, ...props }) => {
 	);
 };
 
-AffiliateLink.defaultProps = {
+InviteLink.defaultProps = {
 	link: ""
 };
 
-export default AffiliateLink;
+export default InviteLink;

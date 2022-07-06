@@ -66,7 +66,7 @@ const ProfileSettings: React.FC = () => {
 								<Text>
 									on{" "}
 									{dnt.format(
-										new Date(verifications.personhood * 1000),
+										new Date(verifications.personhood),
 										"ddd, D MMM YYYY"
 									)}
 								</Text>

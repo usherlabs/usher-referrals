@@ -88,7 +88,7 @@ export async function getStaticProps() {
 			seo: {
 				title: "Explore Campaigns",
 				description:
-					"Explore and engage with Affiliate Campaigns launched by applications on Web3"
+					"Explore and engage with Partnership Programs launched by Web3 Projects"
 			}
 		}
 	};

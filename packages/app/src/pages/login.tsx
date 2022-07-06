@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Pane, Heading, Text } from "evergreen-ui";
 import { useRouter } from "next/router";
 
@@ -7,13 +7,14 @@ import WalletConnect from "@/components/WalletConnect";
 
 const Login = () => {
 	const {
-		user: { wallets },
-		isLoading
+		user: { wallets }
 	} = useUser();
 	const router = useRouter();
+	const [isLoading, setLoading] = useState(false);
 
 	useEffect(() => {
-		if (!isLoading && wallets.length > 0) {
+		if (wallets.length > 0) {
+			setLoading(true);
 			const urlParams = new URLSearchParams(window.location.search);
 			const redir = decodeURIComponent(urlParams.get("redir") || "");
 			if (redir) {
@@ -22,7 +23,7 @@ const Login = () => {
 				router.push("/");
 			}
 		}
-	}, [isLoading, wallets]);
+	}, [wallets]);
 
 	return (
 		<Pane
@@ -39,7 +40,7 @@ const Login = () => {
 			</Heading>
 			<Text size={500}>To get started, connect your wallet</Text>
 			<Pane background="tint2" padding={16} margin={12} borderRadius={8}>
-				<WalletConnect />
+				<WalletConnect loading={isLoading} />
 			</Pane>
 		</Pane>
 	);

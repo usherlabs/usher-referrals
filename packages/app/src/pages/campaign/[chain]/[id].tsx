@@ -468,7 +468,7 @@ export const getStaticProps = async ({
 	const results = (await cursor.all()).filter((result) => !isEmpty(result));
 
 	if (results.length > 0) {
-		const [campaign] = results;
+		const campaign = camelcaseKeys(results[0], { deep: true });
 
 		return {
 			props: {

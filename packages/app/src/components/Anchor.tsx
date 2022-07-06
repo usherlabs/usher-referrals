@@ -9,7 +9,7 @@ export type Props = LinkProps & {
 	children: React.ReactNode;
 };
 
-const AffiliateLink: React.FC<Props> = ({
+const Anchor: React.FC<Props> = ({
 	href,
 	external,
 	linkProps,
@@ -27,4 +27,4 @@ const AffiliateLink: React.FC<Props> = ({
 	);
 };
 
-export default AffiliateLink;
+export default Anchor;

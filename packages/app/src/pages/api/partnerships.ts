@@ -42,7 +42,7 @@ handler.get(async (req: ApiRequest, res: ApiResponse) => {
 			RETURN {
 				id: p._key,
 				hits: COUNT(referrals),
-				pending_conversions: TO_NUMBER(conversions_length),
+				pending_conversions: 0,
 				successful_conversions: TO_NUMBER(conversions_length),
 				rewards: TO_NUMBER(p.rewards)
 			}

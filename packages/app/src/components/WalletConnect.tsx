@@ -12,11 +12,13 @@ import ArConnectIcon from "@/assets/icon/arconnect.svg";
 export type Props = {
 	hide?: Connections[];
 	onConnect?: (connection: string) => void;
+	loading?: boolean;
 };
 
 const WalletConnect: React.FC<Props> = ({
 	hide = [],
-	onConnect = () => {}
+	onConnect = () => {},
+	loading: isPropLoading = false
 }) => {
 	const {
 		isLoading: isUserLoading,
@@ -24,7 +26,7 @@ const WalletConnect: React.FC<Props> = ({
 	} = useUser();
 	const [getArConnect] = useArConnect();
 	const [isConnecting, setConnecting] = useState(false);
-	const isLoading = isUserLoading || isConnecting;
+	const isLoading = isUserLoading || isConnecting || isPropLoading;
 
 	const connectArConnect = useCallback(() => {
 		const arconnect = getArConnect();

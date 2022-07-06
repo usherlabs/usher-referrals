@@ -1,8 +1,5 @@
 /**
  * User provider
- * Uses 3id to authorise access to Affiliate Streams.
- * Network is required to track all affiliates in their own Stream
- * https://developers.ceramic.network/reference/accounts/3id-did/
  */
 
 import React, {
@@ -218,9 +215,38 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 		[user]
 	);
 
+	const loadUserWithWallets = useCallback(async (withWallets: Wallet[]) => {
+		// set partnerships and profile state
+		const partnerships = authInstance.getPartnerships();
+		const profile = authInstance.getProfile();
+
+		// Load verifications
+		const authToken = await authInstance.getAuthToken();
+		const [captcha, personhood] = await allSettled<
+			[{ success: boolean }, { success: boolean; createdAt?: number }]
+		>([api.captcha(authToken).get(), api.personhood(authToken).get()]);
+		console.log("Verifications loaded.");
+
+		const newUser = produce(user, (draft) => {
+			draft.wallets = withWallets;
+			draft.partnerships = partnerships;
+			if (profile) {
+				draft.profile = profile;
+			}
+			draft.verifications = {
+				personhood:
+					personhood.status === "fulfilled" && personhood.value.success
+						? personhood.value.createdAt || true
+						: false,
+				captcha: captcha.status === "fulfilled" && captcha.value.success
+			};
+		});
+		saveUser(newUser);
+	}, []);
+
 	const connect = useCallback(async (type: Connections) => {
 		const newWallets = await connectWallet(type);
-		saveWallets(newWallets);
+		await loadUserWithWallets(newWallets); // loading user data on every new login as partnerships/profiles are not fetched after owners are merged
 	}, []);
 
 	// Reloading the screen will refresh authentications
@@ -298,32 +324,9 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 			console.log("Wallets loaded. Fetching verifications ...");
 			console.log(fetchedWallets);
 
-			// set partnerships and profile state
-			const partnerships = authInstance.getPartnerships();
-			const profile = authInstance.getProfile();
-
-			// Load verifications
-			const authToken = await authInstance.getAuthToken();
-			const [captcha, personhood] = await allSettled<
-				[{ success: boolean }, { success: boolean; createdAt?: number }]
-			>([api.captcha(authToken).get(), api.personhood(authToken).get()]);
-			console.log("Verifications loaded.");
-
-			const newUser = produce(user, (draft) => {
-				draft.wallets = fetchedWallets;
-				draft.partnerships = partnerships;
-				if (profile) {
-					draft.profile = profile;
-				}
-				draft.verifications = {
-					personhood:
-						personhood.status === "fulfilled" && personhood.value.success
-							? personhood.value.createdAt || true
-							: false,
-					captcha: captcha.status === "fulfilled" && captcha.value.success
-				};
-			});
-			saveUser(newUser);
+			if (fetchedWallets.length > 0) {
+				await loadUserWithWallets(fetchedWallets);
+			}
 		}),
 		[]
 	);

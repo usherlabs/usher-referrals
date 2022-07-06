@@ -1,6 +1,6 @@
 /**
- * This is a configurable Terms & Conditions Alert for Affiliates
- * Affiliates are partnering with Advertisers, so terms are vital for Advertisers to configure and for Affiliates to read
+ * This is a configurable Terms & Conditions Alert for Partners
+ * Partners are partnering with Advertisers, so terms are vital for Advertisers to configure and for Partners to read
  */
 
 import React from "react";

@@ -96,7 +96,7 @@ const Invite: React.FC<Props> = () => {
 			return;
 		}
 
-		// If the Terms have NOT defined that new Affiliate Links will overwrite the conversion
+		// If the Terms have NOT defined that new Invite Links will overwrite the conversion
 		// The default behaviour is to simply skip replacing the conversion cookie if a valid one exists
 		setCookie(
 			null,
@@ -105,7 +105,7 @@ const Invite: React.FC<Props> = () => {
 			CONVERSION_COOKIE_OPTIONS
 		);
 
-		// Redirect to Advertiser Affiliate Referral URL
+		// Redirect to Advertiser Campaign Destination URL
 		// console.log({ referral, url: campaign.details.destinationUrl });
 		window.location.replace(campaign.details.destinationUrl);
 	}, [id]);

@@ -24,7 +24,12 @@ const LogoutManager: React.FC = () => {
 				}, [])
 				.map((connection) => {
 					return (
-						<Pane display="flex" justifyContent="center" alignContent="center">
+						<Pane
+							key={connection}
+							display="flex"
+							justifyContent="center"
+							alignContent="center"
+						>
 							<Button
 								height={majorScale(7)}
 								iconBefore={
