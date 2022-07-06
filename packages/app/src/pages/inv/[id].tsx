@@ -10,7 +10,7 @@ import ono from "@jsdevtools/ono";
 import { ShareableOwnerModel } from "@usher/ceramic";
 
 import { ceramic } from "@/utils/ceramic-client";
-import { CONVERSION_COOKIE_NAME, CONVERSION_COOKIE_OPTIONS } from "@/constants";
+import { CONVERSION_COOKIE_OPTIONS } from "@/constants";
 import { botdPublicKey } from "@/env-config";
 import Preloader from "@/components/Preloader";
 import Captcha from "@/components/Captcha";
@@ -18,6 +18,7 @@ import * as api from "@/api";
 import handleException from "@/utils/handle-exception";
 import LogoImage from "@/assets/logo/Logo.png";
 import { CampaignReference, Referral, CampaignConflictStrategy } from "@/types";
+import getConversionCookieName from "@/utils/get-conversion-cookie-name";
 
 const loader = new TileLoader({ ceramic });
 
@@ -80,11 +81,14 @@ const Invite: React.FC<Props> = () => {
 
 		const campaign = campaigns.data[0];
 
+		//* The reason we're splitting cookies per campaign is to ensure that each cookie respects it's own duration.
+		const cookieName = getConversionCookieName(campaign.id, campaign.chain);
+
 		let existingToken;
 		// If the campaign conflict strategy is to NOT always overwrite the referral, then check for an existing token
 		if (campaign.conflictStrategy !== CampaignConflictStrategy.OVERWRITE) {
 			const cookies = parseCookies();
-			existingToken = cookies[CONVERSION_COOKIE_NAME] as string;
+			existingToken = cookies[cookieName] as string;
 		}
 
 		const referral: { success: boolean; data: Referral } = await api
@@ -98,12 +102,7 @@ const Invite: React.FC<Props> = () => {
 
 		// If the Terms have NOT defined that new Invite Links will overwrite the conversion
 		// The default behaviour is to simply skip replacing the conversion cookie if a valid one exists
-		setCookie(
-			null,
-			CONVERSION_COOKIE_NAME,
-			referral.data.token,
-			CONVERSION_COOKIE_OPTIONS
-		);
+		setCookie(null, cookieName, referral.data.token, CONVERSION_COOKIE_OPTIONS);
 
 		// Redirect to Advertiser Campaign Destination URL
 		// console.log({ referral, url: campaign.details.destinationUrl });

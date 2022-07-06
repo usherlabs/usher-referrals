@@ -40,8 +40,8 @@ handler.post(async (req: ApiRequest, res: ApiResponse) => {
 	const { partnership, token } = body;
 	const did = await getAppDID();
 
-	const stream = await loader.load(partnership);
-	const campaignRef = stream.content as CampaignReference;
+	const stream = await loader.load<CampaignReference>(partnership);
+	const campaignRef = stream.content;
 	const [controller] = stream.controllers;
 
 	// Validate that the provided partnership is valid
@@ -80,7 +80,15 @@ handler.post(async (req: ApiRequest, res: ApiResponse) => {
 			// const referralId =
 			sp.shift();
 			const partnershipIdFromToken = sp.join(REFERRAL_TOKEN_DELIMITER);
-			if (partnershipIdFromToken === partnership) {
+			// If token that already exists is for the same CAMPAIGN, then return the token...
+			// This way we have passthrough logic, such that a token that is already relevant to this campaign is used.
+			const partnershipStreamFromToken = await loader.load<CampaignReference>(
+				partnershipIdFromToken
+			);
+			if (
+				partnershipStreamFromToken.content.address === campaignRef.address &&
+				partnershipStreamFromToken.content.chain === campaignRef.chain
+			) {
 				return res.json({
 					success: true,
 					data: {
@@ -91,7 +99,7 @@ handler.post(async (req: ApiRequest, res: ApiResponse) => {
 			}
 		} catch (e) {
 			req.log.warn(
-				{ vars: { token, partnership } },
+				{ e, vars: { token, partnership } },
 				"Could not decrypt conversion cookie token"
 			);
 		}

@@ -157,7 +157,7 @@ export type Conversion = {
 
 export type ConversionTrack = {
 	id: string; // Campaign ID
-	chain: string;
+	chain: Chains;
 	eventId: number;
 	nativeId?: string;
 	metadata?: Record<string, string | number | boolean>;

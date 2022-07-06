@@ -10,10 +10,11 @@ import { Base64 } from "js-base64";
 import { randomString } from "@stablelib/random";
 
 import { getAuthRequest } from "@/api";
-import { CONVERSION_COOKIE_NAME, CONVERSION_COOKIE_OPTIONS } from "@/constants";
+import { CONVERSION_COOKIE_OPTIONS } from "@/constants";
 import { ConversionTrack } from "@/types";
 import handleException from "@/utils/handle-exception";
 import ono from "@jsdevtools/ono";
+import getConversionCookieName from "@/utils/get-conversion-cookie-name";
 
 const bus = new Framebus({
 	channel: "usher_sat"
@@ -29,7 +30,12 @@ const startSatellite = () => {
 
 			console.log("[SATELLITE]", conversion);
 
-			const token = cookies[CONVERSION_COOKIE_NAME] || "";
+			const cookieName = getConversionCookieName(
+				conversion.id,
+				conversion.chain
+			);
+
+			const token = cookies[cookieName] || "";
 			// let visitorId;
 
 			if (!token) {
@@ -112,7 +118,7 @@ const startSatellite = () => {
 			}
 
 			// Destroy the cookie on success
-			destroyCookie(null, CONVERSION_COOKIE_NAME, CONVERSION_COOKIE_OPTIONS);
+			destroyCookie(null, cookieName, CONVERSION_COOKIE_OPTIONS);
 
 			// Notify the host
 			bus.emit("conversion", {

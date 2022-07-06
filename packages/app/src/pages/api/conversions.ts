@@ -448,6 +448,10 @@ handler
 			}
 		}
 
+		// TODO: Include a process to check remaining rewards -- to determine the rewards to set
+		// Should reflect how the validator nodes should validate conversions.
+		// TODO: Do this inside of a "basis" validator node -- this will speed up the operation of this function too.
+
 		req.log.info(
 			{ vars: { rate, commit, rewards, campaign, conversion } },
 			"Saving conversion..."
