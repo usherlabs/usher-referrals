@@ -12,6 +12,8 @@ import React, {
 import produce from "immer";
 import allSettled from "promise.allsettled";
 import once from "lodash/once";
+import { toaster } from "evergreen-ui";
+import isEqual from "lodash/isEqual";
 
 import getArConnect from "@/utils/arconnect";
 import useArConnect from "@/hooks/use-arconnect";
@@ -32,7 +34,7 @@ import Authenticate from "@/modules/auth";
 import { getMagicClient } from "@/utils/magic-client";
 import * as api from "@/api";
 import { events, AppEvents } from "@/utils/events";
-
+import pascalCase from "@/utils/pascal-case";
 import LogoImage from "@/assets/logo/Logo-Icon.svg";
 
 type Props = {
@@ -80,26 +82,34 @@ const authInstance = Authenticate.getInstance();
 let isUserFetched = false;
 export const userFetched = () => isUserFetched;
 
+const onWalletsError = (connection: Connections) => {
+	toaster.warning(`Could not authenticate with ${pascalCase(connection)}`);
+};
+
 // Returns wallets that have been authenticated. Uses the provided connection to authenticate a new connection.
 const getWallets = async (type: Connections): Promise<Wallet[]> => {
 	// Fetch Currently authenticated User by referring to their connected wallets.
 	let wallets: Wallet[] = [];
-	switch (type) {
-		case Connections.ARCONNECT: {
-			const arconnect = getArConnect();
-			if (arconnect) {
-				try {
-					const arweaveWalletAddress = await arconnect.getActiveAddress();
-					await authInstance.withArweave(arweaveWalletAddress, type, arconnect);
-					wallets = authInstance.getWallets();
-				} catch (e) {
-					handleException(e);
+	try {
+		switch (type) {
+			case Connections.ARCONNECT: {
+				const arconnect = getArConnect();
+				if (arconnect) {
+					const arweaveWalletAddress = await arconnect
+						.getActiveAddress()
+						.catch((e) => console.trace(e));
+					if (arweaveWalletAddress) {
+						await authInstance.withArweave(
+							arweaveWalletAddress,
+							type,
+							arconnect
+						);
+						wallets = authInstance.getWallets();
+					}
 				}
+				break;
 			}
-			break;
-		}
-		case Connections.MAGIC: {
-			try {
+			case Connections.MAGIC: {
 				// Produce the user with Magic here...
 				const { magic } = getMagicClient();
 				const isLoggedIn = await magic.user.isLoggedIn();
@@ -108,14 +118,15 @@ const getWallets = async (type: Connections): Promise<Wallet[]> => {
 					// Magic will produce and authenticate multiple wallets for each blockchain it supports -- ie. Eth & Arweave
 					wallets = authInstance.getWallets();
 				}
-			} catch (e) {
-				handleException(e);
+				break;
 			}
-			break;
+			default: {
+				break;
+			}
 		}
-		default: {
-			break;
-		}
+	} catch (e) {
+		onWalletsError(type);
+		handleException(e);
 	}
 
 	return wallets;
@@ -312,13 +323,17 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 					})
 				)
 			);
-			// Reverse iterate over the array to get the first fulfilled result.
-			let fetchedWallets: Wallet[] = [];
+			console.log(res);
+			const fetchedWallets: Wallet[] = [];
 			for (let i = res.length - 1; i >= 0; i -= 1) {
 				if (res[i].status === "fulfilled") {
 					// @ts-ignore
-					fetchedWallets = res[i].value;
-					break;
+					const { value = [] } = res[i];
+					value.forEach((v: Wallet) => {
+						if (!fetchedWallets.find((w) => isEqual(w, v))) {
+							fetchedWallets.push(v);
+						}
+					});
 				}
 			}
 
@@ -330,14 +345,6 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 		}),
 		[]
 	);
-
-	// useEffect(() => {
-	// 	(async () => {
-	// 		const { magic } = getMagicClient();
-	// 		const isLoggedIn = await magic.user.isLoggedIn();
-	// 		console.log("is logged in", isLoggedIn);
-	// 	})();
-	// }, []);
 
 	const { wallets } = user;
 	useEffect(() => {

@@ -29,6 +29,7 @@ const AdminFunc = () => {
 		const option = urlJoin(
 			...(Array.isArray(slug) ? (slug as string[]) : [slug as string])
 		);
+		console.log("option", option);
 		switch (option) {
 			case "destroy-owner": {
 				// remove owner id from the wallet

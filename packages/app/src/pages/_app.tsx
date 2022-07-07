@@ -14,6 +14,12 @@ import "@/styles/styles.scss";
 import DashboardContainer from "@/containers/Dashboard";
 import Preloader from "@/components/Preloader";
 import "@/integrations";
+import { isProd } from "@/env-config";
+
+if (!isProd) {
+	// @ts-ignore
+	import("@/admin");
+}
 
 const queryClient = new QueryClient();
 

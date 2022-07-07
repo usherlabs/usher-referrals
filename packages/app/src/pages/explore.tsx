@@ -2,11 +2,13 @@ import { Pane, Heading } from "evergreen-ui";
 import camelcaseKeys from "camelcase-keys";
 import { aql } from "arangojs";
 import isEmpty from "lodash/isEmpty";
+import { css } from "@linaria/core";
 
 import CampaignCard from "@/components/CampaignCard";
 import { Campaign } from "@/types";
 import { useSeedData } from "@/env-config";
 import { getArangoClient } from "@/utils/arango-client";
+import * as mediaQueries from "@/utils/media-queries";
 
 /**
  * TODO:
@@ -26,6 +28,11 @@ const Explore: React.FC<ExploreProps> = ({ campaigns }) => {
 			marginX="auto"
 			padding={48}
 			width="100%"
+			className={css`
+				${mediaQueries.isLarge} {
+					padding: 20px 10px !important;
+				}
+			`}
 		>
 			<Heading
 				is="h1"

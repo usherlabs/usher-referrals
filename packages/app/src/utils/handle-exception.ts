@@ -53,7 +53,7 @@ const handleException = (
 	ctx?: ExceptionContext
 ) => {
 	if (!sentry.dsn || !isProd) {
-		console.log(err, ctx); // eslint-disable-line
+		console.trace(err, ctx); // eslint-disable-line
 	}
 
 	Sentry.configureScope((scope) => {

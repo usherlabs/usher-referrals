@@ -83,11 +83,7 @@ class OwnerAuth extends Auth {
 		let ownerDocId = id;
 		let ownerDoc = null;
 		while (ownerDoc === null) {
-			const doc = await TileDocument.load<ShareableOwner>(
-				// @ts-ignore
-				this._ceramic,
-				ownerDocId
-			);
+			const doc = await this.loadDoc<ShareableOwner>(ownerDocId);
 			const migrateTo = doc.content.migrate_to;
 			if (migrateTo && migrateTo.length > 0) {
 				ownerDocId = migrateTo;

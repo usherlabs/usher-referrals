@@ -309,7 +309,6 @@ const WalletsManager: React.FC<Props> = ({ onClose }) => {
 									}
 								}}
 								borderWidth={0}
-								minWidth={250}
 								marginRight={12}
 								value={showSendFunds.amount}
 								fontSize="1em"
@@ -402,86 +401,92 @@ const WalletsManager: React.FC<Props> = ({ onClose }) => {
 									return (
 										<Pane
 											key={wallet.address}
-											padding={16}
 											borderBottom={
 												i === walletsForChain.length - 1
 													? ""
 													: `1px solid ${colors.gray400}`
 											}
-											display="flex"
-											alignContent="center"
-											flexDirection="row"
-											justifyContent="space-between"
 										>
 											<Pane
 												display="flex"
-												alignItems="center"
-												justifyContent="center"
+												alignContent="center"
 												flexDirection="row"
+												justifyContent="space-between"
+												padding={16}
 											>
-												<Pane marginRight={8}>
-													<Tooltip content={pascalCase(wallet.connection)}>
-														<Pane
-															display="flex"
-															alignItems="center"
-															justifyContent="center"
-														>
-															<Image
-																src={connectionImages[wallet.connection]}
-																width={20}
-																height={20}
-															/>
-														</Pane>
-													</Tooltip>
-												</Pane>
-												<Pane>
-													<Tooltip content="Copy Address">
-														<Pane>
-															<CopyToClipboard
-																text={wallet.address}
-																onCopy={onCopy}
+												<Pane
+													display="flex"
+													alignItems="center"
+													justifyContent="center"
+													flexDirection="row"
+												>
+													<Pane marginRight={8}>
+														<Tooltip content={pascalCase(wallet.connection)}>
+															<Pane
+																display="flex"
+																alignItems="center"
+																justifyContent="center"
 															>
-																<Label
-																	color={colors.gray800}
-																	className={css`
-																		cursor: pointer;
-																		&:active {
-																			opacity: 0.8;
-																		}
-																	`}
+																<Image
+																	src={connectionImages[wallet.connection]}
+																	width={20}
+																	height={20}
+																/>
+															</Pane>
+														</Tooltip>
+													</Pane>
+													<Pane>
+														<Tooltip content="Copy Address">
+															<Pane>
+																<CopyToClipboard
+																	text={wallet.address}
+																	onCopy={onCopy}
 																>
-																	{truncate(wallet.address, 6, 4)}
-																</Label>
-															</CopyToClipboard>
-														</Pane>
-													</Tooltip>
+																	<Label
+																		color={colors.gray800}
+																		className={css`
+																			cursor: pointer;
+																			&:active {
+																				opacity: 0.8;
+																			}
+																		`}
+																	>
+																		{truncate(wallet.address, 6, 4)}
+																	</Label>
+																</CopyToClipboard>
+															</Pane>
+														</Tooltip>
+													</Pane>
+												</Pane>
+												<Pane
+													display="flex"
+													flexDirection="row"
+													alignItems="center"
+												>
+													<Pane display="flex" alignItems="center">
+														{balance ? (
+															<Strong>{balance}</Strong>
+														) : (
+															<Spinner size={16} />
+														)}
+													</Pane>
 												</Pane>
 											</Pane>
-											<Pane
-												display="flex"
-												flexDirection="row"
-												alignItems="center"
-											>
+											<Pane>
 												{wallet.connection === Connections.MAGIC &&
 													wallet.chain === Chains.ARWEAVE && (
 														<Button
 															iconBefore={SendMessageIcon}
 															onClick={() => onSendFundsShow(wallet)}
 															height={majorScale(3)}
-															marginRight={12}
 															appearance="minimal"
-															border={`1px solid ${colors.gray300}`}
+															borderTop={`1px solid ${colors.gray300}`}
+															marginTop={6}
+															width="100%"
 														>
 															Send Funds
 														</Button>
 													)}
-												<Pane display="flex" alignItems="center">
-													{balance ? (
-														<Strong>{balance}</Strong>
-													) : (
-														<Spinner size={16} />
-													)}
-												</Pane>
 											</Pane>
 										</Pane>
 									);

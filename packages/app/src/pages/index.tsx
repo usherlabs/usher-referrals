@@ -14,6 +14,7 @@ import camelcaseKeys from "camelcase-keys";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import isEmpty from "lodash/isEmpty";
+import { css } from "@linaria/core";
 
 import { useUser } from "@/hooks";
 import CampaignCard from "@/components/CampaignCard";
@@ -22,6 +23,7 @@ import { Campaign, CampaignReference } from "@/types";
 import delay from "@/utils/delay";
 import { useSeedData } from "@/env-config";
 import * as api from "@/api";
+import * as mediaQueries from "@/utils/media-queries";
 
 const getCampaigns = async (refs: CampaignReference[]): Promise<Campaign[]> => {
 	if (useSeedData) {
@@ -59,6 +61,11 @@ const Partnerships = () => {
 			marginX="auto"
 			padding={48}
 			width="100%"
+			className={css`
+				${mediaQueries.isLarge} {
+					padding: 20px 10px !important;
+				}
+			`}
 		>
 			<Heading
 				is="h1"

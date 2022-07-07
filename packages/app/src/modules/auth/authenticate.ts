@@ -255,6 +255,11 @@ class Authenticate {
 		return jwk as JWKInterface;
 	}
 
+	/**
+	 * ? An Owner Authority is an Auth (Authentication) or a DID that has Authority to manage the Owner
+	 *
+	 * @return  {WalletAuth}  Authority WalletAuth
+	 */
 	private getOwnerAuthority() {
 		if (!this.owner) {
 			throw ono(`Attempting to fetch authorities for null owner`);
@@ -317,21 +322,25 @@ class Authenticate {
 			const owner = getOwner();
 			if (loadedOwner) {
 				console.log(`Owner loaded for Wallet: ${auth.wallet.address}`);
-				// Load data for loaded owner if one exists
-				// This way we only attempt to load this data, for the loaded owner this actually going to be used (not a migrated owner)
-				await Promise.all([
-					loadedOwner.loadPartnerships(),
-					loadedOwner.loadProfile()
-				]);
-
 				if (owner) {
 					// Is there an existing owner?
 					if (owner.id !== loadedOwner.id) {
+						// Load data for loaded owner when it's about to be merged
+						await Promise.all([
+							loadedOwner.loadPartnerships(),
+							loadedOwner.loadProfile()
+						]);
 						const ownerAuthority = this.getOwnerAuthority();
 						await owner.merge(ownerAuthority.did, loadedOwner);
 					}
 					// If the owners are the same, then we've verified that the owners are the same.
 				} else {
+					// Load data for loaded owner if one exists -- when the owner is fresh
+					await Promise.all([
+						loadedOwner.loadPartnerships(),
+						loadedOwner.loadProfile()
+					]);
+
 					// Set this.owner to loadedOwner
 					setOwner(loadedOwner);
 				}
@@ -344,6 +353,7 @@ class Authenticate {
 				await owner.addAuthorities(ownerAuthority.did, [auth.did]);
 				// set the auth's owner to this.owner.
 				await auth.setShareableOwnerId(owner.id);
+				console.log(`Auth with DID ${auth.did.id} set owner to ${owner.id}`);
 			} else {
 				console.log(
 					`No owner loaded for: ${auth.wallet.address} -- creating a new owner`

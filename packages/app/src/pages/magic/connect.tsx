@@ -8,13 +8,20 @@ import { toaster } from "evergreen-ui";
 import { useUser } from "@/hooks";
 import Preloader from "@/components/Preloader";
 import { Connections } from "@/types";
+import { userFetched } from "@/providers/User";
 
 const MagicConnect = () => {
 	const {
+		user: { wallets },
+		isLoading,
 		actions: { connect }
 	} = useUser();
 
 	useEffect(() => {
+		if (!(!isLoading && wallets.length > 0 && userFetched())) {
+			return () => {};
+		}
+
 		const cookies = parseCookies();
 		const magicConnectToken = cookies.__usher_magic_connect;
 
@@ -45,7 +52,8 @@ const MagicConnect = () => {
 				);
 			}
 		})();
-	}, []);
+		return () => {};
+	}, [isLoading, wallets]);
 
 	return <Preloader message="Connecting with Magic..." />;
 };

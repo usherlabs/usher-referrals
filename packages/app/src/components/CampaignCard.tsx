@@ -6,6 +6,7 @@ import { Campaign } from "@/types";
 import Anchor from "@/components/Anchor";
 import truncate from "@/utils/truncate";
 import { useRandomColor } from "@/hooks";
+import * as mediaQueries from "@/utils/media-queries";
 
 export type Props = {
 	campaign: Campaign;
@@ -16,7 +17,17 @@ const CampaignCard: React.FC<Props> = ({ campaign }) => {
 	const rColor = useRandomColor();
 
 	return (
-		<Pane padding={16} width="25%" minWidth="300px">
+		<Pane
+			padding={16}
+			width="25%"
+			minWidth="300px"
+			className={css`
+				${mediaQueries.isLarge} {
+					width: 100%;
+					padding: 10px !important;
+				}
+			`}
+		>
 			<Anchor href={`/campaign/arweave/${campaign.id}`}>
 				<Pane
 					border
