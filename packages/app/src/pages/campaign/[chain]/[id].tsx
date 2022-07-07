@@ -138,19 +138,6 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 		console.log("Hello world!");
 	}, []);
 
-	// useEffect(() => {
-	// 	if (user !== null) {
-	// 		const eventPayload = {
-	// 			id: advertiser.usherContractAddress,
-	// 			nativeId: user.id,
-	// 			properties: {
-	// 				walletAddress: wallet.address
-	// 			}
-	// 		};
-	// 		Usher("event", eventPayload);
-	// 	}
-	// }, []);
-
 	if (!campaign) {
 		return <Serve404 />;
 	}
@@ -455,7 +442,7 @@ export const getStaticProps = async ({
 	const cursor = await arango.query(aql`
 		LET c = DOCUMENT("Campaigns", ${docId})
 		LET rewards_claimed = (
-			FOR cl IN 1..1 INBOUND c Verifications
+			FOR cl IN 1..2 ANY c Engagements
 				FILTER STARTS_WITH(cl._id, "Claims")
 				COLLECT AGGREGATE amount = SUM(cl.amount)
 				RETURN amount

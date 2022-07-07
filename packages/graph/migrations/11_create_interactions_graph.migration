@@ -9,6 +9,7 @@ edgedefinitions:
     to:
       - Partnerships
       - Campaigns
+			- Claims
   - collection: Referrals
     from:
       - Partnerships
