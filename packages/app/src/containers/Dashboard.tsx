@@ -11,6 +11,7 @@ import {
 import isEmpty from "lodash/isEmpty";
 import useLocalStorage from "use-local-storage";
 import { useRouter } from "next/router";
+import { css } from "@linaria/core";
 
 import { useUser } from "@/hooks/";
 import Header from "@/components/Header";
@@ -29,6 +30,7 @@ import * as api from "@/api";
 import Authenticate from "@/modules/auth";
 import handleException from "@/utils/handle-exception";
 import { userFetched } from "@/providers/User";
+import * as mediaQueries from "@/utils/media-queries";
 
 type Props = {
 	children: React.ReactNode;
@@ -278,7 +280,15 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 				containerProps={{
 					backgroundColor: colors.gray75,
 					borderRadius: 20,
-					zIndex: 5
+					zIndex: 5,
+					className: css`
+						${mediaQueries.isSmall} {
+							right: 10px !important;
+							left: 10px !important;
+							bottom: 10px !important;
+							width: auto !important;
+						}
+					`
 				}}
 			>
 				<EmailCapture
@@ -307,7 +317,14 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 					paddingRight: 20,
 					paddingLeft: 20,
 					paddingBottom: 20,
-					width: 300
+					width: 300,
+					className: css`
+						${mediaQueries.isSmall} {
+							right: 10px !important;
+							width: auto !important;
+							max-width: 100vw;
+						}
+					`
 				}}
 			>
 				<Pane display="flex" alignItems="center" justifyContent="center">
