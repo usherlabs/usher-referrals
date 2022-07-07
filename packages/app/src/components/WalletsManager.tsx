@@ -481,7 +481,6 @@ const WalletsManager: React.FC<Props> = ({ onClose }) => {
 															height={majorScale(3)}
 															appearance="minimal"
 															borderTop={`1px solid ${colors.gray300}`}
-															marginTop={6}
 															width="100%"
 														>
 															Send Funds
