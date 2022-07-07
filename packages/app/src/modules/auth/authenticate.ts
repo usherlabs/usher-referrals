@@ -255,6 +255,30 @@ class Authenticate {
 		return jwk as JWKInterface;
 	}
 
+	private getOwnerAuthority() {
+		if (!this.owner) {
+			throw ono(`Attempting to fetch authorities for null owner`);
+		}
+		// If the owners are different
+		// Start the migration of loadedOwner into this.owner
+		if (this.owner.authorities.length === 0) {
+			throw ono(`No authorities for owner: ${this.owner.id}`);
+		}
+		const ownerAuthority = this.auths.find((a) => {
+			if (this.owner) {
+				return this.owner.authorities.includes(a.did.id);
+			}
+			return false;
+		});
+		if (!ownerAuthority) {
+			throw ono(`No authenticated Wallet DID for owner`, {
+				ownerId: this.owner.id,
+				wallets: this.auths.map((a) => a.did.id)
+			});
+		}
+		return ownerAuthority;
+	}
+
 	/**
 	 * Manage Owner formation for connected wallet
 	 * What we could see here:
@@ -273,29 +297,6 @@ class Authenticate {
 			this.owner = owner;
 		};
 		const getOwner = () => this.owner;
-		const getOwnerAuthority = () => {
-			if (!this.owner) {
-				throw ono(`Attempting to fetch authorities for null owner`);
-			}
-			// If the owners are different
-			// Start the migration of loadedOwner into this.owner
-			if (this.owner.authorities.length === 0) {
-				throw ono(`No authorities for owner: ${this.owner.id}`);
-			}
-			const ownerAuthority = this.auths.find((a) => {
-				if (this.owner) {
-					return this.owner.authorities.includes(a.did.id);
-				}
-				return false;
-			});
-			if (!ownerAuthority) {
-				throw ono(`No authenticated Wallet DID for owner`, {
-					ownerId: this.owner.id,
-					wallets: this.auths.map((a) => a.did.id)
-				});
-			}
-			return ownerAuthority;
-		};
 
 		await queue.add(async () => {
 			console.log(`Loading owner for auth: ${auth.wallet.address}`);
@@ -326,7 +327,7 @@ class Authenticate {
 				if (owner) {
 					// Is there an existing owner?
 					if (owner.id !== loadedOwner.id) {
-						const ownerAuthority = getOwnerAuthority();
+						const ownerAuthority = this.getOwnerAuthority();
 						await owner.merge(ownerAuthority.did, loadedOwner);
 					}
 					// If the owners are the same, then we've verified that the owners are the same.
@@ -339,7 +340,7 @@ class Authenticate {
 					`No owner loaded for: ${auth.wallet.address} -- setting the Wallet's owner to ${owner.id}`
 				);
 				// If loaded owner is not fetched and this.owner exists, ensure that this.owner is accessible by the Auth
-				const ownerAuthority = getOwnerAuthority();
+				const ownerAuthority = this.getOwnerAuthority();
 				await owner.addAuthorities(ownerAuthority.did, [auth.did]);
 				// set the auth's owner to this.owner.
 				await auth.setShareableOwnerId(owner.id);
