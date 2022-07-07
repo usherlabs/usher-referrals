@@ -36,6 +36,7 @@
 		"commander": "^9.3.0",
 		"dids": "^3.1.0",
 		"dotenv": "^16.0.1",
+		"inquirer": "^9.0.0",
 		"js-base64": "^3.7.2",
 		"jsonfile": "^6.1.0",
 		"key-did-provider-ed25519": "^2.0.0",

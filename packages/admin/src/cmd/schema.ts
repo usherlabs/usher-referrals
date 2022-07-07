@@ -24,7 +24,7 @@ updateCmd
 		"Path to Schema file that will be used as the updated version"
 	)
 	//  .argument('<deploypath>', 'Path to Deployed Model file that will replaced with the updated version')
-	.option("-k, --key <string>", "DID Key used to manage Ceramic models")
+	.option("-k, --key <string>", "DID Key")
 	.action(async (id, filepath, options) => {
 		const ceramic = await getCeramic(options.key);
 		const schema = await jsonfile.readFile(filepath);

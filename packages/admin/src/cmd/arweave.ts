@@ -20,15 +20,19 @@ const newCmd = new Command();
 
 newCmd
 	.name("new")
-	.description("Create a new Arweave CLI for internal purposes")
-	.option("-k, --key <string>", "DID Key used to manage Ceramic models")
+	.description("Create a new Arweave Wallet for internal Campaign purposes")
+	.option("-k, --key <string>", "DID Key")
+	.option(
+		"-r, --recipient <string...>",
+		"Additional DID Recipients for the Encrypted Wallet"
+	)
 	.action(async (options) => {
 		const key = await arweave.wallets.generate();
 		const address = await arweave.wallets.jwkToAddress(key);
 		const did = await getNetworkDID(options.key);
 		const jwe = await did.createJWE(
 			uint8arrays.fromString(JSON.stringify(key)),
-			[did.id]
+			[did.id, ...options.recipient]
 		);
 		const str = JSON.stringify(jwe);
 		const k = Base64.encode(str);

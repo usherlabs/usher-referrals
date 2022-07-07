@@ -17,7 +17,7 @@ loadCmd
 	.argument("<id>", "Tile Stream ID that will be updated")
 	//  .argument('<deploypath>', 'Path to Deployed Model file that will replaced with the updated version')
 	.option("-c, --commits", "Show all commits for the Stream")
-	.option("-k, --key <string>", "DID Key used to manage Ceramic models")
+	.option("-k, --key <string>", "DID Key")
 	.action(async (id, options) => {
 		const ceramic = await getCeramic(options.key);
 		const doc = await TileDocument.load(
@@ -56,7 +56,7 @@ updateSchemaCmd
 		"<schema_commit_id>",
 		"Schema Stream Commit ID that will be updated"
 	)
-	.option("-k, --key <string>", "DID Key used to manage Ceramic models")
+	.option("-k, --key <string>", "DID Key")
 	.action(async (id, schemaCommitId, options) => {
 		const ceramic = await getCeramic(options.key);
 		const doc = await TileDocument.load(
