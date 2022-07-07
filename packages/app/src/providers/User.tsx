@@ -321,8 +321,8 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 					break;
 				}
 			}
-			console.log("Wallets loaded. Fetching verifications ...");
-			console.log(fetchedWallets);
+
+			console.log("Wallets loaded. Fetching verifications ...", fetchedWallets);
 
 			if (fetchedWallets.length > 0) {
 				await loadUserWithWallets(fetchedWallets);

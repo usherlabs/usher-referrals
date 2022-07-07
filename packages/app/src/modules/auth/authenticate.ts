@@ -179,6 +179,8 @@ class Authenticate {
 			this.add(ethAuth);
 		}
 
+		await this.loadOwnerForAuth(ethAuth);
+
 		// Check if Arweave wallet exists for the DID
 		// For reference, see https://developers.ceramic.network/tools/glaze/example/#5-runtime-usage
 		const magicWallets = await ethAuth.getMagicWallets();
@@ -208,14 +210,12 @@ class Authenticate {
 			arweaveKey = jwk;
 		}
 
+		// withAreave includes the loadOwnerForAuth method already
 		const arAuth = await this.withArweave(
 			arweaveAddress,
 			Connections.MAGIC,
 			Authenticate.nativeArweaveProvider(arweaveKey)
 		);
-
-		await this.loadOwnerForAuth(ethAuth);
-		await this.loadOwnerForAuth(arAuth);
 
 		return [ethAuth, arAuth];
 	}
@@ -273,6 +273,29 @@ class Authenticate {
 			this.owner = owner;
 		};
 		const getOwner = () => this.owner;
+		const getOwnerAuthority = () => {
+			if (!this.owner) {
+				throw ono(`Attempting to fetch authorities for null owner`);
+			}
+			// If the owners are different
+			// Start the migration of loadedOwner into this.owner
+			if (this.owner.authorities.length === 0) {
+				throw ono(`No authorities for owner: ${this.owner.id}`);
+			}
+			const ownerAuthority = this.auths.find((a) => {
+				if (this.owner) {
+					return this.owner.authorities.includes(a.did.id);
+				}
+				return false;
+			});
+			if (!ownerAuthority) {
+				throw ono(`No authenticated Wallet DID for owner`, {
+					ownerId: this.owner.id,
+					wallets: this.auths.map((a) => a.did.id)
+				});
+			}
+			return ownerAuthority;
+		};
 
 		await queue.add(async () => {
 			console.log(`Loading owner for auth: ${auth.wallet.address}`);
@@ -303,20 +326,7 @@ class Authenticate {
 				if (owner) {
 					// Is there an existing owner?
 					if (owner.id !== loadedOwner.id) {
-						// If the owners are different
-						// Start the migration of loadedOwner into this.owner
-						if (owner.authorities.length === 0) {
-							throw ono(`No authorities for owner: ${owner.id}`);
-						}
-						const ownerAuthority = this.auths.find((a) =>
-							owner.authorities.includes(a.did.id)
-						);
-						if (!ownerAuthority) {
-							throw ono(`No authenticated Wallet DID for owner`, {
-								ownerId: owner.id,
-								wallets: this.auths.map((a) => a.did.id)
-							});
-						}
+						const ownerAuthority = getOwnerAuthority();
 						await owner.merge(ownerAuthority.did, loadedOwner);
 					}
 					// If the owners are the same, then we've verified that the owners are the same.
@@ -328,7 +338,10 @@ class Authenticate {
 				console.log(
 					`No owner loaded for: ${auth.wallet.address} -- setting the Wallet's owner to ${owner.id}`
 				);
-				// If loaded owner is not fetched and this.owner exists, set the auth's owner to this.owner.
+				// If loaded owner is not fetched and this.owner exists, ensure that this.owner is accessible by the Auth
+				const ownerAuthority = getOwnerAuthority();
+				await owner.addAuthorities(ownerAuthority.did, [auth.did]);
+				// set the auth's owner to this.owner.
 				await auth.setShareableOwnerId(owner.id);
 			} else {
 				console.log(

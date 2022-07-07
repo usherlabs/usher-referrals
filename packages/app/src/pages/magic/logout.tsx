@@ -16,4 +16,12 @@ const MagicLogin = () => {
 	);
 };
 
+export const getStaticProps = async () => {
+	return {
+		props: {
+			noUser: true
+		}
+	};
+};
+
 export default MagicLogin;

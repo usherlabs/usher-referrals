@@ -56,6 +56,8 @@ class WalletAuth extends Auth {
 
 	/**
 	 * Set the ShareableOwner ID
+	 *
+	 * Ensure that the owner can be accessed by the Auth when it's ownerId is set.
 	 */
 	public async setShareableOwnerId(id: string): Promise<void> {
 		await this.store.set(CERAMIC_SHAREABLE_OWNER_KEY, { id }, { pin: true });

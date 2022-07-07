@@ -1,34 +1,17 @@
-import { useEffect, useState } from "react";
+import { useRouter } from "next/router";
 
-const createUrl = (url: string, redir: string) => {
-	if (!redir) {
-		return url;
-	}
-
-	const sp = url.split("?");
+function useRedir(url: string, redir: string = "") {
+	const router = useRouter();
+	const sp = router.asPath.split("?");
 	const pathname = sp.shift();
 	const search = `?${sp.join("?")}`;
 	const params = new URLSearchParams(search);
-
-	params.set("redir", redir);
-
-	return `${pathname}?${params.toString()}`;
-};
-
-function useRedir(url: string, redir: string = "") {
-	const [newUrl, setNewUrl] = useState(url);
-
-	useEffect(() => {
-		if (redir) {
-			setNewUrl(createUrl(url, redir));
-		} else if (typeof window !== "undefined") {
-			setNewUrl(
-				createUrl(url, window.location.pathname + window.location.search)
-			);
-		}
-	}, []);
-
-	return newUrl;
+	if (redir) {
+		params.set("redir", redir);
+	} else {
+		params.set("redir", pathname || "/");
+	}
+	return [url, params.toString()].filter((s) => !!s).join("?");
 }
 
 export default useRedir;

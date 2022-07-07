@@ -20,7 +20,7 @@ import Auth from "./auth";
 import WalletAuth from "./wallet";
 
 type ShareableOwner = {
-	owner: {
+	owner?: {
 		dids: string[];
 		id: string;
 		secret: string;
@@ -83,10 +83,12 @@ class OwnerAuth extends Auth {
 		let ownerDocId = id;
 		let ownerDoc = null;
 		while (ownerDoc === null) {
-			// @ts-ignore
-			const doc = await TileDocument.load(this._ceramic, ownerDocId);
-			const content = doc.content as ShareableOwner;
-			const migrateTo = content.migrate_to;
+			const doc = await TileDocument.load<ShareableOwner>(
+				// @ts-ignore
+				this._ceramic,
+				ownerDocId
+			);
+			const migrateTo = doc.content.migrate_to;
 			if (migrateTo && migrateTo.length > 0) {
 				ownerDocId = migrateTo;
 			} else {
@@ -94,9 +96,17 @@ class OwnerAuth extends Auth {
 			}
 		}
 
-		console.log(`Connected Owner Doc`, ownerDocId, ownerDoc.content);
+		console.log(`Connected Owner Doc`, {
+			id: ownerDocId,
+			content: ownerDoc.content,
+			auth: did.id
+		});
 
-		const { owner } = ownerDoc.content as ShareableOwner;
+		const { owner } = ownerDoc.content;
+		if (!owner) {
+			throw new Error("Connected Owner Doc is malformed");
+		}
+
 		const secret = await OwnerAuth.decodeSecret(did, owner.secret);
 
 		await this.authenticate(owner.id, secret);
@@ -290,12 +300,12 @@ class OwnerAuth extends Auth {
 		}
 	}
 
-	public loadDoc(streamId: string) {
-		return this.loader.load(streamId);
+	public loadDoc<T>(streamId: string) {
+		return this.loader.load<T>(streamId);
 	}
 
 	public loadOwnerDoc() {
-		return this.loadDoc(this.id);
+		return this.loadDoc<ShareableOwner>(this.id);
 	}
 
 	/**
@@ -311,10 +321,10 @@ class OwnerAuth extends Auth {
 	 */
 	public async merge(
 		authority: DID,
-		mergingOwner: OwnerAuth
+		mergingOwnerAuth: OwnerAuth
 		// mergingAuthority: DID
 	): Promise<void> {
-		const iterator = mergingOwner.iterateIndex();
+		const iterator = mergingOwnerAuth.iterateIndex();
 		let isDone = false;
 		const setIndex: Record<string, string[]> = {};
 
@@ -331,7 +341,7 @@ class OwnerAuth extends Auth {
 					setIndex[res.value.key] = streamIds;
 					Promise.all(
 						streamIds.map(async (id) => {
-							const doc = await mergingOwner.loadDoc(id);
+							const doc = await mergingOwnerAuth.loadDoc(id);
 							await doc.update(doc.content, {
 								controllers: [this.did.id]
 							});
@@ -357,28 +367,43 @@ class OwnerAuth extends Auth {
 					});
 				}
 
-				// Remove/Unpin all records on mergingOwner
-				const removingRecordId = await mergingOwner.getRecordId(key);
-				const doc = await mergingOwner.loadDoc(removingRecordId);
+				// Remove/Unpin all records on mergingOwnerAuth
+				const removingRecordId = await mergingOwnerAuth.getRecordId(key);
+				const doc = await mergingOwnerAuth.loadDoc(removingRecordId);
 				await doc.update({ set: [] }, undefined, { pin: false });
-				await mergingOwner.removeRecord(key);
+				await mergingOwnerAuth.removeRecord(key);
 			})
 		);
 
-		const shareableOwnerDoc = await mergingOwner.loadOwnerDoc();
-		const shareableOwnerDocContent =
-			shareableOwnerDoc.content as ShareableOwner;
+		const shareableOwnerDoc = await mergingOwnerAuth.loadOwnerDoc();
+		const { owner: mergingOwner } = shareableOwnerDoc.content;
+		if (!mergingOwner) {
+			throw new Error("Connected Merging Owner Doc is malformed");
+		}
 
+		await this.addAuthorities(authority, mergingOwner.dids);
+
+		// Set the migrate_to value on mergingOwner ShareableOwner Stream
+		await shareableOwnerDoc.update({ migrate_to: this.id });
+	}
+
+	/**
+	 * Add a new authority to the owner
+	 */
+	public async addAuthorities(
+		authority: DID,
+		newAuthorities: DID[] | string[]
+	): Promise<void> {
 		// Decrypt the secret and re-encrypt with new did recipients
 		const ownerDoc = await this.loadOwnerDoc();
-		const ownerDocContent = ownerDoc.content as ShareableOwner;
-		const secret = await OwnerAuth.decodeSecret(
-			authority,
-			ownerDocContent.owner.secret
-		);
+		const { owner } = ownerDoc.content;
+		if (!owner) {
+			throw new Error("Connected Owner Doc is malformed");
+		}
+		const secret = await OwnerAuth.decodeSecret(authority, owner.secret);
 		const newOwnerDids = uniq([
-			...ownerDocContent.owner.dids,
-			...shareableOwnerDocContent.owner.dids
+			...owner.dids,
+			...newAuthorities.map((did) => (typeof did === "string" ? did : did.id))
 		]);
 		const newSecret = await OwnerAuth.encodeSecret(
 			authority,
@@ -388,13 +413,10 @@ class OwnerAuth extends Auth {
 		await ownerDoc.update({
 			owner: {
 				dids: newOwnerDids,
-				id: ownerDocContent.owner.id,
+				id: owner.id,
 				secret: newSecret
 			}
 		});
-
-		// Set the migrate_to value on mergingOwner ShareableOwner Stream
-		await shareableOwnerDoc.update({ migrate_to: this.id });
 	}
 
 	/**
@@ -418,11 +440,8 @@ class OwnerAuth extends Auth {
 		await this.authenticate(id, secret);
 
 		// Encrypt keys and store
-		const enc = await OwnerAuth.encodeSecret(
-			auth.did,
-			uint8arrays.fromString(sec)
-		);
-		const doc = await TileDocument.create(
+		const enc = await OwnerAuth.encodeSecret(auth.did, secret);
+		const doc = await TileDocument.create<ShareableOwner>(
 			// @ts-ignore
 			this._ceramic,
 			{
@@ -437,13 +456,18 @@ class OwnerAuth extends Auth {
 			}
 		);
 
+		const { owner } = doc.content;
+		if (!owner) {
+			throw new Error("Created Owner Doc is malformed");
+		}
+
 		const ownerId = doc.id.toString();
 
 		await auth.setShareableOwnerId(ownerId);
 
 		this._id = ownerId;
 
-		this._authorities = (doc.content as ShareableOwner).owner.dids;
+		this._authorities = owner.dids;
 
 		console.log(`Created Owner Doc`, ownerId, doc.content);
 

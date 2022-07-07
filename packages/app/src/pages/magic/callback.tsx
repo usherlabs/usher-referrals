@@ -4,11 +4,13 @@
  */
 
 import { useEffect } from "react";
+import { setCookie } from "nookies";
+import { Base64 } from "js-base64";
 
 import UserProvider from "@/providers/User";
 import Preloader from "@/components/Preloader";
 import { useUser } from "@/hooks";
-import { Connections } from "@/types";
+
 import { getMagicClient } from "@/utils/magic-client";
 
 // https://github.com/pubkey/broadcast-channel -- to prevent multiple tabs from processing the same connection.
@@ -112,24 +114,22 @@ class MagicPNP {
 }
 
 const Screen = () => {
-	const {
-		actions: { connect }
-	} = useUser();
-
 	useEffect(() => {
 		if (typeof window !== "undefined") {
 			(async () => {
 				const magicPnp = new MagicPNP();
 				const response = await magicPnp.handle();
-				// Do something with the email -- response.userMetadata.email
-				console.log(response);
-				await connect(Connections.MAGIC); // Authorise the Magic DID now that we're logged in.
-				window.location.href = "/";
+				const enc = Base64.encodeURI(JSON.stringify(response));
+				setCookie(null, "__usher_magic_connect", enc, {
+					maxAge: 24 * 60 * 60, // 1 days
+					path: "/"
+				});
+				window.location.replace("/magic/connect");
 			})();
 		}
 	}, []);
 
-	return <Preloader message="Connecting with Magic..." />;
+	return <Preloader message="Processing Magic..." />;
 };
 
 const MagicCallback = () => {
@@ -138,6 +138,14 @@ const MagicCallback = () => {
 			<Screen />
 		</UserProvider>
 	);
+};
+
+export const getStaticProps = async () => {
+	return {
+		props: {
+			noUser: true
+		}
+	};
 };
 
 export default MagicCallback;

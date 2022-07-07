@@ -7,15 +7,20 @@ import * as mediaQueries from "@/utils/media-queries";
 
 const menu = [
 	{
+		href: "https://usher.so/?ref=app",
+		text: "About",
+		external: true
+	},
+	{
 		href: "https://docs.usher.so/?ref=app",
-		text: "Documentation",
+		text: "Docs",
+		external: true
+	},
+	{
+		href: "https://go.usher.so/discord",
+		text: "Discord",
 		external: true
 	}
-	// {
-	// 	href: "https://docs.usher.so/?ref=app",
-	// 	text: "Terms & Conditions",
-	// 	external: true
-	// }
 ];
 
 const Footer: React.FC = ({ ...props }) => {

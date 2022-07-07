@@ -24,4 +24,12 @@ const MagicSettings = () => {
 	);
 };
 
+export const getStaticProps = async () => {
+	return {
+		props: {
+			noUser: true
+		}
+	};
+};
+
 export default MagicSettings;
