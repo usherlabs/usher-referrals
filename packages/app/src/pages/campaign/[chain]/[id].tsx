@@ -10,6 +10,7 @@ import isEmpty from "lodash/isEmpty";
 import { useUser } from "@/hooks/";
 import { MAX_SCREEN_WIDTH } from "@/constants";
 import ClaimButton from "@/components/Campaign/ClaimButton";
+import Funding from "@/components/Campaign/Funding";
 import Terms from "@/components/Campaign/Terms";
 import Progress from "@/components/Progress";
 import {
@@ -267,6 +268,26 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 						}
 					`}
 				>
+					{!isLoading && campaign ? (
+						<>
+							<Pane
+								background="tint2"
+								borderRadius={8}
+								padding={12}
+								marginBottom={12}
+							>
+								<Funding campaign={campaign} />
+							</Pane>
+						</>
+					) : (
+						<Skeleton
+							style={{
+								height: 100,
+								borderRadius: 8,
+								marginBottom: 12
+							}}
+						/>
+					)}
 					{!isLoading && campaign ? (
 						<>
 							{campaign.reward.limit && campaign.reward.limit > 0 ? (

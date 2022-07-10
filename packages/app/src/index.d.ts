@@ -21,6 +21,7 @@ declare module "@iconscout/react-unicons" {
 	export const UilSelfie: Icon;
 	export const UilShieldCheck: Icon;
 	export const UilExclamationOctagon: Icon;
+	export const UilArrowCircleDown: Icon;
 }
 
 declare module "@usher/ceramic";

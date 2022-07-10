@@ -21,7 +21,7 @@ import { Wallet, CampaignReward, Chains, Connections } from "@/types";
 import ValueCard from "@/components/ValueCard";
 import Anchor from "@/components/Anchor";
 import { chainImages, connectionImages } from "@/utils/images-map";
-import { UilWallet, UilCoins } from "@iconscout/react-unicons";
+import { UilWallet, UilArrowCircleDown } from "@iconscout/react-unicons";
 import truncate from "@/utils/truncate";
 
 export type Props = {
@@ -123,7 +123,9 @@ const ClaimButton: React.FC<Props> = ({
 				minWidth={260}
 				width="100%"
 				{...buttonProps}
-				iconBefore={isActive ? () => <UilCoins size="28" /> : LockIcon}
+				iconBefore={
+					isActive ? () => <UilArrowCircleDown size="28" /> : LockIcon
+				}
 				onClick={isActive ? () => setShowDialog(true) : () => null}
 				pointerEvents={isActive ? "auto" : "none"}
 			>
