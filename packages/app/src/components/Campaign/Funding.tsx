@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { UilCoins } from "@iconscout/react-unicons";
-import { useTheme } from "evergreen-ui";
+import { useTheme, Tooltip, Pane } from "evergreen-ui";
 
 import { Campaign, Chains } from "@/types";
 import ValueCard from "@/components/ValueCard";
@@ -36,14 +36,18 @@ const CampaingFunding: React.FC<Props> = ({ campaign }) => {
 	}, [campaign]);
 
 	return (
-		<ValueCard
-			value={!isLoading ? funding : ""}
-			ticker={campaign.reward.ticker}
-			id="campaign funding"
-			label="Campaign Funds"
-			isLoading={isLoading}
-			iconLeft={() => <UilCoins size={28} color={colors.gray700} />}
-		/>
+		<Tooltip content="The campaign's active collateral for partners to earn">
+			<Pane>
+				<ValueCard
+					value={!isLoading ? funding : ""}
+					ticker={campaign.reward.ticker}
+					id="campaign funding"
+					label="Campaign Funds"
+					isLoading={isLoading}
+					iconLeft={() => <UilCoins size={28} color={colors.gray700} />}
+				/>
+			</Pane>
+		</Tooltip>
 	);
 };
 

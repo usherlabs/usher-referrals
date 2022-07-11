@@ -126,3 +126,26 @@ export const referrals = () => ({
 			.json();
 	}
 });
+
+export const claim = (authToken: string) => {
+	const req = getAuthRequest(authToken);
+
+	return {
+		post(
+			partnership: string,
+			to: string
+		): Promise<{
+			success: boolean;
+			data: { to: string; amount: number; txId: string; txUrl: string };
+		}> {
+			return req
+				.post("claim", {
+					json: {
+						partnership,
+						to
+					}
+				})
+				.json();
+		}
+	};
+};

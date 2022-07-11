@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import {
 	Paragraph,
 	Button,
@@ -23,9 +23,10 @@ import Anchor from "@/components/Anchor";
 import { chainImages, connectionImages } from "@/utils/images-map";
 import { UilWallet, UilArrowCircleDown } from "@iconscout/react-unicons";
 import truncate from "@/utils/truncate";
+import InputField from "@/components/InputField";
 
 export type Props = {
-	onClaim: (() => Promise<void>) | (() => void);
+	onClaim: (wallet: Wallet) => Promise<void> | void;
 	wallets: Wallet[];
 	amount: number;
 	reward: CampaignReward;
@@ -33,6 +34,7 @@ export type Props = {
 	processed?: number; // How much of the limit has been processed
 	active?: boolean; // Determined by whether the limit has been reached
 	buttonProps?: ButtonProps;
+	tx?: { id: string; url: string };
 };
 
 const ClaimButton: React.FC<Props> = ({
@@ -42,15 +44,21 @@ const ClaimButton: React.FC<Props> = ({
 	amount,
 	reward,
 	processed = 0,
-	active = false,
-	buttonProps
+	active: isActive = false,
+	buttonProps,
+	tx
 }) => {
 	const { colors } = useTheme();
 	const [showDialog, setShowDialog] = useState(false);
 	const [selectedWallet, setSelectedWallet] = useState<Wallet>(wallets[0]);
-	const isActive = active && amount > 0;
 	const isComplete =
 		reward.limit && reward.limit > 0 ? processed >= reward.limit : false;
+
+	const closeDialog = useCallback(() => {
+		if (!isClaiming) {
+			setShowDialog(false);
+		}
+	}, [isClaiming]);
 
 	if (isComplete) {
 		return (
@@ -83,7 +91,7 @@ const ClaimButton: React.FC<Props> = ({
 
 	const WalletCard = (
 		<ValueCard
-			value={truncate(selectedWallet.address, 16, 10)}
+			value={selectedWallet.address}
 			id="destination-wallet"
 			iconLeft={() => (
 				<Image
@@ -135,11 +143,14 @@ const ClaimButton: React.FC<Props> = ({
 			</Button>
 			<Dialog
 				isShown={showDialog}
-				title="💸  Claim your Rewards"
-				onCloseComplete={() => setShowDialog(false)}
+				title={tx ? "🎉 Rewards sent" : "💸 Claim your Rewards"}
+				onCloseComplete={closeDialog}
 				hasFooter={false}
 			>
-				<Pane position="relative" paddingBottom={majorScale(7) + 20}>
+				<Pane
+					position="relative"
+					paddingBottom={tx ? undefined : majorScale(7) + 20}
+				>
 					<Pane
 						display="flex"
 						alignItems="center"
@@ -149,7 +160,11 @@ const ClaimButton: React.FC<Props> = ({
 						<Heading is="h4" size={900}>
 							{amount} {reward.ticker.toUpperCase()}
 						</Heading>
-						<Paragraph size={500}>will be paid to</Paragraph>
+						{tx ? (
+							<Paragraph size={500}>has been paid to</Paragraph>
+						) : (
+							<Paragraph size={500}>will be paid to</Paragraph>
+						)}
 						<Pane
 							border={`1px solid rgb(220, 220, 220)`}
 							borderRadius={8}
@@ -164,7 +179,7 @@ const ClaimButton: React.FC<Props> = ({
 								}
 							`}
 						>
-							{wallets.length > 1 ? (
+							{wallets.length > 1 && !tx ? (
 								<SelectMenu
 									options={wallets
 										// options={[
@@ -216,11 +231,42 @@ const ClaimButton: React.FC<Props> = ({
 								WalletCard
 							)}
 						</Pane>
+						{tx && (
+							<Pane marginTop={24} width="100%">
+								<InputField
+									iconSize={18}
+									background="none"
+									id="reward-tx-url"
+									label="Receipt Transaction URL"
+								>
+									<Pane
+										width="100%"
+										display="flex"
+										flexDirection="row"
+										height={42}
+										alignItems="center"
+										paddingX={8}
+										overflowX="auto"
+									>
+										<Anchor
+											display="block"
+											flex={1}
+											paddingX={6}
+											size={500}
+											href={tx.url}
+											external
+										>
+											{tx.url}
+										</Anchor>
+									</Pane>
+								</InputField>
+							</Pane>
+						)}
 					</Pane>
 					{selectedWallet.chain === Chains.ARWEAVE && (
 						<Pane
 							display="flex"
-							alignItems="flex-start"
+							alignItems="center"
 							flexDirection="row"
 							marginBottom={16}
 							paddingTop={16}
@@ -228,19 +274,13 @@ const ClaimButton: React.FC<Props> = ({
 						>
 							<Image
 								src={chainImages[selectedWallet.chain]}
-								width={100}
-								height={100}
+								width={70}
+								height={70}
 							/>
-							<Pane marginLeft={16}>
-								<Paragraph size={500} marginTop={0} marginBottom={8}>
-									<Strong fontSize="inherit">Arweave</Strong> Blockchain rewards
-									may take up to 20 minutes to process.
-								</Paragraph>
-								<Paragraph size={500} marginY={0}>
-									You will receive a notification once your funds have been
-									deposited into your wallet.
-								</Paragraph>
-							</Pane>
+							<Paragraph size={500} marginY={0} marginLeft={16}>
+								<Strong fontSize="inherit">Arweave</Strong> Blockchain rewards
+								may take up to 20 minutes to process.
+							</Paragraph>
 						</Pane>
 					)}
 					{selectedWallet.connection === Connections.MAGIC && (
@@ -255,40 +295,47 @@ const ClaimButton: React.FC<Props> = ({
 							<Pane
 								display="flex"
 								alignItems="center"
-								padding={12}
+								padding={10}
 								backgroundColor={colors.gray100}
 								borderRadius={8}
 							>
-								<UilWallet size="45" color={colors.gray800} />
+								<UilWallet size="40" color={colors.gray800} />
 							</Pane>
 							<Pane marginLeft={16}>
 								<Paragraph size={500} marginTop={0} marginBottom={8}>
 									<Strong fontSize="inherit">
-										I have a Magic Wallet! What to do next?
+										Rewarding your Magic Wallet?
 									</Strong>
 								</Paragraph>
 								<Paragraph size={500} marginY={0}>
-									Click the Wallet Icon in the Menu to send your funds to an
-									Exchange or to another wallet.
+									Click the <Strong fontSize="inherit">Wallet Icon</Strong> in
+									the Menu to send your funds to an Exchange or to another
+									wallet.
 								</Paragraph>
 							</Pane>
 						</Pane>
 					)}
-					<Button
-						height={majorScale(7)}
-						appearance="primary"
-						onClick={onClaim}
-						minWidth={250}
-						position="fixed"
-						left={10}
-						right={10}
-						bottom={10}
-						isLoading={isClaiming}
-					>
-						<Strong color="#fff" fontSize="1.1em">
-							👉&nbsp;&nbsp;Claim Rewards
-						</Strong>
-					</Button>
+					{!tx && (
+						<Button
+							height={majorScale(7)}
+							appearance={amount > 0 ? "primary" : "none"}
+							onClick={() => onClaim(selectedWallet)}
+							minWidth={250}
+							position="fixed"
+							left={10}
+							right={10}
+							bottom={10}
+							isLoading={isClaiming}
+						>
+							{amount > 0 ? (
+								<Strong color="#fff" fontSize="1.1em">
+									👉&nbsp;&nbsp;Claim Rewards
+								</Strong>
+							) : (
+								<Strong fontSize="1.1em">You need to earn more rewards</Strong>
+							)}
+						</Button>
+					)}
 				</Pane>
 			</Dialog>
 		</>

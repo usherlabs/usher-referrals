@@ -10,9 +10,15 @@ import InputField, { Props as InputFieldProps } from "@/components/InputField";
 type Props = InputFieldProps & {
 	value: string | number;
 	ticker?: string;
+	scrollable?: boolean;
 };
 
-const ValueCard: React.FC<Props> = ({ value, ticker, ...props }) => {
+const ValueCard: React.FC<Props> = ({
+	value,
+	ticker,
+	scrollable,
+	...props
+}) => {
 	return (
 		<InputField iconSize={18} background="tint2" {...props}>
 			<Pane
@@ -22,6 +28,11 @@ const ValueCard: React.FC<Props> = ({ value, ticker, ...props }) => {
 				height={42}
 				alignItems="center"
 				paddingX={8}
+				{...(scrollable
+					? {
+							overflowX: "auto"
+					  }
+					: {})}
 			>
 				<Text display="block" flex={1} paddingX={6} size={500}>
 					{value}

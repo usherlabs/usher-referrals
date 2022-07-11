@@ -6,6 +6,7 @@ import { aql } from "arangojs";
 import { ShareableOwnerModel } from "@usher/ceramic";
 import { TileDocument } from "@ceramicnetwork/stream-tile";
 // import ono from "@jsdevtools/ono";
+import uniq from "lodash/uniq";
 
 import {
 	ApiResponse,
@@ -26,7 +27,7 @@ import { appPackageName, appVersion } from "@/env-config";
 const handler = getHandler();
 
 const schema = z.object({
-	partnership: z.string(),
+	partnership: z.union([z.string(), z.string().array()]),
 	to: z.string()
 });
 
@@ -57,56 +58,83 @@ handler.use(withAuth).post(async (req: AuthApiRequest, res: ApiResponse) => {
 			success: false
 		});
 	}
-	const { partnership, to } = body;
+	const { partnership: partnershipParam, to } = body;
+	const partnerships = Array.isArray(partnershipParam)
+		? uniq(partnershipParam)
+		: [partnershipParam];
 
 	// Get campaign from partnership
-	const stream = await loader.load<CampaignReference>(partnership);
-	if (
-		!isPartnershipStreamValid(
-			// @ts-ignore
-			stream
-		)
-	) {
-		req.log.info(
-			{
-				to,
-				partnership,
-				streamContent: stream.content,
-				schema: stream.metadata.schema,
-				modelSchema: ShareableOwnerModel.schemas.partnership
-			},
-			"Partnership is invalid"
-		);
-		return res.status(400).json({
-			success: false
-		});
+	const streams = await Promise.all(
+		partnerships.map((p) => loader.load<CampaignReference>(p))
+	);
+	for (let i = 0; i < streams.length; i += 1) {
+		const stream = streams[i];
+		if (
+			!isPartnershipStreamValid(
+				// @ts-ignore
+				stream
+			)
+		) {
+			req.log.warn(
+				{
+					to,
+					partnershipParam,
+					streamContent: stream.content,
+					schema: stream.metadata.schema,
+					modelSchema: ShareableOwnerModel.schemas.partnership
+				},
+				"Partnership is invalid"
+			);
+			return res.status(400).json({
+				success: false
+			});
+		}
 	}
 
-	const campaignRef = stream.content;
-	const partnershipId = stream.id.toString();
+	const campaignRefs = streams.map((stream) => stream.content);
+	const partnershipIds = streams.map((stream) => stream.id.toString());
+	for (let i = 0; i < campaignRefs.length - 1; i += 1) {
+		if (
+			campaignRefs[i].address !== campaignRefs[i + 1].address ||
+			campaignRefs[i].chain !== campaignRefs[i + 1].address
+		) {
+			req.log.warn(
+				{
+					to,
+					partnershipParam,
+					campaignRef: campaignRefs[i]
+				},
+				"Partnership parameter is invalid. Partnerships are not for the same campaign."
+			);
+			return res.status(400).json({
+				success: false
+			});
+		}
+	}
+	const [campaignRef] = campaignRefs; // all of the campaign references should be the same.
 	const campaignKey = [campaignRef.chain, campaignRef.address].join(":");
 
-	// Validate that the partnership and campaign are associated to authed dids
+	// Validate that the partnership(s) and campaign are associated to authed dids
 	const checkCursor = await arango.query(aql`
 		FOR d IN ${req.user.map(({ did }) => did)}
 			FOR rd IN 1..1 ANY CONCAT("Dids/", d) Related
 				COLLECT _id = rd._id
 				FOR e IN 1..2 OUTBOUND _id Engagements
-					FILTER e._key == ${partnershipId} OR e._key == ${campaignKey}
+					FILTER POSITION(${partnershipIds}, e._key) OR e._key == ${campaignKey}
 					RETURN e
 	`);
 	const checkResults = (await checkCursor.all()).filter((result) => !!result);
-	const partnershipData = checkResults.find(
-		(result) => result._key === partnershipId
+	const partnershipsData = checkResults.filter((result) =>
+		partnershipIds.includes(result._key)
 	);
 	const campaignData = checkResults.find(
 		(result) => result._key === campaignKey
 	);
-	if (!partnershipData || !campaignData) {
+	if (partnershipsData.length === 0 || !campaignData) {
 		req.log.warn(
 			{
 				to,
-				partnership,
+				partnerships,
 				campaignKey,
 				checkResults,
 				user: req.user
@@ -121,15 +149,20 @@ handler.use(withAuth).post(async (req: AuthApiRequest, res: ApiResponse) => {
 	req.log.debug("Campaign and Partnership indexed data fetched");
 
 	// Determine withdraw amount -- by calculating remaining rewards
-	let rewardsToPay = partnershipData.rewards || 0;
+	let rewardsToPay = 0;
+	partnershipsData.forEach((p) => {
+		rewardsToPay += p.rewards || 0;
+	});
 	if (typeof campaignData.reward.limit === "number") {
 		// Get rewards from partnership and rewards claimed from campaign
+		// TODO: Test this.
 		const pCursor = await arango.query(aql`
 			LET rewards_claimed = (
-				FOR cl IN 1..1 OUTBOUND CONCAT("Partnerships/", ${partnershipId}) Engagements
-					FILTER STARTS_WITH(cl._id, "Claims")
-					COLLECT AGGREGATE amount = SUM(cl.amount)
-					RETURN amount
+				FOR p IN DOCUMENT("Partnerships", ${partnershipIds})
+					FOR cl IN 1..1 OUTBOUND p Engagements
+						FILTER STARTS_WITH(cl._id, "Claims")
+						COLLECT AGGREGATE amount = SUM(cl.amount)
+						RETURN amount
 			)
 			RETURN TO_NUMBER(rewards_claimed)
 		`);
@@ -193,13 +226,15 @@ handler.use(withAuth).post(async (req: AuthApiRequest, res: ApiResponse) => {
 			const txTags = [
 				["Application", "Usher"],
 				["UsherCampaign", campaignRef.address],
-				["UsherPartnership", partnershipId]
+				["UsherPartnerships", partnershipIds.join(", ")]
 			];
 			if (appPackageName && appVersion) {
 				txTags.push([appPackageName, appVersion]);
 			}
 
-			fee -= parseFloat(arweave.ar.winstonToAr(rewardTx.reward)) * 2; // ensure there's enough gas for the transfers.
+			if (totalToPay > arBalance) {
+				fee -= parseFloat(arweave.ar.winstonToAr(rewardTx.reward)) * 2; // ensure there's enough gas for the transfers.
+			}
 			const feeTx = await arweave.createTransaction({
 				target: to,
 				quantity: arweave.ar.arToWinston(`${fee}`)
@@ -256,6 +291,18 @@ handler.use(withAuth).post(async (req: AuthApiRequest, res: ApiResponse) => {
 			);
 
 			// Index Claim, Reduce Remaining Rewards for Partnership
+			let rewardsToDeductFrom = rewardsToPay;
+			const rewardDeductions: [string, number][] = [];
+			partnershipsData.forEach((p) => {
+				if (rewardsToDeductFrom > 0) {
+					let { rewards } = p;
+					if (rewardsToDeductFrom < p.rewards) {
+						rewards = p.rewards - rewardsToDeductFrom;
+					}
+					rewardsToDeductFrom -= rewards;
+					rewardDeductions.push([p._key, rewards]);
+				}
+			});
 			const indexCursor = await arango.query(aql`
 				INSERT {
 					amount: ${rewardsToPay},
@@ -268,17 +315,23 @@ handler.use(withAuth).post(async (req: AuthApiRequest, res: ApiResponse) => {
 					created_at: ${Date.now()}
 				} INTO Claims OPTIONS { waitForSync: true }
 				LET c = NEW
-				INSERT {
-					_from: p._id,
-					_to: c._id
-				} INTO Engagements
-				LET e = NEW
-				LET p = DOCUMENT("Partnerships", ${partnershipId})
-				UPDATE { _key: p._key } WITH { rewards: p.rewards - ${rewardsToPay} } IN Partnerships
+				LET ps = (
+					FOR deduction IN ${rewardDeductions}
+						UPDATE { _key: deduction[0] } WITH { rewards: MAX([p.rewards - deduction[1], 0]) } IN Partnerships
+						RETURN deduction[0]
+				)
+				LET e = (
+					FOR pkey IN ps
+						INSERT {
+							_from: CONCAT("Partnerships/", pkey),
+							_to: c._id
+						} INTO Engagements
+						RETURN NEW
+				)
 				RETURN {
-					partnership: p,
 					claim: c,
-					edge: e
+					partnerships: ps,
+					edges: e
 				}
 			`);
 			const indexResults = await indexCursor.all();

@@ -18,7 +18,8 @@ import {
 	Campaign,
 	RewardTypes,
 	CampaignReward,
-	PartnershipMetrics
+	PartnershipMetrics,
+	Wallet
 } from "@/types";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
@@ -135,9 +136,12 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 		}
 	}, [loginUrl, isLoggedIn, campaign]);
 
-	const onClaim = useCallback(async () => {
-		console.log("Hello world!");
-	}, []);
+	const onClaim = useCallback(
+		async (wallet: Wallet) => {
+			console.log("Hello world!", wallet.address);
+		},
+		[viewingPartnerships]
+	);
 
 	if (!campaign) {
 		return <Serve404 />;

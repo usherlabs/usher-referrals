@@ -109,6 +109,7 @@
 		"@types/react": "18.0.1",
 		"@types/react-copy-to-clipboard": "^5.0.2",
 		"arconnect": "^0.4.2",
+		"arlocal": "^1.1.45",
 		"autoprefixer": "^10.4.5",
 		"babel-jest": "^27.5.1",
 		"babel-plugin-add-react-displayname": "^0.0.5",

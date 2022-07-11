@@ -6,6 +6,7 @@ export const appPackageName = process.env.APP_NAME;
 export const appVersion = process.env.APP_VERSION;
 export const appName = `${appPackageName}@${appVersion}`;
 export const useSeedData = process.env.NEXT_PUBLIC_USE_SEED_DATA === "true";
+export const arweaveLocalPort = process.env.NEXT_PUBLIC_ARWEAVE_LOCAL_PORT;
 
 export const ngrokUrl = process.env.NEXT_PUBLIC_NGROK_URL;
 

@@ -323,7 +323,7 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 					})
 				)
 			);
-			console.log(res);
+
 			const fetchedWallets: Wallet[] = [];
 			for (let i = res.length - 1; i >= 0; i -= 1) {
 				if (res[i].status === "fulfilled") {
