@@ -14,6 +14,8 @@ import allSettled from "promise.allsettled";
 import once from "lodash/once";
 import { toaster } from "evergreen-ui";
 import isEqual from "lodash/isEqual";
+import { parseCookies, destroyCookie } from "nookies";
+import { Base64 } from "js-base64";
 
 import getArConnect from "@/utils/arconnect";
 import useArConnect from "@/hooks/use-arconnect";
@@ -226,35 +228,6 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 		[user]
 	);
 
-	const loadUserWithWallets = useCallback(async (withWallets: Wallet[]) => {
-		// set partnerships and profile state
-		const partnerships = authInstance.getPartnerships();
-		const profile = authInstance.getProfile();
-
-		// Load verifications
-		const authToken = await authInstance.getAuthToken();
-		const [captcha, personhood] = await allSettled<
-			[{ success: boolean }, { success: boolean; createdAt?: number }]
-		>([api.captcha(authToken).get(), api.personhood(authToken).get()]);
-		console.log("Verifications loaded.");
-
-		const newUser = produce(user, (draft) => {
-			draft.wallets = withWallets;
-			draft.partnerships = partnerships;
-			if (profile) {
-				draft.profile = profile;
-			}
-			draft.verifications = {
-				personhood:
-					personhood.status === "fulfilled" && personhood.value.success
-						? personhood.value.createdAt || true
-						: false,
-				captcha: captcha.status === "fulfilled" && captcha.value.success
-			};
-		});
-		saveUser(newUser);
-	}, []);
-
 	const connect = useCallback(async (type: Connections) => {
 		const newWallets = await connectWallet(type);
 		await loadUserWithWallets(newWallets); // loading user data on every new login as partnerships/profiles are not fetched after owners are merged
@@ -310,6 +283,60 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 		},
 		[user]
 	);
+
+	const loadUserWithWallets = useCallback(async (withWallets: Wallet[]) => {
+		// set partnerships and profile state
+		const partnerships = authInstance.getPartnerships();
+		let profile = authInstance.getProfile();
+
+		// Load verifications
+		const authToken = await authInstance.getAuthToken();
+		const [captcha, personhood] = await allSettled<
+			[{ success: boolean }, { success: boolean; createdAt?: number }]
+		>([api.captcha(authToken).get(), api.personhood(authToken).get()]);
+		console.log("Verifications loaded.");
+
+		// Handle Magic Auth Profile Update
+		const cookies = parseCookies();
+		const magicConnectToken = cookies.__usher_magic_connect;
+		if (magicConnectToken && !profile?.email) {
+			try {
+				const response = JSON.parse(Base64.decode(magicConnectToken));
+				// Do something with the email -- response.userMetadata.email
+				const newProfile = {
+					...(profile || {}),
+					email: response.userMetadata.email
+				};
+				await setProfile(newProfile);
+				profile = newProfile;
+				console.log("Magic Profile Updated!");
+			} catch (e) {
+				handleException(e);
+			}
+		}
+		// Destroy the cookie on success
+		destroyCookie(null, "__usher_magic_connect", {
+			maxAge: 24 * 60 * 60, // 1 days
+			path: "/"
+		});
+
+		const newUser = produce(user, (draft) => {
+			draft.wallets = withWallets;
+			draft.partnerships = partnerships;
+			if (profile) {
+				draft.profile = profile;
+			}
+			draft.verifications = {
+				personhood:
+					personhood.status === "fulfilled" && personhood.value.success
+						? personhood.value.createdAt || true
+						: false,
+				captcha: captcha.status === "fulfilled" && captcha.value.success
+			};
+		});
+
+		saveUser(newUser);
+	}, []);
 
 	// Only called once on page load
 	const loadUser = useCallback(

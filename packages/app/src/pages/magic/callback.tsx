@@ -124,7 +124,7 @@ const Screen = () => {
 					maxAge: 24 * 60 * 60, // 1 days
 					path: "/"
 				});
-				window.location.replace("/magic/connect");
+				window.location.replace("/");
 			})();
 		}
 	}, []);
