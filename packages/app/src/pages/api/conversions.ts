@@ -448,9 +448,11 @@ handler
 			}
 		}
 
-		// TODO: Include a process to check remaining rewards -- to determine the rewards to set
-		// Should reflect how the validator nodes should validate conversions.
-		// TODO: Do this inside of a "basis" validator node -- this will speed up the operation of this function too.
+		// // TODO: Include a process to check remaining rewards -- to determine the rewards to set
+		// // Should reflect how the validator nodes should validate conversions.
+		// // TODO: Do this inside of a "basis" validator node -- this will speed up the operation of this function too.
+		// ? We shouldn't be allocating rewards with the limit in consideration
+		// ? Instead, you can earn as many limitless rewards, but may only withdraw up to a limit.
 
 		req.log.info(
 			{ vars: { rate, commit, rewards, campaign, conversion } },

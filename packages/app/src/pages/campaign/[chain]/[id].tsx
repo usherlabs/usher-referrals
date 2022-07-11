@@ -33,6 +33,7 @@ import Actions from "@/components/Campaign/Actions";
 import PartnershipUI from "@/components/Campaign/Partnership";
 import StartPartnership from "@/components/Campaign/StartPartnership";
 import ValueCard from "@/components/ValueCard";
+import Anchor from "@/components/Anchor";
 import VerifyPersonhoodAlert from "@/components/VerifyPersonhoodAlert";
 import { useSeedData } from "@/env-config";
 import * as mediaQueries from "@/utils/media-queries";
@@ -75,7 +76,9 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 
 	const [isPartnering, setPartnering] = useState(false);
 	const [isClaiming, setClaiming] = useState(false);
-	const [claimTx, setClaimTx] = useState<{ id: string; url: string }>(null);
+	const [claimTx, setClaimTx] = useState<
+		{ id: string; url: string } | undefined
+	>();
 
 	const walletsForChain = wallets.filter((w) => w.chain === chain);
 	const viewingPartnerships = partnerships.filter(
@@ -152,7 +155,14 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 					wallet.address
 				);
 				if (response.success) {
-					toaster.success(`Rewards claimed successfully!`);
+					toaster.success(`Rewards claimed successfully!`, {
+						id: "reward-claim",
+						description: () => (
+							<Anchor href={response.data.txUrl} external>
+								{response.data.txUrl}
+							</Anchor>
+						)
+					});
 					setClaimTx({ id: response.data.txId, url: response.data.txUrl });
 				} else {
 					toaster.danger(
@@ -382,12 +392,14 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 									{!isLoading && campaign ? (
 										<ClaimButton
 											onClaim={onClaim}
+											isClaiming={isClaiming}
 											wallets={walletsForChain}
 											amount={claimableRewards}
 											reward={campaign.reward as CampaignReward}
 											active={
 												!!verifications.personhood && !!verifications.captcha
 											}
+											tx={claimTx}
 										/>
 									) : (
 										<Skeleton
