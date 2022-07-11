@@ -132,7 +132,7 @@ export const claim = (authToken: string) => {
 
 	return {
 		post(
-			partnership: string,
+			partnership: string | string[],
 			to: string
 		): Promise<{
 			success: boolean;

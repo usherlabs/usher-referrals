@@ -6,6 +6,7 @@ import { css } from "@linaria/core";
 import { aql } from "arangojs";
 import { useQuery } from "react-query";
 import isEmpty from "lodash/isEmpty";
+import ono from "@jsdevtools/ono";
 
 import { useUser } from "@/hooks/";
 import { MAX_SCREEN_WIDTH } from "@/constants";
@@ -37,6 +38,7 @@ import { useSeedData } from "@/env-config";
 import * as mediaQueries from "@/utils/media-queries";
 import { getArangoClient } from "@/utils/arango-client";
 import * as api from "@/api";
+import Authenticate from "@/modules/auth";
 
 type CampaignPageProps = {
 	id: string;
@@ -72,6 +74,8 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 	const isLoading = router.isFallback;
 
 	const [isPartnering, setPartnering] = useState(false);
+	const [isClaiming, setClaiming] = useState(false);
+	const [claimTx, setClaimTx] = useState<{ id: string; url: string }>(null);
 
 	const walletsForChain = wallets.filter((w) => w.chain === chain);
 	const viewingPartnerships = partnerships.filter(
@@ -136,9 +140,31 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 		}
 	}, [loginUrl, isLoggedIn, campaign]);
 
+	// Reward Claim callback -- receives the selected wallet as a parameter
 	const onClaim = useCallback(
 		async (wallet: Wallet) => {
-			console.log("Hello world!", wallet.address);
+			setClaiming(true);
+			try {
+				const authInstance = Authenticate.getInstance();
+				const authToken = await authInstance.getAuthToken();
+				const response = await api.claim(authToken).post(
+					viewingPartnerships.map((p) => p.id),
+					wallet.address
+				);
+				if (response.success) {
+					toaster.success(`Rewards claimed successfully!`);
+					setClaimTx({ id: response.data.txId, url: response.data.txUrl });
+				} else {
+					toaster.danger(
+						`Rewards claim failed to be processed. Please refresh and try again.`
+					);
+					throw ono("Failed to process claim", response);
+				}
+			} catch (e) {
+				handleException(e);
+			} finally {
+				setClaiming(false);
+			}
 		},
 		[viewingPartnerships]
 	);
