@@ -132,6 +132,8 @@ const withAuth = nextConnect().use(
 				}
 			}
 
+			req.log.debug("User indexed");
+
 			return next();
 		} catch (e) {
 			req.log.error(e);

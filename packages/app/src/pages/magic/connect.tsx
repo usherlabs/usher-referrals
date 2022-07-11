@@ -1,6 +1,6 @@
 // An endpoint that receives the callback response from Magic PNP and processes the User Connection
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { parseCookies, destroyCookie } from "nookies";
 import { Base64 } from "js-base64";
 import { toaster } from "evergreen-ui";
@@ -12,10 +12,11 @@ import { userFetched } from "@/providers/User";
 
 const MagicConnect = () => {
 	const {
-		user: { wallets },
+		user: { wallets, profile },
 		isLoading,
-		actions: { connect }
+		actions: { connect, setProfile }
 	} = useUser();
+	const [msg, setMsg] = useState("Connecting with Magic...");
 
 	useEffect(() => {
 		if (!(!isLoading && wallets.length > 0 && userFetched())) {
@@ -38,8 +39,15 @@ const MagicConnect = () => {
 					path: "/"
 				});
 				// Do something with the email -- response.userMetadata.email
-				console.log(response);
+				await setProfile({
+					...profile,
+					email: response.userMetadata.email
+				});
+				setMsg("Updating your profile using Magic...");
+
 				await connect(Connections.MAGIC); // Authorise the Magic DID now that we're logged in.
+
+				setMsg("Configuring your account...");
 
 				window.location.replace("/");
 			} catch (e) {
@@ -53,9 +61,9 @@ const MagicConnect = () => {
 			}
 		})();
 		return () => {};
-	}, [isLoading, wallets]);
+	}, [isLoading, wallets, profile]);
 
-	return <Preloader message="Connecting with Magic..." />;
+	return <Preloader message={msg} />;
 };
 
 export default MagicConnect;

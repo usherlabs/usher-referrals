@@ -1,0 +1,11 @@
+endpoints:
+   - http://localhost:8529
+username: root
+password: password
+migrationspath: ./migrations
+db: usher
+extras:
+  {
+  db_username: admin,
+  db_password: admin
+  }

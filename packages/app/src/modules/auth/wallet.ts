@@ -4,7 +4,6 @@
  * A class representing a single authentication (wallet connection)
  */
 import { WalletModel } from "@usher/ceramic";
-import * as uint8arrays from "uint8arrays";
 
 import { Wallet } from "@/types";
 import Auth from "./auth";

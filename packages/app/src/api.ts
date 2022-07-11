@@ -34,7 +34,8 @@ export const captcha = (authToken?: string) => {
 				.post(`${authToken ? "verify/" : ""}captcha`, {
 					json: {
 						token
-					}
+					},
+					timeout: 60000
 				})
 				.json();
 		},
@@ -51,7 +52,8 @@ export const personhood = (authToken: string) => {
 				.post("verify/personhood", {
 					json: {
 						token
-					}
+					},
+					timeout: 60000
 				})
 				.json();
 		},

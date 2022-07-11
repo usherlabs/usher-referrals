@@ -93,8 +93,14 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 
 	useEffect(() => {
 		// User is fetched, not loading, authorised, and does already have an profile.email
-		if (!isLoading && !profile.email && userFetched() && wallets.length > 0) {
-			if (captureEmail) {
+		if (!isLoading && userFetched() && wallets.length > 0) {
+			if (profile.email && captureEmail?.active) {
+				setCaptureEmail({
+					...captureEmail,
+					active: false,
+					remindIn: 0
+				});
+			} else if (captureEmail) {
 				if (
 					!captureEmail.active &&
 					captureEmail.remindIn &&
