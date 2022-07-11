@@ -136,7 +136,7 @@ export const claim = (authToken: string) => {
 			to: string
 		): Promise<{
 			success: boolean;
-			data: { to: string; amount: number; txId: string; txUrl: string };
+			data: { to: string; amount: number; txId?: string; txUrl?: string };
 		}> {
 			return req
 				.post("claim", {

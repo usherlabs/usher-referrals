@@ -61,10 +61,7 @@ encryptCmd
 		const { token } = response;
 		const did = await getNetworkDID(options.key);
 		const recipients = [did.id, ...(options.recipient || [])];
-		const jwe = await did.createJWE(
-			fromString(JSON.stringify(token)),
-			recipients
-		);
+		const jwe = await did.createJWE(fromString(token), recipients);
 		const str = JSON.stringify(jwe);
 		const enc = Base64.encode(str);
 

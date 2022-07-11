@@ -164,6 +164,14 @@ export type ConversionTrack = {
 	commit?: number;
 };
 
+export type Claim = {
+	amount: number;
+	tx: {
+		id: string;
+		url: string;
+	};
+};
+
 export type Exception = Error & {
 	statusCode?: number;
 };

@@ -8,7 +8,7 @@ import { Text, Pane } from "evergreen-ui";
 import InputField, { Props as InputFieldProps } from "@/components/InputField";
 
 type Props = InputFieldProps & {
-	value: string | number;
+	value?: string | number | React.ReactNode;
 	ticker?: string;
 	scrollable?: boolean;
 };

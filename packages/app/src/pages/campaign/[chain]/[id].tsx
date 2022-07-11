@@ -1,6 +1,6 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/router";
-import { Pane, toaster } from "evergreen-ui";
+import { Pane, toaster, Text, Tooltip, useTheme } from "evergreen-ui";
 import camelcaseKeys from "camelcase-keys";
 import { css } from "@linaria/core";
 import { aql } from "arangojs";
@@ -9,7 +9,7 @@ import isEmpty from "lodash/isEmpty";
 import ono from "@jsdevtools/ono";
 
 import { useUser } from "@/hooks/";
-import { MAX_SCREEN_WIDTH } from "@/constants";
+import { FEE_MULTIPLIER, MAX_SCREEN_WIDTH } from "@/constants";
 import ClaimButton from "@/components/Campaign/ClaimButton";
 import Funding from "@/components/Campaign/Funding";
 import Terms from "@/components/Campaign/Terms";
@@ -20,7 +20,8 @@ import {
 	RewardTypes,
 	CampaignReward,
 	PartnershipMetrics,
-	Wallet
+	Wallet,
+	Claim
 } from "@/types";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
@@ -40,12 +41,15 @@ import * as mediaQueries from "@/utils/media-queries";
 import { getArangoClient } from "@/utils/arango-client";
 import * as api from "@/api";
 import Authenticate from "@/modules/auth";
+import { getArweaveClient } from "@/utils/arweave-client";
 
 type CampaignPageProps = {
 	id: string;
 	chain: Chains;
 	campaign: Campaign;
 };
+
+const arweave = getArweaveClient();
 
 const getPartnershipMetrics = async (
 	ids: string[]
@@ -73,12 +77,13 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 	const loginUrl = useRedir("/login");
 	const isLoggedIn = wallets.length > 0;
 	const isLoading = router.isFallback;
+	const { colors } = useTheme();
 
 	const [isPartnering, setPartnering] = useState(false);
 	const [isClaiming, setClaiming] = useState(false);
-	const [claimTx, setClaimTx] = useState<
-		{ id: string; url: string } | undefined
-	>();
+	const [claims, setClaims] = useState<Claim[]>([]);
+	const [isFundsLoading, setFundsLoading] = useState(true);
+	const [funds, setFunds] = useState(0);
 
 	const walletsForChain = wallets.filter((w) => w.chain === chain);
 	const viewingPartnerships = partnerships.filter(
@@ -87,24 +92,45 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 	const partnership =
 		viewingPartnerships.length > 0 ? viewingPartnerships[0] : null; // get the first partnership for link usage.
 
-	const metrics = useQuery(["partnership-metrics", viewingPartnerships], () =>
-		getPartnershipMetrics(viewingPartnerships.map((p) => p.id))
+	const metrics = useQuery(
+		["partnership-metrics", viewingPartnerships, claims],
+		() => getPartnershipMetrics(viewingPartnerships.map((p) => p.id))
 	);
 
 	// Ensure that the user knows what they're being rewarded regardless of their internal rewards calculation.
 	let claimableRewards = metrics.data ? metrics.data.rewards : 0;
+	let excessRewards = "";
+	let rewardsClaimed = 0;
 	if (campaign) {
-		if (
-			typeof campaign.rewardsClaimed === "number" &&
-			typeof campaign.reward.limit === "number" &&
-			!!campaign.reward.limit
-		) {
-			const remainingRewards = campaign.reward.limit - campaign.rewardsClaimed;
-			if (claimableRewards > remainingRewards) {
-				claimableRewards = remainingRewards;
+		if (typeof campaign.rewardsClaimed === "number") {
+			rewardsClaimed = campaign.rewardsClaimed;
+
+			if (
+				typeof campaign.reward.limit === "number" &&
+				!!campaign.reward.limit
+			) {
+				let remainingRewards = campaign.reward.limit - campaign.rewardsClaimed;
+				if (remainingRewards < 0) {
+					remainingRewards = 0;
+				}
+				if (claimableRewards > remainingRewards) {
+					const excess = claimableRewards - remainingRewards;
+					if (excess > 0) {
+						excessRewards = excess.toFixed(2);
+					}
+					claimableRewards = remainingRewards;
+				}
 			}
 		}
 	}
+	// No need for the below as the campaign with re-request on new claim
+	// claims.forEach((claim) => {
+	// 	claimableRewards -= claim.amount;
+	// 	if (claimableRewards < 0) {
+	// 		claimableRewards = 0;
+	// 	}
+	// 	rewardsClaimed += claim.amount;
+	// });
 
 	const onStartPartnership = useCallback(() => {
 		if (!isLoggedIn) {
@@ -143,6 +169,18 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 		}
 	}, [loginUrl, isLoggedIn, campaign]);
 
+	// Get the funds staked into the campaign
+	const getCampaignFunds = useCallback(async () => {
+		setFundsLoading(true);
+		const balance = await arweave.wallets.getBalance(campaign.id);
+		const arBalance = arweave.ar.winstonToAr(balance);
+		const f = parseFloat(arBalance) * (1 - FEE_MULTIPLIER);
+		if (f > 0) {
+			setFunds(f);
+		}
+		setFundsLoading(false);
+	}, []);
+
 	// Reward Claim callback -- receives the selected wallet as a parameter
 	const onClaim = useCallback(
 		async (wallet: Wallet) => {
@@ -155,29 +193,55 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 					wallet.address
 				);
 				if (response.success) {
-					toaster.success(`Rewards claimed successfully!`, {
+					if (response.data.txId) {
+						toaster.success(`Rewards claimed successfully!`, {
+							id: "reward-claim",
+							duration: 30,
+							description: response.data.txUrl ? (
+								<Anchor href={response.data.txUrl} external>
+									{response.data.txUrl}
+								</Anchor>
+							) : null
+						});
+						const claim = {
+							amount: response.data.amount,
+							tx: { id: response.data.txId, url: response.data.txUrl || "" }
+						};
+						setClaims([...claims, claim]);
+						setFunds(funds - response.data.amount);
+
+						return claim;
+					}
+					toaster.notify(`No reward amount left to be paid!`, {
 						id: "reward-claim",
-						description: () => (
-							<Anchor href={response.data.txUrl} external>
-								{response.data.txUrl}
-							</Anchor>
-						)
+						duration: 30
 					});
-					setClaimTx({ id: response.data.txId, url: response.data.txUrl });
 				} else {
-					toaster.danger(
-						`Rewards claim failed to be processed. Please refresh and try again.`
-					);
 					throw ono("Failed to process claim", response);
 				}
 			} catch (e) {
+				toaster.danger(
+					`Rewards claim failed to be processed. Please refresh and try again.`,
+					{ id: "reward-claim", duration: 30 }
+				);
 				handleException(e);
 			} finally {
 				setClaiming(false);
 			}
+			return null;
 		},
-		[viewingPartnerships]
+		[viewingPartnerships, funds, claims]
 	);
+
+	useEffect(() => {
+		if (!campaign) {
+			return () => {};
+		}
+
+		getCampaignFunds();
+
+		return () => {};
+	}, [campaign]);
 
 	if (!campaign) {
 		return <Serve404 />;
@@ -316,7 +380,11 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 								padding={12}
 								marginBottom={12}
 							>
-								<Funding campaign={campaign} />
+								<Funding
+									balance={funds}
+									loading={isFundsLoading}
+									ticker={campaign.reward.ticker}
+								/>
 							</Pane>
 						</>
 					) : (
@@ -338,10 +406,8 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 									marginBottom={12}
 								>
 									<Progress
-										value={
-											(campaign.rewardsClaimed || 0) / campaign.reward.limit
-										}
-										label={`${campaign.rewardsClaimed || 0} / ${
+										value={(rewardsClaimed || 0) / campaign.reward.limit}
+										label={`${(rewardsClaimed || 0).toFixed(2)} / ${
 											campaign.reward.limit
 										} ${campaign.reward.ticker}${
 											campaign.reward.type !== RewardTypes.TOKEN
@@ -375,7 +441,18 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 										<ValueCard
 											isLoading={metrics.isLoading}
 											ticker={campaign.reward.ticker}
-											value={claimableRewards}
+											value={
+												<>
+													{claimableRewards}
+													{!!excessRewards && (
+														<Tooltip content="You have earned excess rewards!">
+															<Text color={colors.blue500} marginLeft={4}>
+																+{excessRewards}
+															</Text>
+														</Tooltip>
+													)}
+												</>
+											}
 											id="claimable-rewards"
 											label="Claimable Rewards"
 										/>
@@ -393,13 +470,19 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 										<ClaimButton
 											onClaim={onClaim}
 											isClaiming={isClaiming}
+											isComplete={
+												typeof campaign.reward.limit === "number"
+													? rewardsClaimed === campaign.reward.limit
+													: false
+											}
 											wallets={walletsForChain}
-											amount={claimableRewards}
+											amount={
+												claimableRewards > funds ? funds : claimableRewards
+											}
 											reward={campaign.reward as CampaignReward}
 											active={
 												!!verifications.personhood && !!verifications.captcha
 											}
-											tx={claimTx}
 										/>
 									) : (
 										<Skeleton

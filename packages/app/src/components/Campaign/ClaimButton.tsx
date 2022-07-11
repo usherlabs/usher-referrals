@@ -17,7 +17,7 @@ import {
 import Image from "next/image";
 import { css } from "@linaria/core";
 
-import { Wallet, CampaignReward, Chains, Connections } from "@/types";
+import { Wallet, CampaignReward, Chains, Connections, Claim } from "@/types";
 import ValueCard from "@/components/ValueCard";
 import Anchor from "@/components/Anchor";
 import { chainImages, connectionImages } from "@/utils/images-map";
@@ -26,15 +26,14 @@ import truncate from "@/utils/truncate";
 import InputField from "@/components/InputField";
 
 export type Props = {
-	onClaim: (wallet: Wallet) => Promise<void> | void;
+	onClaim: (wallet: Wallet) => Promise<Claim | null>;
 	wallets: Wallet[];
 	amount: number;
 	reward: CampaignReward;
+	isComplete: boolean;
 	isClaiming?: boolean;
-	processed?: number; // How much of the limit has been processed
 	active?: boolean; // Determined by whether the limit has been reached
 	buttonProps?: ButtonProps;
-	tx?: { id: string; url: string };
 };
 
 const ClaimButton: React.FC<Props> = ({
@@ -43,51 +42,28 @@ const ClaimButton: React.FC<Props> = ({
 	wallets,
 	amount,
 	reward,
-	processed = 0,
+	isComplete,
 	active: isActive = false,
-	buttonProps,
-	tx
+	buttonProps
 }) => {
 	const { colors } = useTheme();
 	const [showDialog, setShowDialog] = useState(false);
 	const [selectedWallet, setSelectedWallet] = useState<Wallet>(wallets[0]);
-	const isComplete =
-		reward.limit && reward.limit > 0 ? processed >= reward.limit : false;
+	const [claim, setClaim] = useState<Claim | null>(null);
 
 	const closeDialog = useCallback(() => {
 		if (!isClaiming) {
+			setClaim(null);
 			setShowDialog(false);
 		}
 	}, [isClaiming]);
 
-	if (isComplete) {
-		return (
-			<Alert
-				title="This campaign has finished"
-				intent="success"
-				className={css`
-					h4 {
-						font-size: 1em;
-						margin: 1px 0 10px 0;
-					}
-					svg {
-						height: 20px;
-						width: 20px;
-					}
-				`}
-			>
-				<Paragraph>All rewards for this campaign has been claimed!</Paragraph>
-				<Paragraph>
-					To explore more campaigns like this,{" "}
-					<Anchor href="/explore">
-						<Strong color={colors.blue500} textDecoration="underline">
-							start exploring
-						</Strong>
-					</Anchor>
-				</Paragraph>
-			</Alert>
-		);
-	}
+	const onNewClaim = useCallback(async () => {
+		const newClaim = await onClaim(selectedWallet);
+		if (newClaim) {
+			setClaim(newClaim);
+		}
+	}, [selectedWallet]);
 
 	const WalletCard = (
 		<ValueCard
@@ -124,32 +100,60 @@ const ClaimButton: React.FC<Props> = ({
 
 	return (
 		<>
-			<Button
-				height={majorScale(6)}
-				intent="success"
-				appearance="primary"
-				minWidth={260}
-				width="100%"
-				{...buttonProps}
-				iconBefore={
-					isActive ? () => <UilArrowCircleDown size="28" /> : LockIcon
-				}
-				onClick={isActive ? () => setShowDialog(true) : () => null}
-				pointerEvents={isActive ? "auto" : "none"}
-			>
-				<Strong color="inherit" fontSize="1.1em">
-					Claim Rewards
-				</Strong>
-			</Button>
+			{isComplete ? (
+				<Alert
+					title="This campaign has finished"
+					intent="success"
+					width="100%"
+					className={css`
+						h4 {
+							font-size: 1em;
+							margin: 1px 0 10px 0;
+						}
+						svg {
+							height: 20px;
+							width: 20px;
+						}
+					`}
+				>
+					<Paragraph>All rewards for this campaign has been claimed!</Paragraph>
+					<Paragraph>
+						To explore more campaigns like this,{" "}
+						<Anchor href="/explore">
+							<Strong color={colors.blue500} textDecoration="underline">
+								start exploring
+							</Strong>
+						</Anchor>
+					</Paragraph>
+				</Alert>
+			) : (
+				<Button
+					height={majorScale(6)}
+					intent="success"
+					appearance="primary"
+					minWidth={260}
+					width="100%"
+					{...buttonProps}
+					iconBefore={
+						isActive ? () => <UilArrowCircleDown size="28" /> : LockIcon
+					}
+					onClick={isActive ? () => setShowDialog(true) : () => null}
+					pointerEvents={isActive ? "auto" : "none"}
+				>
+					<Strong color="inherit" fontSize="1.1em">
+						Claim Rewards
+					</Strong>
+				</Button>
+			)}
 			<Dialog
 				isShown={showDialog}
-				title={tx ? "🎉 Rewards sent" : "💸 Claim your Rewards"}
+				title={claim ? "🎉 Rewards sent" : "💸 Claim your Rewards"}
 				onCloseComplete={closeDialog}
 				hasFooter={false}
 			>
 				<Pane
 					position="relative"
-					paddingBottom={tx ? undefined : majorScale(7) + 20}
+					paddingBottom={claim ? undefined : majorScale(7) + 20}
 				>
 					<Pane
 						display="flex"
@@ -157,10 +161,14 @@ const ClaimButton: React.FC<Props> = ({
 						marginBottom={24}
 						flexDirection="column"
 					>
-						<Heading is="h4" size={900}>
-							{amount} {reward.ticker.toUpperCase()}
+						<Heading
+							is="h4"
+							size={900}
+							color={claim ? colors.blue500 : colors.gray900}
+						>
+							{claim ? claim.amount : amount} {reward.ticker.toUpperCase()}
 						</Heading>
-						{tx ? (
+						{claim ? (
 							<Paragraph size={500}>has been paid to</Paragraph>
 						) : (
 							<Paragraph size={500}>will be paid to</Paragraph>
@@ -179,7 +187,7 @@ const ClaimButton: React.FC<Props> = ({
 								}
 							`}
 						>
-							{wallets.length > 1 && !tx ? (
+							{wallets.length > 1 && !claim ? (
 								<SelectMenu
 									options={wallets
 										// options={[
@@ -231,12 +239,12 @@ const ClaimButton: React.FC<Props> = ({
 								WalletCard
 							)}
 						</Pane>
-						{tx && (
+						{claim && (
 							<Pane marginTop={24} width="100%">
 								<InputField
 									iconSize={18}
 									background="none"
-									id="reward-tx-url"
+									id="reward-transaction-url"
 									label="Receipt Transaction URL"
 								>
 									<Pane
@@ -253,10 +261,11 @@ const ClaimButton: React.FC<Props> = ({
 											flex={1}
 											paddingX={6}
 											size={500}
-											href={tx.url}
+											whiteSpace="nowrap"
+											href={claim.tx.url}
 											external
 										>
-											{tx.url}
+											{claim.tx.url}
 										</Anchor>
 									</Pane>
 								</InputField>
@@ -315,11 +324,11 @@ const ClaimButton: React.FC<Props> = ({
 							</Pane>
 						</Pane>
 					)}
-					{!tx && (
+					{!claim && (
 						<Button
 							height={majorScale(7)}
 							appearance={amount > 0 ? "primary" : "none"}
-							onClick={() => onClaim(selectedWallet)}
+							onClick={onNewClaim}
 							minWidth={250}
 							position="fixed"
 							left={10}

@@ -20,7 +20,7 @@ import { ceramic } from "@/utils/ceramic-client";
 import { getArangoClient } from "@/utils/arango-client";
 import withAuth from "@/server/middleware/auth";
 import { getArweaveClient } from "@/utils/arweave-client";
-import { FEE_MULTIPLIER } from "@/constants";
+import { FEE_MULTIPLIER, FEE_ARWEAVE_WALLET } from "@/constants";
 import handleException from "@/utils/handle-exception";
 import { appPackageName, appVersion } from "@/env-config";
 
@@ -153,7 +153,10 @@ handler.use(withAuth).post(async (req: AuthApiRequest, res: ApiResponse) => {
 	partnershipsData.forEach((p) => {
 		rewardsToPay += p.rewards || 0;
 	});
-	if (typeof campaignData.reward.limit === "number") {
+	if (
+		typeof campaignData.reward.limit === "number" &&
+		campaignData.reward.limit > 0
+	) {
 		// Get rewards from partnership and rewards claimed from campaign
 		// TODO: Test this.
 		const pCursor = await arango.query(aql`
@@ -176,6 +179,17 @@ handler.use(withAuth).post(async (req: AuthApiRequest, res: ApiResponse) => {
 		if (rewardsToPay > remainingRewards) {
 			rewardsToPay = remainingRewards;
 		}
+	}
+
+	if (rewardsToPay === 0) {
+		req.log.info("No rewards to pay");
+		return res.status(200).json({
+			success: true,
+			data: {
+				to,
+				amount: 0
+			}
+		});
 	}
 
 	// Ensure that amount to be paid is greater than amount in internal wallet -- otherwise send whatevers in the wallet and update partnership amount
@@ -212,7 +226,7 @@ handler.use(withAuth).post(async (req: AuthApiRequest, res: ApiResponse) => {
 		try {
 			const did = await getAppDID();
 			const jwe = JSON.parse(Base64.decode(campaignData._internal.key));
-			const dec = await did.decryptJWE(jwe);
+			const dec = await did.decryptJWE(jwe, { did: did.id });
 			const raw = uint8arrays.toString(dec);
 			const jwk = JSON.parse(raw);
 
@@ -236,7 +250,7 @@ handler.use(withAuth).post(async (req: AuthApiRequest, res: ApiResponse) => {
 				fee -= parseFloat(arweave.ar.winstonToAr(rewardTx.reward)) * 2; // ensure there's enough gas for the transfers.
 			}
 			const feeTx = await arweave.createTransaction({
-				target: to,
+				target: FEE_ARWEAVE_WALLET,
 				quantity: arweave.ar.arToWinston(`${fee}`)
 			});
 
@@ -300,30 +314,44 @@ handler.use(withAuth).post(async (req: AuthApiRequest, res: ApiResponse) => {
 						rewards = p.rewards - rewardsToDeductFrom;
 					}
 					rewardsToDeductFrom -= rewards;
-					rewardDeductions.push([p._key, rewards]);
+					const deduction = p.rewards - rewards; // The deduction is the difference between the rewards and the new reward
+					rewardDeductions.push([p._key, deduction]);
 				}
 			});
+			req.log.debug(
+				{ rewardDeductions },
+				"Reward deductions applied to Partnerships"
+			);
+
 			const indexCursor = await arango.query(aql`
+				LET ps = (
+					FOR deduction IN ${rewardDeductions}
+						LET partnership = DOCUMENT("Partnerships", deduction[0])
+						LET newRewards = MAX([partnership.rewards - deduction[1], 0])
+						RETURN MERGE(
+								partnership,
+								{
+										rewards: newRewards
+								}
+						)
+				)
 				INSERT {
 					amount: ${rewardsToPay},
 					to: ${to},
-					fee: ${fee}
-					ar_txs: {
+					fee: ${fee},
+					feeWallet: ${FEE_ARWEAVE_WALLET},
+					txs: {
 						reward: ${rewardTx.id},
 						fee: ${feeTx.id}
 					},
 					created_at: ${Date.now()}
-				} INTO Claims OPTIONS { waitForSync: true }
+				} INTO Claims
 				LET c = NEW
-				LET ps = (
-					FOR deduction IN ${rewardDeductions}
-						UPDATE { _key: deduction[0] } WITH { rewards: MAX([p.rewards - deduction[1], 0]) } IN Partnerships
-						RETURN deduction[0]
-				)
 				LET e = (
-					FOR pkey IN ps
+					FOR p IN ps
+						UPDATE { _key: p._key } WITH { rewards: p.rewards } IN Partnerships
 						INSERT {
-							_from: CONCAT("Partnerships/", pkey),
+							_from: p._id,
 							_to: c._id
 						} INTO Engagements
 						RETURN NEW
@@ -342,14 +370,18 @@ handler.use(withAuth).post(async (req: AuthApiRequest, res: ApiResponse) => {
 				success: true,
 				data: {
 					to,
-					amount: rewardsToPay
+					amount: rewardsToPay,
+					txId: rewardTx.id,
+					txUrl: `https://viewblock.io/arweave/tx/${rewardTx.id}`
 				}
 			});
 		} catch (e) {
 			handleException(e);
 			req.log.error(
 				{
-					e
+					e,
+					partnershipIds,
+					campaignRef
 				},
 				"Cannot execute Arweave Rewards Transfer"
 			);

@@ -36,7 +36,7 @@ const Progress: React.FC<Props> = ({
 		borderRadius: 100
 	};
 
-	let v = value;
+	let v = value * 100;
 	if (v > 100) {
 		v = 100;
 	} else if (v < 0) {
@@ -63,7 +63,7 @@ const Progress: React.FC<Props> = ({
 					background={colors.blue500}
 					position="absolute"
 					{...barProps}
-					width={`${v}%`}
+					width={`${v.toFixed(2)}%`}
 					zIndex={5}
 				/>
 			</Pane>
@@ -84,7 +84,7 @@ const Progress: React.FC<Props> = ({
 			)}
 			{showPercentage && (
 				<Pane display="flex" alignItems="center" justifyContent="flex-end">
-					<Text size={300}>{v}%</Text>
+					<Text size={300}>{v.toFixed(2)}%</Text>
 				</Pane>
 			)}
 		</Pane>
