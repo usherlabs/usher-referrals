@@ -324,8 +324,15 @@ class OwnerAuth extends Auth {
 		let isDone = false;
 		const setIndex: Record<string, string[]> = {};
 
+		console.log(
+			"[Dev] start merge between owners",
+			this.did.id,
+			mergingOwnerAuth.did.id
+		);
+
 		while (!isDone) {
 			const res = await iterator.next();
+			console.log("[Dev] iterator next", res);
 			if (res.done) {
 				isDone = true;
 			}
@@ -347,15 +354,18 @@ class OwnerAuth extends Auth {
 			}
 		}
 
+		console.log("[Dev] owners updates for merging set documents", setIndex);
+
 		// Merge the sets into the owner sets
 		// The keys between sets should be the same -- as they reference the same definition streams
 		const ownerIndex = await this.getIndex();
+		console.log("[Dev] this.owner index", ownerIndex);
 		await Promise.all(
 			Object.entries(setIndex).map(async ([key, set]) => {
 				if (ownerIndex[key]) {
-					const doc = await this.loadDoc(ownerIndex[key]);
-					const content = doc.content as { set: string[] };
-					await doc.update(uniq([...content.set, ...set]));
+					const doc = await this.loadDoc<{ set: string[] }>(ownerIndex[key]);
+					const { content } = doc;
+					await doc.update({ set: uniq([...content.set, ...set]) });
 				} else {
 					// In the circumstance where the key doesn't exist in the owner -- ie. it needs to be created
 					await this.store.setRecord(key, {
@@ -365,11 +375,15 @@ class OwnerAuth extends Auth {
 
 				// Remove/Unpin all records on mergingOwnerAuth
 				const removingRecordId = await mergingOwnerAuth.getRecordId(key);
-				const doc = await mergingOwnerAuth.loadDoc(removingRecordId);
+				const doc = await mergingOwnerAuth.loadDoc<{ set: string[] }>(
+					removingRecordId
+				);
 				await doc.update({ set: [] }, undefined, { pin: false });
 				await mergingOwnerAuth.removeRecord(key);
 			})
 		);
+
+		console.log("[Dev] document sets merged in and original docs unpinned");
 
 		const shareableOwnerDoc = await mergingOwnerAuth.loadOwnerDoc();
 		const { owner: mergingOwner } = shareableOwnerDoc.content;
@@ -379,8 +393,12 @@ class OwnerAuth extends Auth {
 
 		await this.addAuthorities(authority, mergingOwner.dids);
 
+		console.log("[Dev] authorities over this.owner updated");
+
 		// Set the migrate_to value on mergingOwner ShareableOwner Stream
 		await shareableOwnerDoc.update({ migrate_to: this.id });
+
+		console.log("[Dev] legacy owner updated with migrate_to:", this.id);
 	}
 
 	/**
