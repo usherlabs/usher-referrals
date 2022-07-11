@@ -11,6 +11,8 @@ import ono from "@jsdevtools/ono";
 import { nanoid } from "nanoid/async";
 import * as uint8arrays from "uint8arrays";
 import uniq from "lodash/uniq";
+import uniqWith from "lodash/uniqWith";
+import isEqual from "lodash/isEqual";
 
 import { ShareableOwnerModel } from "@usher/ceramic";
 
@@ -116,7 +118,7 @@ class OwnerAuth extends Auth {
 
 	// Load the Partnerships Stream
 	public async loadPartnerships(): Promise<Partnership[]> {
-		console.log("load partnerships");
+		console.log("[Dev] load partnerships");
 		const setObj = await this.store.get(CERAMIC_PARTNERSHIPS_KEY);
 		if (!setObj) {
 			return [];
@@ -125,7 +127,7 @@ class OwnerAuth extends Auth {
 		const streams = await Promise.all(
 			set.map((id) => this.loader.load<CampaignReference>(id))
 		);
-		console.log("partnerships", streams);
+		console.log("[Dev] fetched partnerships", streams);
 
 		const partnerships = streams.map((stream) => ({
 			id: stream.id.toString(),
@@ -399,6 +401,12 @@ class OwnerAuth extends Auth {
 		await shareableOwnerDoc.update({ migrate_to: this.id });
 
 		console.log("[Dev] legacy owner updated with migrate_to:", this.id);
+
+		// Merge partnerships
+		this._partnerships = uniqWith(
+			[...this._partnerships, ...mergingOwnerAuth.partnerships],
+			isEqual
+		);
 	}
 
 	/**
