@@ -2,15 +2,14 @@ import { aql } from "arangojs";
 import isEmpty from "lodash/isEmpty";
 import camelcaseKeys from "camelcase-keys";
 
-import { ApiResponse, ApiRequest } from "@/types";
-import getHandler from "@/server/middleware";
+import { useRouteHandler } from "@/server/middleware";
 import { getArangoClient } from "@/utils/arango-client";
 
-const handler = getHandler();
+const handler = useRouteHandler();
 const arango = getArangoClient();
 
 // Initializing the cors middleware
-handler.get(async (req: ApiRequest, res: ApiResponse) => {
+handler.router.get(async (req, res) => {
 	const { q } = req.query;
 
 	let keys: string[] = [];
@@ -54,4 +53,4 @@ handler.get(async (req: ApiRequest, res: ApiResponse) => {
 	});
 });
 
-export default handler;
+export default handler.handle();

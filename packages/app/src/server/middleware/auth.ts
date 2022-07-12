@@ -1,10 +1,10 @@
-import nextConnect from "next-connect";
 import { Base64 } from "js-base64";
 import { DagJWS, DID } from "dids";
 import { getResolver as getKeyResolver } from "key-did-resolver";
 import isEmpty from "lodash/isEmpty";
 import { aql } from "arangojs";
 import { ArangoError } from "arangojs/error";
+import type { NextHandler } from "next-connect";
 // import util from "util";
 
 import { getArangoClient } from "@/utils/arango-client";
@@ -27,76 +27,79 @@ const verify = async (did: string, sig: DagJWS): Promise<boolean> => {
 	return false;
 };
 
-const withAuth = nextConnect().use(
-	async (req: AuthApiRequest, res: ApiResponse, next) => {
-		if (!req.token) {
-			req.log.debug("No token provided");
-			return res.status(403).json({
-				success: false
-			});
-		}
-		let payload;
-		try {
-			payload = JSON.parse(Base64.decode(req.token));
-		} catch (e) {
-			req.log.debug("Failed to parse token");
-			return res.status(403).json({
-				success: false
-			});
-		}
+const withAuth = async (
+	req: AuthApiRequest,
+	res: ApiResponse,
+	next: NextHandler
+) => {
+	if (!req.token) {
+		req.log.debug("No token provided");
+		return res.status(403).json({
+			success: false
+		});
+	}
+	let payload;
+	try {
+		payload = JSON.parse(Base64.decode(req.token));
+	} catch (e) {
+		req.log.debug("Failed to parse token");
+		return res.status(403).json({
+			success: false
+		});
+	}
 
-		// Payload is an array of dids and their respective signature
-		try {
-			const user = (
-				await Promise.all(
-					payload.map(
-						async ([did, sig, wallet]: [
-							string,
-							DagJWS,
-							string[] | undefined
-						]) => {
-							try {
-								const verified = await verify(did, sig);
-								if (verified) {
-									return {
-										did,
-										wallet: wallet
-											? {
-													chain: wallet[0],
-													address: wallet[1]
-											  }
-											: null
-									};
-								}
-							} catch (e) {
-								//* This will fail if the Signature Payload includes sepcial characters
-								req.log.debug(
-									{ error: e, did, sig, wallet },
-									"Cannot verify JWS for DID"
-								);
+	// Payload is an array of dids and their respective signature
+	try {
+		const user = (
+			await Promise.all(
+				payload.map(
+					async ([did, sig, wallet]: [
+						string,
+						DagJWS,
+						string[] | undefined
+					]) => {
+						try {
+							const verified = await verify(did, sig);
+							if (verified) {
+								return {
+									did,
+									wallet: wallet
+										? {
+												chain: wallet[0],
+												address: wallet[1]
+										  }
+										: null
+								};
 							}
-							return null;
+						} catch (e) {
+							//* This will fail if the Signature Payload includes sepcial characters
+							req.log.debug(
+								{ error: e, did, sig, wallet },
+								"Cannot verify JWS for DID"
+							);
 						}
-					)
+						return null;
+					}
 				)
-			).filter((did) => typeof did !== null && !isEmpty(did));
+			)
+		).filter((did) => typeof did !== null && !isEmpty(did));
 
-			if (user.length === 0) {
-				req.log.debug("No user loaded");
-				return res.status(403).json({
-					success: false
-				});
-			}
+		if (user.length === 0) {
+			req.log.debug("No user loaded");
+			return res.status(403).json({
+				success: false
+			});
+		}
 
-			req.user = user;
+		req.user = user;
 
-			req.log.debug({ user: req.user }, "User auth request");
+		req.log.debug({ user: req.user }, "User auth request");
 
-			try {
-				// ? Here we simply update the authenticated dids with data, and ensure there are relations between dids.
-				// ? If Dids associated to two clusters of Dids are authenticated, then those clusters will have a relation
-				await arango.query(
-					aql`
+		try {
+			// ? Here we simply update the authenticated dids with data, and ensure there are relations between dids.
+			// ? If Dids associated to two clusters of Dids are authenticated, then those clusters will have a relation
+			await arango.query(
+				aql`
 					LET user = ${req.user}
 					LET dids = (
 						FOR u IN user
@@ -123,25 +126,24 @@ const withAuth = nextConnect().use(
 								} INTO Related OPTIONS { waitForSync: true }
 								RETURN NEW
 				`
-				);
-			} catch (e) {
-				if (e instanceof ArangoError && e.errorNum === 1200) {
-					req.log.warn({ conflictErr: e }, "Arango Conflict Error");
-				} else {
-					throw e;
-				}
-			}
-
-			req.log.debug("User indexed");
-
-			return next();
+			);
 		} catch (e) {
-			req.log.error(e);
-			return res.status(403).json({
-				success: false
-			});
+			if (e instanceof ArangoError && e.errorNum === 1200) {
+				req.log.warn({ conflictErr: e }, "Arango Conflict Error");
+			} else {
+				throw e;
+			}
 		}
+
+		req.log.debug("User indexed");
+
+		return next();
+	} catch (e) {
+		req.log.error(e);
+		return res.status(403).json({
+			success: false
+		});
 	}
-);
+};
 
 export default withAuth;

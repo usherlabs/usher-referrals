@@ -8,13 +8,8 @@ import { TileDocument } from "@ceramicnetwork/stream-tile";
 // import ono from "@jsdevtools/ono";
 import uniq from "lodash/uniq";
 
-import {
-	ApiResponse,
-	AuthApiRequest,
-	CampaignReference,
-	Chains
-} from "@/types";
-import getHandler from "@/server/middleware";
+import { AuthApiRequest, CampaignReference, Chains } from "@/types";
+import { useRouteHandler } from "@/server/middleware";
 import { getAppDID } from "@/server/did";
 import { ceramic } from "@/utils/ceramic-client";
 import { getArangoClient } from "@/utils/arango-client";
@@ -24,7 +19,7 @@ import { FEE_MULTIPLIER, FEE_ARWEAVE_WALLET } from "@/constants";
 import handleException from "@/utils/handle-exception";
 import { appPackageName, appVersion } from "@/env-config";
 
-const handler = getHandler();
+const handler = useRouteHandler<AuthApiRequest>();
 
 const schema = z.object({
 	partnership: z.union([z.string(), z.string().array()]),
@@ -49,7 +44,7 @@ const isPartnershipStreamValid = (stream: TileDocument<CampaignReference>) => {
 /**
  * POST: Perform the Crypto Transfer based on the Campaign
  */
-handler.use(withAuth).post(async (req: AuthApiRequest, res: ApiResponse) => {
+handler.router.use(withAuth).post(async (req, res) => {
 	let body: z.infer<typeof schema>;
 	try {
 		body = await schema.parseAsync(req.body);
@@ -402,4 +397,4 @@ handler.use(withAuth).post(async (req: AuthApiRequest, res: ApiResponse) => {
 	});
 });
 
-export default handler;
+export default handler.handle();

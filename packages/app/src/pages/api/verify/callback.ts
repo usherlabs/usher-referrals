@@ -6,19 +6,19 @@ import { setCookie, parseCookies } from "nookies";
 import { Base64 } from "js-base64";
 import jwtDecode, { JwtPayload } from "jwt-decode";
 
-import { AuthUser, AuthApiRequest, ApiResponse } from "@/types";
-import getHandler from "@/server/middleware";
+import { AuthUser, AuthApiRequest } from "@/types";
+import { useRouteHandler } from "@/server/middleware";
 import { getArangoClient } from "@/utils/arango-client";
 import {
 	getHumanodeOpenIdClient,
 	getRedirectUri
 } from "@/utils/humanode-client";
 
-const handler = getHandler();
-
 const arango = getArangoClient();
 
-handler.get(async (req: AuthApiRequest, res: ApiResponse) => {
+const handler = useRouteHandler<AuthApiRequest>();
+
+handler.router.get(async (req, res) => {
 	const client = await getHumanodeOpenIdClient();
 	const cookies = parseCookies({ req });
 
@@ -170,4 +170,4 @@ handler.get(async (req: AuthApiRequest, res: ApiResponse) => {
 	return res.redirect(302, redir);
 });
 
-export default handler;
+export default handler.handle();

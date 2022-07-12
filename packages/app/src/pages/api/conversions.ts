@@ -8,20 +8,19 @@ import { TileLoader } from "@glazed/tile-loader";
 import { ShareableOwnerModel } from "@usher/ceramic";
 
 import {
-	ApiResponse,
-	ApiRequest,
+	AuthApiRequest,
 	CampaignReference,
 	Campaign,
 	CampaignStrategies
 } from "@/types";
-import getHandler from "@/server/middleware";
+import { useRouteHandler } from "@/server/middleware";
 import withAuth from "@/server/middleware/auth";
 import { getAppDID } from "@/server/did";
 import { getArangoClient } from "@/utils/arango-client";
 import { ceramic } from "@/utils/ceramic-client";
 import { REFERRAL_TOKEN_DELIMITER } from "@/constants";
 
-const handler = getHandler();
+const handler = useRouteHandler<AuthApiRequest>();
 
 const arango = getArangoClient();
 
@@ -58,9 +57,9 @@ const isPartnershipStreamValid = (stream: TileDocument<CampaignReference>) => {
  */
 
 // Initializing the cors middleware
-handler
+handler.router
 	.use(withAuth)
-	.get(async (req: ApiRequest, res: ApiResponse) => {
+	.get(async (req, res) => {
 		let body: z.infer<typeof startSchema>;
 		try {
 			body = await startSchema.parseAsync(req.query);
@@ -198,7 +197,7 @@ handler
 			}
 		});
 	})
-	.post(async (req: ApiRequest, res: ApiResponse) => {
+	.post(async (req, res) => {
 		let body: z.infer<typeof schema>;
 		try {
 			body = await schema.parseAsync(req.body);
@@ -496,4 +495,4 @@ handler
 		});
 	});
 
-export default handler;
+export default handler.handle();

@@ -9,7 +9,6 @@ import { Base64 } from "js-base64";
 
 import UserProvider from "@/providers/User";
 import Preloader from "@/components/Preloader";
-import { useUser } from "@/hooks";
 
 import { getMagicClient } from "@/utils/magic-client";
 
@@ -140,12 +139,12 @@ const MagicCallback = () => {
 	);
 };
 
-export const getStaticProps = async () => {
+export async function getStaticProps() {
 	return {
 		props: {
 			noUser: true
 		}
 	};
-};
+}
 
 export default MagicCallback;

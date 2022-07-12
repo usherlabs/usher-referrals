@@ -7,14 +7,14 @@ import { ArangoError } from "arangojs/error";
 import { ShareableOwnerModel } from "@usher/ceramic";
 import isEmpty from "lodash/isEmpty";
 
-import { ApiResponse, ApiRequest, CampaignReference } from "@/types";
-import getHandler from "@/server/middleware";
+import { CampaignReference } from "@/types";
+import { useRouteHandler } from "@/server/middleware";
 import { getAppDID } from "@/server/did";
 import { ceramic } from "@/utils/ceramic-client";
 import { getArangoClient } from "@/utils/arango-client";
 import { REFERRAL_TOKEN_DELIMITER } from "@/constants";
 
-const handler = getHandler();
+const handler = useRouteHandler();
 
 const schema = z.object({
 	partnership: z.string(),
@@ -28,7 +28,7 @@ const arango = getArangoClient();
 /**
  * POST: Create a new referral or verifies the extension of a referral
  */
-handler.post(async (req: ApiRequest, res: ApiResponse) => {
+handler.router.post(async (req, res) => {
 	let body: z.infer<typeof schema>;
 	try {
 		body = await schema.parseAsync(req.body);
@@ -204,4 +204,4 @@ handler.post(async (req: ApiRequest, res: ApiResponse) => {
 	});
 });
 
-export default handler;
+export default handler.handle();

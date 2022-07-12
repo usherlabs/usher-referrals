@@ -1,13 +1,13 @@
 import { z } from "zod";
 import { aql } from "arangojs";
 
-import { AuthApiRequest, ApiResponse } from "@/types";
-import getHandler from "@/server/middleware";
+import { AuthApiRequest } from "@/types";
+import { useRouteHandler } from "@/server/middleware";
 import withAuth from "@/server/middleware/auth";
 import captcha from "@/server/captcha";
 import { getArangoClient } from "@/utils/arango-client";
 
-const handler = getHandler();
+const handler = useRouteHandler<AuthApiRequest>();
 
 const schema = z.object({
 	token: z.string()
@@ -15,9 +15,9 @@ const schema = z.object({
 
 const arango = getArangoClient();
 
-handler
+handler.router
 	.use(withAuth)
-	.get(async (req: AuthApiRequest, res: ApiResponse) => {
+	.get(async (req, res) => {
 		try {
 			// Fetch captcha entry associated to either of the user DIDs
 			// Works by: For each verified DID, walk the Verifications edge, Filter where the Result is a Captcha and return the latest entry
@@ -47,7 +47,7 @@ handler
 			});
 		}
 	})
-	.post(async (req: AuthApiRequest, res: ApiResponse) => {
+	.post(async (req, res) => {
 		let { body } = req;
 		try {
 			body = await schema.parseAsync(body);
@@ -109,4 +109,4 @@ handler
 		});
 	});
 
-export default handler;
+export default handler.handle();

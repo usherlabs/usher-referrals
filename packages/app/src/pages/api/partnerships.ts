@@ -1,16 +1,16 @@
 import { aql } from "arangojs";
 
-import { ApiResponse, ApiRequest, PartnershipMetrics } from "@/types";
-import getHandler from "@/server/middleware";
+import { PartnershipMetrics } from "@/types";
+import { useRouteHandler } from "@/server/middleware";
 import { getArangoClient } from "@/utils/arango-client";
 
-const handler = getHandler();
+const handler = useRouteHandler();
 const arango = getArangoClient();
 
 /**
  * GET: Partnerships and related metrics using a query
  */
-handler.get(async (req: ApiRequest, res: ApiResponse) => {
+handler.router.get(async (req, res) => {
 	const { q } = req.query;
 
 	if (typeof q === "undefined") {
@@ -79,4 +79,4 @@ handler.get(async (req: ApiRequest, res: ApiResponse) => {
 	});
 });
 
-export default handler;
+export default handler.handle();

@@ -5,14 +5,14 @@ import { setCookie } from "nookies";
 import openid from "openid-client";
 import { Base64 } from "js-base64";
 
-import { AuthApiRequest, ApiResponse } from "@/types";
-import getHandler from "@/server/middleware";
+import { AuthApiRequest } from "@/types";
+import { useRouteHandler } from "@/server/middleware";
 import { getHumanodeOpenIdClient } from "@/utils/humanode-client";
 import withAuth from "@/server/middleware/auth";
 
-const handler = getHandler();
+const handler = useRouteHandler<AuthApiRequest>();
 
-handler.use(withAuth).get(async (req: AuthApiRequest, res: ApiResponse) => {
+handler.router.use(withAuth).get(async (req, res) => {
 	const { redir } = req.query;
 	const client = await getHumanodeOpenIdClient();
 
@@ -44,4 +44,4 @@ handler.use(withAuth).get(async (req: AuthApiRequest, res: ApiResponse) => {
 	});
 });
 
-export default handler;
+export default handler.handle();

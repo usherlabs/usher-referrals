@@ -1,21 +1,21 @@
 import { aql } from "arangojs";
 
-import { AuthApiRequest, ApiResponse } from "@/types";
-import getHandler from "@/server/middleware";
+import { AuthApiRequest } from "@/types";
+import { useRouteHandler } from "@/server/middleware";
 import withAuth from "@/server/middleware/auth";
 import { getArangoClient } from "@/utils/arango-client";
 
-const handler = getHandler();
+const handler = useRouteHandler<AuthApiRequest>();
 
 const arango = getArangoClient();
 
-handler.use(withAuth).get(async (req: AuthApiRequest, res: ApiResponse) => {
+handler.router.use(withAuth).get(async (req, res) => {
 	try {
 		// Fetch personhood entry related to provided authenticated dids
 		// Works by: For each verified DID, walk the captcha edge and return the latest entry
 		const cursor = await arango.query(aql`
 			FOR d IN DOCUMENT("Dids", ${req.user.map(({ did }) => did)})
-				FOR did IN 1..100 ANY d Related
+				FOR did IN 1..1 ANY d Related
 					COLLECT _id = did._id
 					FOR e IN 1..1 OUTBOUND _id Verifications
 						FILTER STARTS_WITH(e._id, "PersonhoodEntries") AND e.success == true
@@ -46,4 +46,4 @@ handler.use(withAuth).get(async (req: AuthApiRequest, res: ApiResponse) => {
 	}
 });
 
-export default handler;
+export default handler.handle();

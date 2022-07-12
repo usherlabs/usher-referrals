@@ -4,17 +4,16 @@
 
 import { z } from "zod";
 
-import { ApiRequest, ApiResponse } from "@/types";
-import getHandler from "@/server/middleware";
+import { useRouteHandler } from "@/server/middleware";
 import captcha from "@/server/captcha";
 
-const handler = getHandler();
+const handler = useRouteHandler();
 
 const schema = z.object({
 	token: z.string()
 });
 
-handler.post(async (req: ApiRequest, res: ApiResponse) => {
+handler.router.post(async (req, res) => {
 	let { body } = req;
 	try {
 		body = await schema.parseAsync(body);
@@ -45,4 +44,4 @@ handler.post(async (req: ApiRequest, res: ApiResponse) => {
 	});
 });
 
-export default handler;
+export default handler.handle();

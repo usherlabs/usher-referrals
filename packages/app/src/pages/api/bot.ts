@@ -1,8 +1,7 @@
 import { z } from "zod";
 import got from "got";
 
-import { ApiResponse, ApiRequest } from "@/types";
-import getHandler from "@/server/middleware";
+import { useRouteHandler } from "@/server/middleware";
 import { botdSecretKey } from "@/server/env-config";
 
 // See: BotD Types
@@ -32,14 +31,14 @@ interface BotdSuccessResponse {
 	vm: DetectNote;
 }
 
-const handler = getHandler();
+const handler = useRouteHandler();
 
 const schema = z.object({
 	token: z.string()
 });
 
 // Initializing the cors middleware
-handler.post(async (req: ApiRequest, res: ApiResponse) => {
+handler.router.post(async (req, res) => {
 	let { body } = req;
 	try {
 		body = await schema.parseAsync(body);
@@ -77,4 +76,4 @@ handler.post(async (req: ApiRequest, res: ApiResponse) => {
 	});
 });
 
-export default handler;
+export default handler.handle();
