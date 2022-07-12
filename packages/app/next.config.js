@@ -27,7 +27,6 @@ const secureHeaderOptions = {
 	referrerPolicy: "same-origin"
 };
 
-// To Transpile Node Modules, refer to https://github.com/belgattitude/nextjs-monorepo-example/blob/main/apps/web-app/next.config.js#L39
 const nextConfig = {
 	// Ignoring single paths in headers https://github.com/vercel/next.js/discussions/16768
 	async headers() {
@@ -44,29 +43,6 @@ const nextConfig = {
 				headers: createSecureHeaders(secureHeaderOptions)
 			}
 		];
-	},
-
-	webpack: (config, { isServer }) => {
-		if (isServer) {
-			// Till undici 4 haven't landed in prisma, we need this for docker/alpine
-			// @see https://github.com/prisma/prisma/issues/6925#issuecomment-905935585
-			config.externals.push("_http_common");
-		}
-
-		// Add markdown loader for legal pages
-		config.module.rules.push({
-			test: /\.md$/,
-			use: "raw-loader"
-		});
-
-		return {
-			...config,
-			ignoreWarnings: [
-				{
-					module: /gun/
-				}
-			]
-		};
 	},
 	env: {
 		APP_NAME: pkg.name,
