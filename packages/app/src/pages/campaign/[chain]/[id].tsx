@@ -471,8 +471,9 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 											onClaim={onClaim}
 											isClaiming={isClaiming}
 											isComplete={
-												typeof campaign.reward.limit === "number"
-													? rewardsClaimed === campaign.reward.limit
+												typeof campaign.reward.limit === "number" &&
+												campaign.reward.limit > 0
+													? rewardsClaimed >= campaign.reward.limit
 													: false
 											}
 											wallets={walletsForChain}
