@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { aql } from "arangojs";
+import isEmpty from "lodash/isEmpty";
 
 import { AuthApiRequest } from "@/types";
 import { useRouteHandler } from "@/server/middleware";
@@ -33,7 +34,7 @@ handler.router
 						RETURN ce
 			`);
 
-			const results = await cursor.all();
+			const results = (await cursor.all()).filter((result) => !isEmpty(result));
 
 			req.log.debug({ results }, "captcha fetch results");
 

@@ -3,7 +3,8 @@ import {
 	CampaignReference,
 	Campaign,
 	PartnershipMetrics,
-	Referral
+	Referral,
+	Profile
 } from "@/types";
 
 // const formatQs = (o: Record<string, string>) => {
@@ -148,6 +149,23 @@ export const claim = (authToken: string) => {
 					}
 				})
 				.json();
+		}
+	};
+};
+
+export const profile = (authToken: string) => {
+	const req = getAuthRequest(authToken);
+
+	return {
+		post(p: Profile): Promise<{ success: boolean; profile: Profile }> {
+			return req
+				.post("profile", {
+					json: p
+				})
+				.json();
+		},
+		get(): Promise<{ success: boolean; profile: Profile }> {
+			return req.get("profile").json();
 		}
 	};
 };

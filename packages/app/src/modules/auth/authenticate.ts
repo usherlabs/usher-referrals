@@ -9,13 +9,7 @@ import { randomString } from "@stablelib/random";
 
 import { getMagicClient } from "@/utils/magic-client";
 import { getArweaveClient } from "@/utils/arweave-client";
-import {
-	Chains,
-	Wallet,
-	Connections,
-	CampaignReference,
-	Profile
-} from "@/types";
+import { Chains, Wallet, Connections, CampaignReference } from "@/types";
 import WalletAuth from "./wallet";
 import OwnerAuth from "./owner";
 
@@ -100,20 +94,6 @@ class Authenticate {
 			throw ono("No owner loaded to add partnerships to");
 		}
 		return this.owner.addPartnership(p);
-	}
-
-	public getProfile() {
-		if (!this.owner) {
-			return null;
-		}
-		return this.owner.profile;
-	}
-
-	public updateProfile(p: Profile) {
-		if (!this.owner) {
-			throw ono("No owner loaded to update profile");
-		}
-		return this.owner.updateProfile(p);
 	}
 
 	/**
@@ -326,20 +306,14 @@ class Authenticate {
 					// Is there an existing owner?
 					if (owner.id !== loadedOwner.id) {
 						// Load data for loaded owner when it's about to be merged
-						await Promise.all([
-							loadedOwner.loadPartnerships(),
-							loadedOwner.loadProfile()
-						]);
+						await loadedOwner.loadPartnerships();
 						const ownerAuthority = this.getOwnerAuthority();
 						await owner.merge(ownerAuthority.did, loadedOwner);
 					}
 					// If the owners are the same, then we've verified that the owners are the same.
 				} else {
 					// Load data for loaded owner if one exists -- when the owner is fresh
-					await Promise.all([
-						loadedOwner.loadPartnerships(),
-						loadedOwner.loadProfile()
-					]);
+					await loadedOwner.loadPartnerships();
 
 					// Set this.owner to loadedOwner
 					setOwner(loadedOwner);

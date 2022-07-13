@@ -25,14 +25,15 @@ const ProfileSettings: React.FC = () => {
 					email: value
 				};
 				await setProfile(newProfile);
-				toaster.success("Profile encrypted and saved!");
+				toaster.success("Your profile has been updated!");
 			} catch (e) {
 				handleException(e);
 				toaster.danger(
 					"An issue occurred saving your profile. Please refresh and try again."
 				);
+			} finally {
+				setSubmitting(false);
 			}
-			setSubmitting(false);
 		},
 		[profile]
 	);

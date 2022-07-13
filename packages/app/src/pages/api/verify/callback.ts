@@ -6,7 +6,7 @@ import { setCookie, parseCookies } from "nookies";
 import { Base64 } from "js-base64";
 import jwtDecode, { JwtPayload } from "jwt-decode";
 
-import { AuthUser, AuthApiRequest } from "@/types";
+import { AuthUser } from "@/types";
 import { useRouteHandler } from "@/server/middleware";
 import { getArangoClient } from "@/utils/arango-client";
 import {
@@ -16,7 +16,7 @@ import {
 
 const arango = getArangoClient();
 
-const handler = useRouteHandler<AuthApiRequest>();
+const handler = useRouteHandler();
 
 handler.router.get(async (req, res) => {
 	const client = await getHumanodeOpenIdClient();

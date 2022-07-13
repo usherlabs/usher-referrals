@@ -122,17 +122,25 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 	const onEmailCapture = useCallback(
 		async (email: string) => {
 			setCapturingEmail(true);
-			await setProfile({
-				...profile,
-				email
-			});
-			setCaptureEmail({
-				...captureEmail,
-				active: false,
-				remindIn: 0
-			});
-			toaster.success("Profile encrypted and saved!");
-			setCapturingEmail(false);
+			try {
+				await setProfile({
+					...profile,
+					email
+				});
+				setCaptureEmail({
+					...captureEmail,
+					active: false,
+					remindIn: 0
+				});
+				toaster.success("Your profile has been updated!");
+			} catch (e) {
+				handleException(e);
+				toaster.danger(
+					"An issue occurred saving your profile. Please refresh and try again."
+				);
+			} finally {
+				setCapturingEmail(false);
+			}
 		},
 		[profile, captureEmail]
 	);

@@ -12,7 +12,6 @@ type MagicWallet = {
 	arweave?: {
 		address: string;
 		data: string;
-		created_at: number;
 	};
 };
 

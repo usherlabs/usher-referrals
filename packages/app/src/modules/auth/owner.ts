@@ -16,8 +16,7 @@ import isEqual from "lodash/isEqual";
 
 import { ShareableOwnerModel } from "@usher/ceramic";
 
-import { APP_DID } from "@/constants";
-import { Partnership, CampaignReference, Profile } from "@/types";
+import { Partnership, CampaignReference } from "@/types";
 import Auth from "./auth";
 import WalletAuth from "./wallet";
 
@@ -35,18 +34,11 @@ type SetObject = {
 };
 
 const CERAMIC_PARTNERSHIPS_KEY = "partnerships";
-const CERAMIC_PROFILES_KEY = "userProfiles";
 
 class OwnerAuth extends Auth {
 	protected _id: string = ""; // id of stream for content
 
 	protected _partnerships: Partnership[] = [];
-
-	protected _profile: {
-		id: string;
-		doc: TileDocument<Record<string, string>> | null;
-		data: Profile | null;
-	} = { id: "", doc: null, data: null };
 
 	protected loader: TileLoader;
 
@@ -67,10 +59,6 @@ class OwnerAuth extends Auth {
 
 	public get partnerships() {
 		return this._partnerships;
-	}
-
-	public get profile() {
-		return this._profile.data;
 	}
 
 	/**
@@ -197,105 +185,6 @@ class OwnerAuth extends Auth {
 		];
 
 		return this._partnerships;
-	}
-
-	/**
-	 * Load the first profile is the set of profiles
-	 */
-	public async loadProfile() {
-		const setObj = await this.store.get(CERAMIC_PROFILES_KEY);
-		if (!setObj) {
-			return;
-		}
-		const { set = [] } = setObj as SetObject;
-		if (set.length === 0) {
-			return;
-		}
-		const doc = await this.loader.load<Profile>(set[0]);
-		const profileData: Profile = {
-			email: ""
-		};
-		const entries = await Promise.all(
-			Object.entries(doc.content).map(async ([key, value]) => {
-				let v = new Uint8Array();
-				try {
-					const jwe = JSON.parse(Base64.decode(value));
-					const dec = await this.did.decryptJWE(jwe);
-					v = dec;
-				} catch (e) {
-					// ...
-				}
-				return {
-					key,
-					value: v
-				};
-			})
-		);
-		entries.forEach(({ key, value }) => {
-			if (key === "email") {
-				profileData[key] = uint8arrays.toString(value);
-			}
-		});
-
-		this._profile = {
-			id: set[0],
-			// @ts-ignore
-			doc,
-			data: profileData
-		};
-	}
-
-	/**
-	 * Update the loaded profile
-	 */
-	public async updateProfile(newProfile: Profile) {
-		const currentProfile = this.profile || {};
-		const profile = {
-			...currentProfile,
-			...newProfile
-		};
-		const entries = await Promise.all(
-			Object.entries(profile).map(async ([key, value]) => {
-				const jwe = await this.did.createJWE(uint8arrays.fromString(value), [
-					this.did.id,
-					APP_DID // Share with App
-				]);
-				const res = Base64.encode(JSON.stringify(jwe));
-				return {
-					key,
-					value: res
-				};
-			})
-		);
-		const encProfiles: Record<string, string> = {};
-		entries.forEach(({ key, value }) => {
-			encProfiles[key] = value;
-		});
-
-		if (this._profile.doc === null) {
-			const doc = await TileDocument.create(
-				// @ts-ignore
-				this._ceramic,
-				encProfiles,
-				{
-					schema: this.model.getSchemaURL("userProfile")
-				},
-				{
-					pin: true
-				}
-			);
-			const id = doc.id.toString();
-			await this.store.set(CERAMIC_PROFILES_KEY, { set: [id] });
-
-			this._profile = {
-				id,
-				doc,
-				data: doc.content as Profile
-			};
-		} else {
-			await this._profile.doc.update(profile);
-			this._profile.data = this._profile.doc.content as Profile;
-		}
 	}
 
 	public loadDoc<T>(streamId: string) {

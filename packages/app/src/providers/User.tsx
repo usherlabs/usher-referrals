@@ -228,11 +228,6 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 		[user]
 	);
 
-	const connect = useCallback(async (type: Connections) => {
-		const newWallets = await connectWallet(type);
-		await loadUserWithWallets(newWallets); // loading user data on every new login as partnerships/profiles are not fetched after owners are merged
-	}, []);
-
 	// Reloading the screen will refresh authentications
 
 	const setCaptcha = useCallback(
@@ -259,8 +254,9 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 
 	const setProfile = useCallback(
 		async (profile: Profile) => {
-			// Save profile to Ceramic
-			await authInstance.updateProfile(profile);
+			// Save profile
+			const authToken = await authInstance.getAuthToken();
+			await api.profile(authToken).post(profile);
 			events.emit(AppEvents.PROFILE_SAVE, profile);
 
 			setUser(
@@ -285,21 +281,32 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 	);
 
 	const loadUserWithWallets = useCallback(async (withWallets: Wallet[]) => {
-		// set partnerships and profile state
+		// get partnerships
 		const partnerships = authInstance.getPartnerships();
-		let profile = authInstance.getProfile();
 
-		// Load verifications
+		// Load verifications and profile
 		const authToken = await authInstance.getAuthToken();
-		const [captcha, personhood] = await allSettled<
-			[{ success: boolean }, { success: boolean; createdAt?: number }]
-		>([api.captcha(authToken).get(), api.personhood(authToken).get()]);
-		console.log("Verifications loaded.");
+		const [captcha, personhood, profileData] = await allSettled<
+			[
+				{ success: boolean },
+				{ success: boolean; createdAt?: number },
+				{ success: boolean; profile: Profile }
+			]
+		>([
+			api.captcha(authToken).get(),
+			api.personhood(authToken).get(),
+			api.profile(authToken).get()
+		]);
+		console.log("User Data loaded.");
+		let profile: Profile =
+			profileData.status === "fulfilled" && profileData.value.success
+				? profileData.value.profile
+				: { email: "" };
 
 		// Handle Magic Auth Profile Update
 		const cookies = parseCookies();
 		const magicConnectToken = cookies.__usher_magic_connect;
-		if (magicConnectToken && !profile?.email) {
+		if (magicConnectToken && !profile.email) {
 			try {
 				const response = JSON.parse(Base64.decode(magicConnectToken));
 				// Do something with the email -- response.userMetadata.email
@@ -372,6 +379,11 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 		}),
 		[]
 	);
+
+	const connect = useCallback(async (type: Connections) => {
+		const newWallets = await connectWallet(type);
+		await loadUserWithWallets(newWallets); // loading user data on every new login as partnerships/profiles are not fetched after owners are merged
+	}, []);
 
 	const { wallets } = user;
 	useEffect(() => {
