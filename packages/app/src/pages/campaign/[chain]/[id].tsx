@@ -501,9 +501,7 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 												claimableRewards > funds ? funds : claimableRewards
 											}
 											reward={campaign.reward as CampaignReward}
-											active={
-												!!verifications.personhood && !!verifications.captcha
-											}
+											active={!!verifications.captcha}
 										/>
 									) : (
 										<Skeleton

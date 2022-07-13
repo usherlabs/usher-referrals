@@ -91,18 +91,27 @@ const Invite: React.FC<Props> = () => {
 			existingToken = cookies[cookieName] as string;
 		}
 
-		const referral: { success: boolean; data: Referral } = await api
-			.referrals()
-			.post(id, existingToken);
+		try {
+			const referral: { success: boolean; data: Referral } = await api
+				.referrals()
+				.post(id, existingToken);
 
-		if (!referral.success) {
-			onError();
-			return;
+			if (!referral.success) {
+				onError();
+				return;
+			}
+
+			// If the Terms have NOT defined that new Invite Links will overwrite the conversion
+			// The default behaviour is to simply skip replacing the conversion cookie if a valid one exists
+			setCookie(
+				null,
+				cookieName,
+				referral.data.token,
+				CONVERSION_COOKIE_OPTIONS
+			);
+		} catch (e) {
+			handleException(e);
 		}
-
-		// If the Terms have NOT defined that new Invite Links will overwrite the conversion
-		// The default behaviour is to simply skip replacing the conversion cookie if a valid one exists
-		setCookie(null, cookieName, referral.data.token, CONVERSION_COOKIE_OPTIONS);
 
 		// Redirect to Advertiser Campaign Destination URL
 		// console.log({ referral, url: campaign.details.destinationUrl });

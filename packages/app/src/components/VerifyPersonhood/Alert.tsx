@@ -1,20 +1,11 @@
 import React, { useState } from "react";
-import {
-	Alert,
-	Button,
-	Strong,
-	majorScale,
-	useTheme,
-	UnorderedList,
-	ListItem
-} from "evergreen-ui";
-import { UilDna } from "@iconscout/react-unicons";
+import { Alert, UnorderedList, ListItem } from "evergreen-ui";
 import { css } from "@linaria/core";
 
 import Dialog from "./Dialog";
+import Button from "./Button";
 
 const VerifyPersonhoodAlert = () => {
-	const { colors } = useTheme();
 	const [showDialog, setShowDialog] = useState(false);
 
 	return (
@@ -45,19 +36,7 @@ const VerifyPersonhoodAlert = () => {
 						Referrals and rewards are only processed for Verified Partners.
 					</ListItem>
 				</UnorderedList>
-				<Button
-					height={majorScale(5)}
-					onClick={() => setShowDialog(true)}
-					iconBefore={<UilDna color={colors.gray800} />}
-					className={css`
-						svg {
-							width: 25px;
-							height: 25px;
-						}
-					`}
-				>
-					<Strong>Verify your personhood</Strong>
-				</Button>
+				<Button onClick={() => setShowDialog(true)} />
 			</Alert>
 			<Dialog isShown={showDialog} onClose={() => setShowDialog(false)} />
 		</>

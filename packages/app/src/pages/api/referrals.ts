@@ -106,15 +106,20 @@ handler.router.post(async (req, res) => {
 	}
 
 	// Ensure that the partnership has been indexed
-	const checkCursor = await arango.query(aql`
-		RETURN DOCUMENT("Partnerships", ${partnership})
+	const dataCursor = await arango.query(aql`
+		RETURN {
+			partnership: DOCUMENT("Partnerships", ${partnership}),
+			campaign: DOCUMENT("Campaigns", ${[campaignRef.chain, campaignRef.address].join(
+				":"
+			)})
+		}
 	`);
-	const checkResults = (await checkCursor.all()).filter(
-		(result) => !isEmpty(result)
-	);
-	if (checkResults.length > 0) {
+	const dataResults = await dataCursor.all();
+	const [{ partnership: partnershipData, campaign: campaignData }] =
+		dataResults;
+	if (partnershipData) {
 		req.log.info(
-			{ vars: { partnership, results: checkResults } },
+			{ vars: { partnership, results: dataResults } },
 			"Partnership already indexed"
 		);
 	} else {
@@ -166,6 +171,38 @@ handler.router.post(async (req, res) => {
 			} else {
 				throw e;
 			}
+		}
+	}
+
+	// By default, the campaign security includes everything. If disable_verification is true, then all partners can start earning rewards.
+	if (campaignData.disable_verification !== true) {
+		// Check that the Partner is Verified, if the Campaign requires as such
+		const verifyCheckCursor = await arango.query(aql`
+			FOR d IN 1..1 INBOUND CONCAT("Partnerships/", ${partnership}) Engagements
+				FOR did IN 1..1 ANY d Related
+					COLLECT _id = did._id
+					FOR e IN 1..1 OUTBOUND _id Verifications
+						FILTER STARTS_WITH(e._id, "PersonhoodEntries") AND e.success == true
+						COLLECT v_id = e._id
+						LET entry = DOCUMENT(v_id)
+						SORT entry.created_at DESC
+						RETURN entry
+		`);
+		const verifyResults = await verifyCheckCursor.all();
+		req.log.debug({ verifyResults }, "personhood fetch results");
+		if (verifyResults.length === 0) {
+			// Partner is not verified.
+			req.log.info(
+				{ vars: { token, partnership } },
+				"Campaign requires verification, but Partner is not verified"
+			);
+			return res.status(401).json({
+				success: false,
+				data: {
+					isNew: false,
+					token: null
+				}
+			});
 		}
 	}
 
