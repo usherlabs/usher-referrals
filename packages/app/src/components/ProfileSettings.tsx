@@ -1,10 +1,23 @@
 import React, { useCallback, useState } from "react";
-import { Pane, Heading, Badge, Text, toaster } from "evergreen-ui";
+import {
+	Pane,
+	Heading,
+	Badge,
+	Text,
+	toaster,
+	Button,
+	majorScale,
+	useTheme,
+	Strong
+} from "evergreen-ui";
 import dnt from "date-and-time";
+import { css } from "@linaria/core";
+import { UilDna } from "@iconscout/react-unicons";
 
 import { useUser } from "@/hooks/";
 import EmailSubmit from "@/components/EmailSubmit";
 import handleException from "@/utils/handle-exception";
+import VerifyPersonhoodDialog from "@/components/VerifyPersonhood/Dialog";
 
 const ProfileSettings: React.FC = () => {
 	const {
@@ -12,6 +25,8 @@ const ProfileSettings: React.FC = () => {
 		actions: { setProfile }
 	} = useUser();
 	const [isSubmitting, setSubmitting] = useState(false);
+	const [showPHDialog, setShowPHDialog] = useState(false);
+	const { colors } = useTheme();
 
 	const onEmailSubmit = useCallback(
 		async (value: string) => {
@@ -56,9 +71,9 @@ const ProfileSettings: React.FC = () => {
 				<Heading size={500} marginBottom={8}>
 					Personhood Verification
 				</Heading>
-				<Pane display="flex" alignItems="center">
+				<Pane>
 					{verifications.personhood ? (
-						<>
+						<Pane display="flex" alignItems="center">
 							<Badge color="green" marginRight={8}>
 								Verified
 							</Badge>
@@ -71,9 +86,30 @@ const ProfileSettings: React.FC = () => {
 									)}
 								</Text>
 							)}
-						</>
+						</Pane>
 					) : (
-						<Badge color="red">Required</Badge>
+						<>
+							<Badge color="red">Required</Badge>
+							<Pane marginTop={12}>
+								<Button
+									height={majorScale(5)}
+									onClick={() => setShowPHDialog(true)}
+									iconBefore={<UilDna color={colors.gray800} />}
+									className={css`
+										svg {
+											width: 25px;
+											height: 25px;
+										}
+									`}
+								>
+									<Strong>Verify your personhood</Strong>
+								</Button>
+								<VerifyPersonhoodDialog
+									isShown={showPHDialog}
+									onClose={() => setShowPHDialog(false)}
+								/>
+							</Pane>
+						</>
 					)}
 				</Pane>
 			</Pane>

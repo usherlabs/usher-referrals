@@ -35,7 +35,7 @@ import PartnershipUI from "@/components/Campaign/Partnership";
 import StartPartnership from "@/components/Campaign/StartPartnership";
 import ValueCard from "@/components/ValueCard";
 import Anchor from "@/components/Anchor";
-import VerifyPersonhoodAlert from "@/components/VerifyPersonhoodAlert";
+import VerifyPersonhoodAlert from "@/components/VerifyPersonhood/Alert";
 import { useSeedData } from "@/env-config";
 import * as mediaQueries from "@/utils/media-queries";
 import { getArangoClient } from "@/utils/arango-client";
@@ -335,6 +335,26 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 				`}
 			>
 				<Pane flex={1} margin={6}>
+					<Pane>
+						{!isUserLoading ? (
+							<>
+								{!verifications.personhood && (
+									<Pane marginBottom={12}>
+										<VerifyPersonhoodAlert />
+									</Pane>
+								)}
+							</>
+						) : (
+							<Pane marginBottom={12}>
+								<Skeleton
+									style={{
+										borderRadius: 8,
+										height: 100
+									}}
+								/>
+							</Pane>
+						)}
+					</Pane>
 					{!isLoading && !isUserLoading ? (
 						<>
 							{partnership ? (
@@ -494,18 +514,6 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 										/>
 									)}
 								</Pane>
-							</Pane>
-							<Pane marginBottom={12}>
-								{!isUserLoading ? (
-									<>{!verifications.personhood && <VerifyPersonhoodAlert />}</>
-								) : (
-									<Skeleton
-										style={{
-											borderRadius: 8,
-											height: 100
-										}}
-									/>
-								)}
 							</Pane>
 						</>
 					)}
