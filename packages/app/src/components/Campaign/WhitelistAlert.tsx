@@ -88,7 +88,7 @@ const WhitelistAlert: React.FC<Props> = ({ partnership, whitelist }) => {
 						{!partnership && (
 							<ListItem>
 								<Strong>
-									Start a partnership below to reveal your Application Link
+									Start the partnership below to reveal your application Link
 								</Strong>
 							</ListItem>
 						)}
