@@ -177,8 +177,7 @@ class Authenticate {
 			ethAuth.addMagicWallet({
 				arweave: {
 					address: arAddress,
-					data: encData,
-					created_at: Date.now()
+					data: encData
 				}
 			});
 			arweaveKey = key;

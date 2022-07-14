@@ -240,7 +240,7 @@ const ClaimButton: React.FC<Props> = ({
 								WalletCard
 							)}
 						</Pane>
-						{claim && (
+						{claim && claim.tx && (
 							<Pane marginTop={24} width="100%">
 								<InputField
 									iconSize={18}
