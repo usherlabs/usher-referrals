@@ -50,6 +50,8 @@ const App = ({ Component, pageProps }: AppProps) => {
 	});
 
 	useEffect(() => {
+		events.emit("app"); // an event to indicate the app has loaded.
+
 		if (typeof window !== "undefined") {
 			setupSignals();
 			events.emit(AppEvents.PAGE_LOAD, window.location.href);

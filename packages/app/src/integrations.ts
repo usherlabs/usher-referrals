@@ -57,7 +57,8 @@ events.on(AppEvents.SAVE_USER, (saved: User) => {
 	// identifiedUser = saved;
 	setErrorTrackingUser(saved);
 	identifyUser(
-		saved.profile.email || saved.wallets.map((w) => w.address).join("|"),
+		saved.profile.email ||
+			saved.wallets.map((w) => [w.chain, w.address].join(":")).join("|"),
 		saved
 	);
 });
