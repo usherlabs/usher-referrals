@@ -63,7 +63,7 @@ const Progress: React.FC<Props> = ({
 					background={colors.blue500}
 					position="absolute"
 					{...barProps}
-					width={`${v.toFixed(2)}%`}
+					width={`${parseFloat(v.toFixed(2))}%`}
 					zIndex={5}
 				/>
 			</Pane>
@@ -84,7 +84,7 @@ const Progress: React.FC<Props> = ({
 			)}
 			{showPercentage && (
 				<Pane display="flex" alignItems="center" justifyContent="flex-end">
-					<Text size={300}>{v.toFixed(2)}%</Text>
+					<Text size={300}>{parseFloat(v.toFixed(2))}%</Text>
 				</Pane>
 			)}
 		</Pane>

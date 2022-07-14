@@ -101,7 +101,7 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 
 	// Ensure that the user knows what they're being rewarded regardless of their internal rewards calculation.
 	let claimableRewards = metrics.data ? metrics.data.rewards : 0;
-	let excessRewards = "";
+	let excessRewards = 0;
 	let rewardsClaimed = 0;
 	if (campaign) {
 		if (typeof campaign.rewardsClaimed === "number") {
@@ -116,9 +116,11 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 					remainingRewards = 0;
 				}
 				if (claimableRewards > remainingRewards) {
-					const excess = claimableRewards - remainingRewards;
-					if (excess > 0) {
-						excessRewards = excess.toFixed(2);
+					excessRewards = parseFloat(
+						(claimableRewards - remainingRewards).toFixed(2)
+					);
+					if (excessRewards <= 0) {
+						excessRewards = 0;
 					}
 					claimableRewards = remainingRewards;
 				}
@@ -438,7 +440,7 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 								>
 									<Progress
 										value={(rewardsClaimed || 0) / campaign.reward.limit}
-										label={`${(rewardsClaimed || 0).toFixed(2)} / ${
+										label={`${parseFloat((rewardsClaimed || 0).toFixed(2))} / ${
 											campaign.reward.limit
 										} ${campaign.reward.ticker}${
 											campaign.reward.type !== RewardTypes.TOKEN
