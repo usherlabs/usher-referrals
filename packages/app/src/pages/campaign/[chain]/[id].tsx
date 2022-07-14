@@ -13,6 +13,7 @@ import { FEE_MULTIPLIER, MAX_SCREEN_WIDTH } from "@/constants";
 import ClaimButton from "@/components/Campaign/ClaimButton";
 import Funding from "@/components/Campaign/Funding";
 import Terms from "@/components/Campaign/Terms";
+import WhitelistAlert from "@/components/Campaign/WhitelistAlert";
 import Progress from "@/components/Progress";
 import {
 	Chains,
@@ -152,10 +153,10 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 			};
 			addPartnership(campaignRef)
 				.then(() => {
-					toaster.success(
-						`You are now a partner! Share your link to start earning.`,
-						{ id: "start-partnership" }
-					);
+					toaster.success(`🎉  You have engaged this partnership!`, {
+						id: "start-partnership",
+						description: `Complete any remaining verifications and reviews to start earning rewards when you share your invite link!.`
+					});
 				})
 				.catch((e) => {
 					handleException(e);
@@ -335,28 +336,34 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 				`}
 			>
 				<Pane flex={1} margin={6}>
-					<Pane>
-						{!isUserLoading ? (
-							<>
-								{!verifications.personhood && (
-									<Pane marginBottom={12}>
-										<VerifyPersonhoodAlert />
-									</Pane>
-								)}
-							</>
-						) : (
-							<Pane marginBottom={12}>
-								<Skeleton
-									style={{
-										borderRadius: 8,
-										height: 100
-									}}
-								/>
-							</Pane>
-						)}
-					</Pane>
+					{!isUserLoading ? (
+						<>
+							{!verifications.personhood && (
+								<Pane marginBottom={12}>
+									<VerifyPersonhoodAlert />
+								</Pane>
+							)}
+						</>
+					) : (
+						<Pane marginBottom={12}>
+							<Skeleton
+								style={{
+									borderRadius: 8,
+									height: 100
+								}}
+							/>
+						</Pane>
+					)}
 					{!isLoading && !isUserLoading ? (
 						<>
+							{typeof campaign.whitelist !== "undefined" && (
+								<Pane marginBottom={12}>
+									<WhitelistAlert
+										partnership={partnership}
+										whitelist={campaign.whitelist}
+									/>
+								</Pane>
+							)}
 							{partnership ? (
 								<PartnershipUI
 									partnership={partnership}
@@ -501,7 +508,12 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 												claimableRewards > funds ? funds : claimableRewards
 											}
 											reward={campaign.reward as CampaignReward}
-											active={!!verifications.captcha}
+											active={
+												!!verifications.captcha &&
+												(campaign.disableVerification !== true
+													? !!verifications.personhood
+													: true)
+											}
 										/>
 									) : (
 										<Skeleton

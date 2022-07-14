@@ -78,12 +78,14 @@ const getCampaigns = async (): Promise<Campaign[]> => {
 	const arango = getArangoClient();
 	const cursor = await arango.query(aql`
 		FOR c IN Campaigns
+			FILTER c.unlisted != true
 			RETURN KEEP(c, ATTRIBUTES(c, true))
 	`);
 
 	const campaigns = (await cursor.all()).filter((result) => !isEmpty(result));
+	const formatted = camelcaseKeys(campaigns, { deep: true });
 
-	return campaigns;
+	return formatted;
 };
 
 export async function getStaticProps() {

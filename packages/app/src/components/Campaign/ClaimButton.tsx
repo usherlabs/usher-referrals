@@ -109,6 +109,7 @@ const ClaimButton: React.FC<Props> = ({
 						h4 {
 							font-size: 1em;
 							margin: 1px 0 10px 0;
+							font-weight: 900;
 						}
 						svg {
 							height: 20px;

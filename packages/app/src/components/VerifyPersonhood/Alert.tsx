@@ -17,6 +17,7 @@ const VerifyPersonhoodAlert = () => {
 					h4 {
 						font-size: 1em;
 						margin: 1px 0 10px 0;
+						font-weight: 900;
 					}
 					li,
 					strong {

@@ -15,6 +15,8 @@ import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import isEmpty from "lodash/isEmpty";
 import { css } from "@linaria/core";
+import uniqWith from "lodash/uniqWith";
+import isEqual from "lodash/isEqual";
 
 import { useUser } from "@/hooks";
 import CampaignCard from "@/components/CampaignCard";
@@ -38,7 +40,7 @@ const getCampaigns = async (refs: CampaignReference[]): Promise<Campaign[]> => {
 		return [];
 	}
 
-	const campaigns = await api.campaigns().get(refs);
+	const campaigns = await api.campaigns().get(uniqWith(refs, isEqual));
 
 	return campaigns.data;
 };

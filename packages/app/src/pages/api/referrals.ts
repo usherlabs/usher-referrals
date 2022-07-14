@@ -206,6 +206,25 @@ handler.router.post(async (req, res) => {
 		}
 	}
 
+	// By default, Campaigns do not include a whitelist. However, if it does, we need to ensure here that the referring partner is whitelisted.
+	if (typeof campaignData.whitelist === "object") {
+		const { partners: whitelistedPartners = [] } = campaignData.whitelist;
+		if (!whitelistedPartners.includes(partnership)) {
+			// Partner is not whitelisted.
+			req.log.info(
+				{ vars: { token, partnership } },
+				"Campaign requires whitelist, but Partner is not whitelisted"
+			);
+			return res.status(401).json({
+				success: false,
+				data: {
+					isNew: false,
+					token: null
+				}
+			});
+		}
+	}
+
 	// Create the conversion and the referral edge
 	const cursor = await arango.query(aql`
 		INSERT {

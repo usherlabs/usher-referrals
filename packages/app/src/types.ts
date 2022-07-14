@@ -95,6 +95,12 @@ export type Campaign = {
 	details: CampaignDetails;
 	advertiser: Advertiser;
 	rewardsClaimed?: number;
+	disableVerification?: boolean;
+	unlisted?: boolean;
+	whitelist?: {
+		partners: string[];
+		externalLink: string;
+	};
 };
 
 export type Wallet = {
