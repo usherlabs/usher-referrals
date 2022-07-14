@@ -15,6 +15,7 @@ import DashboardContainer from "@/containers/Dashboard";
 import Preloader from "@/components/Preloader";
 import "@/integrations";
 import { isProd } from "@/env-config";
+import { AppEvents, events } from "@/utils/events";
 
 if (!isProd) {
 	// @ts-ignore
@@ -51,7 +52,15 @@ const App = ({ Component, pageProps }: AppProps) => {
 	useEffect(() => {
 		if (typeof window !== "undefined") {
 			setupSignals();
+			events.emit(AppEvents.PAGE_LOAD, window.location.href);
 		}
+		const routeChangeComplete = (url: string) => {
+			events.emit(AppEvents.PAGE_CHANGE, url);
+		};
+		router.events.on("routeChangeComplete", routeChangeComplete);
+		return () => {
+			router.events.off("routeChangeComplete", routeChangeComplete);
+		};
 	}, []);
 
 	const { seo = {}, noUser = false } = pageProps;

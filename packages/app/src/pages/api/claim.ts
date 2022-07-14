@@ -8,7 +8,7 @@ import { TileDocument } from "@ceramicnetwork/stream-tile";
 // import ono from "@jsdevtools/ono";
 import uniq from "lodash/uniq";
 
-import { AuthApiRequest, CampaignReference, Chains } from "@/types";
+import { AuthApiRequest, CampaignReference, Chains, Claim } from "@/types";
 import { useRouteHandler } from "@/server/middleware";
 import { getAppDID } from "@/server/did";
 import { ceramic } from "@/utils/ceramic-client";
@@ -182,6 +182,7 @@ handler.router.use(withAuth).post(async (req, res) => {
 			success: true,
 			data: {
 				to,
+				fee: 0,
 				amount: 0
 			}
 		});
@@ -205,6 +206,7 @@ handler.router.use(withAuth).post(async (req, res) => {
 				success: false,
 				data: {
 					to,
+					fee: 0,
 					amount: 0
 				}
 			});
@@ -276,6 +278,7 @@ handler.router.use(withAuth).post(async (req, res) => {
 					success: false,
 					data: {
 						to,
+						fee,
 						amount: rewardsToPay
 					}
 				});
@@ -289,6 +292,7 @@ handler.router.use(withAuth).post(async (req, res) => {
 					success: false,
 					data: {
 						to,
+						fee,
 						amount: rewardsToPay
 					}
 				});
@@ -361,14 +365,18 @@ handler.router.use(withAuth).post(async (req, res) => {
 
 			req.log.info({ indexResults }, "Claim indexed");
 
+			const claim: Claim = {
+				to,
+				fee,
+				amount: rewardsToPay,
+				tx: {
+					id: rewardTx.id,
+					url: `https://viewblock.io/arweave/tx/${rewardTx.id}`
+				}
+			};
 			return res.json({
 				success: true,
-				data: {
-					to,
-					amount: rewardsToPay,
-					txId: rewardTx.id,
-					txUrl: `https://viewblock.io/arweave/tx/${rewardTx.id}`
-				}
+				data: claim
 			});
 		} catch (e) {
 			handleException(e);
@@ -392,6 +400,7 @@ handler.router.use(withAuth).post(async (req, res) => {
 		success: false,
 		data: {
 			to,
+			fee: 0,
 			amount: 0
 		}
 	});

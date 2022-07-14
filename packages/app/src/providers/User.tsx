@@ -28,10 +28,7 @@ import {
 	CampaignReference
 } from "@/types";
 import delay from "@/utils/delay";
-import handleException, {
-	setUser as setErrorTrackingUser
-} from "@/utils/handle-exception";
-import { identifyUser } from "@/utils/signals";
+import handleException from "@/utils/handle-exception";
 import Authenticate from "@/modules/auth";
 import { getMagicClient } from "@/utils/magic-client";
 import * as api from "@/api";
@@ -205,18 +202,8 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 	const saveUser = useCallback((saved: User) => {
 		console.log("SAVED USER", saved);
 		setUser(saved);
-		setErrorTrackingUser(saved);
-		identifyUser(
-			saved.profile.email || saved.wallets.map((w) => w.address).join("|"),
-			saved
-		);
+		events.emit(AppEvents.SAVE_USER, saved);
 	}, []);
-
-	// const removeUser = useCallback(() => {
-	// 	setUser(defaultValues);
-	// 	setErrorTrackingUser(null);
-	// 	identifyUser(null);
-	// }, []);
 
 	const saveWallets = useCallback(
 		(saved: Wallet[]) => {
@@ -232,6 +219,7 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 
 	const setCaptcha = useCallback(
 		(value: boolean) => {
+			events.emit(AppEvents.CAPTCHA, value);
 			setUser(
 				produce(user, (draft) => {
 					draft.verifications.captcha = value;
@@ -243,6 +231,7 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 
 	const setPersonhood = useCallback(
 		(value: number | boolean) => {
+			events.emit(AppEvents.PERSONHOOD, value);
 			setUser(
 				produce(user, (draft) => {
 					draft.verifications.personhood = value;
@@ -271,6 +260,7 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 	const addPartnership = useCallback(
 		async (partnership: CampaignReference) => {
 			const partnerships = await authInstance.addPartnership(partnership);
+			events.emit(AppEvents.START_PARTNERSHIP, partnership);
 			setUser(
 				produce(user, (draft) => {
 					draft.partnerships = partnerships;
@@ -383,6 +373,7 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 	const connect = useCallback(async (type: Connections) => {
 		const newWallets = await connectWallet(type);
 		await loadUserWithWallets(newWallets); // loading user data on every new login as partnerships/profiles are not fetched after owners are merged
+		events.emit(AppEvents.CONNECT, newWallets);
 	}, []);
 
 	const { wallets } = user;

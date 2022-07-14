@@ -4,7 +4,8 @@ import {
 	Campaign,
 	PartnershipMetrics,
 	Referral,
-	Profile
+	Profile,
+	Claim
 } from "@/types";
 
 // const formatQs = (o: Record<string, string>) => {
@@ -139,7 +140,7 @@ export const claim = (authToken: string) => {
 			to: string
 		): Promise<{
 			success: boolean;
-			data: { to: string; amount: number; txId?: string; txUrl?: string };
+			data?: Claim;
 		}> {
 			return req
 				.post("claim", {

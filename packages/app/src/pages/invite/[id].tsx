@@ -12,7 +12,7 @@ export const getServerSideProps = async ({
 }) => {
 	res.writeHead(302, {
 		// or 301
-		Location: `https://go.usher.so/nft`
+		Location: `https://go.usher.so/nft?ref=usher_app`
 	});
 	res.end();
 };

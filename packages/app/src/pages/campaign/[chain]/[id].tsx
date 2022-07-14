@@ -43,6 +43,7 @@ import { getArangoClient } from "@/utils/arango-client";
 import * as api from "@/api";
 import Authenticate from "@/modules/auth";
 import { getArweaveClient } from "@/utils/arweave-client";
+import { AppEvents, events } from "@/utils/events";
 
 type CampaignPageProps = {
 	id: string;
@@ -193,23 +194,26 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 					viewingPartnerships.map((p) => p.id),
 					wallet.address
 				);
-				if (response.success) {
-					if (response.data.txId) {
+				if (response.success && response.data) {
+					const claim = response.data;
+					if (claim.tx) {
 						toaster.success(`Rewards claimed successfully!`, {
 							id: "reward-claim",
 							duration: 30,
-							description: response.data.txUrl ? (
-								<Anchor href={response.data.txUrl} external>
-									{response.data.txUrl}
+							description: claim.tx?.url ? (
+								<Anchor href={claim.tx.url} external>
+									{claim.tx.url}
 								</Anchor>
 							) : null
 						});
-						const claim = {
-							amount: response.data.amount,
-							tx: { id: response.data.txId, url: response.data.txUrl || "" }
-						};
+						const newFunds = funds - claim.amount;
 						setClaims([...claims, claim]);
-						setFunds(funds - response.data.amount);
+						setFunds(newFunds);
+
+						events.emit(AppEvents.REWARDS_CLAIM, {
+							claim,
+							newFunds
+						});
 
 						return claim;
 					}

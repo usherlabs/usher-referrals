@@ -171,8 +171,10 @@ export type ConversionTrack = {
 };
 
 export type Claim = {
+	to: string;
+	fee: number;
 	amount: number;
-	tx: {
+	tx?: {
 		id: string;
 		url: string;
 	};

@@ -5,7 +5,6 @@ import { TileLoader } from "@glazed/tile-loader";
 import { aql } from "arangojs";
 import { ArangoError } from "arangojs/error";
 import { ShareableOwnerModel } from "@usher/ceramic";
-import isEmpty from "lodash/isEmpty";
 
 import { CampaignReference } from "@/types";
 import { useRouteHandler } from "@/server/middleware";
