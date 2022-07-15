@@ -1,5 +1,3 @@
-/* eslint-disable */
-
 import { useCallback, useEffect, useState } from "react";
 import { Pane } from "evergreen-ui";
 import Botd from "@fpjs-incubator/botd-agent";
@@ -9,12 +7,9 @@ import { TileLoader } from "@glazed/tile-loader";
 import { isEmpty } from "lodash";
 import ono from "@jsdevtools/ono";
 import { ShareableOwnerModel } from "@usher/ceramic";
-// import lscache from "lscache";
-// import localforage from "localforage";
-// import useLocalStorage from "use-local-storage";
+import { Base64 } from "js-base64";
 
 import { ceramic } from "@/utils/ceramic-client";
-// import { REFERRAL_TOKEN_EXPIRY } from "@/constants";
 import { botdPublicKey } from "@/env-config";
 import Preloader from "@/components/Preloader";
 import Captcha from "@/components/Captcha";
@@ -113,11 +108,17 @@ const Invite: React.FC<Props> = () => {
 
 			// If the Terms have NOT defined that new Invite Links will overwrite the conversion
 			// The default behaviour is to extend the token expiry if a valid one exists
-			// lscache.set(tokenKey, referral.data.token, REFERRAL_TOKEN_EXPIRY / 60); // expiry is in minutes by default.
-			// window.localStorage.setItem(tokenKey, referral.data.token);
-			// setSomeState("referral arbitrary");
-			// setOtherSomeState("referral arbitrary #2");
-			console.log({ tokenKey, referral, url: campaign.details.destinationUrl });
+			const invitingParam = {
+				key: tokenKey,
+				value: referral.data.token,
+				url: campaign.details.destinationUrl
+			};
+			const encParam = Base64.encodeURI(JSON.stringify(invitingParam));
+			const redirectURI = `/satellite?param=${encParam}`;
+			console.log({
+				invitingParam,
+				redirectURI: `${window.location.origin}${redirectURI}`
+			});
 		} catch (e) {
 			handleException(e);
 		}
@@ -139,36 +140,36 @@ const Invite: React.FC<Props> = () => {
 		[id]
 	);
 
-	// useEffect(() => {
-	// 	if (!id) {
-	// 		return () => {};
-	// 	}
-	// 	(async () => {
-	// 		let shouldCaptcha = false;
-	// 		try {
-	// 			// Initialize an agent at application startup.
-	// 			const botd = await Botd.load({ publicKey: botdPublicKey });
+	useEffect(() => {
+		if (!id) {
+			return () => {};
+		}
+		(async () => {
+			let shouldCaptcha = false;
+			try {
+				// Initialize an agent at application startup.
+				const botd = await Botd.load({ publicKey: botdPublicKey });
 
-	// 			// Get the visitor identifier when you need it.
-	// 			const { requestId } = (await botd.detect()) as { requestId: string };
+				// Get the visitor identifier when you need it.
+				const { requestId } = (await botd.detect()) as { requestId: string };
 
-	// 			const result = await api.bot().post(requestId);
+				const result = await api.bot().post(requestId);
 
-	// 			shouldCaptcha = !result.success;
-	// 		} catch (e) {
-	// 			handleException(e);
-	// 			shouldCaptcha = true;
-	// 		}
+				shouldCaptcha = !result.success;
+			} catch (e) {
+				handleException(e);
+				shouldCaptcha = true;
+			}
 
-	// 		if (shouldCaptcha) {
-	// 			setShowCaptcha(true);
-	// 			return;
-	// 		}
+			if (shouldCaptcha) {
+				setShowCaptcha(true);
+				return;
+			}
 
-	// 		processInvite();
-	// 	})();
-	// 	return () => {};
-	// }, [id]);
+			processInvite();
+		})();
+		return () => {};
+	}, [id]);
 
 	return (
 		<Pane
@@ -196,15 +197,6 @@ const Invite: React.FC<Props> = () => {
 			>
 				<Image src={LogoImage} width={120} objectFit="contain" />
 			</Pane>
-			{id && (
-				<iframe
-					id="usher-satellite"
-					src={`/satellite?p=${id}`}
-					style={{
-						display: "none"
-					}}
-				></iframe>
-			)}
 		</Pane>
 	);
 };

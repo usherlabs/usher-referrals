@@ -1,5 +1,3 @@
-/* eslint-disable */
-
 import { useEffect } from "react";
 import Framebus from "framebus";
 import cuid from "cuid";
@@ -9,35 +7,26 @@ import { getResolver as getKeyResolver } from "key-did-resolver";
 import { Ed25519Provider } from "key-did-provider-ed25519";
 import { Base64 } from "js-base64";
 import { randomString } from "@stablelib/random";
-// import lscache from "lscache";
-// import { createRouter } from "next-connect";
-// import cors from "cors";
-// import localforage from "localforage";
-import { useRouter } from "next/router";
-import useLocalStorage from "use-local-storage";
+import nookies, { parseCookies } from "nookies";
+import { GetServerSideProps } from "next";
 
 import { getAuthRequest } from "@/api";
 import { ConversionTrack } from "@/types";
 import handleException from "@/utils/handle-exception";
 import ono from "@jsdevtools/ono";
 import getReferralTokenKey from "@/utils/get-referral-token-key";
-// import { GetServerSideProps } from "next";
+import { REFERRAL_COOKIE_OPTIONS } from "@/constants";
+
+type Cookies = { [key: string]: string };
 
 const bus = new Framebus({
 	channel: "usher_sat"
 });
 
-const startSatellite = () => {
-	if (typeof window !== "undefined") {
-		console.log(
-			"[SATELLITE]",
-			Object.keys(window.localStorage).map((key) => ({
-				key,
-				value: window.localStorage.getItem(key)
-			}))
-		);
-	}
-	// lscache.flushExpired();
+const startSatellite = (cookies: Cookies) => {
+	console.log("[SATELLITE]", cookies);
+	console.log("[SATELLITE]", parseCookies());
+	console.log("[SATELLITE]", document.cookie);
 
 	bus.on("convert", async (busParams) => {
 		try {
@@ -47,8 +36,7 @@ const startSatellite = () => {
 
 			const tokenKey = getReferralTokenKey(conversion.id, conversion.chain);
 
-			// const token = lscache.get(tokenKey);
-			const token = window.localStorage.getItem(tokenKey);
+			const token = cookies[tokenKey];
 			// let visitorId;
 
 			if (!token) {
@@ -147,40 +135,52 @@ const startSatellite = () => {
 	bus.emit("loaded");
 };
 
-const Satellite = () => {
-	const [, setSomeState] = useLocalStorage<string>("__some_arb_state", "");
-	const router = useRouter();
-	const { p } = router.query;
+type Props = {
+	cookies: Cookies;
+};
 
+const Satellite: React.FC<Props> = ({ cookies }) => {
 	useEffect(() => {
-		// startSatellite();
-		if (p) {
-			setSomeState(p as string);
-		}
-	}, [p]);
+		startSatellite(cookies);
+	}, []);
 
 	return null;
 };
 
-// const router = createRouter()
-// 	.use(cors())
-// 	.get(() => {
-// 		return {
-// 			noUser: true
-// 		};
-// 	});
+export const getServerSideProps: GetServerSideProps = async (ctx) => {
+	const cookies = nookies.get(ctx);
 
-// export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
-// 	const props = await router.run(req, res);
-// 	return { props: props as { [key: string]: any } };
-// };
+	const { res, query } = ctx;
+	try {
+		console.log(query);
+		if (!(query && query.param)) {
+			throw new Error("No param to continue Inviting");
+		}
 
-export async function getStaticProps() {
+		console.log(Base64.decode(query.param as string));
+		const dec = JSON.parse(Base64.decode(query.param as string));
+		console.log(dec);
+		const { key, value, url } = dec;
+
+		nookies.set(ctx, key, value, REFERRAL_COOKIE_OPTIONS);
+
+		res.writeHead(302, {
+			Location: url
+		});
+		res.end();
+	} catch (e) {
+		// ...
+	}
+
+	console.log("cookies", cookies);
+	console.log("cookies after", nookies.get(ctx));
+
 	return {
 		props: {
-			noUser: true
+			noUser: true,
+			cookies
 		}
 	};
-}
+};
 
 export default Satellite;
