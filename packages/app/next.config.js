@@ -29,21 +29,21 @@ const secureHeaderOptions = {
 
 const nextConfig = {
 	// Ignoring single paths in headers https://github.com/vercel/next.js/discussions/16768
-	async headers() {
-		return [
-			{
-				source: "/satellite",
-				headers: createSecureHeaders({
-					...secureHeaderOptions,
-					frameGuard: false
-				})
-			},
-			{
-				source: "/((?!satellite$|satellite/).*)",
-				headers: createSecureHeaders(secureHeaderOptions)
-			}
-		];
-	},
+	// async headers() {
+	// 	return [
+	// 		{
+	// 			source: "/satellite",
+	// 			headers: createSecureHeaders({
+	// 				...secureHeaderOptions,
+	// 				frameGuard: false
+	// 			})
+	// 		},
+	// 		{
+	// 			source: "/((?!satellite$|satellite/).*)",
+	// 			headers: createSecureHeaders(secureHeaderOptions)
+	// 		}
+	// 	];
+	// },
 	env: {
 		APP_NAME: pkg.name,
 		APP_VERSION: pkg.version,

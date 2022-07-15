@@ -1,5 +1,6 @@
+/* eslint-disable */
+
 import { useCallback, useEffect, useState } from "react";
-import { setCookie, parseCookies } from "nookies";
 import { Pane } from "evergreen-ui";
 import Botd from "@fpjs-incubator/botd-agent";
 import Image from "next/image";
@@ -8,9 +9,12 @@ import { TileLoader } from "@glazed/tile-loader";
 import { isEmpty } from "lodash";
 import ono from "@jsdevtools/ono";
 import { ShareableOwnerModel } from "@usher/ceramic";
+// import lscache from "lscache";
+// import localforage from "localforage";
+// import useLocalStorage from "use-local-storage";
 
 import { ceramic } from "@/utils/ceramic-client";
-import { CONVERSION_COOKIE_OPTIONS } from "@/constants";
+// import { REFERRAL_TOKEN_EXPIRY } from "@/constants";
 import { botdPublicKey } from "@/env-config";
 import Preloader from "@/components/Preloader";
 import Captcha from "@/components/Captcha";
@@ -18,7 +22,7 @@ import * as api from "@/api";
 import handleException from "@/utils/handle-exception";
 import LogoImage from "@/assets/logo/Logo.png";
 import { CampaignReference, Referral, CampaignConflictStrategy } from "@/types";
-import getConversionCookieName from "@/utils/get-conversion-cookie-name";
+import getReferralTokenKey from "@/utils/get-referral-token-key";
 
 const loader = new TileLoader({ ceramic });
 
@@ -81,14 +85,20 @@ const Invite: React.FC<Props> = () => {
 
 		const campaign = campaigns.data[0];
 
-		//* The reason we're splitting cookies per campaign is to ensure that each cookie respects it's own duration.
-		const cookieName = getConversionCookieName(campaign.id, campaign.chain);
+		//* The reason we're splitting keys per campaign is to ensure that each key respects it's own duration.
+		const tokenKey = getReferralTokenKey(campaign.id, campaign.chain);
+
+		// Flush expired keys before proceed with key fetch and set.
+		// lscache.flushExpired();
 
 		let existingToken;
 		// If the campaign conflict strategy is to NOT always overwrite the referral, then check for an existing token
 		if (campaign.conflictStrategy !== CampaignConflictStrategy.OVERWRITE) {
-			const cookies = parseCookies();
-			existingToken = cookies[cookieName] as string;
+			// const lsToken = lscache.get(tokenKey);
+			const lsToken = window.localStorage.getItem(tokenKey);
+			if (lsToken) {
+				existingToken = lsToken;
+			}
 		}
 
 		try {
@@ -102,20 +112,18 @@ const Invite: React.FC<Props> = () => {
 			}
 
 			// If the Terms have NOT defined that new Invite Links will overwrite the conversion
-			// The default behaviour is to simply skip replacing the conversion cookie if a valid one exists
-			setCookie(
-				null,
-				cookieName,
-				referral.data.token,
-				CONVERSION_COOKIE_OPTIONS
-			);
+			// The default behaviour is to extend the token expiry if a valid one exists
+			// lscache.set(tokenKey, referral.data.token, REFERRAL_TOKEN_EXPIRY / 60); // expiry is in minutes by default.
+			// window.localStorage.setItem(tokenKey, referral.data.token);
+			// setSomeState("referral arbitrary");
+			// setOtherSomeState("referral arbitrary #2");
+			console.log({ tokenKey, referral, url: campaign.details.destinationUrl });
 		} catch (e) {
 			handleException(e);
 		}
 
 		// Redirect to Advertiser Campaign Destination URL
-		// console.log({ referral, url: campaign.details.destinationUrl });
-		window.location.replace(campaign.details.destinationUrl);
+		// window.location.replace(campaign.details.destinationUrl);
 	}, [id]);
 
 	const onCaptchaSuccess = useCallback(
@@ -131,36 +139,36 @@ const Invite: React.FC<Props> = () => {
 		[id]
 	);
 
-	useEffect(() => {
-		if (!id) {
-			return () => {};
-		}
-		(async () => {
-			let shouldCaptcha = false;
-			try {
-				// Initialize an agent at application startup.
-				const botd = await Botd.load({ publicKey: botdPublicKey });
+	// useEffect(() => {
+	// 	if (!id) {
+	// 		return () => {};
+	// 	}
+	// 	(async () => {
+	// 		let shouldCaptcha = false;
+	// 		try {
+	// 			// Initialize an agent at application startup.
+	// 			const botd = await Botd.load({ publicKey: botdPublicKey });
 
-				// Get the visitor identifier when you need it.
-				const { requestId } = (await botd.detect()) as { requestId: string };
+	// 			// Get the visitor identifier when you need it.
+	// 			const { requestId } = (await botd.detect()) as { requestId: string };
 
-				const result = await api.bot().post(requestId);
+	// 			const result = await api.bot().post(requestId);
 
-				shouldCaptcha = !result.success;
-			} catch (e) {
-				handleException(e);
-				shouldCaptcha = true;
-			}
+	// 			shouldCaptcha = !result.success;
+	// 		} catch (e) {
+	// 			handleException(e);
+	// 			shouldCaptcha = true;
+	// 		}
 
-			if (shouldCaptcha) {
-				setShowCaptcha(true);
-				return;
-			}
+	// 		if (shouldCaptcha) {
+	// 			setShowCaptcha(true);
+	// 			return;
+	// 		}
 
-			processInvite();
-		})();
-		return () => {};
-	}, [id]);
+	// 		processInvite();
+	// 	})();
+	// 	return () => {};
+	// }, [id]);
 
 	return (
 		<Pane
@@ -188,6 +196,15 @@ const Invite: React.FC<Props> = () => {
 			>
 				<Image src={LogoImage} width={120} objectFit="contain" />
 			</Pane>
+			{id && (
+				<iframe
+					id="usher-satellite"
+					src={`/satellite?p=${id}`}
+					style={{
+						display: "none"
+					}}
+				></iframe>
+			)}
 		</Pane>
 	);
 };
