@@ -27,11 +27,6 @@ export enum Connections {
 	ARCONNECT = "ar_connect"
 }
 
-export enum CampaignConflictStrategy {
-	OVERWRITE = "overwrite",
-	PASSTHROUGH = "passthrough"
-}
-
 export enum CampaignStrategies {
 	FLAT = "flat",
 	PERCENTAGE = "percentage"
@@ -91,7 +86,6 @@ export type Campaign = {
 		description?: string;
 	}[];
 	reward: CampaignReward;
-	conflictStrategy: CampaignConflictStrategy;
 	details: CampaignDetails;
 	advertiser: Advertiser;
 	rewardsClaimed?: number;
@@ -144,8 +138,8 @@ export type PartnershipMetrics = {
 };
 
 export type Referral = {
-	isNew: boolean;
 	token: string;
+	url: string;
 };
 
 export type Conversion = {

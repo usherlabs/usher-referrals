@@ -3,26 +3,17 @@ import { Pane } from "evergreen-ui";
 import Botd from "@fpjs-incubator/botd-agent";
 import Image from "next/image";
 import { useRouter } from "next/router";
-import { TileLoader } from "@glazed/tile-loader";
-import { isEmpty } from "lodash";
 import ono from "@jsdevtools/ono";
-import { ShareableOwnerModel } from "@usher/ceramic";
-import { Base64 } from "js-base64";
 
-import { ceramic } from "@/utils/ceramic-client";
 import { botdPublicKey } from "@/env-config";
 import Preloader from "@/components/Preloader";
 import Captcha from "@/components/Captcha";
 import * as api from "@/api";
 import handleException from "@/utils/handle-exception";
 import LogoImage from "@/assets/logo/Logo.png";
-import { CampaignReference, Referral, CampaignConflictStrategy } from "@/types";
-import getReferralTokenKey from "@/utils/get-referral-token-key";
-
-const loader = new TileLoader({ ceramic });
 
 const onError = () => {
-	// window.location.replace(`/link-error`)
+	window.location.replace(`/link-error`);
 };
 
 type Props = {
@@ -45,86 +36,20 @@ const Invite: React.FC<Props> = () => {
 			return;
 		}
 
-		const partnershipStream = await loader.load(partnershipId);
-		if (
-			!(
-				partnershipStream.content.address &&
-				partnershipStream.content.chain &&
-				partnershipStream.controllers.length > 0 &&
-				partnershipStream.metadata.schema ===
-					ShareableOwnerModel.schemas.partnership
-			)
-		) {
-			handleException(
-				ono("Partnership is invalid", {
-					partnershipId
-				})
-			);
-			onError();
-		}
-
-		const campaignRef = partnershipStream.content as CampaignReference;
-
-		const campaigns = await api.campaigns().get([campaignRef]);
-
-		if (campaigns.success === false || isEmpty(campaigns.data)) {
-			handleException(
-				ono("No campaign loaded for the partnership", {
-					partnershipId,
-					campaigns
-				})
-			);
-			onError();
-			return;
-		}
-
-		const campaign = campaigns.data[0];
-
-		//* The reason we're splitting keys per campaign is to ensure that each key respects it's own duration.
-		const tokenKey = getReferralTokenKey(campaign.id, campaign.chain);
-
-		// Flush expired keys before proceed with key fetch and set.
-		// lscache.flushExpired();
-
-		let existingToken;
-		// If the campaign conflict strategy is to NOT always overwrite the referral, then check for an existing token
-		if (campaign.conflictStrategy !== CampaignConflictStrategy.OVERWRITE) {
-			// const lsToken = lscache.get(tokenKey);
-			const lsToken = window.localStorage.getItem(tokenKey);
-			if (lsToken) {
-				existingToken = lsToken;
-			}
-		}
-
 		try {
-			const referral: { success: boolean; data: Referral } = await api
-				.referrals()
-				.post(id, existingToken);
+			const referral = await api.referrals().post(id);
 
-			if (!referral.success) {
+			if (!referral.success || !referral.data) {
 				onError();
 				return;
 			}
 
-			// If the Terms have NOT defined that new Invite Links will overwrite the conversion
-			// The default behaviour is to extend the token expiry if a valid one exists
-			const invitingParam = {
-				key: tokenKey,
-				value: referral.data.token,
-				url: campaign.details.destinationUrl
-			};
-			const encParam = Base64.encodeURI(JSON.stringify(invitingParam));
-			const redirectURI = `/satellite?param=${encParam}`;
-			console.log({
-				invitingParam,
-				redirectURI: `${window.location.origin}${redirectURI}`
-			});
+			// Redirect to Advertiser Campaign Destination URL
+			window.location.replace(referral.data.url);
 		} catch (e) {
 			handleException(e);
+			onError();
 		}
-
-		// Redirect to Advertiser Campaign Destination URL
-		// window.location.replace(campaign.details.destinationUrl);
 	}, [id]);
 
 	const onCaptchaSuccess = useCallback(

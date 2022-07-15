@@ -6,6 +6,7 @@ import { aql } from "arangojs";
 import isEmpty from "lodash/isEmpty";
 import { TileLoader } from "@glazed/tile-loader";
 import { ShareableOwnerModel } from "@usher/ceramic";
+import cors from "cors";
 
 import {
 	AuthApiRequest,
@@ -58,6 +59,7 @@ const isPartnershipStreamValid = (stream: TileDocument<CampaignReference>) => {
 
 // Initializing the cors middleware
 handler.router
+	.use(cors())
 	.use(withAuth)
 	.get(async (req, res) => {
 		let body: z.infer<typeof startSchema>;

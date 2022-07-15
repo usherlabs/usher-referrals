@@ -117,14 +117,12 @@ export const partnerships = () => ({
 
 export const referrals = () => ({
 	post: (
-		partnership: string,
-		token?: string
-	): Promise<{ success: boolean; data: Referral }> => {
+		partnership: string
+	): Promise<{ success: boolean; data?: Referral }> => {
 		return request
 			.post(`referrals`, {
 				json: {
-					partnership,
-					token
+					partnership
 				}
 			})
 			.json();

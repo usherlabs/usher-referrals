@@ -16,8 +16,7 @@ import { REFERRAL_TOKEN_DELIMITER } from "@/constants";
 const handler = useRouteHandler();
 
 const schema = z.object({
-	partnership: z.string(),
-	token: z.string().optional()
+	partnership: z.string()
 });
 
 const loader = new TileLoader({ ceramic });
@@ -36,7 +35,7 @@ handler.router.post(async (req, res) => {
 			success: false
 		});
 	}
-	const { partnership, token } = body;
+	const { partnership } = body;
 	const did = await getAppDID();
 
 	const stream = await loader.load<CampaignReference>(partnership);
@@ -52,7 +51,7 @@ handler.router.post(async (req, res) => {
 			stream.metadata.schema === ShareableOwnerModel.schemas.partnership
 		)
 	) {
-		req.log.info(
+		req.log.warn(
 			{
 				vars: {
 					partnership,
@@ -71,39 +70,6 @@ handler.router.post(async (req, res) => {
 
 	req.log.debug({ partnership }, "Partnership is valid for this referral");
 
-	if (token) {
-		try {
-			const jwe = JSON.parse(Base64.decode(token));
-			const raw = await did.decryptJWE(jwe);
-			const sp = uint8arrays.toString(raw).split(REFERRAL_TOKEN_DELIMITER);
-			// const referralId =
-			sp.shift();
-			const partnershipIdFromToken = sp.join(REFERRAL_TOKEN_DELIMITER);
-			// If token that already exists is for the same CAMPAIGN, then return the token...
-			// This way we have passthrough logic, such that a token that is already relevant to this campaign is used.
-			const partnershipStreamFromToken = await loader.load<CampaignReference>(
-				partnershipIdFromToken
-			);
-			if (
-				partnershipStreamFromToken.content.address === campaignRef.address &&
-				partnershipStreamFromToken.content.chain === campaignRef.chain
-			) {
-				return res.json({
-					success: true,
-					data: {
-						isNew: false,
-						token
-					}
-				});
-			}
-		} catch (e) {
-			req.log.warn(
-				{ e, vars: { token, partnership } },
-				"Could not decrypt conversion cookie token"
-			);
-		}
-	}
-
 	// Ensure that the partnership has been indexed
 	const dataCursor = await arango.query(aql`
 		RETURN {
@@ -116,6 +82,22 @@ handler.router.post(async (req, res) => {
 	const dataResults = await dataCursor.all();
 	const [{ partnership: partnershipData, campaign: campaignData }] =
 		dataResults;
+
+	if (!campaignData) {
+		req.log.warn(
+			{
+				vars: {
+					partnership,
+					campaignRef
+				}
+			},
+			"Campaign does not exist"
+		);
+		return res.status(400).json({
+			success: false
+		});
+	}
+
 	if (partnershipData) {
 		req.log.info(
 			{ vars: { partnership, results: dataResults } },
@@ -192,15 +174,11 @@ handler.router.post(async (req, res) => {
 		if (verifyResults.length === 0) {
 			// Partner is not verified.
 			req.log.info(
-				{ vars: { token, partnership } },
+				{ vars: { partnership } },
 				"Campaign requires verification, but Partner is not verified"
 			);
 			return res.status(401).json({
-				success: false,
-				data: {
-					isNew: false,
-					token: null
-				}
+				success: false
 			});
 		}
 	}
@@ -211,15 +189,11 @@ handler.router.post(async (req, res) => {
 		if (!whitelistedPartners.includes(partnership)) {
 			// Partner is not whitelisted.
 			req.log.info(
-				{ vars: { token, partnership } },
+				{ vars: { partnership } },
 				"Campaign requires whitelist, but Partner is not whitelisted"
 			);
 			return res.status(401).json({
-				success: false,
-				data: {
-					isNew: false,
-					token: null
-				}
+				success: false
 			});
 		}
 	}
@@ -250,11 +224,14 @@ handler.router.post(async (req, res) => {
 	const jwe = await did.createJWE(uint8arrays.fromString(raw), [did.id]);
 	const newToken = Base64.encodeURI(JSON.stringify(jwe));
 
+	const url = new URL(campaignData.details.destination_url);
+	url.searchParams.set("_urt", newToken);
+
 	return res.json({
 		success: true,
 		data: {
-			isNew: true,
-			token: newToken
+			token: newToken,
+			url: url.toString()
 		}
 	});
 });
