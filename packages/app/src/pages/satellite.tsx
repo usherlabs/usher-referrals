@@ -25,8 +25,6 @@ const bus = new Framebus({
 
 const startSatellite = (cookies: Cookies) => {
 	console.log("[SATELLITE]", cookies);
-	console.log("[SATELLITE]", parseCookies());
-	console.log("[SATELLITE]", document.cookie);
 
 	bus.on("convert", async (busParams) => {
 		try {
@@ -62,6 +60,7 @@ const startSatellite = (cookies: Cookies) => {
 			// 	entropy = await hash.digest();
 			// } else {
 			// }
+			// TODO: Creating an ID for the browser at the point of conversion should be stored so that the same ID is used
 			const entropy = fromString([cuid(), randomString(6)].join("_"));
 
 			const did = new DID({

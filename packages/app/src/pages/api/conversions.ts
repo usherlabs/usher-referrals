@@ -198,6 +198,9 @@ handler.router
 		});
 	})
 	.post(async (req, res) => {
+		// ? This POST request exists to process the conversion after the Network Signature has been fetched.
+		// ? It is a separate process because this will eventually be replaced with a syndication to the Validator Network
+
 		let body: z.infer<typeof schema>;
 		try {
 			body = await schema.parseAsync(req.body);
