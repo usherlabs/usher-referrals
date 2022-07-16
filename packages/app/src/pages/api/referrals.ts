@@ -222,10 +222,16 @@ handler.router.post(async (req, res) => {
 
 	const raw = [conversionId, partnership].join(REFERRAL_TOKEN_DELIMITER);
 	const jwe = await did.createJWE(uint8arrays.fromString(raw), [did.id]);
-	const newToken = Base64.encodeURI(JSON.stringify(jwe));
+	const token = Base64.encodeURI(JSON.stringify(jwe));
+
+	const prefix = Base64.encodeURI(
+		[campaignData.chain, campaignData.id].join(":")
+	);
+
+	const newToken = [prefix, token].join(".");
 
 	const url = new URL(campaignData.details.destination_url);
-	url.searchParams.set("_urt", newToken);
+	url.searchParams.set("_ushrt", newToken);
 
 	return res.json({
 		success: true,

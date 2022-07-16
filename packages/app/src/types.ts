@@ -155,15 +155,6 @@ export type Conversion = {
 	commit: number | null;
 };
 
-export type ConversionTrack = {
-	id: string; // Campaign ID
-	chain: Chains;
-	eventId: number;
-	nativeId?: string;
-	metadata?: Record<string, string | number | boolean>;
-	commit?: number;
-};
-
 export type Claim = {
 	to: string;
 	fee: number;

@@ -78,11 +78,27 @@ handler.router
 			});
 		}
 
+		const [campaignToken, referralToken] = token.split(".");
+
+		const campaignFromToken = Base64.decode(campaignToken).split(":");
+
+		if (
+			campaignFromToken.length === 2
+				? campaignId !== campaignFromToken[1] ||
+				  campaignChain !== campaignFromToken[0]
+				: true
+		) {
+			req.log.error({ token }, "Could match token to campaign params");
+			return res.status(400).json({
+				success: false
+			});
+		}
+
 		const did = await getAppDID();
 
 		let message;
 		try {
-			const jwe = JSON.parse(Base64.decode(token as string));
+			const jwe = JSON.parse(Base64.decode(referralToken as string));
 			const raw = await did.decryptJWE(jwe);
 			message = uint8arrays.toString(raw);
 		} catch (e) {

@@ -8,15 +8,7 @@ export const MAX_SCREEN_WIDTH = 1280 as const;
 export const APP_DID =
 	"did:key:z6MknpBzdxp69WYL4zRdsdRVSyq48iw5WsYdSGXSonXyGRoW" as const;
 
-export const REFERRAL_TOKEN_NAME = "__usher_token" as const;
 export const REFERRAL_TOKEN_DELIMITER = "_" as const;
-export const REFERRAL_COOKIE_OPTIONS = {
-	maxAge: 30 * 24 * 60 * 60, // 30 days
-	path: "/",
-	// path: "/satellite"
-	sameSite: "none",
-	secure: true
-} as const;
 
 export const FEE_MULTIPLIER = 0.1 as const;
 export const FEE_ARWEAVE_WALLET =
