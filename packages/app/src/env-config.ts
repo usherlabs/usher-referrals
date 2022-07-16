@@ -34,7 +34,6 @@ export const arangoUsername = process.env.ARANGO_USERNAME;
 export const arangoPassword = process.env.ARANGO_PASSWORD;
 
 /* ========== SECURITY ========== */
-// ? If an invite origin is set, it must also proxy the satellite origin too -- ie. the same origin must be used in usher.js
 export const inviteOrigin = process.env.NEXT_PUBLIC_INVITE_ORIGIN;
 
 export const botdPublicKey = process.env.NEXT_PUBLIC_BOTD_PUBLIC_KEY;

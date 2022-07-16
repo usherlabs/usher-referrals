@@ -8,20 +8,14 @@ import { TileLoader } from "@glazed/tile-loader";
 import { ShareableOwnerModel } from "@usher/ceramic";
 import cors from "cors";
 
-import {
-	AuthApiRequest,
-	CampaignReference,
-	Campaign,
-	CampaignStrategies
-} from "@/types";
+import { CampaignReference, Campaign, CampaignStrategies } from "@/types";
 import { useRouteHandler } from "@/server/middleware";
-import withAuth from "@/server/middleware/auth";
 import { getAppDID } from "@/server/did";
 import { getArangoClient } from "@/utils/arango-client";
 import { ceramic } from "@/utils/ceramic-client";
 import { REFERRAL_TOKEN_DELIMITER } from "@/constants";
 
-const handler = useRouteHandler<AuthApiRequest>();
+const handler = useRouteHandler();
 
 const arango = getArangoClient();
 
@@ -60,7 +54,6 @@ const isPartnershipStreamValid = (stream: TileDocument<CampaignReference>) => {
 // Initializing the cors middleware
 handler.router
 	.use(cors())
-	.use(withAuth)
 	.get(async (req, res) => {
 		let body: z.infer<typeof startSchema>;
 		try {
