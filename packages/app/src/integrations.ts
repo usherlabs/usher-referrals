@@ -17,7 +17,7 @@ import { identifyUser } from "@/utils/signals";
 
 // let identifiedUser: User | null = null;
 
-events.on(AppEvents.PROFILE_SAVE, async (profile: Profile) => {
+events.on(AppEvents.PROFILE_SAVE, async ({ profile }: { profile: Profile }) => {
 	if (!profile.email) {
 		return;
 	}
@@ -53,13 +53,13 @@ events.on(AppEvents.PROFILE_SAVE, async (profile: Profile) => {
 // 	}
 // );
 
-events.on(AppEvents.SAVE_USER, (saved: User) => {
+events.on(AppEvents.SAVE_USER, ({ user }: { user: User }) => {
 	// identifiedUser = saved;
-	setErrorTrackingUser(saved);
+	setErrorTrackingUser(user);
 	identifyUser(
-		saved.profile.email ||
-			saved.wallets.map((w) => [w.chain, w.address].join(":")).join("|"),
-		saved
+		user.profile.email ||
+			user.wallets.map((w) => [w.chain, w.address].join(":")).join("|"),
+		user
 	);
 });
 

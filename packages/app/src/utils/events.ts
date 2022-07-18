@@ -13,5 +13,6 @@ export enum AppEvents {
 	PAGE_CHANGE = "page_change",
 	PERSONHOOD = "personhood",
 	CAPTCHA = "captcha",
-	CONNECT = "connect"
+	CONNECT = "connect",
+	REFERRAL = "referral"
 }

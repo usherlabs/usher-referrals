@@ -15,15 +15,14 @@ const Login = () => {
 	useEffect(() => {
 		if (wallets.length > 0) {
 			setLoading(true);
-			const urlParams = new URLSearchParams(window.location.search);
-			const redir = decodeURIComponent(urlParams.get("redir") || "");
+			const redir = decodeURIComponent((router.query.redir as string) || "");
 			if (redir) {
 				router.push(redir);
 			} else {
 				router.push("/");
 			}
 		}
-	}, [wallets]);
+	}, [wallets, router]);
 
 	return (
 		<Pane

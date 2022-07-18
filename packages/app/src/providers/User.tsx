@@ -202,7 +202,7 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 	const saveUser = useCallback((saved: User) => {
 		console.log("SAVED USER", saved);
 		setUser(saved);
-		events.emit(AppEvents.SAVE_USER, saved);
+		events.emit(AppEvents.SAVE_USER, { user: saved });
 	}, []);
 
 	const saveWallets = useCallback(
@@ -219,7 +219,7 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 
 	const setCaptcha = useCallback(
 		(value: boolean) => {
-			events.emit(AppEvents.CAPTCHA, value);
+			events.emit(AppEvents.CAPTCHA, { value });
 			setUser(
 				produce(user, (draft) => {
 					draft.verifications.captcha = value;
@@ -231,7 +231,7 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 
 	const setPersonhood = useCallback(
 		(value: number | boolean) => {
-			events.emit(AppEvents.PERSONHOOD, value);
+			events.emit(AppEvents.PERSONHOOD, { value });
 			setUser(
 				produce(user, (draft) => {
 					draft.verifications.personhood = value;
@@ -246,7 +246,7 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 			// Save profile
 			const authToken = await authInstance.getAuthToken();
 			await api.profile(authToken).post(profile);
-			events.emit(AppEvents.PROFILE_SAVE, profile);
+			events.emit(AppEvents.PROFILE_SAVE, { profile });
 
 			setUser(
 				produce(user, (draft) => {
@@ -260,7 +260,7 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 	const addPartnership = useCallback(
 		async (partnership: CampaignReference) => {
 			const partnerships = await authInstance.addPartnership(partnership);
-			events.emit(AppEvents.START_PARTNERSHIP, partnership);
+			events.emit(AppEvents.START_PARTNERSHIP, { partnership });
 			setUser(
 				produce(user, (draft) => {
 					draft.partnerships = partnerships;
@@ -373,7 +373,7 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 	const connect = useCallback(async (type: Connections) => {
 		const newWallets = await connectWallet(type);
 		await loadUserWithWallets(newWallets); // loading user data on every new login as partnerships/profiles are not fetched after owners are merged
-		events.emit(AppEvents.CONNECT, newWallets);
+		events.emit(AppEvents.CONNECT, { wallets: newWallets });
 	}, []);
 
 	const { wallets } = user;

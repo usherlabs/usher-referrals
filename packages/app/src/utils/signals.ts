@@ -61,8 +61,8 @@ export const setup = mw(async () => {
 		const mixpanel = await getMixpanel();
 		// Catch all tracking
 		Object.values(AppEvents).forEach((appEvent) => {
-			events.on(appEvent, (...args: any) => {
-				mixpanel.track(appEvent, { args });
+			events.on(appEvent, (properties: Object) => {
+				mixpanel.track(appEvent, properties);
 			});
 		});
 	}

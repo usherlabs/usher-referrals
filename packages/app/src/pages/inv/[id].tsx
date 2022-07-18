@@ -4,6 +4,7 @@ import Botd from "@fpjs-incubator/botd-agent";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import ono from "@jsdevtools/ono";
+import FingerprintJS from "@fingerprintjs/fingerprintjs";
 
 import { botdPublicKey } from "@/env-config";
 import Preloader from "@/components/Preloader";
@@ -11,6 +12,7 @@ import Captcha from "@/components/Captcha";
 import * as api from "@/api";
 import handleException from "@/utils/handle-exception";
 import LogoImage from "@/assets/logo/Logo.png";
+import { events, AppEvents } from "@/utils/events";
 
 const onError = () => {
 	window.location.replace(`/link-error`);
@@ -43,6 +45,22 @@ const Invite: React.FC<Props> = () => {
 				onError();
 				return;
 			}
+
+			let visitorId = "";
+			let visitorComponents = {};
+			const fp = await FingerprintJS.load({
+				monitoring: false
+			});
+			const fpRes = await fp.get();
+			visitorId = fpRes.visitorId;
+			visitorComponents = fpRes.components;
+
+			events.emit(AppEvents.REFERRAL, {
+				partnership: partnershipId,
+				token: referral.data.token,
+				visitorId,
+				visitorComponents
+			});
 
 			// Redirect to Advertiser Campaign Destination URL
 			window.location.replace(referral.data.url);
