@@ -83,6 +83,21 @@ export function useRouteHandler<
 
 	return {
 		router,
+		cors() {
+			router.all((req, res, next) => {
+				if (req.method === "OPTIONS") {
+					// Safari (and potentially other browsers) need content-length 0,
+					//   for 204 or they just hang waiting for a body
+					req.log.debug("Hello OPTIONS");
+					res.setHeader("Content-Length", "0");
+					res.status(204).end();
+				} else {
+					next();
+				}
+			});
+
+			return this;
+		},
 		handle() {
 			// create a handler from router with custom
 			// onError and onNoMatch

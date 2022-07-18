@@ -9,7 +9,7 @@ import { ShareableOwnerModel } from "@usher/ceramic";
 import cors from "cors";
 
 import { CampaignReference, Campaign, CampaignStrategies } from "@/types";
-import { useRouteHandler } from "@/server/middleware";
+import { useRouteHandler, expressMiddleware } from "@/server/middleware";
 import { getAppDID } from "@/server/did";
 import { getArangoClient } from "@/utils/arango-client";
 import { ceramic } from "@/utils/ceramic-client";
@@ -53,7 +53,13 @@ const isPartnershipStreamValid = (stream: TileDocument<CampaignReference>) => {
 
 // Initializing the cors middleware
 handler.router
-	.use(cors())
+	.use(
+		expressMiddleware(
+			cors({
+				preflightContinue: true
+			})
+		)
+	)
 	.get(async (req, res) => {
 		let body: z.infer<typeof startSchema>;
 		try {
@@ -509,4 +515,4 @@ handler.router
 		});
 	});
 
-export default handler.handle();
+export default handler.cors().handle();
