@@ -14,7 +14,10 @@ import { AppEvents, events } from "@/utils/events";
 const mw =
 	(fn: Function) =>
 	(...params: any[]) => {
-		if (!isProd || typeof window === "undefined") {
+		if (
+			// !isProd ||
+			typeof window === "undefined"
+		) {
 			return false;
 		}
 		return fn(...params);
@@ -59,6 +62,7 @@ export const setup = mw(async () => {
 	// Setup Mixpanel
 	if (!isEmpty(mixpanelAppId)) {
 		const mixpanel = await getMixpanel();
+		mixpanel.init(mixpanelAppId);
 		// Catch all tracking
 		Object.values(AppEvents).forEach((appEvent) => {
 			events.on(appEvent, (properties: Object) => {
@@ -80,8 +84,8 @@ export const identifyUser = mw(async (id: string, properties: any) => {
 		return null;
 	}
 
-	// Identify for GA
 	if (!isEmpty(gaTrackingId)) {
+		// Identify for GA
 		const ReactGA = await getReactGA();
 		ReactGA.set({ userId: id });
 	}
@@ -93,6 +97,7 @@ export const identifyUser = mw(async (id: string, properties: any) => {
 	}
 
 	if (!isEmpty(mixpanelAppId)) {
+		// Identify Mixpanel
 		const mixpanel = await getMixpanel();
 		mixpanel.identify(id);
 	}

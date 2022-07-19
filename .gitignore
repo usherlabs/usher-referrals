@@ -39,6 +39,7 @@ dist
 package.json.lerna_backup
 rh_client.toml
 rathole.toml
+.campaigns
 
 # debug
 npm-debug.log*

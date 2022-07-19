@@ -3,19 +3,17 @@
  */
 
 import { events, AppEvents } from "@/utils/events";
-import {
-	Profile,
-	User
-	// Claim
-} from "@/types";
+import { Profile, User } from "@/types";
 import { request } from "@/api";
-// import { Usher } from "@usher.so/js";
 
 import { setUser as setErrorTrackingUser } from "@/utils/handle-exception";
 import { identifyUser } from "@/utils/signals";
 // import Authenticate from "@/modules/auth";
 
 // let identifiedUser: User | null = null;
+// const usher = Usher({ staging: true });
+// const arResellerCampaignId =
+// 	process.env.NEXT_PUBLIC_USHER_ARWEAVE_RESELLER_CAMPAIGN_ID || "";
 
 events.on(AppEvents.PROFILE_SAVE, async ({ profile }: { profile: Profile }) => {
 	if (!profile.email) {
@@ -28,6 +26,7 @@ events.on(AppEvents.PROFILE_SAVE, async ({ profile }: { profile: Profile }) => {
 	});
 });
 
+// ? The Reseller Conversion is not meant to be integrated here... the future Attribution is though.
 // events.on(
 // 	AppEvents.REWARDS_CLAIM,
 // 	async ({ claim, newFunds }: { claim: Claim; newFunds: number }) => {
@@ -37,7 +36,7 @@ events.on(AppEvents.PROFILE_SAVE, async ({ profile }: { profile: Profile }) => {
 // 			if (owner) {
 // 				const did = owner.did.id;
 // 				Usher("convert", {
-// 					id: "", // TODO: Add Campaign ID
+// 					id: process.env.NEXT_PUBLIC_USHER_ARWEAVE_RESELLER_CAMPAIGN_ID,
 // 					chain: "arweave",
 // 					staging: true,
 // 					eventId: 0,
@@ -54,7 +53,7 @@ events.on(AppEvents.PROFILE_SAVE, async ({ profile }: { profile: Profile }) => {
 // );
 
 events.on(AppEvents.SAVE_USER, ({ user }: { user: User }) => {
-	// identifiedUser = saved;
+	// identifiedUser = user;
 	setErrorTrackingUser(user);
 	identifyUser(
 		user.profile.email ||

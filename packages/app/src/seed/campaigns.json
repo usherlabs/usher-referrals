@@ -16,7 +16,6 @@
 			"type": "token",
 			"limit": 0
 		},
-		"conflict_strategy": "PASSTHROUGH",
 		"details": {
 			"destination_url": "https://www.webdoodle.com.au",
 			"name": "ArDrive Referral Program",
