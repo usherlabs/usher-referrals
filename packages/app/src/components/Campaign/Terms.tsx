@@ -71,10 +71,9 @@ const Terms: React.FC<Props> = ({ campaign }) => {
 									{typeof event.perCommit !== "undefined" && !!event.perCommit
 										? "At least "
 										: ""}
-									{event.rate}
 									{event.strategy === CampaignStrategies.PERCENTAGE
-										? "% in"
-										: ""}{" "}
+										? `${event.rate * 100}% in`
+										: event.rate}{" "}
 									{ticker}{" "}
 									{event.nativeLimit && event.nativeLimit > 0
 										? "up to a limit"
