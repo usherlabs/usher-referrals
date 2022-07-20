@@ -5,7 +5,7 @@ import {
 	arangoDatabase,
 	arangoUsername,
 	arangoPassword
-} from "@/env-config";
+} from "@/server/env-config";
 
 let db: Database | null | undefined;
 

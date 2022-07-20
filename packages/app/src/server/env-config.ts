@@ -1,6 +1,8 @@
 export const isProd = process.env.NODE_ENV === "production";
 export const logLevel = process.env.LOG_LEVEL || "info";
-export const publicUrl = process.env.PUBLIC_URL || "";
+export const publicUrl =
+	process.env.PUBLIC_URL ||
+	(process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "");
 
 export const hcaptchaSecretKey = process.env.HCAPTCHA_SECRET_KEY;
 

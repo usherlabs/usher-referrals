@@ -28,11 +28,6 @@ export const hcaptchaSiteKey = process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY;
 
 export const magicPublicKey = process.env.NEXT_PUBLIC_MAGIC_KEY;
 
-export const arangoUrl = process.env.ARANGO_URL || "http://127.0.0.1:8529";
-export const arangoDatabase = process.env.ARANGO_DATABASE;
-export const arangoUsername = process.env.ARANGO_USERNAME;
-export const arangoPassword = process.env.ARANGO_PASSWORD;
-
 /* ========== SECURITY ========== */
 export const inviteOrigin = process.env.NEXT_PUBLIC_INVITE_ORIGIN;
 
