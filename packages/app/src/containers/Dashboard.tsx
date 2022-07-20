@@ -142,7 +142,7 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 				setCapturingEmail(false);
 			}
 		},
-		[profile, captureEmail]
+		[profile, captureEmail, setCaptureEmail, setProfile]
 	);
 
 	const onEmailCaptureDismiss = useCallback(() => {
