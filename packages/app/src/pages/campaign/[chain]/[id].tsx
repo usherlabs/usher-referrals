@@ -340,7 +340,7 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 				`}
 			>
 				<Pane flex={1} margin={6}>
-					{!isUserLoading ? (
+					{!isUserLoading && campaign.disableVerification !== true ? (
 						<>
 							{!verifications.personhood && (
 								<Pane marginBottom={12}>
