@@ -340,23 +340,27 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 				`}
 			>
 				<Pane flex={1} margin={6}>
-					{!isUserLoading && campaign.disableVerification !== true ? (
+					{campaign.disableVerification !== true && (
 						<>
-							{!verifications.personhood && (
+							{!isUserLoading ? (
+								<>
+									{!verifications.personhood && (
+										<Pane marginBottom={12}>
+											<VerifyPersonhoodAlert />
+										</Pane>
+									)}
+								</>
+							) : (
 								<Pane marginBottom={12}>
-									<VerifyPersonhoodAlert />
+									<Skeleton
+										style={{
+											borderRadius: 8,
+											height: 100
+										}}
+									/>
 								</Pane>
 							)}
 						</>
-					) : (
-						<Pane marginBottom={12}>
-							<Skeleton
-								style={{
-									borderRadius: 8,
-									height: 100
-								}}
-							/>
-						</Pane>
 					)}
 					{!isLoading && !isUserLoading ? (
 						<>
