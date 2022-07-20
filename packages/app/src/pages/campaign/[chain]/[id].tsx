@@ -654,7 +654,8 @@ export const getStaticProps = async ({
 			id,
 			chain,
 			campaign: null
-		}
+		},
+		revalidate: 60
 	};
 };
 
