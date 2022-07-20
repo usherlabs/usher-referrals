@@ -12,6 +12,10 @@ export type Props = {
 const CampaignInfo: React.FC<Props> = ({ campaign }) => {
 	const { colors } = useTheme();
 
+	const advertiserName = campaign.advertiser.name
+		? campaign.advertiser.name
+		: truncate(campaign.owner, 6, 4);
+
 	return (
 		<>
 			<Heading is="h1" size={900} width="100%" marginBottom={8}>
@@ -19,21 +23,25 @@ const CampaignInfo: React.FC<Props> = ({ campaign }) => {
 			</Heading>
 			<Heading size={600} fontWeight={400} color={colors.gray900}>
 				By{" "}
-				<Anchor
-					href={campaign.advertiser.externalLink || ""}
-					external
-					fontSize="inherit"
-				>
-					<Strong
+				{campaign.advertiser.externalLink ? (
+					<Anchor
+						href={campaign.advertiser.externalLink}
+						external
 						fontSize="inherit"
-						textDecoration="underline"
-						color={colors.blue500}
 					>
-						{campaign.advertiser.name
-							? campaign.advertiser.name
-							: truncate(campaign.owner, 6, 4)}
+						<Strong
+							fontSize="inherit"
+							textDecoration="underline"
+							color={colors.blue500}
+						>
+							{advertiserName}
+						</Strong>
+					</Anchor>
+				) : (
+					<Strong fontSize="inherit" color={colors.gray900}>
+						{advertiserName}
 					</Strong>
-				</Anchor>
+				)}
 				{campaign.advertiser.description && (
 					<Text size={500} opacity="0.7" fontSize="inherit">
 						&nbsp;&nbsp;&mdash;&nbsp;&nbsp;

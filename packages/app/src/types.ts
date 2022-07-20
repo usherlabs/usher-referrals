@@ -225,8 +225,8 @@ export interface IUserActions {
 	disconnect: (type: Connections) => Promise<void>;
 	setCaptcha: (value: boolean) => void;
 	setPersonhood: (value: boolean) => void;
-	setProfile: (value: Profile) => void;
-	addPartnership: (partnership: CampaignReference) => Promise<void>;
+	setProfile: (value: Profile) => Promise<void> | void;
+	addPartnership: (partnership: CampaignReference) => Promise<void> | void;
 }
 
 export interface IUserContext extends IUserActions {

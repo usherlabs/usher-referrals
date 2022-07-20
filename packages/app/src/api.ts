@@ -41,7 +41,8 @@ export const captcha = (authToken?: string) => {
 				})
 				.json();
 		},
-		get: (): Promise<{ success: boolean }> => req.get(`verify/captcha`).json()
+		get: (): Promise<{ success: boolean }> =>
+			req.get(`verify/captcha`, { timeout: 30000 }).json()
 	};
 };
 
@@ -60,7 +61,7 @@ export const personhood = (authToken: string) => {
 				.json();
 		},
 		get: (): Promise<{ success: boolean }> =>
-			req.get(`verify/personhood`).json()
+			req.get(`verify/personhood`, { timeout: 30000 }).json()
 	};
 };
 
@@ -164,7 +165,7 @@ export const profile = (authToken: string) => {
 				.json();
 		},
 		get(): Promise<{ success: boolean; profile: Profile }> {
-			return req.get("profile").json();
+			return req.get("profile", { timeout: 30000 }).json();
 		}
 	};
 };

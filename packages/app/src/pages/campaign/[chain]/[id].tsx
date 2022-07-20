@@ -136,7 +136,7 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 	// 	rewardsClaimed += claim.amount;
 	// });
 
-	const onStartPartnership = useCallback(() => {
+	const onStartPartnership = useCallback(async () => {
 		if (!isLoggedIn) {
 			router.push(loginUrl);
 			return;
@@ -148,30 +148,28 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 					id: "start-partnership"
 				}
 			);
-		if (campaign) {
-			setPartnering(true);
-			const campaignRef = {
-				chain,
-				address: id
-			};
-			addPartnership(campaignRef)
-				.then(() => {
-					toaster.success(`🎉  You have engaged this partnership!`, {
-						id: "start-partnership",
-						description: `Complete any remaining verifications and reviews to start earning rewards when you share your invite link!.`
-					});
-				})
-				.catch((e) => {
-					handleException(e);
-					errorMessage();
-				})
-				.finally(() => {
-					setPartnering(false);
-				});
-		} else {
+		if (!campaign) {
 			errorMessage();
+			return;
 		}
-	}, [loginUrl, isLoggedIn, campaign]);
+		setPartnering(true);
+		const campaignRef = {
+			chain,
+			address: id
+		};
+		try {
+			await addPartnership(campaignRef);
+			toaster.success(`🎉  You have engaged this partnership!`, {
+				id: "start-partnership",
+				description: `Complete any remaining verifications and reviews to start earning rewards when you share your invite link!.`
+			});
+		} catch (e) {
+			handleException(e);
+			errorMessage();
+		} finally {
+			setPartnering(false);
+		}
+	}, [loginUrl, isLoggedIn, campaign, addPartnership]);
 
 	// Get the funds staked into the campaign
 	const getCampaignFunds = useCallback(async () => {

@@ -70,7 +70,7 @@ export const UserContext = createContext<IUserContext>({
 	setProfile() {
 		// ...
 	},
-	async addPartnership() {
+	addPartnership() {
 		// ...
 	}
 });
@@ -215,8 +215,6 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 		[user]
 	);
 
-	// Reloading the screen will refresh authentications
-
 	const setCaptcha = useCallback(
 		(value: boolean) => {
 			events.emit(AppEvents.CAPTCHA, { value });
@@ -248,11 +246,11 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 			await api.profile(authToken).post(profile);
 			events.emit(AppEvents.PROFILE_SAVE, { profile });
 
-			setUser(
-				produce(user, (draft) => {
-					draft.profile = profile;
-				})
-			);
+			const newUser = produce(user, (draft) => {
+				draft.profile = profile;
+			});
+
+			saveUser(newUser);
 		},
 		[user]
 	);
@@ -261,11 +259,12 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 		async (partnership: CampaignReference) => {
 			const partnerships = await authInstance.addPartnership(partnership);
 			events.emit(AppEvents.START_PARTNERSHIP, { partnership });
-			setUser(
-				produce(user, (draft) => {
-					draft.partnerships = partnerships;
-				})
-			);
+
+			const newUser = produce(user, (draft) => {
+				draft.partnerships = [...partnerships];
+			});
+
+			saveUser(newUser);
 		},
 		[user]
 	);
