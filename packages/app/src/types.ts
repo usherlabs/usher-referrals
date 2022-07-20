@@ -95,6 +95,7 @@ export type Campaign = {
 		partners: string[];
 		externalLink: string;
 	};
+	attributable?: boolean;
 };
 
 export type Wallet = {

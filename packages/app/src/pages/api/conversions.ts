@@ -430,40 +430,43 @@ handler.router
 			}
 		}
 
-		// Determine the reward amount
-		let rewards = rate;
-		// Only apply perCommit logic, there is a commit value
-		if (typeof event.perCommit === "number" && event.perCommit > 0) {
-			if (typeof commit === "number") {
-				// This allows for arbitrary commit values to be anything -- and for perCommit to determine a multiplier.
-				// ie. for data based reward can be per 1kb by commit (X bytes / 1000 bytes) * rate.
-				rewards = rate * (commit / event.perCommit);
-			} else {
-				// Return an error if the event is configured to recieve values that is does not
-				const errMsg = `'perCommit' is configured for Event, but Converison does not include 'commit'`;
-				req.log.warn({ vars: { campaign, conversion } }, errMsg);
-				return res.json({
-					success: false,
-					message: errMsg
-				});
+		// Determine the reward amount ONLY if the campaign is NOT attributable
+		let rewards = 0;
+		if (campaign.attributable !== true) {
+			rewards = rate;
+			// Only apply perCommit logic, there is a commit value
+			if (typeof event.perCommit === "number" && event.perCommit > 0) {
+				if (typeof commit === "number") {
+					// This allows for arbitrary commit values to be anything -- and for perCommit to determine a multiplier.
+					// ie. for data based reward can be per 1kb by commit (X bytes / 1000 bytes) * rate.
+					rewards = rate * (commit / event.perCommit);
+				} else {
+					// Return an error if the event is configured to recieve values that is does not
+					const errMsg = `'perCommit' is configured for Event, but Converison does not include 'commit'`;
+					req.log.warn({ vars: { campaign, conversion } }, errMsg);
+					return res.json({
+						success: false,
+						message: errMsg
+					});
+				}
 			}
-		}
 
-		// Add Percentage base Rate calculation -- based on amount in metadata
-		if (event.strategy === CampaignStrategies.PERCENTAGE) {
-			let amount = conversion.metadata?.amount;
-			if (typeof amount === "string") {
-				amount = parseFloat(amount);
-			}
-			if (amount && typeof amount === "number") {
-				rewards *= amount;
-			} else {
-				const errMsg = `'amount' missing from 'metadata' for percentage based conversion event`;
-				req.log.warn({ vars: { campaign, conversion } }, errMsg);
-				return res.json({
-					success: false,
-					message: errMsg
-				});
+			// Add Percentage base Rate calculation -- based on amount in metadata
+			if (event.strategy === CampaignStrategies.PERCENTAGE) {
+				let amount = conversion.metadata?.amount;
+				if (typeof amount === "string") {
+					amount = parseFloat(amount);
+				}
+				if (amount && typeof amount === "number") {
+					rewards *= amount;
+				} else {
+					const errMsg = `'amount' missing from 'metadata' for percentage based conversion event`;
+					req.log.warn({ vars: { campaign, conversion } }, errMsg);
+					return res.json({
+						success: false,
+						message: errMsg
+					});
+				}
 			}
 		}
 
