@@ -10,7 +10,7 @@ import {
 	Pane,
 	NewPersonIcon
 } from "evergreen-ui";
-import { css } from "@linaria/core";
+import { css, cx } from "@linaria/core";
 
 import { Partnership } from "@/types";
 import Anchor from "@/components/Anchor";
@@ -58,21 +58,33 @@ const WhitelistAlert: React.FC<Props> = ({ partnership, whitelist }) => {
 					? `You are an Approved Partner!`
 					: `Approved Partners Only`
 			}
-			className={css`
-				h4 {
-					font-size: 1em;
-					margin: 1px 0 10px 0;
-					font-weight: 900;
-				}
-				li,
-				strong {
-					font-size: inherit;
-				}
-				svg {
-					height: 20px;
-					width: 20px;
-				}
-			`}
+			className={cx(
+				css`
+					h4 {
+						font-size: 1em;
+						margin: 1px 0 10px 0;
+						font-weight: 900;
+					}
+					li,
+					strong {
+						font-size: inherit;
+					}
+					svg {
+						height: 20px;
+						width: 20px;
+					}
+				`,
+				isWhitelisted
+					? css`
+							display: flex;
+							align-items: center;
+
+							h4 {
+								margin: 0 !important;
+							}
+					  `
+					: null
+			)}
 			fontSize="0.95em"
 		>
 			{isWhitelisted ? null : (

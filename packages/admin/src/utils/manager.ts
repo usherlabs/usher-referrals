@@ -5,8 +5,10 @@ import { DID } from "dids";
 import { Ed25519Provider } from "key-did-provider-ed25519";
 import { getResolver } from "key-did-resolver";
 import { fromString } from "uint8arrays";
+import { Base64 } from "js-base64";
 
 import { didKey, ceramicUrl } from "@/env-config";
+import { randomString } from "./random-string";
 
 export const ceramicInstance = new CeramicClient(ceramicUrl);
 
@@ -46,4 +48,12 @@ export const getManager = async () => {
 	const manager = new ModelManager({ ceramic });
 
 	return manager;
+};
+
+export const getAuthToken = async (did: DID) => {
+	const nonce = randomString(32);
+	const sig = await did.createJWS(nonce, { did: did.id });
+	const body = [[did.id, sig]];
+	const token = Base64.encode(JSON.stringify(body));
+	return token;
 };

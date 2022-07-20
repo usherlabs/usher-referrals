@@ -4,7 +4,7 @@ import { Base64 } from "js-base64";
 import { toString, fromString } from "uint8arrays";
 import inquirer from "inquirer";
 
-import { getNetworkDID } from "@/utils/manager";
+import { getNetworkDID, getAuthToken } from "@/utils/manager";
 
 const cmd = new Command();
 
@@ -71,7 +71,21 @@ encryptCmd
 		console.log(enc);
 	});
 
+const authTokenCmd = new Command();
+
+authTokenCmd
+	.name("auth-token")
+	.description("Get Auth Token for use with Next.js Usher dApp API")
+	.option("-k, --key <string>", "DID Key")
+	.action(async (options) => {
+		const did = await getNetworkDID(options.key);
+		const token = await getAuthToken(did);
+		console.log(chalk.green(`Auth token for DID: ${did.id}!`));
+		console.log(token);
+	});
+
 cmd.addCommand(encryptCmd);
 cmd.addCommand(decryptCmd);
+cmd.addCommand(authTokenCmd);
 
 export default cmd;

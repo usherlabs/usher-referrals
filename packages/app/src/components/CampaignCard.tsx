@@ -103,7 +103,7 @@ const CampaignCard: React.FC<Props> = ({ campaign }) => {
 							height={75}
 						>
 							{campaign.details.description
-								? truncate(campaign.details.description, 140, 0)
+								? truncate(campaign.details.description, 125, 0)
 								: ""}
 						</Paragraph>
 					</Pane>
