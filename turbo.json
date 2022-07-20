@@ -6,6 +6,23 @@
 			"dependsOn": ["^build"],
 			"outputs": [".next/**"]
 		},
+		"@usher/app#build": {
+			"dependsOn": [
+				"^build",
+				"$ARANGO_PASSWORD",
+				"$ARANGO_URL",
+				"$ARANGO_DATABASE",
+				"$ARANGO_USERNAME",
+				"$DID_KEY",
+				"$BOTD_SECRET_KEY",
+				"$HCAPTCHA_SECRET_KEY",
+				"$NEXT_PUBLIC_HCAPTCHA_SITE_KEY",
+				"$NEXT_PUBLIC_BOTD_PUBLIC_KEY",
+				"$NEXT_PUBLIC_MAGIC_KEY",
+				"$NEXT_PUBLIC_CERAMIC_URL"
+			],
+			"outputs": [".next/**"]
+		},
 		"test": {
 			"dependsOn": ["^build"],
 			"outputs": []
