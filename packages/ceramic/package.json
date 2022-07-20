@@ -13,7 +13,7 @@
 	"private": true,
 	"scripts": {
 		"build": "npm-run-all -s clean compile",
-		"clean": "del dist",
+		"clean": "del dist build",
 		"compile": "tsc --project ./tsconfig.build.json && resolve-tspaths",
 		"ts": "tsc --noEmit",
 		"lint": "eslint -c ./.eslintrc ./src/**/*.ts"
