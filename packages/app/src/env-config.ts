@@ -20,7 +20,7 @@ export const gaTrackingId = process.env.NEXT_PUBLIC_GA_TRACKING_ID || "";
 export const logrocketAppId = process.env.NEXT_PUBLIC_LOGROCKET_APP_ID || "";
 export const mixpanelAppId = process.env.NEXT_PUBLIC_MIXPANEL_APP_ID || "";
 export const mauticOrigin = process.env.NEXT_PUBLIC_MAUTIC_ORIGIN || "";
-export const juneAppId = process.env.NEXT_PUBLIC_JUNE_APP_ID || "";
+export const juneApiKey = process.env.NEXT_PUBLIC_JUNE_API_KEY || "";
 
 /* ========== DATA/API ========== */
 export const ceramicUrl =

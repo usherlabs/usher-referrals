@@ -5,11 +5,13 @@ import {
 	gaTrackingId,
 	logrocketAppId,
 	mixpanelAppId,
-	mauticOrigin
+	mauticOrigin,
+	juneApiKey
 } from "@/env-config";
 import { Sentry } from "@/utils/handle-exception";
 import { AppEvents, events } from "@/utils/events";
 import { isEmail } from "@/utils/is-email";
+import { Analytics } from "@june-so/analytics-next";
 
 declare global {
 	interface Window {
@@ -35,6 +37,21 @@ const getLogRocket = () => import("logrocket").then((m) => m.default || m);
 const getReactGA = () => import("react-ga").then((m) => m.default || m);
 const getMixpanel = () =>
 	import("mixpanel-browser").then((m) => m.default || m);
+
+let june: Analytics;
+const getJune = async (writeKey: string) => {
+	if (!june) {
+		const { AnalyticsBrowser } = await import("@june-so/analytics-next").then(
+			(m) => m.default || m
+		);
+		const [analytics] = await AnalyticsBrowser.load({
+			writeKey,
+			apiHost: "api.june.so/sdk"
+		});
+		june = analytics;
+	}
+	return june;
+};
 
 /**
  * Setup tracking
@@ -79,6 +96,16 @@ export const setup = mw(async () => {
 		});
 	}
 
+	if (!isEmpty(juneApiKey)) {
+		// Catch all tracking
+		const june = await getJune(juneApiKey);
+		Object.values(AppEvents).forEach((appEvent) => {
+			events.on(appEvent, (properties: Object) => {
+				june.track(appEvent, properties);
+			});
+		});
+	}
+
 	return true;
 });
 
@@ -114,6 +141,11 @@ export const identifyUser = mw(async (id: string, properties: any) => {
 		window.mt("send", "pageview", {
 			[isEmail(id) ? "email" : "id"]: id
 		});
+	}
+
+	if (!isEmpty(juneApiKey)) {
+		const june = await getJune(juneApiKey);
+		june.identify(id, properties);
 	}
 
 	return null;

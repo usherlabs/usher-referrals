@@ -76,7 +76,7 @@ const MetricCard: React.FC<Props> = ({
 				paddingTop={16}
 			>
 				{isLoading ? (
-					<Spinner size={24} />
+					<Spinner size={24} marginBottom={8} />
 				) : (
 					<>
 						<Heading is="h5" size={900} margin={0}>
