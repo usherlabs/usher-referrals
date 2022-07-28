@@ -6,6 +6,7 @@ import { DefaultSeo } from "next-seo";
 import { ThemeProvider, mergeTheme, defaultTheme } from "evergreen-ui";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { useRouter } from "next/router";
+import Script from "next/script";
 import "modern-normalize";
 
 import UserProvider from "@/providers/User";
@@ -14,7 +15,7 @@ import "@/styles/styles.scss";
 import DashboardContainer from "@/containers/Dashboard";
 import Preloader from "@/components/Preloader";
 import "@/integrations";
-import { isProd } from "@/env-config";
+import { isProd, mauticOrigin } from "@/env-config";
 import { AppEvents, events } from "@/utils/events";
 
 if (!isProd) {
@@ -71,6 +72,22 @@ const App = ({ Component, pageProps }: AppProps) => {
 		<main id="usher-app">
 			<DefaultSeo defaultTitle="Usher" titleTemplate="%s | Usher" {...seo} />
 			<Component {...pageProps} />
+			{mauticOrigin && (
+				<Script
+					id="mautic-tracking"
+					strategy="afterInteractive"
+					dangerouslySetInnerHTML={{
+						__html: `
+							(function(w,d,t,u,n,a,m){w['MauticTrackingObject']=n;
+									w[n]=w[n]||function(){(w[n].q=w[n].q||[]).push(arguments)},a=d.createElement(t),
+									m=d.getElementsByTagName(t)[0];a.async=1;a.src=u;m.parentNode.insertBefore(a,m)
+							})(window,document,'script','${mauticOrigin}/mtc.js','mt');
+
+							mt('send', 'pageview');
+						`
+					}}
+				/>
+			)}
 		</main>
 	);
 

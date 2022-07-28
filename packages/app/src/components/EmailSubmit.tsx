@@ -9,7 +9,7 @@ import {
 } from "evergreen-ui";
 // import PropTypes from "prop-types";
 
-import isEmail from "@/utils/is-email";
+import { isEmail } from "@/utils/is-email";
 
 export type Props = {
 	onSubmit: ((value: string) => Promise<void>) | ((value: string) => void);

@@ -2,13 +2,20 @@ import isEmpty from "lodash/isEmpty";
 import Router from "next/router";
 
 import {
-	isProd,
 	gaTrackingId,
 	logrocketAppId,
-	mixpanelAppId
+	mixpanelAppId,
+	mauticOrigin
 } from "@/env-config";
 import { Sentry } from "@/utils/handle-exception";
 import { AppEvents, events } from "@/utils/events";
+import { isEmail } from "@/utils/is-email";
+
+declare global {
+	interface Window {
+		mt: (type: string, event: string, properties?: Object) => void;
+	}
+}
 
 // Helper to ensure production
 const mw =
@@ -16,6 +23,7 @@ const mw =
 	(...params: any[]) => {
 		if (
 			// !isProd ||
+			// ? Tracking now runs when appropriate Ids are provided for signal packages
 			typeof window === "undefined"
 		) {
 			return false;
@@ -100,6 +108,12 @@ export const identifyUser = mw(async (id: string, properties: any) => {
 		// Identify Mixpanel
 		const mixpanel = await getMixpanel();
 		mixpanel.identify(id);
+	}
+
+	if (!isEmpty(mauticOrigin) && typeof window?.mt !== "undefined") {
+		window.mt("send", "pageview", {
+			[isEmail(id) ? "email" : "id"]: id
+		});
 	}
 
 	return null;
