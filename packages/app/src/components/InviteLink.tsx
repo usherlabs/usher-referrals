@@ -28,7 +28,6 @@ const InviteLink: React.FC<Props> = ({ link, ...props }) => {
 		<CopyToClipboard text={link || ""} onCopy={onCopy}>
 			<InputField
 				id="invite-link"
-				label="Invite Link"
 				iconRight={ClipboardIcon}
 				iconSize={18}
 				iconProps={{

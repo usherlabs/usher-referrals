@@ -1,5 +1,7 @@
 import React from "react";
 import { Pane } from "evergreen-ui";
+import { css } from "@linaria/core";
+import Image from "next/image";
 
 import { Campaign } from "@/types";
 import { useRandomColor } from "@/hooks";
@@ -29,19 +31,25 @@ const CampaignBanner: React.FC<Props> = ({ campaign }) => {
 			{campaign.advertiser.icon && (
 				<Pane
 					borderRadius={12}
-					height={60}
 					boxShadow="0 5px 15px rgba(0, 0, 0, 0.15)"
-					backgroundImage={`url(${campaign.advertiser.icon})`}
 					backgroundSize="contain"
 					backgroundRepeat="no-repeat"
 					backgroundPosition="center"
 					border="5px solid #fff"
 					backgroundColor="#fff"
-					width={150}
 					position="absolute"
 					left={16}
 					bottom={16}
-				/>
+				>
+					<Image
+						src={campaign.advertiser.icon}
+						height={60}
+						width={150}
+						className={css`
+							object-fit: contain;
+						`}
+					/>
+				</Pane>
 			)}
 		</Pane>
 	);

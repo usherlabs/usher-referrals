@@ -98,7 +98,7 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 				setCaptureEmail({
 					...captureEmail,
 					active: false,
-					remindIn: 0
+					remindIn: 0 // never remind again
 				});
 			} else if (captureEmail) {
 				if (
@@ -114,7 +114,13 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 					}
 				}
 			} else {
-				setCaptureEmail({ active: true });
+				// setCaptureEmail({ active: true });
+
+				// On first visit, remind about email in a day
+				setCaptureEmail({
+					active: false,
+					remindIn: Date.now() + 1000 * 60 * 60 * 24
+				});
 			}
 		}
 	}, [isLoading, profile, captureEmail, wallets]);
@@ -341,7 +347,12 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 					`
 				}}
 			>
-				<Pane display="flex" alignItems="center" justifyContent="center">
+				<Pane
+					display="flex"
+					alignItems="center"
+					justifyContent="center"
+					overflow="hidden"
+				>
 					<Spinner size={24} marginRight={10} />
 					<Heading is="h4" size={600} fontWeight={900}>
 						Loading your account...

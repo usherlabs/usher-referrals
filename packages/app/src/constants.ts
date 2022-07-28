@@ -3,7 +3,7 @@ export const ARCONNECT_CHROME_URL =
 export const ARCONNECT_FIREFOX_URL =
 	"https://addons.mozilla.org/en-US/firefox/addon/arconnect/" as const;
 
-export const MAX_SCREEN_WIDTH = 1280 as const;
+export const MAX_SCREEN_WIDTH = 1480 as const;
 
 export const APP_DID =
 	"did:key:z6MknpBzdxp69WYL4zRdsdRVSyq48iw5WsYdSGXSonXyGRoW" as const;

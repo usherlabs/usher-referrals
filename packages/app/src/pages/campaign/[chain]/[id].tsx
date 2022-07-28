@@ -7,11 +7,12 @@ import { aql } from "arangojs";
 import { useQuery } from "react-query";
 import isEmpty from "lodash/isEmpty";
 import ono from "@jsdevtools/ono";
+import { UilAwardAlt } from "@iconscout/react-unicons";
 
 import { useUser } from "@/hooks/";
 import { FEE_MULTIPLIER, MAX_SCREEN_WIDTH } from "@/constants";
 import ClaimButton from "@/components/Campaign/ClaimButton";
-import Funding from "@/components/Campaign/Funding";
+import Funds from "@/components/Campaign/Funds";
 import Terms from "@/components/Campaign/Terms";
 import WhitelistAlert from "@/components/Campaign/WhitelistAlert";
 import Progress from "@/components/Progress";
@@ -34,7 +35,7 @@ import Info from "@/components/Campaign/Info";
 import Actions from "@/components/Campaign/Actions";
 import PartnershipUI from "@/components/Campaign/Partnership";
 import StartPartnership from "@/components/Campaign/StartPartnership";
-import ValueCard from "@/components/ValueCard";
+import MetricCard from "@/components/MetricCard";
 import Anchor from "@/components/Anchor";
 import VerifyPersonhoodAlert from "@/components/VerifyPersonhood/Alert";
 import { useSeedData } from "@/env-config";
@@ -436,13 +437,36 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 				>
 					{!isLoading && campaign ? (
 						<>
-							<Pane
-								background="tint2"
-								borderRadius={8}
-								padding={12}
-								marginBottom={12}
-							>
-								<Funding
+							{campaign.reward.limit && campaign.reward.limit > 0 ? (
+								<Pane
+									background="tint2"
+									borderRadius={8}
+									padding={12}
+									marginBottom={12}
+								>
+									<Progress
+										value={(rewardsClaimed || 0) / campaign.reward.limit}
+										label={`${parseFloat((rewardsClaimed || 0).toFixed(2))} / ${
+											campaign.reward.limit
+										} ${campaign.reward.ticker} Claimed`}
+										showPercentage
+									/>
+								</Pane>
+							) : null}
+						</>
+					) : (
+						<Skeleton
+							style={{
+								height: 100,
+								borderRadius: 8,
+								marginBottom: 12
+							}}
+						/>
+					)}
+					{!isLoading && campaign ? (
+						<>
+							<Pane marginBottom={12}>
+								<Funds
 									balance={funds}
 									loading={isFundsLoading}
 									ticker={campaign.reward.ticker}
@@ -458,49 +482,12 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 							}}
 						/>
 					)}
-					{!isLoading && campaign ? (
-						<>
-							{campaign.reward.limit && campaign.reward.limit > 0 ? (
-								<Pane
-									background="tint2"
-									borderRadius={8}
-									padding={12}
-									marginBottom={12}
-								>
-									<Progress
-										value={(rewardsClaimed || 0) / campaign.reward.limit}
-										label={`${parseFloat((rewardsClaimed || 0).toFixed(2))} / ${
-											campaign.reward.limit
-										} ${campaign.reward.ticker}${
-											campaign.reward.type !== RewardTypes.TOKEN
-												? ` ${campaign.reward.type.toUpperCase()}s`
-												: ""
-										} Claimed`}
-										showPercentage
-									/>
-								</Pane>
-							) : null}
-						</>
-					) : (
-						<Skeleton
-							style={{
-								height: 100,
-								borderRadius: 8,
-								marginBottom: 12
-							}}
-						/>
-					)}
 					{partnership && (
 						<>
-							<Pane
-								padding={12}
-								background="tint2"
-								borderRadius={8}
-								marginBottom={20}
-							>
+							<Pane marginBottom={20}>
 								<Pane display="flex" marginBottom={24}>
 									{!isLoading && campaign ? (
-										<ValueCard
+										<MetricCard
 											isLoading={metrics.isLoading}
 											ticker={campaign.reward.ticker}
 											value={
@@ -517,6 +504,11 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 											}
 											id="claimable-rewards"
 											label="Claimable Rewards"
+											topLabel="Rewards the partners can withdraw"
+											iconLeft={() => (
+												<UilAwardAlt size={28} color={colors.gray700} />
+											)}
+											width="100%"
 										/>
 									) : (
 										<Skeleton

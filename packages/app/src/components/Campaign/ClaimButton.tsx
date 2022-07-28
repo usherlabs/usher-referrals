@@ -129,7 +129,7 @@ const ClaimButton: React.FC<Props> = ({
 				</Alert>
 			) : (
 				<Button
-					height={majorScale(6)}
+					height={majorScale(7)}
 					intent="success"
 					appearance="primary"
 					minWidth={260}
@@ -141,7 +141,7 @@ const ClaimButton: React.FC<Props> = ({
 					onClick={isActive ? () => setShowDialog(true) : () => null}
 					pointerEvents={isActive ? "auto" : "none"}
 				>
-					<Strong color="inherit" fontSize="1.1em">
+					<Strong color="inherit" fontSize="1.2em">
 						Claim Rewards
 					</Strong>
 				</Button>

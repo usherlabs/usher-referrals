@@ -47,6 +47,9 @@ const nextConfig = {
 	serverRuntimeConfig: {
 		// to bypass https://github.com/zeit/next.js/issues/8251
 		PROJECT_ROOT: __dirname
+	},
+	images: {
+		domains: ["gateway.pinata.cloud", "usher.so", "pages.usher.so"]
 	}
 };
 
