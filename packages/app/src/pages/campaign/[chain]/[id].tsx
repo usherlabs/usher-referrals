@@ -42,7 +42,7 @@ import * as mediaQueries from "@/utils/media-queries";
 import { getArangoClient } from "@/utils/arango-client";
 import * as api from "@/api";
 import Authenticate from "@/modules/auth";
-import { getArweaveClient } from "@/utils/arweave-client";
+import { getArweaveClient, getWarp } from "@/utils/arweave-client";
 import { AppEvents, events } from "@/utils/events";
 
 type CampaignPageProps = {
@@ -52,6 +52,7 @@ type CampaignPageProps = {
 };
 
 const arweave = getArweaveClient();
+const warp = getWarp();
 
 const getPartnershipMetrics = async (
 	ids: string[]
@@ -174,20 +175,37 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 	// Get the funds staked into the campaign
 	const getCampaignFunds = useCallback(async () => {
 		setFundsLoading(true);
-		let balance = await arweave.wallets.getBalance(campaign.id);
-		// ----- This doesn't scale.
-		if (
-			["arweave:QOttOj5CmOJnzBHrqaCLImXJ9RwHVbMDY0QPEmcWptQ"]
-				.map((cid) => cid.toLowerCase())
-				.includes([campaign.chain, campaign.id].join(":").toLowerCase())
-		) {
-			balance = arweave.ar.arToWinston(`300`);
-		}
-		// -----
-		const arBalance = arweave.ar.winstonToAr(balance);
-		const f = parseFloat(arBalance) * (1 - FEE_MULTIPLIER);
-		if (f > 0) {
-			setFunds(f);
+		if (campaign.chain === Chains.ARWEAVE) {
+			if (campaign.reward.address) {
+				const contract = warp.contract(campaign.reward.address);
+				const contractState = await contract.readState();
+				if (campaign.reward.type === RewardTypes.PST) {
+					const state = contractState.state as {
+						balances: Record<string, number>;
+					};
+					const balance = state.balances[campaign.id] || 0;
+					// No fee multiplier for custom PSTs for now
+					if (balance > 0) {
+						setFunds(balance);
+					}
+				}
+			} else {
+				let balance = await arweave.wallets.getBalance(campaign.id);
+				// ----- This doesn't scale.
+				if (
+					["arweave:QOttOj5CmOJnzBHrqaCLImXJ9RwHVbMDY0QPEmcWptQ"]
+						.map((cid) => cid.toLowerCase())
+						.includes([campaign.chain, campaign.id].join(":").toLowerCase())
+				) {
+					balance = arweave.ar.arToWinston(`300`);
+				}
+				// -----
+				const arBalance = arweave.ar.winstonToAr(balance);
+				const f = parseFloat(arBalance) * (1 - FEE_MULTIPLIER);
+				if (f > 0) {
+					setFunds(f);
+				}
+			}
 		}
 		setFundsLoading(false);
 	}, []);

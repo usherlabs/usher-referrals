@@ -1,5 +1,11 @@
 import Arweave from "arweave";
-import { arweaveLocalPort } from "@/env-config";
+import {
+	Warp,
+	LoggerFactory,
+	WarpNodeFactory,
+	WarpWebFactory
+} from "warp-contracts";
+import { arweaveLocalPort, isProd } from "@/env-config";
 
 let arweave: Arweave;
 export const getArweaveClient = (useLocal = false) => {
@@ -19,4 +25,27 @@ export const getArweaveClient = (useLocal = false) => {
 		);
 	}
 	return arweave;
+};
+
+let warp: Warp;
+export const getWarp = () => {
+	if (!arweave) {
+		throw new Error("Arweave Client has not been instantiated");
+	}
+	if (!warp) {
+		if (!isProd) {
+			LoggerFactory.INST.logLevel("debug");
+		}
+		if (typeof window === "undefined") {
+			warp = WarpNodeFactory.memCachedBased(arweave)
+				.useWarpGateway({ confirmed: true })
+				.build();
+		} else {
+			warp = WarpWebFactory.memCachedBased(arweave)
+				.useWarpGateway({ confirmed: true })
+				.build();
+		}
+	}
+
+	return warp;
 };

@@ -8,13 +8,19 @@ import { TileDocument } from "@ceramicnetwork/stream-tile";
 // import ono from "@jsdevtools/ono";
 import uniq from "lodash/uniq";
 
-import { AuthApiRequest, CampaignReference, Chains, Claim } from "@/types";
+import {
+	AuthApiRequest,
+	CampaignReference,
+	Chains,
+	Claim,
+	RewardTypes
+} from "@/types";
 import { useRouteHandler } from "@/server/middleware";
 import { getAppDID } from "@/server/did";
 import { ceramic } from "@/utils/ceramic-client";
 import { getArangoClient } from "@/utils/arango-client";
 import withAuth from "@/server/middleware/auth";
-import { getArweaveClient } from "@/utils/arweave-client";
+import { getArweaveClient, getWarp } from "@/utils/arweave-client";
 import { FEE_MULTIPLIER, FEE_ARWEAVE_WALLET } from "@/constants";
 import handleException from "@/utils/handle-exception";
 import { appPackageName, appVersion } from "@/env-config";
@@ -31,6 +37,7 @@ const loader = new TileLoader({ ceramic });
 const arango = getArangoClient();
 
 const arweave = getArweaveClient();
+const warp = getWarp();
 
 const isPartnershipStreamValid = (stream: TileDocument<CampaignReference>) => {
 	return (
@@ -72,11 +79,13 @@ handler.router.use(withAuth).post(async (req, res) => {
 		) {
 			req.log.warn(
 				{
-					to,
-					partnershipParam,
-					streamContent: stream.content,
-					schema: stream.metadata.schema,
-					modelSchema: ShareableOwnerModel.schemas.partnership
+					data: {
+						to,
+						partnershipParam,
+						streamContent: stream.content,
+						schema: stream.metadata.schema,
+						modelSchema: ShareableOwnerModel.schemas.partnership
+					}
 				},
 				"Partnership is invalid"
 			);
@@ -95,9 +104,7 @@ handler.router.use(withAuth).post(async (req, res) => {
 		) {
 			req.log.warn(
 				{
-					to,
-					partnershipParam,
-					campaignRef: campaignRefs[i]
+					data: { to, partnershipParam, campaignRef: campaignRefs[i] }
 				},
 				"Partnership parameter is invalid. Partnerships are not for the same campaign."
 			);
@@ -128,11 +135,7 @@ handler.router.use(withAuth).post(async (req, res) => {
 	if (partnershipsData.length === 0 || !campaignData) {
 		req.log.warn(
 			{
-				to,
-				partnerships,
-				campaignKey,
-				checkResults,
-				user: req.user
+				data: { to, partnerships, campaignKey, checkResults, user: req.user }
 			},
 			"Partnership and/or Campaign is not associated to User"
 		);
@@ -153,7 +156,6 @@ handler.router.use(withAuth).post(async (req, res) => {
 		campaignData.reward.limit > 0
 	) {
 		// Get rewards from partnership and rewards claimed from campaign
-		// TODO: Test this.
 		const pCursor = await arango.query(aql`
 			LET rewards_claimed = (
 				FOR p IN DOCUMENT("Partnerships", ${partnershipIds})
@@ -167,7 +169,10 @@ handler.router.use(withAuth).post(async (req, res) => {
 		const pResults = await pCursor.all();
 		const [rewardsClaimed] = pResults; // will always return an array with a single integer result.
 
-		req.log.debug({ rewardsClaimed }, "Previously Rewards Claims fetched");
+		req.log.debug(
+			{ data: { rewardsClaimed } },
+			"Previously Rewards Claims fetched"
+		);
 
 		// Check if the Campaign is limited at all
 		const remainingRewards = campaignData.reward.limit - rewardsClaimed;
@@ -188,35 +193,20 @@ handler.router.use(withAuth).post(async (req, res) => {
 		});
 	}
 
+	let fee = 0;
+
 	// Ensure that amount to be paid is greater than amount in internal wallet -- otherwise send whatevers in the wallet and update partnership amount
 	if (campaignData.chain === Chains.ARWEAVE) {
-		const balance = await arweave.wallets.getBalance(
-			campaignData._internal.address
-		);
-		const arBalanceStr = arweave.ar.winstonToAr(balance);
-		const winstonBalance = parseFloat(balance);
-		let arBalance = parseFloat(arBalanceStr);
-		if (Number.isNaN(arBalance) || Number.isNaN(winstonBalance)) {
-			arBalance = 0;
-		}
-
-		if (arBalance === 0) {
-			req.log.error("Insufficient funding for Campaign");
-			return res.status(402).json({
-				success: false,
-				data: {
-					to,
-					fee: 0,
-					amount: 0
-				}
-			});
-		}
-
-		let fee = rewardsToPay * FEE_MULTIPLIER; // x * 0.1
-		const totalToPay = fee + rewardsToPay;
-		if (totalToPay > arBalance) {
-			fee = arBalance * FEE_MULTIPLIER;
-			rewardsToPay = arBalance - fee;
+		let rewardTxId = "";
+		let feeTxId = "";
+		const internalAddress = campaignData._internal.address;
+		const txTags = [
+			["Application", "Usher"],
+			["UsherCampaign", campaignRef.address],
+			["UsherPartnerships", partnershipIds.join(", ")]
+		];
+		if (appPackageName && appVersion) {
+			txTags.push([appPackageName, appVersion]);
 		}
 
 		// Transfer fee amount minus gas x2 from previous transaction to platform wallet
@@ -227,81 +217,184 @@ handler.router.use(withAuth).post(async (req, res) => {
 			const raw = uint8arrays.toString(dec);
 			const jwk = JSON.parse(raw);
 
-			const rewardTx = await arweave.createTransaction(
-				{
-					target: to,
-					quantity: arweave.ar.arToWinston(`${rewardsToPay}`)
-				},
-				jwk
-			);
-			const txTags = [
-				["Application", "Usher"],
-				["UsherCampaign", campaignRef.address],
-				["UsherPartnerships", partnershipIds.join(", ")]
-			];
-			if (appPackageName && appVersion) {
-				txTags.push([appPackageName, appVersion]);
-			}
-
-			if (totalToPay > arBalance) {
-				fee -= parseFloat(arweave.ar.winstonToAr(rewardTx.reward)) * 2; // ensure there's enough gas for the transfers.
-			}
-			const feeTx = await arweave.createTransaction({
-				target: FEE_ARWEAVE_WALLET,
-				quantity: arweave.ar.arToWinston(`${fee}`)
-			});
-
-			req.log.debug({ fee, rewardsToPay }, "Fee and reward calculated");
-
-			// Tags
-			txTags.forEach(([tagName, tagVal]) => {
-				rewardTx.addTag(tagName, tagVal);
-				feeTx.addTag(tagName, tagVal);
-			});
-			rewardTx.addTag("UsherTransferType", "Reward");
-			feeTx.addTag("UsherTransferType", "Fee");
-
-			await arweave.transactions.sign(rewardTx, jwk);
-			await arweave.transactions.sign(feeTx, jwk);
-
-			const [rewardTxResponse, feeTxResponse] = await Promise.all([
-				arweave.transactions.post(rewardTx),
-				arweave.transactions.post(feeTx)
-			]);
-
-			if (rewardTxResponse.status !== 200) {
-				req.log.error(
-					{ rewardTxResponse, rewardTx, rewardsToPay },
-					"Failed to submit reward transaction"
-				);
-				return res.json({
-					success: false,
-					data: {
-						to,
-						fee,
-						amount: rewardsToPay
+			if (campaignData.reward.address) {
+				const contract = warp
+					.contract(campaignData.reward.address)
+					.connect(jwk);
+				const contractState = await contract.readState();
+				if (campaignData.reward.type === RewardTypes.PST) {
+					const state = contractState.state as {
+						balances: Record<string, number>;
+					};
+					const balance = state.balances[internalAddress] || 0;
+					if (balance === 0) {
+						req.log.error("Insufficient funding for Campaign");
+						return res.status(402).json({
+							success: false,
+							data: {
+								to,
+								fee: 0,
+								amount: 0
+							}
+						});
 					}
-				});
-			}
-			if (feeTxResponse.status !== 200) {
-				req.log.warn(
-					{ feeTxResponse, feeTx, fee },
-					"Failed to submit fee transaction"
-				);
-				return res.json({
-					success: false,
-					data: {
-						to,
-						fee,
-						amount: rewardsToPay
-					}
-				});
-			}
 
-			req.log.info(
-				{ fee, rewardsToPay, rewardTx: rewardTx.id, feeTx: feeTx.id },
-				"Fee and reward transfers complete"
-			);
+					if (rewardsToPay > balance) {
+						rewardsToPay = balance;
+					}
+
+					// ? No fee for custom PSTs at the moment
+
+					const interactionParams = {
+						function: "transfer",
+						qty: rewardsToPay,
+						target: to
+					};
+					const interactionId = await contract.writeInteraction(
+						interactionParams,
+						txTags.map((tag) => ({ name: tag[0], value: tag[1] }))
+					);
+
+					if (!interactionId) {
+						req.log.error(
+							{ data: { rewardsToPay, interactionId, interactionParams } },
+							"Failed to submit reward transaction"
+						);
+						return res.json({
+							success: false,
+							data: {
+								to,
+								fee,
+								amount: rewardsToPay
+							}
+						});
+					}
+
+					req.log.info(
+						{ data: { fee, rewardsToPay, interactionId } },
+						"Fee and reward transfers complete"
+					);
+
+					rewardTxId = interactionId;
+				} else {
+					req.log.error(
+						{ data: { reward: campaignData.reward } },
+						"Unsupported Campaign Reward"
+					);
+					return res.status(402).json({
+						success: false,
+						data: {
+							to,
+							fee: 0,
+							amount: 0
+						}
+					});
+				}
+			} else {
+				fee = rewardsToPay * FEE_MULTIPLIER; // x * 0.1
+				const totalToPay = fee + rewardsToPay;
+
+				const balance = await arweave.wallets.getBalance(internalAddress);
+				const arBalanceStr = arweave.ar.winstonToAr(balance);
+				const winstonBalance = parseFloat(balance);
+				let arBalance = parseFloat(arBalanceStr);
+				if (Number.isNaN(arBalance) || Number.isNaN(winstonBalance)) {
+					arBalance = 0;
+				}
+
+				if (arBalance === 0) {
+					req.log.error("Insufficient funding for Campaign");
+					return res.status(402).json({
+						success: false,
+						data: {
+							to,
+							fee: 0,
+							amount: 0
+						}
+					});
+				}
+
+				if (totalToPay > arBalance) {
+					fee = arBalance * FEE_MULTIPLIER;
+					rewardsToPay = arBalance - fee;
+				}
+
+				const rewardTx = await arweave.createTransaction(
+					{
+						target: to,
+						quantity: arweave.ar.arToWinston(`${rewardsToPay}`)
+					},
+					jwk
+				);
+
+				if (totalToPay > arBalance) {
+					fee -= parseFloat(arweave.ar.winstonToAr(rewardTx.reward)) * 2; // ensure there's enough gas for the transfers.
+				}
+				const feeTx = await arweave.createTransaction({
+					target: FEE_ARWEAVE_WALLET,
+					quantity: arweave.ar.arToWinston(`${fee}`)
+				});
+
+				req.log.debug(
+					{ data: { fee, rewardsToPay } },
+					"Fee and reward calculated"
+				);
+
+				// Tags
+				txTags.forEach(([tagName, tagVal]) => {
+					rewardTx.addTag(tagName, tagVal);
+					feeTx.addTag(tagName, tagVal);
+				});
+				rewardTx.addTag("UsherTransferType", "Reward");
+				feeTx.addTag("UsherTransferType", "Fee");
+
+				await arweave.transactions.sign(rewardTx, jwk);
+				await arweave.transactions.sign(feeTx, jwk);
+
+				const [rewardTxResponse, feeTxResponse] = await Promise.all([
+					arweave.transactions.post(rewardTx),
+					arweave.transactions.post(feeTx)
+				]);
+
+				if (rewardTxResponse.status !== 200) {
+					req.log.error(
+						{ data: { rewardTxResponse, rewardTx, rewardsToPay } },
+						"Failed to submit reward transaction"
+					);
+					return res.json({
+						success: false,
+						data: {
+							to,
+							fee,
+							amount: rewardsToPay
+						}
+					});
+				}
+				if (feeTxResponse.status !== 200) {
+					req.log.warn(
+						{ data: { feeTxResponse, feeTx, fee } },
+						"Failed to submit fee transaction"
+					);
+					return res.json({
+						success: false,
+						data: {
+							to,
+							fee,
+							amount: rewardsToPay
+						}
+					});
+				}
+
+				req.log.info(
+					{
+						data: { fee, rewardsToPay, rewardTx: rewardTx.id, feeTx: feeTx.id }
+					},
+					"Fee and reward transfers complete"
+				);
+
+				rewardTxId = rewardTx.id;
+				feeTxId = feeTx.id;
+			}
 
 			// Index Claim, Reduce Remaining Rewards for Partnership
 			let rewardsToDeductFrom = rewardsToPay;
@@ -318,7 +411,7 @@ handler.router.use(withAuth).post(async (req, res) => {
 				}
 			});
 			req.log.debug(
-				{ rewardDeductions },
+				{ data: { rewardDeductions } },
 				"Reward deductions applied to Partnerships"
 			);
 
@@ -340,8 +433,8 @@ handler.router.use(withAuth).post(async (req, res) => {
 					fee: ${fee},
 					feeWallet: ${FEE_ARWEAVE_WALLET},
 					txs: {
-						reward: ${rewardTx.id},
-						fee: ${feeTx.id}
+						reward: ${rewardTxId},
+						fee: ${feeTxId}
 					},
 					created_at: ${Date.now()}
 				} INTO Claims
@@ -363,15 +456,15 @@ handler.router.use(withAuth).post(async (req, res) => {
 			`);
 			const indexResults = await indexCursor.all();
 
-			req.log.info({ indexResults }, "Claim indexed");
+			req.log.info({ data: { indexResults } }, "Claim indexed");
 
 			const claim: Claim = {
 				to,
 				fee,
 				amount: rewardsToPay,
 				tx: {
-					id: rewardTx.id,
-					url: `https://viewblock.io/arweave/tx/${rewardTx.id}`
+					id: rewardTxId,
+					url: `https://viewblock.io/arweave/tx/${rewardTxId}`
 				}
 			};
 			return res.json({
@@ -383,8 +476,7 @@ handler.router.use(withAuth).post(async (req, res) => {
 			req.log.error(
 				{
 					e,
-					partnershipIds,
-					campaignRef
+					data: { partnershipIds, campaignRef }
 				},
 				"Cannot execute Arweave Rewards Transfer"
 			);

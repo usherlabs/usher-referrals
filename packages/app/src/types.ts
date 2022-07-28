@@ -64,6 +64,8 @@ export type CampaignReward = {
 	type: RewardTypes;
 	// A limit on the rewards for the entire campaign. When limit is reached, no more rewards can be claimed.
 	limit?: number;
+	// An address for the PST, ERC20, etc.
+	address?: string;
 };
 
 export type Campaign = {
