@@ -23,6 +23,8 @@ declare module "@iconscout/react-unicons" {
 	export const UilExclamationOctagon: Icon;
 	export const UilArrowCircleDown: Icon;
 	export const UilAwardAlt: Icon;
+	export const UilFileContract: Icon;
+	export const UilLabel: Icon;
 }
 
 declare module "@usher/ceramic";

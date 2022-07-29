@@ -9,7 +9,7 @@ export type Props = {
 	campaign: Campaign;
 };
 
-const CampaignInfo: React.FC<Props> = ({ campaign }) => {
+const CampaignTitle: React.FC<Props> = ({ campaign }) => {
 	const { colors } = useTheme();
 
 	const advertiserName = campaign.advertiser.name
@@ -58,4 +58,4 @@ const CampaignInfo: React.FC<Props> = ({ campaign }) => {
 	);
 };
 
-export default CampaignInfo;
+export default CampaignTitle;

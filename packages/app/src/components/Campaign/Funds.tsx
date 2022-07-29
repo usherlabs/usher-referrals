@@ -14,7 +14,7 @@ export type Props = {
 	loading?: boolean;
 };
 
-const CampaingFunds: React.FC<Props> = ({
+const CampaignFunds: React.FC<Props> = ({
 	balance,
 	// chain,
 	// reward,
@@ -36,4 +36,4 @@ const CampaingFunds: React.FC<Props> = ({
 	);
 };
 
-export default CampaingFunds;
+export default CampaignFunds;

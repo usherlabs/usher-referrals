@@ -1,19 +1,19 @@
 import React, { useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/router";
-import { Pane, toaster, Text, Tooltip, useTheme } from "evergreen-ui";
+import { Pane, toaster } from "evergreen-ui";
 import camelcaseKeys from "camelcase-keys";
 import { css } from "@linaria/core";
 import { aql } from "arangojs";
 import { useQuery } from "react-query";
 import isEmpty from "lodash/isEmpty";
 import ono from "@jsdevtools/ono";
-import { UilAwardAlt } from "@iconscout/react-unicons";
 
 import { useUser } from "@/hooks/";
 import { FEE_MULTIPLIER, MAX_SCREEN_WIDTH } from "@/constants";
 import ClaimButton from "@/components/Campaign/ClaimButton";
 import Funds from "@/components/Campaign/Funds";
-import Terms from "@/components/Campaign/Terms";
+import Rewards from "@/components/Campaign/Rewards";
+import InfoAccordions from "@/components/Campaign/InfoAccordions";
 import WhitelistAlert from "@/components/Campaign/WhitelistAlert";
 import Progress from "@/components/Progress";
 import {
@@ -31,11 +31,10 @@ import useRedir from "@/hooks/use-redir";
 import Serve404 from "@/components/Serve404";
 import handleException from "@/utils/handle-exception";
 import Banner from "@/components/Campaign/Banner";
-import Info from "@/components/Campaign/Info";
+import Title from "@/components/Campaign/Title";
 import Actions from "@/components/Campaign/Actions";
 import PartnershipUI from "@/components/Campaign/Partnership";
 import StartPartnership from "@/components/Campaign/StartPartnership";
-import MetricCard from "@/components/MetricCard";
 import Anchor from "@/components/Anchor";
 import VerifyPersonhoodAlert from "@/components/VerifyPersonhood/Alert";
 import { useSeedData } from "@/env-config";
@@ -81,7 +80,6 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 	const loginUrl = useRedir("/login");
 	const isLoggedIn = wallets.length > 0;
 	const isLoading = router.isFallback;
-	const { colors } = useTheme();
 
 	const [isPartnering, setPartnering] = useState(false);
 	const [isClaiming, setClaiming] = useState(false);
@@ -319,7 +317,7 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 								}
 							`}
 						>
-							<Info campaign={campaign as Campaign} />
+							<Title campaign={campaign as Campaign} />
 						</Pane>
 						<Pane
 							width="40%"
@@ -485,30 +483,13 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 					{partnership && (
 						<>
 							<Pane marginBottom={20}>
-								<Pane display="flex" marginBottom={24}>
+								<Pane display="flex" marginBottom={-6}>
 									{!isLoading && campaign ? (
-										<MetricCard
-											isLoading={metrics.isLoading}
+										<Rewards
+											loading={metrics.isLoading}
 											ticker={campaign.reward.ticker}
-											value={
-												<>
-													{claimableRewards}
-													{!!excessRewards && (
-														<Tooltip content="You have earned excess rewards!">
-															<Text color={colors.blue500} marginLeft={4}>
-																+{excessRewards}
-															</Text>
-														</Tooltip>
-													)}
-												</>
-											}
-											id="claimable-rewards"
-											label="Claimable Rewards"
-											topLabel="Rewards the partners can withdraw"
-											iconLeft={() => (
-												<UilAwardAlt size={28} color={colors.gray700} />
-											)}
-											width="100%"
+											value={claimableRewards}
+											excess={excessRewards}
 										/>
 									) : (
 										<Skeleton
@@ -556,7 +537,7 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 					)}
 					<Pane marginBottom={12}>
 						{!isLoading && campaign ? (
-							<Terms campaign={campaign as Campaign} />
+							<InfoAccordions campaign={campaign as Campaign} />
 						) : (
 							<Skeleton
 								style={{
