@@ -7,8 +7,7 @@ import {
 	ListItem,
 	UnorderedList,
 	Pane,
-	Button,
-	majorScale
+	Label
 } from "evergreen-ui";
 import {
 	Accordion,
@@ -19,15 +18,17 @@ import {
 } from "react-accessible-accordion";
 import {
 	UilFileContract,
-	UilLabel,
+	UilNotes,
 	UilExternalLinkAlt
 } from "@iconscout/react-unicons";
 import startCase from "lodash/startCase";
 import { cx, css } from "@linaria/core";
 
-import { RewardTypes, Campaign, CampaignStrategies } from "@/types";
+import { RewardTypes, Campaign, CampaignStrategies, Chains } from "@/types";
 import Anchor from "@/components/Anchor";
 import "react-accessible-accordion/dist/fancy-example.css";
+import pascalCase from "@/utils/pascal-case";
+import truncate from "@/utils/truncate";
 
 export type Props = {
 	campaign: Campaign;
@@ -37,6 +38,13 @@ const CampaignInfoAccordions: React.FC<Props> = ({ campaign }) => {
 	const { colors } = useTheme();
 	const ticker = campaign.reward.ticker.toUpperCase();
 	const name = startCase(campaign.reward.name);
+
+	let rewardContractAddressUrl = "";
+	if (campaign.reward.address) {
+		if (campaign.chain === Chains.ARWEAVE) {
+			rewardContractAddressUrl = `https://viewblock.io/arweave/address/${campaign.reward.address}`;
+		}
+	}
 
 	return (
 		<Pane
@@ -48,6 +56,8 @@ const CampaignInfoAccordions: React.FC<Props> = ({ campaign }) => {
 			`}
 		>
 			<Accordion
+				allowZeroExpanded={true}
+				allowMultipleExpanded={true}
 				className={css`
 					.accordion__button {
 						position: relative;
@@ -68,56 +78,26 @@ const CampaignInfoAccordions: React.FC<Props> = ({ campaign }) => {
 					.accordion__panel {
 						padding: 20px;
 						background-color: #f9fafc;
-						border-top: 2px solid #c1c4d6;
+						border-top: 1px solid #c1c4d6;
 
 						[hidden] {
 							border-top: none !important;
 						}
 					}
 					.accordion__item {
-						border: 2px solid #c1c4d6;
-						margin-bottom: 4px;
+						border: 1px solid #c1c4d6;
+						margin-bottom: 6px;
 						border-radius: 8px;
 						overflow: hidden;
 					}
 				`}
 			>
-				<AccordionItem>
-					<AccordionItemHeading>
-						<AccordionItemButton
-							className={cx(
-								`accordion__button`,
-								css`
-									border-radius: 8px 8px 0 0;
-								`
-							)}
-						>
-							<Pane display="flex" flexDirection="row" alignItems="center">
-								<UilLabel size={28} color={colors.gray900} />
-								<Heading is="h5" size={600} margin={0} marginLeft={8}>
-									Properties
-								</Heading>
-							</Pane>
-						</AccordionItemButton>
-					</AccordionItemHeading>
-					<AccordionItemPanel
-						className={cx(
-							"accordion__panel",
-							css`
-								padding: 20px;
-								padding-top: 10px;
-								border-radius: 0 0 8px 8px;
-							`
-						)}
-					>
-						<Pane>Hello world</Pane>
-					</AccordionItemPanel>
-				</AccordionItem>
 				<AccordionItem
+					uuid="terms"
 					className={cx(
 						"accordion__item",
 						css`
-							border: 2px solid #3366ff !important;
+							border: 1px solid #3366ff !important;
 						`
 					)}
 				>
@@ -157,7 +137,7 @@ const CampaignInfoAccordions: React.FC<Props> = ({ campaign }) => {
 							"accordion__panel",
 							css`
 								border-radius: 0 0 8px 8px;
-								border-top: 2px solid #3366ff !important;
+								border-top: 1px solid #3366ff !important;
 
 								[hidden] {
 									border-top: none !important;
@@ -165,7 +145,7 @@ const CampaignInfoAccordions: React.FC<Props> = ({ campaign }) => {
 							`
 						)}
 					>
-						<UnorderedList marginBottom={12} marginTop={-8}>
+						<UnorderedList marginY={-8}>
 							<ListItem>
 								Rewards are paid in{" "}
 								<Strong>
@@ -233,26 +213,111 @@ const CampaignInfoAccordions: React.FC<Props> = ({ campaign }) => {
 							) : null}
 						</UnorderedList>
 						{campaign.details.externalLink && (
-							<Pane borderTop="1px solid rgba(0, 0, 0, 0.1)" paddingTop={10}>
-								<Paragraph size={400}>For more information</Paragraph>
-								<Anchor href={campaign.details.externalLink} external>
-									<Button
-										height={majorScale(4)}
-										iconAfter={() => <UilExternalLinkAlt size="18" />}
+							<Pane paddingTop={20}>
+								<Pane
+									borderTop="1px solid rgba(0, 0, 0, 0.1)"
+									paddingTop={10}
+									display="flex"
+									flexDirection="row"
+									alignItems="center"
+								>
+									<Anchor
+										href={campaign.details.externalLink}
+										external
+										marginRight={6}
 									>
-										<Strong>Learn more</Strong>
-									</Button>
+										<Strong color="inherit" fontSize="inherit">
+											For more information, learn more
+										</Strong>
+									</Anchor>
+									<UilExternalLinkAlt size={18} color={colors.blue500} />
+								</Pane>
+							</Pane>
+						)}
+					</AccordionItemPanel>
+				</AccordionItem>
+				<AccordionItem uuid="details">
+					<AccordionItemHeading>
+						<AccordionItemButton
+							className={cx(
+								`accordion__button`,
+								css`
+									border-radius: 8px 8px 0 0;
+								`
+							)}
+						>
+							<Pane display="flex" flexDirection="row" alignItems="center">
+								<UilNotes size={28} color={colors.gray900} />
+								<Heading is="h5" size={600} margin={0} marginLeft={8}>
+									Reward Details
+								</Heading>
+							</Pane>
+						</AccordionItemButton>
+					</AccordionItemHeading>
+					<AccordionItemPanel
+						className={cx(
+							"accordion__panel",
+							css`
+								padding: 20px;
+								padding-top: 10px;
+								border-radius: 0 0 8px 8px;
+
+								> div {
+									display: flex;
+									flex-direction: row;
+									justify-content: space-between;
+									margin-bottom: 10px;
+
+									:last-child {
+										margin-bottom: 0;
+									}
+
+									label,
+									a {
+										font-size: inherit;
+									}
+
+									label {
+										opacity: 0.8;
+									}
+								}
+							`
+						)}
+					>
+						{rewardContractAddressUrl && campaign.reward.address && (
+							<Pane>
+								<Label>Contract Address</Label>
+								<Anchor href={rewardContractAddressUrl} external>
+									<Strong color="inherit">
+										{truncate(campaign.reward.address, 8, 4)}
+									</Strong>
 								</Anchor>
 							</Pane>
 						)}
-						<Paragraph size={300} color={colors.gray700} marginTop={12}>
-							<Strong>
-								<i>Usher software is in ALPHA. Please refer responsibly.</i>
-							</Strong>
-						</Paragraph>
+						<Pane>
+							<Label>Token Standard</Label>
+							<Label>
+								{campaign.reward.type === RewardTypes.TOKEN
+									? "Native"
+									: campaign.reward.type.toUpperCase()}
+							</Label>
+						</Pane>
+						<Pane>
+							<Label>Token Ticker</Label>
+							<Label>{ticker}</Label>
+						</Pane>
+						<Pane>
+							<Label>Blockchain</Label>
+							<Label>{pascalCase(campaign.chain)}</Label>
+						</Pane>
 					</AccordionItemPanel>
 				</AccordionItem>
 			</Accordion>
+			<Paragraph size={300} color={colors.gray700} marginTop={12}>
+				<Strong>
+					<i>Usher software is in ALPHA. Please refer responsibly.</i>
+				</Strong>
+			</Paragraph>
 		</Pane>
 	);
 };
