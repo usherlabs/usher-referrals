@@ -336,13 +336,14 @@ const ClaimButton: React.FC<Props> = ({
 							right={10}
 							bottom={10}
 							isLoading={isClaiming}
+							disabled={amount <= 0}
 						>
 							{amount > 0 ? (
 								<Strong color="#fff" fontSize="1.1em">
 									👉&nbsp;&nbsp;Claim Rewards
 								</Strong>
 							) : (
-								<Strong fontSize="1.1em">You need to earn more rewards</Strong>
+								<Strong fontSize="1.1em">Not enough rewards to be paid</Strong>
 							)}
 						</Button>
 					)}
