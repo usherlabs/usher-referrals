@@ -20,9 +20,9 @@ async function loadCampaigns() {
         events: c.events[*
           FILTER CURRENT.contract_address != null AND CURRENT.contract_event != null
           RETURN {
-            id: CURRENT.id,
+            id: POSITION(c.events, CURRENT, true),
             address: CURRENT.contract_address,
-            event: CURRENT.contract_event 
+            event: CURRENT.contract_event
           }
         ]
       }
