@@ -27,5 +27,3 @@ declare module "@iconscout/react-unicons" {
 	export const UilLabel: Icon;
 	export const UilNotes: Icon;
 }
-
-declare module "@usher/ceramic";

@@ -3,7 +3,7 @@ import { Base64 } from "js-base64";
 import * as uint8arrays from "uint8arrays";
 import { TileLoader } from "@glazed/tile-loader";
 import { aql } from "arangojs";
-import { ShareableOwnerModel } from "@usher/ceramic";
+import { ShareableOwnerModel } from "@usher.so/datamodels";
 import { TileDocument } from "@ceramicnetwork/stream-tile";
 // import ono from "@jsdevtools/ono";
 import uniq from "lodash/uniq";

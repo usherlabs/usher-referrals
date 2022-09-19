@@ -1,7 +1,7 @@
 // import { ScheduledEvent } from "aws-lambda";
 import { CeramicClient } from "@ceramicnetwork/http-client";
 import { TileDocument } from "@ceramicnetwork/stream-tile";
-import { NetworkModel } from "@usher/ceramic";
+import { NetworkModel } from "@usher.so/datamodels";
 import { DataModel } from "@glazed/datamodel";
 import { TileLoader } from "@glazed/tile-loader";
 import pLimit from "p-limit";
