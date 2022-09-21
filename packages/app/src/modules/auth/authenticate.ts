@@ -38,6 +38,20 @@ class Authenticate {
 		);
 	}
 
+	// Removes auths that are similar to the provided authentication -- but not the provided authentication
+	private removeSimilar(auth: WalletAuth) {
+		// First remove the existing similar authentication
+		const existingSimilarAuthIndex = this.auths.findIndex(
+			(a) =>
+				a.wallet.connection === auth.wallet.connection &&
+				a.wallet.chain === auth.wallet.chain &&
+				a.wallet.address !== auth.wallet.address // -- but not the provided authentication
+		);
+		if (existingSimilarAuthIndex >= 0) {
+			this.auths.splice(existingSimilarAuthIndex, 1);
+		}
+	}
+
 	public getAuth(address: string) {
 		const auth = this.auths.find((a) => a.address === address);
 		if (auth) {
@@ -174,6 +188,9 @@ class Authenticate {
 		await auth.load();
 		await this.loadRelatedPartnerships(); // indexing multiple wallets happens here as this is an authenticated request
 
+		// Called after the wallets are indexed together.
+		this.removeSimilar(auth);
+
 		return auth;
 	}
 
@@ -205,6 +222,9 @@ class Authenticate {
 
 		await ethAuth.load();
 		await this.loadRelatedPartnerships(); // indexing multiple wallets happens here as this is an authenticated request
+
+		// Called after the wallets are indexed together.
+		this.removeSimilar(ethAuth);
 
 		// Check if Arweave wallet exists for the DID
 		// For reference, see https://developers.ceramic.network/tools/glaze/example/#5-runtime-usage
