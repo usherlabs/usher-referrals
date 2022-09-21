@@ -4,7 +4,7 @@ import * as uint8arrays from "uint8arrays";
 import { TileLoader } from "@glazed/tile-loader";
 import { aql } from "arangojs";
 import { ArangoError } from "arangojs/error";
-import { ShareableOwnerModel } from "@usher.so/datamodels";
+import { WalletAliases } from "@usher.so/datamodels";
 
 import { CampaignReference } from "@/types";
 import { useRouteHandler } from "@/server/middleware";
@@ -48,7 +48,7 @@ handler.router.post(async (req, res) => {
 			campaignRef.address &&
 			campaignRef.chain &&
 			controller &&
-			stream.metadata.schema === ShareableOwnerModel.schemas.partnership
+			stream.metadata.schema === WalletAliases.schemas.partnership
 		)
 	) {
 		req.log.warn(
@@ -58,7 +58,7 @@ handler.router.post(async (req, res) => {
 					campaignRef,
 					controller,
 					schema: stream.metadata.schema,
-					modelSchema: ShareableOwnerModel.schemas.partnership
+					modelSchema: WalletAliases.schemas.partnership
 				}
 			},
 			"Partnership is invalid"

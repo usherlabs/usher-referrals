@@ -5,7 +5,6 @@ import { JWKInterface } from "arweave/node/lib/wallet";
 import ono from "@jsdevtools/ono";
 import { Base64 } from "js-base64";
 import { randomString } from "@stablelib/random";
-import uniqBy from "lodash/uniqBy";
 
 import { getMagicClient } from "@/utils/magic-client";
 import { getArweaveClient } from "@/utils/arweave-client";

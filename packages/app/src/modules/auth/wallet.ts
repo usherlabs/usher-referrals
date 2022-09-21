@@ -1,7 +1,7 @@
 /* eslint-disable no-underscore-dangle */
 
 import { TileDocument } from "@ceramicnetwork/stream-tile";
-import { WalletModel } from "@usher.so/datamodels";
+import { WalletAliases } from "@usher.so/datamodels";
 
 import { Wallet, CampaignReference } from "@/types";
 import Auth from "./auth";
@@ -25,7 +25,7 @@ const CERAMIC_PARTNERSHIPS_KEY = "partnerships";
  */
 class WalletAuth extends Auth {
 	constructor(protected _wallet: Wallet) {
-		super(WalletModel);
+		super(WalletAliases);
 	}
 
 	public get wallet() {
