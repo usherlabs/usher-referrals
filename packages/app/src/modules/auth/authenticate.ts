@@ -2,24 +2,29 @@ import { DID } from "dids";
 import * as uint8arrays from "uint8arrays";
 import Arweave from "arweave";
 import { JWKInterface } from "arweave/node/lib/wallet";
-import PQueue from "p-queue";
 import ono from "@jsdevtools/ono";
 import { Base64 } from "js-base64";
 import { randomString } from "@stablelib/random";
+import uniqBy from "lodash/uniqBy";
 
 import { getMagicClient } from "@/utils/magic-client";
 import { getArweaveClient } from "@/utils/arweave-client";
-import { Chains, Wallet, Connections, CampaignReference } from "@/types";
+import {
+	Chains,
+	Wallet,
+	Connections,
+	CampaignReference,
+	Partnership
+} from "@/types";
+import * as api from "@/api";
 import WalletAuth from "./wallet";
-import OwnerAuth from "./owner";
 
 const arweave = getArweaveClient();
-const queue = new PQueue({ concurrency: 1 });
 
 class Authenticate {
 	protected auths: WalletAuth[] = [];
 
-	protected owner: OwnerAuth | null = null;
+	protected partnerships: Partnership[] = [];
 
 	private static instance: Authenticate | null;
 
@@ -51,10 +56,6 @@ class Authenticate {
 		return this.auths;
 	}
 
-	public getOwner() {
-		return this.owner;
-	}
-
 	/**
 	 * A method to retrieve a verifiable token
 	 * For use with Server communication
@@ -69,13 +70,6 @@ class Authenticate {
 				return [auth.did.id, sig, [auth.wallet.chain, auth.wallet.address]];
 			})
 		);
-		if (this.owner) {
-			const sig = await this.owner.did.createJWS(nonce, {
-				did: this.owner.did.id
-			});
-			const ownerPart = [this.owner.did.id, sig];
-			parts.push(ownerPart);
-		}
 		const s = JSON.stringify(parts);
 		const token = Base64.encode(s);
 
@@ -83,17 +77,66 @@ class Authenticate {
 	}
 
 	public getPartnerships() {
-		if (!this.owner) {
-			return [];
-		}
-		return this.owner.partnerships;
+		return this.partnerships;
 	}
 
-	public addPartnership(p: CampaignReference) {
-		if (!this.owner) {
-			throw ono("No owner loaded to add partnerships to");
+	/**
+	 * Add Campaign to Partnerships and load new index for the given authenticated DID that is relative to the chain of the Campaign
+	 * 1. Creates a new partnership stream
+	 * 2. Adds partnership stream to the DID Data Store
+	 *
+	 * @param   {CampaignReference}  campaignReference  new partnership to add
+	 *
+	 * @return  {[type]}                    [return description]
+	 */
+	public async addPartnership(
+		campaignReference: CampaignReference
+	): Promise<Partnership[]> {
+		// Check if Partnership already exists
+		if (
+			this.partnerships.find(
+				({ campaign: c }) =>
+					c.chain === campaignReference.chain &&
+					c.address === campaignReference.address
+			)
+		) {
+			throw ono("Partnership already exists", campaignReference);
 		}
-		return this.owner.addPartnership(p);
+
+		console.log(`Creating Partnership...`);
+		const auth = this.auths.find(
+			(a) => a.wallet.chain === campaignReference.chain
+		);
+		if (!auth) {
+			throw ono(
+				"No wallet authorised for this Campaign's chain",
+				campaignReference
+			);
+		}
+
+		const authPartnership = await auth.addPartnership(campaignReference);
+
+		this.partnerships = [...this.partnerships, authPartnership];
+
+		return this.partnerships;
+	}
+
+	/**
+	 * Load all partnerships owned and indexed by related DIDs
+	 */
+	public async loadRelatedPartnerships() {
+		const authToken = await this.getAuthToken();
+		const related = await api.relatedPartnerships(authToken).get();
+
+		const newPartnerships = [...this.partnerships];
+		related.data.forEach((p) => {
+			if (!newPartnerships.find((np) => np.id === p.id)) {
+				newPartnerships.push(p as Partnership);
+			}
+		});
+		this.partnerships = newPartnerships;
+
+		return this.partnerships;
 	}
 
 	/**
@@ -128,7 +171,8 @@ class Authenticate {
 			this.add(auth);
 		}
 
-		await this.loadOwnerForAuth(auth);
+		await auth.load();
+		await this.loadRelatedPartnerships(); // indexing multiple wallets happens here as this is an authenticated request
 
 		return auth;
 	}
@@ -159,7 +203,8 @@ class Authenticate {
 			this.add(ethAuth);
 		}
 
-		await this.loadOwnerForAuth(ethAuth);
+		await ethAuth.load();
+		await this.loadRelatedPartnerships(); // indexing multiple wallets happens here as this is an authenticated request
 
 		// Check if Arweave wallet exists for the DID
 		// For reference, see https://developers.ceramic.network/tools/glaze/example/#5-runtime-usage
@@ -232,116 +277,6 @@ class Authenticate {
 		const keyStr = uint8arrays.toString(dec);
 		const jwk = JSON.parse(keyStr);
 		return jwk as JWKInterface;
-	}
-
-	/**
-	 * ? An Owner Authority is an Auth (Authentication) or a DID that has Authority to manage the Owner
-	 *
-	 * @return  {WalletAuth}  Authority WalletAuth
-	 */
-	private getOwnerAuthority() {
-		if (!this.owner) {
-			throw ono(`Attempting to fetch authorities for null owner`);
-		}
-		// If the owners are different
-		// Start the migration of loadedOwner into this.owner
-		if (this.owner.authorities.length === 0) {
-			throw ono(`No authorities for owner: ${this.owner.id}`);
-		}
-		const ownerAuthority = this.auths.find((a) => {
-			if (this.owner) {
-				return this.owner.authorities.includes(a.did.id);
-			}
-			return false;
-		});
-		if (!ownerAuthority) {
-			throw ono(`No authenticated Wallet DID for owner`, {
-				ownerId: this.owner.id,
-				wallets: this.auths.map((a) => a.did.id)
-			});
-		}
-		return ownerAuthority;
-	}
-
-	/**
-	 * Manage Owner formation for connected wallet
-	 * What we could see here:
-	 * 1. Wallet connects and creates owner
-	 * 2. 2nd Wallet connects immediatley after and Merges its Owner into the Created Owner.
-	 * * This method must be executed sequentially, rather than in parallel to prevent conflicts or missed data dependencies
-	 * * ie. Auth 1 creates wallet, but before it's finished Auth 2 connects it's wallet, and doesn't see that there is an owner loaded.
-	 * * To solve for this, we're creating a micro queue for this process.
-	 *
-	 * @param   {WalletAuth}  auth  Authentication of a Wallet DID
-	 *
-	 * @return  {void}
-	 */
-	private async loadOwnerForAuth(auth: WalletAuth) {
-		const setOwner = (owner: OwnerAuth) => {
-			this.owner = owner;
-		};
-		const getOwner = () => this.owner;
-
-		await queue.add(async () => {
-			console.log(`Loading owner for auth: ${auth.wallet.address}`);
-			let loadedOwner = null;
-			const shareableOwnerId = await auth.getShareableOwnerId();
-			console.log(`Current shareable owner id: ${shareableOwnerId}`);
-			if (shareableOwnerId) {
-				// Authenticate the shareable owner
-				// The reason for this is to determine whether this auth owner has undergone any migrations.
-				loadedOwner = new OwnerAuth();
-				const usedId = await loadedOwner.connect(shareableOwnerId, auth.did);
-				if (usedId !== shareableOwnerId) {
-					// Update the shareable owner id for this wallet
-					await auth.setShareableOwnerId(usedId);
-				}
-			}
-
-			const owner = getOwner();
-			if (loadedOwner) {
-				console.log(`Owner loaded for Wallet: ${auth.wallet.address}`);
-				if (owner) {
-					// Is there an existing owner?
-					if (owner.id !== loadedOwner.id) {
-						// Load data for loaded owner when it's about to be merged
-						await loadedOwner.loadPartnerships();
-						const ownerAuthority = this.getOwnerAuthority();
-						await owner.merge(ownerAuthority.did, loadedOwner);
-					}
-					// If the owners are the same, then we've verified that the owners are the same.
-				} else {
-					// Load data for loaded owner if one exists -- when the owner is fresh
-					await loadedOwner.loadPartnerships();
-
-					// Set this.owner to loadedOwner
-					setOwner(loadedOwner);
-				}
-			} else if (owner) {
-				console.log(
-					`No owner loaded for: ${auth.wallet.address} -- setting the Wallet's owner to ${owner.id}`
-				);
-				// If loaded owner is not fetched and this.owner exists, ensure that this.owner is accessible by the Auth
-				const ownerAuthority = this.getOwnerAuthority();
-				await owner.addAuthorities(ownerAuthority.did, [auth.did]);
-				// set the auth's owner to this.owner.
-				await auth.setShareableOwnerId(owner.id);
-				console.log(`Auth with DID ${auth.did.id} set owner to ${owner.id}`);
-			} else {
-				console.log(
-					`No owner loaded for: ${auth.wallet.address} -- creating a new owner`
-				);
-				// Create new owner for this authentication.
-				// If loaded owner is not fetched and this.owner does NOT exists, create a new Shareable owner.
-				// Create a new shareableOwner if none already loaded and none fetched.
-				const newOwner = new OwnerAuth();
-				await newOwner.create(auth);
-				setOwner(newOwner);
-				console.log(
-					`New owner ${newOwner.id} created for Wallet: ${auth.wallet.address}`
-				);
-			}
-		});
 	}
 
 	private static nativeArweaveProvider(jwk: Object) {
