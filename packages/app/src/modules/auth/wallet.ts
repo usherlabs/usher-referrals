@@ -1,10 +1,12 @@
 /* eslint-disable no-underscore-dangle */
 
 import { TileDocument } from "@ceramicnetwork/stream-tile";
-import { WalletAliases } from "@usher.so/datamodels";
+import * as datamodels from "@usher.so/datamodels";
 
 import { Wallet, CampaignReference } from "@/types";
 import Auth from "./auth";
+
+const { WalletAliases, WalletModel } = datamodels;
 
 type MagicWallet = {
 	arweave?: {
@@ -20,11 +22,18 @@ type SetObject = {
 const CERAMIC_MAGIC_WALLETS_KEY = "magicWallets";
 const CERAMIC_PARTNERSHIPS_KEY = "partnerships";
 
+console.log(
+	"outside constructor: ",
+	{ WalletModel, WalletAliases },
+	datamodels
+);
+
 /**
  * A class representing a single authentication (wallet connection)
  */
 class WalletAuth extends Auth {
 	constructor(protected _wallet: Wallet) {
+		console.log({ WalletModel, WalletAliases });
 		super(WalletAliases);
 	}
 
@@ -62,10 +71,14 @@ class WalletAuth extends Auth {
 	}
 
 	public async loadPartnerships() {
-		const setObj = await this.store.get(CERAMIC_PARTNERSHIPS_KEY);
-		if (setObj) {
-			const { set } = setObj as SetObject;
-			return set;
+		try {
+			const setObj = await this.store.get(CERAMIC_PARTNERSHIPS_KEY);
+			if (setObj) {
+				const { set } = setObj as SetObject;
+				return set;
+			}
+		} catch (e) {
+			// partnerships record may not exist.
 		}
 
 		return [];
