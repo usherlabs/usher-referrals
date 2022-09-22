@@ -23,11 +23,12 @@ handler.router.use(withAuth).get(async (req, res) => {
 						FILTER STARTS_WITH(p._id, "Partnerships")
 						FOR c IN 1..1 OUTBOUND p Engagements
 							FILTER STARTS_WITH(c._id, "Campaigns")
+							COLLECT _caddress = c.id, _cchain = c.chain, _pid = p._key
 							RETURN {
-								id: p._key,
+								id: _pid,
 								campaign: {
-									chain: c.chain,
-									address: c.id
+									chain: _cchain,
+									address: _caddress
 								}
 							}
 		`);
