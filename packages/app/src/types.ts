@@ -24,7 +24,8 @@ export enum Chains {
 
 export enum Connections {
 	MAGIC = "magic",
-	ARCONNECT = "ar_connect"
+	ARCONNECT = "ar_connect",
+	METAMASK = "meta_mask"
 }
 
 export enum CampaignStrategies {

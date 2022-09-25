@@ -3,6 +3,11 @@ export const ARCONNECT_CHROME_URL =
 export const ARCONNECT_FIREFOX_URL =
 	"https://addons.mozilla.org/en-US/firefox/addon/arconnect/" as const;
 
+export const METAMASK_CHROME_URL =
+	"https://chrome.google.com/webstore/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn" as const;
+export const METAMASK_FIREFOX_URL =
+	"https://addons.mozilla.org/en-US/firefox/addon/ether-metamask/" as const;
+
 export const MAX_SCREEN_WIDTH = 1480 as const;
 
 export const APP_DID =
