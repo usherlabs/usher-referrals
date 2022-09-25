@@ -1,7 +1,15 @@
+// Arweave constants
+export const ARWEAVE_EXPLORER_URL =
+	"https://viewblock.io/arweave/address/" as const;
+
 export const ARCONNECT_CHROME_URL =
 	"https://chrome.google.com/webstore/detail/arconnect/einnioafmpimabjcddiinlhmijaionap" as const;
 export const ARCONNECT_FIREFOX_URL =
 	"https://addons.mozilla.org/en-US/firefox/addon/arconnect/" as const;
+
+// Ethereum constants	
+export const ETHEREUM_EXPLORER_URL =
+	"https://etherscan.io/address/" as const;
 
 export const METAMASK_CHROME_URL =
 	"https://chrome.google.com/webstore/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn" as const;
