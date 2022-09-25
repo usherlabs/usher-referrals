@@ -197,7 +197,14 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 	const [user, setUser] = useState<User>(defaultValues);
 	const [loading, setLoading] = useState(false);
 	const [, isArConnectLoading] = useArConnect();
-	const walletsLoading = isArConnectLoading;
+	const [walletsLoading, setWalletsLoading] = useState(false);
+
+	useEffect(
+		() => {
+			setWalletsLoading(isArConnectLoading);
+		},
+		[isArConnectLoading]
+	);
 
 	const saveUser = useCallback((saved: User) => {
 		console.log("SAVED USER", saved);
