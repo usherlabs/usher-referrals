@@ -3,7 +3,7 @@ import { Base64 } from "js-base64";
 import * as uint8arrays from "uint8arrays";
 import { TileLoader } from "@glazed/tile-loader";
 import { aql } from "arangojs";
-import { ShareableOwnerModel } from "@usher/ceramic";
+import { WalletAliases } from "@usher.so/datamodels";
 import { TileDocument } from "@ceramicnetwork/stream-tile";
 // import ono from "@jsdevtools/ono";
 import uniq from "lodash/uniq";
@@ -44,7 +44,7 @@ const isPartnershipStreamValid = (stream: TileDocument<CampaignReference>) => {
 		stream.content.address &&
 		stream.content.chain &&
 		stream.controllers.length > 0 &&
-		stream.metadata.schema === ShareableOwnerModel.schemas.partnership
+		stream.metadata.schema === WalletAliases.schemas.partnership
 	);
 };
 
@@ -84,7 +84,7 @@ handler.router.use(withAuth).post(async (req, res) => {
 						partnershipParam,
 						streamContent: stream.content,
 						schema: stream.metadata.schema,
-						modelSchema: ShareableOwnerModel.schemas.partnership
+						modelSchema: WalletAliases.schemas.partnership
 					}
 				},
 				"Partnership is invalid"
