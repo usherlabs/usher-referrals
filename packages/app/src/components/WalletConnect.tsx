@@ -4,10 +4,11 @@ import Image from "next/image";
 import { browserName } from "react-device-detect";
 
 import { Connections } from "@/types";
-import { useUser, useArConnect } from "@/hooks/";
-import { ARCONNECT_CHROME_URL, ARCONNECT_FIREFOX_URL } from "@/constants";
+import { useUser, useArConnect, useMetaMask } from "@/hooks/";
+import { ARCONNECT_CHROME_URL, ARCONNECT_FIREFOX_URL, METAMASK_CHROME_URL, METAMASK_FIREFOX_URL } from "@/constants";
 import { UilLockOpenAlt } from "@iconscout/react-unicons";
 import ArConnectIcon from "@/assets/icon/arconnect.svg";
+import MetaMaskIcon from "@/assets/icon/metamask.svg";
 
 export type Props = {
 	hide?: Connections[];
@@ -17,7 +18,7 @@ export type Props = {
 
 const WalletConnect: React.FC<Props> = ({
 	hide = [],
-	onConnect = () => {},
+	onConnect = () => { },
 	loading: isPropLoading = false
 }) => {
 	const {
@@ -25,6 +26,8 @@ const WalletConnect: React.FC<Props> = ({
 		actions: { connect }
 	} = useUser();
 	const [getArConnect] = useArConnect();
+	const [getMetaMask] = useMetaMask();
+
 	const [isConnecting, setConnecting] = useState(false);
 	const isLoading = isUserLoading || isConnecting || isPropLoading;
 
@@ -58,6 +61,26 @@ const WalletConnect: React.FC<Props> = ({
 			});
 	}, []);
 
+	const connectMetaMask = useCallback(() => {
+		const metamask = getMetaMask();
+
+		if (metamask) {
+			setConnecting(true);
+			connect(Connections.METAMASK)
+				.then(() => {
+					onConnect(Connections.METAMASK); // used to close the sidesheet.
+				})
+				.finally(() => {
+					setConnecting(false);
+				});
+		} else {
+			const openLink = browserName.toLowerCase().includes("firefox")
+				? METAMASK_FIREFOX_URL
+				: METAMASK_CHROME_URL;
+			window.open(openLink);
+		}
+	}, [browserName]);
+
 	return (
 		<Pane display="flex" flexDirection="column">
 			{!hide.includes(Connections.ARCONNECT) && (
@@ -70,6 +93,19 @@ const WalletConnect: React.FC<Props> = ({
 						minWidth={300}
 					>
 						<strong>Connect with ArConnect</strong>
+					</Button>
+				</Pane>
+			)}
+			{!hide.includes(Connections.METAMASK) && (
+				<Pane marginBottom={8}>
+					<Button
+						height={majorScale(7)}
+						iconBefore={<Image src={MetaMaskIcon} width={30} height={30} />}
+						onClick={connectMetaMask}
+						isLoading={isLoading}
+						minWidth={300}
+					>
+						<strong>Connect with MetaMask</strong>
 					</Button>
 				</Pane>
 			)}

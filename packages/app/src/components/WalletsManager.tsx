@@ -36,8 +36,11 @@ import { useArConnect, useUser } from "@/hooks";
 import { connectionImages } from "@/utils/images-map";
 import handleException from "@/utils/handle-exception";
 import Authenticate from "@/modules/auth";
+import { getEthereumClient } from "@/utils/ethereum-client";
+import { ethers } from "ethers";
 
 const arweave = getArweaveClient();
+const ethereum = getEthereumClient();
 
 export type Props = {
 	onClose: () => void;
@@ -52,12 +55,16 @@ const getBalances = async (wallets: Wallet[]) => {
 		wallets.map(async (wallet) => {
 			const w = {
 				...wallet,
-				balance: "0 AR"
+				balance: ""
 			};
 			if (wallet.chain === Chains.ARWEAVE) {
 				const winston = await arweave.wallets.getBalance(wallet.address);
 				const ar = arweave.ar.winstonToAr(winston);
 				w.balance = `${parseFloat(ar).toFixed(4)} AR`;
+			} else if (wallet.chain === Chains.ETHEREUM) {
+				const wei = await ethereum.getBalance(wallet.address);
+				const eth = ethers.utils.formatEther(wei);
+				w.balance = `${parseFloat(eth).toFixed(4)} ETH`;
 			} else {
 				// TODO: In the future, support balance fetching for wallets beyond Arweave
 			}

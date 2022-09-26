@@ -5,6 +5,8 @@ import { JWKInterface } from "arweave/node/lib/wallet";
 import ono from "@jsdevtools/ono";
 import { Base64 } from "js-base64";
 import { randomString } from "@stablelib/random";
+import { Web3Provider } from "@ethersproject/providers";
+import { parseCookies, setCookie } from "nookies";
 
 import { getMagicClient } from "@/utils/magic-client";
 import { getArweaveClient } from "@/utils/arweave-client";
@@ -176,6 +178,58 @@ class Authenticate {
 			name: "RSA-PSS",
 			saltLength: 0 // This ensures that no additional salt is produced and added to the message signed.
 		});
+		await auth.connect(sig);
+		const { did } = auth;
+
+		// If wallet DID does not exist, push and activate it
+		if (!this.exists(did)) {
+			this.add(auth);
+		}
+
+		await auth.load();
+		await this.loadRelatedPartnerships(); // indexing multiple wallets happens here as this is an authenticated request
+
+		// Called after the wallets are indexed together.
+		this.removeSimilar(auth);
+
+		return auth;
+	}
+
+	/**
+* Deterministically produce a secret for DID production
+*/
+	public async withEthereum(
+		address: string,
+		connection: Connections,
+		provider:
+			| Web3Provider
+		// | {
+		// 	signature: (
+		// 		data: Uint8Array,
+		// 		algorithm: RsaPssParams
+		// 	) => Promise<Uint8Array>;
+		// }
+	): Promise<WalletAuth> {
+		const auth = new WalletAuth({
+			address,
+			chain: Chains.ETHEREUM,
+			connection
+		});
+
+		let sig: Uint8Array;
+		const cookies = parseCookies();
+		if (cookies.__usher_metamask) {
+			const metamaskCookies = JSON.parse(cookies.__usher_metamask) as { address: string, signature: string };
+			console.log("metamaskCookies.signature", metamaskCookies.signature);			
+			sig = uint8arrays.fromString(metamaskCookies.signature);
+		} else {
+			const signer = provider.getSigner();
+			const text = "To create your Usher account, please click the 'Sign' button.";
+			const signature = await signer.signMessage(uint8arrays.fromString(text));
+			setCookie(null, "__usher_metamask", JSON.stringify({ address, signature }));
+			sig = uint8arrays.fromString(signature);
+		}
+
 		await auth.connect(sig);
 		const { did } = auth;
 
