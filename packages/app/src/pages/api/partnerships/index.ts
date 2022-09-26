@@ -41,7 +41,7 @@ handler.router.get(async (req, res) => {
 			)
 			RETURN {
 				id: p._key,
-				hits: COUNT(referrals),
+				hits: p.hits,
 				pending_conversions: 0,
 				successful_conversions: TO_NUMBER(conversions_length),
 				rewards: TO_NUMBER(p.rewards)

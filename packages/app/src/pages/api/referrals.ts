@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { Base64 } from "js-base64";
+import { setCookie, parseCookies } from "nookies";
 import * as uint8arrays from "uint8arrays";
 import { TileLoader } from "@glazed/tile-loader";
 import { aql } from "arangojs";
@@ -116,6 +117,7 @@ handler.router.post(async (req, res) => {
 			INSERT {
 				_key: ${partnershipId},
 				created_at: ${Date.now()},
+				hits: 0,
 				rewards: 0
 			} INTO Partnerships OPTIONS { waitForSync: true }
 			LET p = NEW
@@ -200,10 +202,29 @@ handler.router.post(async (req, res) => {
 		}
 	}
 
+	// Check if the User has been referred for the first time by the Partnership
+	const cookies = parseCookies({ req });
+	const partnerships = cookies.__usher_partnerships ? cookies.__usher_partnerships.split(",") : [];
+	if (partnerships.some(p => p === partnership)) {
+		// User already referred by the Partnership.
+		req.log.info(
+			{ vars: { partnership } },
+			"User already referred by the Partnership"
+		);
+		return res.status(401).json({
+			success: false
+		});
+	}
+	setCookie({ res }, "__usher_partnerships", [...partnerships, partnership].join(","));
+
 	let cursor: ArrayCursor;
 	// Create the conversion and the referral edge
 	if (!wallet) {
 		cursor = await arango.query(aql`
+		  LET partnership = DOCUMENT("Partnerships", ${partnership})
+			UPDATE partnership WITH {
+				hits: partnership.hits + 1
+			} IN Partnerships
 			INSERT {
 				created_at: ${Date.now()}
 			} INTO Conversions OPTIONS { waitForSync: true }
@@ -221,6 +242,10 @@ handler.router.post(async (req, res) => {
 	} else {
 		// Create the conversion, wallet and the referral edges
 		cursor = await arango.query(aql`
+		  LET partnership = DOCUMENT("Partnerships", ${partnership})
+			UPDATE partnership WITH {
+				hits: partnership.hits + 1
+			} IN Partnerships
 			INSERT {
 				created_at: ${Date.now()}
 			} INTO Conversions OPTIONS { waitForSync: true }
