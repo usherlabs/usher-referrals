@@ -3,6 +3,7 @@ import { Base64 } from "js-base64";
 import * as uint8arrays from "uint8arrays";
 import { TileLoader } from "@glazed/tile-loader";
 import { aql } from "arangojs";
+import { ArrayCursor } from "arangojs/cursor";
 import { ArangoError } from "arangojs/error";
 import { WalletAliases } from "@usher.so/datamodels";
 
@@ -16,7 +17,8 @@ import { REFERRAL_TOKEN_DELIMITER } from "@/constants";
 const handler = useRouteHandler();
 
 const schema = z.object({
-	partnership: z.string()
+	partnership: z.string(),
+	wallet: z.string().optional()
 });
 
 const loader = new TileLoader({ ceramic });
@@ -35,7 +37,7 @@ handler.router.post(async (req, res) => {
 			success: false
 		});
 	}
-	const { partnership } = body;
+	const { partnership, wallet } = body;
 	const did = await getAppDID();
 
 	const stream = await loader.load<CampaignReference>(partnership);
@@ -198,22 +200,51 @@ handler.router.post(async (req, res) => {
 		}
 	}
 
+	let cursor: ArrayCursor;
 	// Create the conversion and the referral edge
-	const cursor = await arango.query(aql`
-		INSERT {
-			created_at: ${Date.now()}
-		} INTO Conversions OPTIONS { waitForSync: true }
-		LET c = NEW
-		INSERT {
-			_from: CONCAT("Partnerships/", ${partnership}),
-			_to: c._id
-		} INTO Referrals
-		LET r = NEW
-		RETURN {
-			conversion: c,
-			referral: r
-		}
+	if (!wallet) {
+		cursor = await arango.query(aql`
+			INSERT {
+				created_at: ${Date.now()}
+			} INTO Conversions OPTIONS { waitForSync: true }
+			LET c = NEW
+			INSERT {
+				_from: CONCAT("Partnerships/", ${partnership}),
+				_to: c._id
+			} INTO Referrals
+			LET r = NEW
+			RETURN {
+				conversion: c,
+				referral: r
+			}
 	`);
+	} else {
+		// Create the conversion, wallet and the referral edges
+		cursor = await arango.query(aql`
+			INSERT {
+				created_at: ${Date.now()}
+			} INTO Conversions OPTIONS { waitForSync: true }
+			LET c = NEW
+			INSERT {
+				_key: ${wallet},
+				created_at: ${Date.now()}
+			} INTO Wallets OPTIONS { waitForSync: true }
+			LET w = NEW
+			LET refs = (
+				FOR r IN [c, w]
+					INSERT {
+						_from: CONCAT("Partnerships/", ${partnership}),
+						_to: r._id
+					} INTO Referrals
+					RETURN NEW
+			)
+			RETURN {
+				conversion: c,
+				referral: refs[0],
+				referralWallet: refs[1]
+			}
+	`);
+	}
 
 	const results = await cursor.all();
 
