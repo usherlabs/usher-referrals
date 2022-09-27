@@ -51,7 +51,7 @@ handler.router.post(async (req, res) => {
 			campaignRef.address &&
 			campaignRef.chain &&
 			controller &&
-			stream.metadata.schema === WalletAliases.schemas.partnership
+			stream.metadata.schema === WalletAliases.schemas.Partnership
 		)
 	) {
 		req.log.warn(
@@ -61,7 +61,7 @@ handler.router.post(async (req, res) => {
 					campaignRef,
 					controller,
 					schema: stream.metadata.schema,
-					modelSchema: WalletAliases.schemas.partnership
+					modelSchema: WalletAliases.schemas.Partnership
 				}
 			},
 			"Partnership is invalid"

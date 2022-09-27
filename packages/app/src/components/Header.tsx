@@ -163,12 +163,11 @@ const Header: React.FC<Props> = ({
 						alignItems="center"
 						display="flex"
 						justifyContent="flex-start"
-						paddingX={16}
+						paddingLeft={16}
 						paddingY={8}
 					>
 						<Pane
 							border
-							marginRight={12}
 							backgroundColor="white"
 							borderRadius={8}
 							display="flex"
@@ -177,6 +176,7 @@ const Header: React.FC<Props> = ({
 							<Image src={LogoImage} height={height - 16} width={height - 16} />
 						</Pane>
 						<Heading
+							marginLeft={12}
 							size={600}
 							color={colors.gray900}
 							className={css`
@@ -192,7 +192,14 @@ const Header: React.FC<Props> = ({
 						</Badge>
 					</Pane>
 				</Anchor>
-				<Pane paddingX={16}>
+				<Pane
+					paddingX={16}
+					className={css`
+						${mediaQueries.isXSmall} {
+							padding-left: 0px;
+						}
+					`}
+				>
 					<Pane
 						className={css`
 							display: inline-block;

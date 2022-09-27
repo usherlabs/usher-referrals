@@ -44,7 +44,7 @@ const isPartnershipStreamValid = (stream: TileDocument<CampaignReference>) => {
 		stream.content.address &&
 		stream.content.chain &&
 		stream.controllers.length > 0 &&
-		stream.metadata.schema === WalletAliases.schemas.partnership
+		stream.metadata.schema === WalletAliases.schemas.Partnership
 	);
 };
 
@@ -84,7 +84,7 @@ handler.router.use(withAuth).post(async (req, res) => {
 						partnershipParam,
 						streamContent: stream.content,
 						schema: stream.metadata.schema,
-						modelSchema: WalletAliases.schemas.partnership
+						modelSchema: WalletAliases.schemas.Partnership
 					}
 				},
 				"Partnership is invalid"
