@@ -195,10 +195,10 @@ const Header: React.FC<Props> = ({
 				<Pane
 					paddingX={16}
 					className={css`
-					${mediaQueries.isXSmall} {
-						padding-left: 0px;
-					}
-				`}
+						${mediaQueries.isXSmall} {
+							padding-left: 0px;
+						}
+					`}
 				>
 					<Pane
 						className={css`

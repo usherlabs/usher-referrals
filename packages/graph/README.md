@@ -1,9 +1,9 @@
 # Usher Graph Service
 
 Includes:
+
 1. `ingest` function that runs on a recurring basis
 2. `backup` function that creates backups of the graph database
-
 
 ## Unit Testing
 
