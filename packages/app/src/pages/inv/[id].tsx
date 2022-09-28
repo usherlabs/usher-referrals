@@ -108,10 +108,6 @@ const Invite: React.FC<Props> = () => {
 
 	const onWalletConnect = useCallback(
 		async (address: string, signature: string) => {
-			console.log("onWalletConnect", {
-				address, signature
-			});
-
 			setWallet([chain, address].join(":"));
 			await nextStep();
 			return true;
@@ -146,8 +142,6 @@ const Invite: React.FC<Props> = () => {
 			}
 
 			try {
-				console.log("Sending API request", { id, wallet });
-
 				const referral = await api.referrals().post(id, wallet);
 
 				if (!referral.success || !referral.data) {

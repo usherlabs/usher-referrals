@@ -220,7 +220,6 @@ class Authenticate {
 		const cookies = parseCookies();
 		if (cookies.__usher_metamask) {
 			const metamaskCookies = JSON.parse(cookies.__usher_metamask) as { address: string, signature: string };
-			console.log("metamaskCookies.signature", metamaskCookies.signature);			
 			sig = uint8arrays.fromString(metamaskCookies.signature);
 		} else {
 			const signer = provider.getSigner();

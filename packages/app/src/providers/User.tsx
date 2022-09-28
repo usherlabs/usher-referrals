@@ -185,7 +185,6 @@ const connectWallet = async (type: Connections): Promise<Wallet[]> => {
 			const metamask = getMetaMask();
 			if (metamask !== null) {
 				const accounts = await metamask.send("eth_requestAccounts", []);
-				console.log(accounts);
 
 				// @ts-ignore
 				// await metamask.connect(permissions, {
