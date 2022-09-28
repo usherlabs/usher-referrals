@@ -1,19 +1,18 @@
-import { z } from "zod";
-import { Base64 } from "js-base64";
-import { setCookie, parseCookies } from "nookies";
-import * as uint8arrays from "uint8arrays";
 import { TileLoader } from "@glazed/tile-loader";
-import { aql } from "arangojs";
-import { ArrayCursor } from "arangojs/cursor";
-import { ArangoError } from "arangojs/error";
 import { WalletAliases } from "@usher.so/datamodels";
+import { aql } from "arangojs";
+import { ArangoError } from "arangojs/error";
+import { Base64 } from "js-base64";
+import { parseCookies, setCookie } from "nookies";
+import * as uint8arrays from "uint8arrays";
+import { z } from "zod";
 
-import { CampaignReference } from "@/types";
-import { useRouteHandler } from "@/server/middleware";
-import { getAppDID } from "@/server/did";
-import { ceramic } from "@/utils/ceramic-client";
-import { getArangoClient } from "@/utils/arango-client";
 import { REFERRAL_TOKEN_DELIMITER } from "@/constants";
+import { getAppDID } from "@/server/did";
+import { useRouteHandler } from "@/server/middleware";
+import { ApiRequest, ApiResponse, CampaignReference } from "@/types";
+import { getArangoClient } from "@/utils/arango-client";
+import { ceramic } from "@/utils/ceramic-client";
 
 const handler = useRouteHandler();
 
@@ -25,6 +24,128 @@ const schema = z.object({
 const loader = new TileLoader({ ceramic });
 
 const arango = getArangoClient();
+
+/**
+ * Sets a cookie to store a list of Partnerships that the user have been referred to
+ * @param req ApiReqest
+ * @param res ApiResponse
+ * @param partnershipId Id of the Partnership
+ * @returns `true` if the user has been referred to the partnership for the first time, otherwise `false`
+ */
+function setPartnershipCookie(req: ApiRequest, res: ApiResponse, partnershipId: string): boolean {
+	const cookies = parseCookies({ req });
+	const partnerships = cookies.__usher_partnerships ? cookies.__usher_partnerships.split(",") : [];
+	const isAlreadyReferred = partnerships.some(p => p === partnershipId);
+
+	if (!isAlreadyReferred) {
+		setCookie({ res }, "__usher_partnerships", [...partnerships, partnershipId].join(","));
+	}
+
+	return !isAlreadyReferred;
+}
+
+/**
+ * Fetches a Wallet Id from arangodb database
+ * @param chain
+ * @param address
+ * @returns Wallet Id stored in the database. `undefined` if Wallet not found.
+ */
+async function fetchWalletId(chain: string, address: string): Promise<string> {
+	const cursor = await arango.query(aql`
+		RETURN DOCUMENT(Wallets, ${[chain, address].join(":")})._id
+	`);
+
+	const result = await cursor.all();
+	return result[0];
+}
+
+/**
+ * Saves a Wallet to the database
+ * @param chain Wallet's chain
+ * @param address Wallet's address
+ * @returns Wallets Id stored in the database
+ */
+async function saveWallet(chain: string, address: string): Promise<string> {
+	const cursor = await arango.query(aql`
+		INSERT {
+			_key: ${[chain, address].join(":")},
+			chain: ${chain},
+			address: ${address},
+			created_at: ${Date.now()}
+		} INTO Wallets OPTIONS { waitForSync: true }
+		RETURN NEW._id
+	`);
+
+	const result = await cursor.all();
+	return result[0]
+}
+
+/**
+ * Checks if the Wallet is already referred by the Partnership.
+ * @param walletId Wallet identifier in the database, i.e. `Wallets/[cahin]:[address]`
+ * @param partnershipId Partnership identifier in the database, i.e. `Partnerships/[key]`
+ * @returns `boolean`
+ */
+async function isWalletReferred(walletId: string, partnershipId: string): Promise<boolean> {
+	const cursor = await arango.query(aql`
+		FOR referral IN Referrals
+		FILTER
+				referral._from == ${partnershipId} &&
+				referral._to == ${walletId}
+		RETURN referral
+	`);
+	return (await cursor.all()).length != 0;
+}
+
+/**
+ * Refers the Wallet to the Partnership.
+ * @param walletId Wallet identifier in the database, i.e. `Wallets/[cahin]:[address]`
+ * @param partnershipId Partnership identifier in the database, i.e. `Partnerships/[key]`
+ */
+async function referWallet(walletId: string, partnershipId: string) {
+	const cursor = await arango.query(aql`
+		INSERT {
+			_from: CONCAT("Partnerships/", ${partnershipId}),
+			_to: ${walletId}
+		} INTO Referrals
+	`);
+}
+
+/**
+ * Increments number of hits of the Partnership
+ * @param partnershipId A partnership to increment hits to
+ */
+async function incrementPartnershipHits(partnershipId: string) {
+	await arango.query(aql`
+		LET partnership = DOCUMENT(Partnerships, ${partnershipId})
+		UPDATE partnership WITH {
+			hits: partnership.hits + 1
+		} IN Partnerships
+	`);
+}
+
+/**
+ * Creates a pending Conversion and a Referral edge from the Paretnership to the Conversion.
+ * @param partnershipId A partnership to assight the created conversion
+ * @returns Id of the created Conversion
+ */
+async function createPendigConversion(partnershipId: string): Promise<string> {
+	const cursor = await arango.query(aql`
+		INSERT {
+			created_at: ${Date.now()}
+		} INTO Conversions OPTIONS { waitForSync: true }
+		LET conversion = NEW
+		INSERT {
+			_from: CONCAT("Partnerships/", ${partnershipId}),
+			_to: conversion._id
+		} INTO Referrals
+		RETURN conversion
+	`);
+
+	const result = await cursor.all();
+	const [conversion] = result;
+	return conversion._key;
+}
 
 /**
  * POST: Create a new referral or verifies the extension of a referral
@@ -39,6 +160,7 @@ handler.router.post(async (req, res) => {
 		});
 	}
 	const { partnership, wallet } = body;
+	const [walletChain, walletAddress] = wallet ? wallet.split(":") : [];
 	const did = await getAppDID();
 
 	const stream = await loader.load<CampaignReference>(partnership);
@@ -77,9 +199,7 @@ handler.router.post(async (req, res) => {
 	const dataCursor = await arango.query(aql`
 		RETURN {
 			partnership: DOCUMENT("Partnerships", ${partnership}),
-			campaign: DOCUMENT("Campaigns", ${[campaignRef.chain, campaignRef.address].join(
-				":"
-			)})
+			campaign: DOCUMENT("Campaigns", ${[campaignRef.chain, campaignRef.address].join(":")})
 		}
 	`);
 	const dataResults = await dataCursor.all();
@@ -202,80 +322,28 @@ handler.router.post(async (req, res) => {
 		}
 	}
 
-	// Check if the User has been referred for the first time by the Partnership
-	const cookies = parseCookies({ req });
-	const partnerships = cookies.__usher_partnerships ? cookies.__usher_partnerships.split(",") : [];
-	if (partnerships.some(p => p === partnership)) {
-		// User already referred by the Partnership.
-		req.log.info(
-			{ vars: { partnership } },
-			"User already referred by the Partnership"
-		);
-		return res.status(401).json({
-			success: false
-		});
-	}
-	setCookie({ res }, "__usher_partnerships", [...partnerships, partnership].join(","));
-
-	let cursor: ArrayCursor;
-	// Create the conversion and the referral edge
-	if (!wallet) {
-		cursor = await arango.query(aql`
-		  LET partnership = DOCUMENT("Partnerships", ${partnership})
-			UPDATE partnership WITH {
-				hits: partnership.hits + 1
-			} IN Partnerships
-			INSERT {
-				created_at: ${Date.now()}
-			} INTO Conversions OPTIONS { waitForSync: true }
-			LET c = NEW
-			INSERT {
-				_from: CONCAT("Partnerships/", ${partnership}),
-				_to: c._id
-			} INTO Referrals
-			LET r = NEW
-			RETURN {
-				conversion: c,
-				referral: r
-			}
-	`);
-	} else {
-		// Create the conversion, wallet and the referral edges
-		cursor = await arango.query(aql`
-		  LET partnership = DOCUMENT("Partnerships", ${partnership})
-			UPDATE partnership WITH {
-				hits: partnership.hits + 1
-			} IN Partnerships
-			INSERT {
-				created_at: ${Date.now()}
-			} INTO Conversions OPTIONS { waitForSync: true }
-			LET c = NEW
-			INSERT {
-				_key: ${wallet},
-				created_at: ${Date.now()}
-			} INTO Wallets OPTIONS { waitForSync: true }
-			LET w = NEW
-			LET refs = (
-				FOR r IN [c, w]
-					INSERT {
-						_from: CONCAT("Partnerships/", ${partnership}),
-						_to: r._id
-					} INTO Referrals
-					RETURN NEW
-			)
-			RETURN {
-				conversion: c,
-				referral: refs[0],
-				referralWallet: refs[1]
-			}
-	`);
+	// Check Partnership cookie. Increase the Partnership hits if the cookie isn't set yet.
+	if (setPartnershipCookie(req, res, partnership)) {
+		await incrementPartnershipHits(partnership);
 	}
 
-	const results = await cursor.all();
+	// Save user's wallet if any
+	if (wallet) {
+		let walletId = await fetchWalletId(walletChain, walletAddress);
 
-	const [{ conversion }] = results;
-	const conversionId = conversion._key;
+		if (!walletId) {
+			walletId = await saveWallet(walletChain, walletAddress);
+		}
 
+		if (!(await isWalletReferred(walletId, partnership))) {
+			await referWallet(walletId, partnership);
+		}
+	}
+
+	// Create pending web-based Conversion
+	const conversionId = await createPendigConversion(partnership);
+
+	// Prepare a referral token for User.JS library that will use it on a Brand's pageю
 	const raw = [conversionId, partnership].join(REFERRAL_TOKEN_DELIMITER);
 	const jwe = await did.createJWE(uint8arrays.fromString(raw), [did.id]);
 	const token = Base64.encodeURI(JSON.stringify(jwe));

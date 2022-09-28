@@ -63,7 +63,8 @@ const WalletInvite = ({ domain, chain, onConnect }: Props) => {
 			const signedMessage = await signer.signMessage(uint8arrays.fromString(message))
 				.catch(() => { throw new Error("Sign the message with MetaMask to continue"); });
 
-			onConnect(address, signedMessage);
+			// TODO: Investigate if `toLowerCase()` is really needed here
+			onConnect(address.toLowerCase(), signedMessage);
 		} catch (e) {
 			toaster.danger((e instanceof Error) ? e.message : String(e));
 		} finally {
