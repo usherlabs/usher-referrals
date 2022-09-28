@@ -14,8 +14,8 @@ export const arangoUsername = process.env.ARANGO_USERNAME;
 export const arangoPassword = process.env.ARANGO_PASSWORD;
 
 export default {
-  pollInterval: 500,
-  confirmations: 1,
+  pollInterval: 1000,
+  confirmations: 0,
   chunkSize: 10000,
   backoff: 1000
 };

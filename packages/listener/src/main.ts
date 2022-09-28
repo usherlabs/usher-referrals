@@ -1,50 +1,93 @@
 import { aql } from "arangojs";
+import camelcaseKeys from "camelcase-keys";
+import isEmpty from "lodash/isEmpty";
+import { convert } from "./conversion";
 import { BlockPolling } from "./core/BlockPolling";
 import { ContractEvent } from "./core/ContractEvent";
 import { EventFetcher } from "./core/EventFetcher";
 import { EventListener } from "./core/EventListener";
 import { Objective } from "./core/Objective";
+import { Campaign } from "./types";
 import { getArangoClient } from "./utils/arango-client";
 import { getJsonRpcProvider } from "./utils/json-rpc-provider";
+import { log } from "./utils/logger";
 
 async function loadCampaigns() {
-  console.log("Loading Campaigns...");
+  log.info("Loading Campaigns...");
   const arango = getArangoClient();
 
   const cursor = await arango.query(aql`
     FOR c IN Campaigns
       FILTER c.chain == "ethereum"
-      AND LENGTH(c.events[* FILTER CURRENT.contract_address != null AND CURRENT.contract_event != null]) > 0
+      AND LENGTH(c.events[* FILTER CURRENT.contract_address != null AND CURRENT.contract_address != null]) > 0
       RETURN {
-        id: c.id,
+        _id: c._id,
         events: c.events[*
-          FILTER CURRENT.contract_address != null AND CURRENT.contract_event != null
+          FILTER CURRENT.contract_address != null AND CURRENT.contract_address != null
           RETURN {
-            id: POSITION(c.events, CURRENT, true),
-            address: CURRENT.contract_address,
-            event: CURRENT.contract_event
+            eventId: POSITION(c.events, CURRENT, true),
+            contract_address: CURRENT.contract_address,
+            contract_event: CURRENT.contract_event
           }
         ]
       }
   `);
 
-  const campaings = await cursor.all();
-  return campaings as ({ id: string, events: { id: number, address: string, event: string }[] })[];
+  const result = (await cursor.all()).filter((result) => !isEmpty(result));
+  const formatted = camelcaseKeys(result, { deep: true });
+  return formatted as ({ id: string, events: { eventId: number, contractAddress: string, contractEvent: string }[] })[];
 }
 
-function createObjectives(campaigns: { id: string, events: { id: number, address: string, event: string }[] }[]): Objective[] {
+async function getCampaignAndPartnership(walletId: string, campaignId: string) {
+  const arango = getArangoClient();
+
+  const cursor = await arango.query(aql`
+    LET wallet = DOCUMENT(Wallets, ${["ethereum", walletId].join(":")})
+
+    FOR partnership IN 1..1 INBOUND wallet Referrals
+        OPTIONS {
+            vertexCollections: ["Partnerships"]
+        }
+        FOR campaign IN 1..1 OUTBOUND partnership Engagements
+            OPTIONS {
+                vertexCollections: ["Campaigns"]
+            }
+            FILTER campaign._id == ${campaignId}
+            RETURN {
+              campaign,
+              partnershipId: partnership._id
+            }
+  `);
+
+  const result = (await cursor.all()).filter((result) => !isEmpty(result));
+  const formatted = camelcaseKeys(result, { deep: true });
+
+  return (formatted.length === 1 ? result[0] : null) as
+    {
+      campaign: {
+        _key: string;
+      } & Campaign,
+      partnershipId: string
+    };
+}
+
+async function loadConversion() {
+  const arango = getArangoClient();
+}
+
+function createObjectives(campaigns: { id: string, events: { eventId: number, contractAddress: string, contractEvent: string }[] }[]): Objective[] {
   const contractEvents = new Map<string, string[]>();
 
   campaigns.forEach(campaign => {
     campaign.events.forEach(event => {
-      const events = contractEvents.get(event.address);
+      const events = contractEvents.get(event.contractAddress);
 
       if (events) {
-        if (!events.find(e => e === event.event)) {
-          events.push(event.event);
+        if (!events.find(e => e === event.contractEvent)) {
+          events.push(event.contractEvent);
         }
       } else {
-        contractEvents.set(event.address, [event.event])
+        contractEvents.set(event.contractAddress, [event.contractEvent])
       }
     })
   });
@@ -58,50 +101,49 @@ function createObjectives(campaigns: { id: string, events: { id: number, address
 }
 
 async function startListener(objectives: Objective[], onContractEvent: (event: ContractEvent) => void) {
-  console.log("Starting Listener...");
+  log.info(
+    {
+      objectives
+    },
+    "Starting Listener...");
 
   const provider = getJsonRpcProvider();
-  console.log("getBlockNumber():", await provider.getBlockNumber());
 
   const eventFetcher = new EventFetcher(provider, objectives);
   const polling = new BlockPolling(provider, eventFetcher);
   const listener = new EventListener(polling);
 
   listener.onContractEvent((event: ContractEvent, done: () => void) => {
-    // console.log("main: on block.confirmed", {
-    //   blockNumber, events: events.map(e => e.topics[0])
-    // });
     onContractEvent(event);
     done();
   });
 
+  // TODO: Do not start listening from the very first block in production
   listener.start(1);
-}
-
-async function createConversion() {
-
 }
 
 async function main() {
   const campaigns = await loadCampaigns();
   const objectives = createObjectives(campaigns);
 
-  const handleEvent = (event: ContractEvent): void => {
-    const matchedCampaigns = campaigns.filter(c => c.events.some(e => e.address == event.contract && e.event == event.event));
-    for (const campaign of matchedCampaigns) {
-      const eventId = campaign.events.find(e => e.event == event.event)?.id
+  const handleEvent = async (event: ContractEvent) => {
+    const matchedCampaigns = campaigns.filter(
+      c => c.events.some(
+        e => e.contractAddress == event.contractAddress && e.contractEvent == event.contractEvent));
 
-      const conversionData = {
-        campaignId: campaign.id,
-        eventId,
-        contract: event.contract,
-        event: event.event,
-        from: event.from
+    for (const matchedCampaign of matchedCampaigns) {
+      const r = await getCampaignAndPartnership(event.walletAddress, matchedCampaign.id);
+
+      if (r) {
+        const { campaign, partnershipId } = r;
+
+        if (campaign != null) {
+          const eventId = matchedCampaign.events.find(e => e.contractEvent == event.contractEvent)?.eventId;
+          if (eventId != undefined) {
+            convert(campaign, eventId, partnershipId, event.transaction);
+          }
+        }
       }
-
-      console.log(conversionData);
-
-      createConversion();
     }
   }
 

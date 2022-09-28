@@ -25,9 +25,10 @@ export class EventFetcher {
       for (const log of logs) {
         const tx = await this.provider.getTransaction(log.transactionHash);
         const event: ContractEvent = {
-          contract: objective.contract,
-          from: tx.from,
-          event: objective.eventByTopic(log.topics[0])
+          contractAddress: objective.contract,
+          walletAddress: tx.from.toLowerCase(),
+          contractEvent: objective.eventByTopic(log.topics[0]),
+          transaction: log.transactionHash
         }
         result.push(event);
       }

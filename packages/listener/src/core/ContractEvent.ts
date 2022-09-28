@@ -1,5 +1,6 @@
 export interface ContractEvent {
-  contract: string;
-  from: string;
-  event: string;
+  contractAddress: string;
+  contractEvent: string;
+  walletAddress: string;
+  transaction: string;
 }

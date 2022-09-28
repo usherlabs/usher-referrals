@@ -13,7 +13,9 @@
   "license": "ISC",
   "dependencies": {
     "arangojs": "^7.8.0",
+    "camelcase-keys": "^7.0.2",
     "ethers": "^5.6.8",
+    "lodash": "^4.17.21",
     "pino": "^7.11.0"
   },
   "devDependencies": {
