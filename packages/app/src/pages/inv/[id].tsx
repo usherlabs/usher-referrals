@@ -1,18 +1,21 @@
-import { useCallback, useEffect, useState } from "react";
-import { Pane } from "evergreen-ui";
+import * as api from "@/api";
+import LogoImage from "@/assets/logo/Logo.png";
+import Captcha from "@/components/Captcha";
+import Preloader from "@/components/Preloader";
+import WalletInvite from "@/components/WalletInvite";
+import { botdPublicKey } from "@/env-config";
+import { CampaignReference, Chains } from "@/types";
+import { ceramic } from "@/utils/ceramic-client";
+import { AppEvents, events } from "@/utils/events";
+import handleException from "@/utils/handle-exception";
+import FingerprintJS from "@fingerprintjs/fingerprintjs";
 import Botd from "@fpjs-incubator/botd-agent";
+import { TileLoader } from "@glazed/tile-loader";
+import ono from "@jsdevtools/ono";
+import { Pane } from "evergreen-ui";
 import Image from "next/image";
 import { useRouter } from "next/router";
-import ono from "@jsdevtools/ono";
-import FingerprintJS from "@fingerprintjs/fingerprintjs";
-
-import { botdPublicKey } from "@/env-config";
-import Preloader from "@/components/Preloader";
-import Captcha from "@/components/Captcha";
-import * as api from "@/api";
-import handleException from "@/utils/handle-exception";
-import LogoImage from "@/assets/logo/Logo.png";
-import { events, AppEvents } from "@/utils/events";
+import { useCallback, useEffect, useState } from "react";
 
 const onError = () => {
 	window.location.replace(`/link-error`);
@@ -20,75 +23,32 @@ const onError = () => {
 
 type Props = {
 	id: string;
+	domain: string;
+	isWalletRequired: boolean;
+	chain: Chains;
+};
+
+enum Step {
+	Init,
+	Captcha,
+	Wallet,
+	ProcessInvite
 };
 
 const Invite: React.FC<Props> = () => {
-	const [showCaptcha, setShowCaptcha] = useState(false);
+	const [step, setStep] = useState(Step.Init);
+
+	const [chain, setChain] = useState<Chains>();
+	const [domain, setDomain] = useState<string>();
+	const [isWalletRequired, setIsWalletRequired] = useState<boolean>();
+
+	const [wallet, setWallet] = useState<string>();
+
 	const router = useRouter();
 	const id = router.query.id as string;
 
-	const processInvite = useCallback(async () => {
-		// Start by fetching the campaign data for the given campaign
-		const partnershipId = id;
-		if (!partnershipId) {
-			handleException(
-				ono("Invite being processed when there is no partnershipId")
-			);
-			onError();
-			return;
-		}
-
-		try {
-			const referral = await api.referrals().post(id);
-
-			if (!referral.success || !referral.data) {
-				onError();
-				return;
-			}
-
-			let visitorId = "";
-			let visitorComponents = {};
-			const fp = await FingerprintJS.load({
-				monitoring: false
-			});
-			const fpRes = await fp.get();
-			visitorId = fpRes.visitorId;
-			visitorComponents = fpRes.components;
-
-			events.emit(AppEvents.REFERRAL, {
-				partnership: partnershipId,
-				token: referral.data.token,
-				visitorId,
-				visitorComponents
-			});
-
-			// Redirect to Advertiser Campaign Destination URL
-			window.location.replace(referral.data.url);
-		} catch (e) {
-			handleException(e);
-			onError();
-		}
-	}, [id]);
-
-	const onCaptchaSuccess = useCallback(
-		async (token: string) => {
-			// console.log(token);
-			const { success: isSuccess } = await api.captcha().post(token);
-			if (isSuccess) {
-				processInvite();
-				return true;
-			}
-			return false;
-		},
-		[id]
-	);
-
-	useEffect(() => {
-		if (!id) {
-			return () => {};
-		}
-		(async () => {
-			let shouldCaptcha = false;
+	const isCaptchaNeeded = useCallback(
+		async () => {
 			try {
 				// Initialize an agent at application startup.
 				const botd = await Botd.load({ publicKey: botdPublicKey });
@@ -97,22 +57,138 @@ const Invite: React.FC<Props> = () => {
 				const { requestId } = (await botd.detect()) as { requestId: string };
 
 				const result = await api.bot().post(requestId);
-
-				shouldCaptcha = !result.success;
+				return !result.success;
 			} catch (e) {
 				handleException(e);
-				shouldCaptcha = true;
+				return true;
 			}
+		},
+		[]
+	);
 
-			if (shouldCaptcha) {
-				setShowCaptcha(true);
+	const nextStep = useCallback(
+		async () => {
+			// Check the current step and set a corresponding next step
+			switch (step) {
+				case Step.Init:
+					if (await isCaptchaNeeded()) {
+						setStep(Step.Captcha);
+					} else if (isWalletRequired) {
+						setStep(Step.Wallet)
+					}
+					break;
+				case Step.Captcha:
+					if (isWalletRequired) {
+						setStep(Step.Wallet)
+					} else {
+						setStep(Step.ProcessInvite);
+					}
+					break;
+				case Step.Wallet:
+					setStep(Step.ProcessInvite);
+					break;
+				default:
+					break;
+			}
+		},
+		[step, isCaptchaNeeded, isWalletRequired]
+	);
+
+	const onCaptchaSuccess = useCallback(
+		async (token: string) => {
+			const { success: isSuccess } = await api.captcha().post(token);
+			if (isSuccess) {
+				await nextStep();
+				return true;
+			}
+			return false;
+		},
+		[nextStep]
+	);
+
+	const onWalletConnect = useCallback(
+		async (address: string, signature: string) => {
+			setWallet([chain, address].join(":"));
+			await nextStep();
+			return true;
+		},
+		[nextStep]
+	);
+
+	const initialize = useCallback(
+		async () => {
+			const loader = new TileLoader({ ceramic });
+			const stream = await loader.load<CampaignReference>(id);
+			const campaignRef = stream.content;
+			const { data: [campaign] } = await api.campaigns().get(campaignRef);
+
+			setChain(campaign.chain);
+			setDomain((new URL(campaign.details.destinationUrl)).hostname);
+			setIsWalletRequired(campaign.events.some(e => e.contractAddress && e.contractEvent));
+		},
+		[]
+	);
+
+	const processInvite = useCallback(
+		async () => {
+			// Start by fetching the campaign data for the given campaign
+			const partnershipId = id;
+			if (!partnershipId) {
+				handleException(
+					ono("Invite being processed when there is no partnershipId")
+				);
+				onError();
 				return;
 			}
 
-			processInvite();
-		})();
-		return () => {};
-	}, [id]);
+			try {
+				const referral = await api.referrals().post(id, wallet);
+
+				if (!referral.success || !referral.data) {
+					onError();
+					return;
+				}
+
+				let visitorId = "";
+				let visitorComponents = {};
+				const fp = await FingerprintJS.load({
+					monitoring: false
+				});
+				const fpRes = await fp.get();
+				visitorId = fpRes.visitorId;
+				visitorComponents = fpRes.components;
+
+				events.emit(AppEvents.REFERRAL, {
+					partnership: partnershipId,
+					token: referral.data.token,
+					visitorId,
+					visitorComponents
+				});
+
+				// Redirect to Advertiser Campaign Destination URL
+				window.location.replace(referral.data.url);
+			} catch (e) {
+				handleException(e);
+				onError();
+			}
+		},
+		[id, wallet]
+	);
+
+	useEffect(
+		() => {
+			const fn = async () => {
+				if (step === Step.Init) {
+					await initialize();
+					await nextStep();
+				} else if (step == Step.ProcessInvite) {
+					processInvite();
+				}
+			};
+			fn();
+		},
+		[step, initialize, processInvite,]
+	);
 
 	return (
 		<Pane
@@ -123,11 +199,21 @@ const Invite: React.FC<Props> = () => {
 			minHeight="100vh"
 			position="relative"
 		>
-			{showCaptcha ? (
-				<Captcha onSuccess={onCaptchaSuccess} />
-			) : (
+			{step === Step.Init &&
 				<Preloader message={`You've been invited...`} />
-			)}
+			}
+			{step === Step.Captcha &&
+				<Captcha onSuccess={onCaptchaSuccess} />
+			}
+			{step === Step.Wallet &&
+				<WalletInvite
+					chain={chain as Chains}
+					domain={domain as string}
+					onConnect={onWalletConnect} />
+			}
+			{step === Step.ProcessInvite &&
+				<Preloader message={`You've been invited...`} />
+			}
 			<Pane
 				zIndex={100}
 				position="fixed"

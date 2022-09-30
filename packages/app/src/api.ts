@@ -131,12 +131,14 @@ export const relatedPartnerships = (authToken: string) => {
 
 export const referrals = () => ({
 	post: (
-		partnership: string
+		partnership: string,
+		wallet?: string
 	): Promise<{ success: boolean; data?: Referral }> => {
 		return request
 			.post(`referrals`, {
 				json: {
-					partnership
+					partnership,
+					wallet
 				}
 			})
 			.json();

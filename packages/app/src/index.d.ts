@@ -27,3 +27,8 @@ declare module "@iconscout/react-unicons" {
 	export const UilLabel: Icon;
 	export const UilNotes: Icon;
 }
+
+interface Window {
+	ethereum: Web3Provider
+	// ethereum: ExternalProvider
+}

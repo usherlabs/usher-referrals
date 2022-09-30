@@ -24,7 +24,8 @@ export enum Chains {
 
 export enum Connections {
 	MAGIC = "magic",
-	ARCONNECT = "ar_connect"
+	ARCONNECT = "ar_connect",
+	METAMASK = "meta_mask"
 }
 
 export enum CampaignStrategies {
@@ -86,6 +87,10 @@ export type Campaign = {
 		perCommit?: number;
 		// Some description for when the event will trigger.
 		description?: string;
+		// Contract Address
+		contractAddress?: string;
+		// Contract Event
+		contractEvent?: string;
 	}[];
 	reward: CampaignReward;
 	details: CampaignDetails;

@@ -18,7 +18,9 @@ import { parseCookies, destroyCookie } from "nookies";
 import { Base64 } from "js-base64";
 
 import getArConnect from "@/utils/arconnect";
+import getMetaMask from "@/utils/metamask";
 import useArConnect from "@/hooks/use-arconnect";
+import useMetaMask from "@/hooks/use-metamask";
 import {
 	User,
 	IUserContext,
@@ -119,6 +121,24 @@ const getWallets = async (type: Connections): Promise<Wallet[]> => {
 				}
 				break;
 			}
+			case Connections.METAMASK: {
+				const metamask = getMetaMask();
+				if (metamask) {
+					const metamaskWalletAddress = await metamask
+						.listAccounts()
+						.catch((e) => console.trace(e));
+
+					if (metamaskWalletAddress && metamaskWalletAddress.length != 0) {
+						await authInstance.withEthereum(
+							metamaskWalletAddress[0],
+							type,
+							metamask
+						);
+						wallets = authInstance.getWallets();
+					}
+				}
+				break;
+			}
 			default: {
 				break;
 			}
@@ -161,6 +181,22 @@ const connectWallet = async (type: Connections): Promise<Wallet[]> => {
 			window.location.href = "/magic/login"; //* Important to use window.location.href for a full page reload.
 			break;
 		}
+		case Connections.METAMASK: {
+			const metamask = getMetaMask();
+			if (metamask !== null) {
+				const accounts = await metamask.send("eth_requestAccounts", []);
+
+				// @ts-ignore
+				// await metamask.connect(permissions, {
+				// 	name: "Usher",
+				// 	logo: LogoImage
+				// });
+
+				await delay(1000);
+				return getWallets(type);
+			}
+			break;
+		}
 		default: {
 			break;
 		}
@@ -197,7 +233,15 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 	const [user, setUser] = useState<User>(defaultValues);
 	const [loading, setLoading] = useState(false);
 	const [, isArConnectLoading] = useArConnect();
-	const walletsLoading = isArConnectLoading;
+	const [, isMetaMaskLoading] = useMetaMask();
+	const [walletsLoading, setWalletsLoading] = useState(false);
+
+	useEffect(
+		() => {
+			setWalletsLoading(isArConnectLoading || isMetaMaskLoading);
+		},
+		[isArConnectLoading, isMetaMaskLoading]
+	);
 
 	const saveUser = useCallback((saved: User) => {
 		console.log("SAVED USER", saved);
