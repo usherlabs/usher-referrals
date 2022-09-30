@@ -1,6 +1,7 @@
 import { aql } from "arangojs";
 import camelcaseKeys from "camelcase-keys";
 import isEmpty from "lodash/isEmpty";
+import { startBlock } from "./config";
 import { convert } from "./conversion";
 import { BlockPolling } from "./core/BlockPolling";
 import { ContractEvent } from "./core/ContractEvent";
@@ -71,10 +72,6 @@ async function getCampaignAndPartnership(walletId: string, campaignId: string) {
     };
 }
 
-async function loadConversion() {
-  const arango = getArangoClient();
-}
-
 function createObjectives(campaigns: { id: string, events: { eventId: number, contractAddress: string, contractEvent: string }[] }[]): Objective[] {
   const contractEvents = new Map<string, string[]>();
 
@@ -118,8 +115,7 @@ async function startListener(objectives: Objective[], onContractEvent: (event: C
     done();
   });
 
-  // TODO: Do not start listening from the very first block in production
-  listener.start(1);
+  listener.start(startBlock);
 }
 
 async function main() {
