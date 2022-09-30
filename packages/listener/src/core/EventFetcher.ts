@@ -1,4 +1,5 @@
 import { ethers } from "ethers";
+import { log } from "../utils/logger";
 import { ContractEvent } from "./ContractEvent";
 import { Objective } from "./Objective";
 
@@ -33,6 +34,15 @@ export class EventFetcher {
         result.push(event);
       }
     }
+
+    log.info(
+      {
+        fromBlock,
+        toBlock,
+        events: result
+      },
+      "Get Events"
+    );
 
     return result;
   }
