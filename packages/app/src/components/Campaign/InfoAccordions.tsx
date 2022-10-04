@@ -29,6 +29,7 @@ import Anchor from "@/components/Anchor";
 import "react-accessible-accordion/dist/fancy-example.css";
 import pascalCase from "@/utils/pascal-case";
 import truncate from "@/utils/truncate";
+import { ARWEAVE_EXPLORER_ADDRESS_URL, ETHEREUM_EXPLORER_ADDRESS_URL } from "@/constants";
 
 export type Props = {
 	campaign: Campaign;
@@ -42,7 +43,9 @@ const CampaignInfoAccordions: React.FC<Props> = ({ campaign }) => {
 	let rewardContractAddressUrl = "";
 	if (campaign.reward.address) {
 		if (campaign.chain === Chains.ARWEAVE) {
-			rewardContractAddressUrl = `https://viewblock.io/arweave/address/${campaign.reward.address}`;
+			rewardContractAddressUrl = `${ARWEAVE_EXPLORER_ADDRESS_URL}${campaign.reward.address}`;
+		} else if (campaign.chain === Chains.ETHEREUM) {
+			rewardContractAddressUrl = `${ETHEREUM_EXPLORER_ADDRESS_URL}${campaign.reward.address}`;
 		}
 	}
 

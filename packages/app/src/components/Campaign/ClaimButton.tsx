@@ -325,6 +325,26 @@ const ClaimButton: React.FC<Props> = ({
 							</Pane>
 						</Pane>
 					)}
+					{selectedWallet.chain === Chains.ETHEREUM && (
+						<Pane
+							display="flex"
+							alignItems="center"
+							flexDirection="row"
+							marginBottom={16}
+							paddingTop={16}
+							borderTop
+						>
+							<Image
+								src={chainImages[selectedWallet.chain]}
+								width={70}
+								height={70}
+							/>
+							<Paragraph size={500} marginY={0} marginLeft={16}>
+								<Strong fontSize="inherit">Ethereum</Strong> Blockchain rewards
+								may take up to 20 minutes to process.
+							</Paragraph>
+						</Pane>
+					)}
 					{!claim && (
 						<Button
 							height={majorScale(7)}

@@ -10,9 +10,11 @@ import uniq from "lodash/uniq";
 
 import {
 	AuthApiRequest,
+	Campaign,
 	CampaignReference,
 	Chains,
 	Claim,
+	PartnershipMetrics,
 	RewardTypes
 } from "@/types";
 import { useRouteHandler } from "@/server/middleware";
@@ -21,9 +23,11 @@ import { ceramic } from "@/utils/ceramic-client";
 import { getArangoClient } from "@/utils/arango-client";
 import withAuth from "@/server/middleware/auth";
 import { getArweaveClient, getWarp } from "@/utils/arweave-client";
-import { FEE_MULTIPLIER, FEE_ARWEAVE_WALLET } from "@/constants";
+import { FEE_MULTIPLIER, FEE_ARWEAVE_WALLET, FEE_ETHEREUM_WALLET, ARWEAVE_EXPLORER_TX_URL, ETHEREUM_EXPLORER_TX_URL } from "@/constants";
 import handleException from "@/utils/handle-exception";
 import { appPackageName, appVersion } from "@/env-config";
+import { getEthereumClient } from "@/utils/ethereum-client";
+import { BigNumber, ethers, Wallet } from "ethers";
 
 const handler = useRouteHandler<AuthApiRequest>();
 
@@ -35,9 +39,6 @@ const schema = z.object({
 const loader = new TileLoader({ ceramic });
 
 const arango = getArangoClient();
-
-const arweave = getArweaveClient();
-const warp = getWarp();
 
 const isPartnershipStreamValid = (stream: TileDocument<CampaignReference>) => {
 	return (
@@ -116,6 +117,20 @@ handler.router.use(withAuth).post(async (req, res) => {
 	const [campaignRef] = campaignRefs; // all of the campaign references should be the same.
 	const campaignKey = [campaignRef.chain, campaignRef.address].join(":");
 
+	// TODO: Possible a workaround for the case when a user has only one Did (no Related entities)
+	// // Validate that the partnership(s) and campaign are associated to authed dids
+	// const checkCursor = await arango.query(aql`
+	// 	FOR did IN ${req.user.map(({ did }) => `Dids/${did}`)}
+	// 		LET dids = (
+	//   	  FOR rd IN 1..1 ANY did Related
+	// 	  	  COLLECT _id = rd._id
+	// 	    	RETURN _id)
+	// 		FOR _id IN UNION_DISTINCT(dids, [did])
+	//      	FOR e IN 1..2 OUTBOUND _id Engagements
+	// 				FILTER POSITION(${partnershipIds}, e._key) OR e._key == ${campaignKey}
+	// 				RETURN e
+	// `);
+
 	// Validate that the partnership(s) and campaign are associated to authed dids
 	const checkCursor = await arango.query(aql`
 		FOR d IN ${req.user.map(({ did }) => did)}
@@ -128,10 +143,12 @@ handler.router.use(withAuth).post(async (req, res) => {
 	const checkResults = (await checkCursor.all()).filter((result) => !!result);
 	const partnershipsData = checkResults.filter((result) =>
 		partnershipIds.includes(result._key)
-	);
+	) as ({ _key: string } & PartnershipMetrics)[];
+
 	const campaignData = checkResults.find(
 		(result) => result._key === campaignKey
-	);
+	) as Campaign;
+
 	if (partnershipsData.length === 0 || !campaignData) {
 		req.log.warn(
 			{
@@ -197,6 +214,23 @@ handler.router.use(withAuth).post(async (req, res) => {
 
 	// Ensure that amount to be paid is greater than amount in internal wallet -- otherwise send whatevers in the wallet and update partnership amount
 	if (campaignData.chain === Chains.ARWEAVE) {
+		const arweave = getArweaveClient();
+		const warp = getWarp();
+
+		// Ensure that Campaign has a signing key
+		if (!campaignData._internal || !campaignData._internal.key) {
+			req.log.error("Campaign's rewards signing key is not set");
+
+			return res.json({
+				success: false,
+				data: {
+					to,
+					fee: 0,
+					amount: 0
+				}
+			});
+		}
+
 		let rewardTxId = "";
 		let feeTxId = "";
 		const internalAddress = campaignData._internal.address;
@@ -401,12 +435,8 @@ handler.router.use(withAuth).post(async (req, res) => {
 			const rewardDeductions: [string, number][] = [];
 			partnershipsData.forEach((p) => {
 				if (rewardsToDeductFrom > 0) {
-					let { rewards } = p;
-					if (rewardsToDeductFrom < p.rewards) {
-						rewards = p.rewards - rewardsToDeductFrom;
-					}
-					rewardsToDeductFrom -= rewards;
-					const deduction = p.rewards - rewards; // The deduction is the difference between the rewards and the new reward
+					const deduction = Math.min(p.rewards, rewardsToDeductFrom);
+					rewardsToDeductFrom -= deduction;
 					rewardDeductions.push([p._key, deduction]);
 				}
 			});
@@ -464,7 +494,7 @@ handler.router.use(withAuth).post(async (req, res) => {
 				amount: rewardsToPay,
 				tx: {
 					id: rewardTxId,
-					url: `https://viewblock.io/arweave/tx/${rewardTxId}`
+					url: `${ARWEAVE_EXPLORER_TX_URL}${rewardTxId}`
 				}
 			};
 			return res.json({
@@ -486,6 +516,296 @@ handler.router.use(withAuth).post(async (req, res) => {
 		}
 	}
 
+	if (campaignData.chain === Chains.ETHEREUM) {
+		const ethereum = getEthereumClient();
+
+		// Ensure that Campaign has a signing key
+		if (!campaignData._internal || !campaignData._internal.key) {
+			req.log.error("Campaign's rewards signing key is not set");
+
+			return res.json({
+				success: false,
+				data: {
+					to,
+					fee: 0,
+					amount: 0
+				}
+			});
+		}
+
+		let rewardTxId = "";
+		let feeTxId = "";
+		const internalAddress = campaignData._internal.address;
+
+		// Transfer fee amount minus gas x2 from previous transaction to platform wallet
+		try {
+			const did = await getAppDID();
+			const jwe = JSON.parse(Base64.decode(campaignData._internal.key));
+			const dec = await did.decryptJWE(jwe, { did: did.id });
+			const private_key = uint8arrays.toString(dec);
+
+			const wallet = new Wallet(private_key, ethereum);
+			wallet.connect(ethereum);
+
+			// TODO: The case for claiming rewards from an Ethereum contract has been omitted
+			// if (campaignData.reward.address) {
+			// 	const contract = warp
+			// 		.contract(campaignData.reward.address)
+			// 		.connect(jwk);
+			// 	const contractState = await contract.readState();
+			// 	if (campaignData.reward.type === RewardTypes.PST) {
+			// 		const state = contractState.state as {
+			// 			balances: Record<string, number>;
+			// 		};
+			// 		const balance = state.balances[internalAddress] || 0;
+			// 		if (balance === 0) {
+			// 			req.log.error("Insufficient funding for Campaign");
+			// 			return res.status(402).json({
+			// 				success: false,
+			// 				data: {
+			// 					to,
+			// 					fee: 0,
+			// 					amount: 0
+			// 				}
+			// 			});
+			// 		}
+
+			// 		if (rewardsToPay > balance) {
+			// 			rewardsToPay = balance;
+			// 		}
+
+			// 		// ? No fee for custom PSTs at the moment
+
+			// 		const interactionParams = {
+			// 			function: "transfer",
+			// 			qty: rewardsToPay,
+			// 			target: to
+			// 		};
+			// 		const interactionId = await contract.writeInteraction(
+			// 			interactionParams,
+			// 			txTags.map((tag) => ({ name: tag[0], value: tag[1] }))
+			// 		);
+
+			// 		if (!interactionId) {
+			// 			req.log.error(
+			// 				{ data: { rewardsToPay, interactionId, interactionParams } },
+			// 				"Failed to submit reward transaction"
+			// 			);
+			// 			return res.json({
+			// 				success: false,
+			// 				data: {
+			// 					to,
+			// 					fee,
+			// 					amount: rewardsToPay
+			// 				}
+			// 			});
+			// 		}
+
+			// 		req.log.info(
+			// 			{ data: { fee, rewardsToPay, interactionId } },
+			// 			"Fee and reward transfers complete"
+			// 		);
+
+			// 		rewardTxId = interactionId;
+			// 	} else {
+			// 		req.log.error(
+			// 			{ data: { reward: campaignData.reward } },
+			// 			"Unsupported Campaign Reward"
+			// 		);
+			// 		return res.status(402).json({
+			// 			success: false,
+			// 			data: {
+			// 				to,
+			// 				fee: 0,
+			// 				amount: 0
+			// 			}
+			// 		});
+			// 	}
+			// } else {
+			{
+				let rewardsToPayBN = ethers.utils.parseEther(rewardsToPay.toString());
+				let feeBN = rewardsToPayBN.mul(FEE_MULTIPLIER * 100).div(100); // x * 0.1
+				const totalToPayBN = rewardsToPayBN.add(feeBN);
+
+				const balanceBN = await ethereum.getBalance(internalAddress);
+
+				if (balanceBN.isZero()) {
+					req.log.error("Insufficient funding for Campaign");
+					return res.status(402).json({
+						success: false,
+						data: {
+							to,
+							fee: 0,
+							amount: 0
+						}
+					});
+				}
+
+				if (totalToPayBN.gt(balanceBN)) {
+					feeBN = balanceBN.mul(FEE_MULTIPLIER * 100).div(100);
+					rewardsToPayBN = balanceBN.sub(feeBN);
+				}
+
+				const rewardTx = await wallet.populateTransaction({
+					to,
+					value: rewardsToPayBN,
+					nonce: await wallet.getTransactionCount()
+				});
+
+				if (totalToPayBN.gt(balanceBN)) {
+					feeBN = feeBN.sub(BigNumber.from(rewardTx.gasLimit).mul(2)); // ensure there's enough gas for the transfers.
+				}
+				const feeTx = await wallet.populateTransaction({
+					to: FEE_ETHEREUM_WALLET,
+					value: feeBN,
+					nonce: await wallet.getTransactionCount() + 1
+				});
+
+				req.log.debug(
+					{
+						data: {
+							fee: ethers.utils.formatEther(feeBN),
+							rewardsToPay: ethers.utils.formatEther(rewardsToPayBN)
+						}
+					},
+					"Fee and reward calculated"
+				);
+
+				await Promise.all([
+					wallet.signTransaction(rewardTx),
+					wallet.signTransaction(feeTx)
+				]);
+
+				const [rewardTxReceipt, feeTxReceipt] = await Promise.all([
+					(await wallet.sendTransaction(rewardTx)).wait(),
+					(await wallet.sendTransaction(feeTx)).wait()
+				]);
+
+				if (rewardTxReceipt.status === 0) {
+					req.log.error(
+						{ data: { rewardTxReceipt, rewardTx, rewardsToPay } },
+						"Failed to submit reward transaction"
+					);
+					return res.json({
+						success: false,
+						data: {
+							to,
+							fee,
+							amount: rewardsToPay
+						}
+					});
+				}
+				if (feeTxReceipt.status === 0) {
+					req.log.warn(
+						{ data: { feeTxReceipt, feeTx, fee } },
+						"Failed to submit fee transaction"
+					);
+					return res.json({
+						success: false,
+						data: {
+							to,
+							fee,
+							amount: rewardsToPay
+						}
+					});
+				}
+
+				req.log.info(
+					{
+						data: { fee, rewardsToPay, rewardTx: rewardTxReceipt.transactionHash, feeTx: feeTxReceipt.transactionHash }
+					},
+					"Fee and reward transfers complete"
+				);
+
+				rewardTxId = rewardTxReceipt.transactionHash;
+				feeTxId = feeTxReceipt.transactionHash;
+			}
+
+			// Index Claim, Reduce Remaining Rewards for Partnership
+			let rewardsToDeductFrom = rewardsToPay;
+			const rewardDeductions: [string, number][] = [];
+			partnershipsData.forEach((p) => {
+				if (rewardsToDeductFrom > 0) {
+					const deduction = Math.min(p.rewards, rewardsToDeductFrom);
+					rewardsToDeductFrom -= deduction;
+					rewardDeductions.push([p._key, deduction]);
+				}
+			});
+			req.log.debug(
+				{ data: { rewardDeductions } },
+				"Reward deductions applied to Partnerships"
+			);
+
+			const indexCursor = await arango.query(aql`
+				LET ps = (
+					FOR deduction IN ${rewardDeductions}
+						LET partnership = DOCUMENT("Partnerships", deduction[0])
+						LET newRewards = MAX([partnership.rewards - deduction[1], 0])
+						RETURN MERGE(
+								partnership,
+								{
+										rewards: newRewards
+								}
+						)
+				)
+				INSERT {
+					amount: ${rewardsToPay},
+					to: ${to},
+					fee: ${fee},
+					feeWallet: ${FEE_ETHEREUM_WALLET},
+					txs: {
+						reward: ${rewardTxId},
+						fee: ${feeTxId}
+					},
+					created_at: ${Date.now()}
+				} INTO Claims
+				LET c = NEW
+				LET e = (
+					FOR p IN ps
+						UPDATE { _key: p._key } WITH { rewards: p.rewards } IN Partnerships
+						INSERT {
+							_from: p._id,
+							_to: c._id
+						} INTO Engagements
+						RETURN NEW
+				)
+				RETURN {
+					claim: c,
+					partnerships: ps,
+					edges: e
+				}
+			`);
+			const indexResults = await indexCursor.all();
+
+			req.log.info({ data: { indexResults } }, "Claim indexed");
+
+			const claim: Claim = {
+				to,
+				fee,
+				amount: rewardsToPay,
+				tx: {
+					id: rewardTxId,
+					url: `${ETHEREUM_EXPLORER_TX_URL}${rewardTxId}`
+				}
+			};
+			return res.json({
+				success: true,
+				data: claim
+			});
+		} catch (e) {
+			handleException(e);
+			req.log.error(
+				{
+					e,
+					data: { partnershipIds, campaignRef }
+				},
+				"Cannot execute Ethereum Rewards Transfer"
+			);
+			return res.status(400).json({
+				success: false
+			});
+		}
+	}
 	req.log.warn("Unsupported partnership");
 
 	return res.json({
