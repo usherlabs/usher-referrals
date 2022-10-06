@@ -125,6 +125,19 @@ export const relatedPartnerships = (authToken: string) => {
 		async get() {
 			const resp = await req.get(`partnerships/related`).json();
 			return resp as { success: boolean; data: Partnership[] };
+		},
+		async post(
+			partnership: string,
+			campaignRef: CampaignReference,
+		): Promise<{ success: boolean }> {
+			return req
+				.post(`partnerships/related`, {
+					json: {
+						partnership,
+						campaignRef
+					}
+				})
+				.json();
 		}
 	};
 };

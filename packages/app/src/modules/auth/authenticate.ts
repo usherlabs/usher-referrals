@@ -131,6 +131,9 @@ class Authenticate {
 
 		const authPartnership = await auth.addPartnership(campaignReference);
 
+		const authToken = await this.getAuthToken();
+		await api.relatedPartnerships(authToken).post(authPartnership.id, campaignReference);
+
 		this.partnerships = [...this.partnerships, authPartnership];
 
 		return this.partnerships;
