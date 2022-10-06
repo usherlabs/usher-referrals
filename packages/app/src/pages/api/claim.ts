@@ -117,28 +117,19 @@ handler.router.use(withAuth).post(async (req, res) => {
 	const [campaignRef] = campaignRefs; // all of the campaign references should be the same.
 	const campaignKey = [campaignRef.chain, campaignRef.address].join(":");
 
-	// TODO: Possible a workaround for the case when a user has only one Did (no Related entities)
-	// // Validate that the partnership(s) and campaign are associated to authed dids
-	// const checkCursor = await arango.query(aql`
-	// 	FOR did IN ${req.user.map(({ did }) => `Dids/${did}`)}
-	// 		LET dids = (
-	//   	  FOR rd IN 1..1 ANY did Related
-	// 	  	  COLLECT _id = rd._id
-	// 	    	RETURN _id)
-	// 		FOR _id IN UNION_DISTINCT(dids, [did])
-	//      	FOR e IN 1..2 OUTBOUND _id Engagements
-	// 				FILTER POSITION(${partnershipIds}, e._key) OR e._key == ${campaignKey}
-	// 				RETURN e
-	// `);
-
 	// Validate that the partnership(s) and campaign are associated to authed dids
 	const checkCursor = await arango.query(aql`
-		FOR d IN ${req.user.map(({ did }) => did)}
-			FOR rd IN 1..1 ANY CONCAT("Dids/", d) Related
-				COLLECT _id = rd._id
-				FOR e IN 1..2 OUTBOUND _id Engagements
-					FILTER POSITION(${partnershipIds}, e._key) OR e._key == ${campaignKey}
-					RETURN e
+		LET dids = ${req.user.map(({ did }) => `Dids/${did}`)}
+		LET relatedDids = (
+			FOR did in dids
+				FOR rd IN 1..1 ANY did Related
+					COLLECT _id = rd._id
+						RETURN _id)
+		LET uniquedDids = UNION_DISTINCT(dids, relatedDids)
+		FOR did IN uniquedDids
+			FOR e IN 1..2 OUTBOUND did Engagements
+				FILTER POSITION(${partnershipIds}, e._key) OR e._key == ${campaignKey}
+				RETURN e
 	`);
 	const checkResults = (await checkCursor.all()).filter((result) => !!result);
 	const partnershipsData = checkResults.filter((result) =>
