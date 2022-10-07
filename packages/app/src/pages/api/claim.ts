@@ -28,6 +28,7 @@ import handleException from "@/utils/handle-exception";
 import { appPackageName, appVersion } from "@/env-config";
 import { getEthereumClient } from "@/utils/ethereum-client";
 import { BigNumber, ethers, Wallet } from "ethers";
+import { indexClaim } from "@/server/claim";
 
 const handler = useRouteHandler<AuthApiRequest>();
 
@@ -421,63 +422,12 @@ handler.router.use(withAuth).post(async (req, res) => {
 				feeTxId = feeTx.id;
 			}
 
-			// Index Claim, Reduce Remaining Rewards for Partnership
-			let rewardsToDeductFrom = rewardsToPay;
-			const rewardDeductions: [string, number][] = [];
-			partnershipsData.forEach((p) => {
-				if (rewardsToDeductFrom > 0) {
-					const deduction = Math.min(p.rewards, rewardsToDeductFrom);
-					rewardsToDeductFrom -= deduction;
-					rewardDeductions.push([p._key, deduction]);
-				}
-			});
-			req.log.debug(
-				{ data: { rewardDeductions } },
-				"Reward deductions applied to Partnerships"
+			await indexClaim(
+				partnershipsData,
+				rewardsToPay, to, rewardTxId,
+				fee, FEE_ARWEAVE_WALLET, feeTxId,
+				req.log
 			);
-
-			const indexCursor = await arango.query(aql`
-				LET ps = (
-					FOR deduction IN ${rewardDeductions}
-						LET partnership = DOCUMENT("Partnerships", deduction[0])
-						LET newRewards = MAX([partnership.rewards - deduction[1], 0])
-						RETURN MERGE(
-								partnership,
-								{
-										rewards: newRewards
-								}
-						)
-				)
-				INSERT {
-					amount: ${rewardsToPay},
-					to: ${to},
-					fee: ${fee},
-					feeWallet: ${FEE_ARWEAVE_WALLET},
-					txs: {
-						reward: ${rewardTxId},
-						fee: ${feeTxId}
-					},
-					created_at: ${Date.now()}
-				} INTO Claims
-				LET c = NEW
-				LET e = (
-					FOR p IN ps
-						UPDATE { _key: p._key } WITH { rewards: p.rewards } IN Partnerships
-						INSERT {
-							_from: p._id,
-							_to: c._id
-						} INTO Engagements
-						RETURN NEW
-				)
-				RETURN {
-					claim: c,
-					partnerships: ps,
-					edges: e
-				}
-			`);
-			const indexResults = await indexCursor.all();
-
-			req.log.info({ data: { indexResults } }, "Claim indexed");
 
 			const claim: Claim = {
 				to,
@@ -652,11 +602,14 @@ handler.router.use(withAuth).post(async (req, res) => {
 					nonce: await wallet.getTransactionCount() + 1
 				});
 
+				rewardsToPay = parseFloat(ethers.utils.formatEther(rewardsToPayBN));
+				fee = parseFloat(ethers.utils.formatEther(feeBN));
+
 				req.log.debug(
 					{
 						data: {
-							fee: ethers.utils.formatEther(feeBN),
-							rewardsToPay: ethers.utils.formatEther(rewardsToPayBN)
+							fee,
+							rewardsToPay
 						}
 					},
 					"Fee and reward calculated"
@@ -712,63 +665,12 @@ handler.router.use(withAuth).post(async (req, res) => {
 				feeTxId = feeTxReceipt.transactionHash;
 			}
 
-			// Index Claim, Reduce Remaining Rewards for Partnership
-			let rewardsToDeductFrom = rewardsToPay;
-			const rewardDeductions: [string, number][] = [];
-			partnershipsData.forEach((p) => {
-				if (rewardsToDeductFrom > 0) {
-					const deduction = Math.min(p.rewards, rewardsToDeductFrom);
-					rewardsToDeductFrom -= deduction;
-					rewardDeductions.push([p._key, deduction]);
-				}
-			});
-			req.log.debug(
-				{ data: { rewardDeductions } },
-				"Reward deductions applied to Partnerships"
+			await indexClaim(
+				partnershipsData,
+				rewardsToPay, to, rewardTxId,
+				fee, FEE_ETHEREUM_WALLET, feeTxId,
+				req.log
 			);
-
-			const indexCursor = await arango.query(aql`
-				LET ps = (
-					FOR deduction IN ${rewardDeductions}
-						LET partnership = DOCUMENT("Partnerships", deduction[0])
-						LET newRewards = MAX([partnership.rewards - deduction[1], 0])
-						RETURN MERGE(
-								partnership,
-								{
-										rewards: newRewards
-								}
-						)
-				)
-				INSERT {
-					amount: ${rewardsToPay},
-					to: ${to},
-					fee: ${fee},
-					feeWallet: ${FEE_ETHEREUM_WALLET},
-					txs: {
-						reward: ${rewardTxId},
-						fee: ${feeTxId}
-					},
-					created_at: ${Date.now()}
-				} INTO Claims
-				LET c = NEW
-				LET e = (
-					FOR p IN ps
-						UPDATE { _key: p._key } WITH { rewards: p.rewards } IN Partnerships
-						INSERT {
-							_from: p._id,
-							_to: c._id
-						} INTO Engagements
-						RETURN NEW
-				)
-				RETURN {
-					claim: c,
-					partnerships: ps,
-					edges: e
-				}
-			`);
-			const indexResults = await indexCursor.all();
-
-			req.log.info({ data: { indexResults } }, "Claim indexed");
 
 			const claim: Claim = {
 				to,
