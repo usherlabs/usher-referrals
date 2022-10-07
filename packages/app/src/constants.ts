@@ -33,4 +33,4 @@ export const FEE_MULTIPLIER = 0.1 as const;
 export const FEE_ARWEAVE_WALLET =
 	"ksFTLgrwQGtNrhRz6MWyd3a4lvK1Oh-QF1HYcEeeFVk" as const;
 export const FEE_ETHEREUM_WALLET =
-	"0x2DA639034c33A19De0C91175D010A8359cD35CbF" as const;
+	"0x8D674B63BB0F59fEebc08565AbcB7fdfe3801817" as const;
