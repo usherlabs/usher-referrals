@@ -171,6 +171,8 @@ export const claim = (authToken: string) => {
 		}> {
 			return req
 				.post("claim", {
+					// TODO: Temporary workaround. Needs a better solution
+					timeout: 5 * 60 * 1000, // 5 minutes
 					json: {
 						partnership,
 						to

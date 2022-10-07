@@ -29,6 +29,7 @@ import { appPackageName, appVersion } from "@/env-config";
 import { getEthereumClient } from "@/utils/ethereum-client";
 import { BigNumber, ethers, Wallet } from "ethers";
 import { indexClaim } from "@/server/claim";
+import { erc20 } from "@/abi/erc20";
 
 const handler = useRouteHandler<AuthApiRequest>();
 
@@ -488,82 +489,71 @@ handler.router.use(withAuth).post(async (req, res) => {
 			const wallet = new Wallet(private_key, ethereum);
 			wallet.connect(ethereum);
 
-			// TODO: The case for claiming rewards from an Ethereum contract has been omitted
-			// if (campaignData.reward.address) {
-			// 	const contract = warp
-			// 		.contract(campaignData.reward.address)
-			// 		.connect(jwk);
-			// 	const contractState = await contract.readState();
-			// 	if (campaignData.reward.type === RewardTypes.PST) {
-			// 		const state = contractState.state as {
-			// 			balances: Record<string, number>;
-			// 		};
-			// 		const balance = state.balances[internalAddress] || 0;
-			// 		if (balance === 0) {
-			// 			req.log.error("Insufficient funding for Campaign");
-			// 			return res.status(402).json({
-			// 				success: false,
-			// 				data: {
-			// 					to,
-			// 					fee: 0,
-			// 					amount: 0
-			// 				}
-			// 			});
-			// 		}
+			if (campaignData.reward.address) {
+				if (campaignData.reward.type === RewardTypes.TOKEN) {
+					const contract = new ethers.Contract(campaignData.reward.address, erc20, wallet);
+					const decimals = await contract.decimals();
+					const balanceBN = await contract.balanceOf(internalAddress) as BigNumber;
 
-			// 		if (rewardsToPay > balance) {
-			// 			rewardsToPay = balance;
-			// 		}
+					let rewardsToPayBN = ethers.utils.parseUnits(rewardsToPay.toString(), decimals);
 
-			// 		// ? No fee for custom PSTs at the moment
+					if (balanceBN.isZero()) {
+						req.log.error("Insufficient funding for Campaign");
+						return res.status(402).json({
+							success: false,
+							data: {
+								to,
+								fee: 0,
+								amount: 0
+							}
+						});
+					}
 
-			// 		const interactionParams = {
-			// 			function: "transfer",
-			// 			qty: rewardsToPay,
-			// 			target: to
-			// 		};
-			// 		const interactionId = await contract.writeInteraction(
-			// 			interactionParams,
-			// 			txTags.map((tag) => ({ name: tag[0], value: tag[1] }))
-			// 		);
+					if (rewardsToPayBN.gt(balanceBN)) {
+						rewardsToPayBN = balanceBN;
+					}
 
-			// 		if (!interactionId) {
-			// 			req.log.error(
-			// 				{ data: { rewardsToPay, interactionId, interactionParams } },
-			// 				"Failed to submit reward transaction"
-			// 			);
-			// 			return res.json({
-			// 				success: false,
-			// 				data: {
-			// 					to,
-			// 					fee,
-			// 					amount: rewardsToPay
-			// 				}
-			// 			});
-			// 		}
+					// ? No fee for custom TOKENs at the moment
 
-			// 		req.log.info(
-			// 			{ data: { fee, rewardsToPay, interactionId } },
-			// 			"Fee and reward transfers complete"
-			// 		);
+					var rewardTx = await contract.populateTransaction.transfer(to, rewardsToPayBN);
+					const rewardTxReceipt = await (await wallet.sendTransaction(rewardTx)).wait();
 
-			// 		rewardTxId = interactionId;
-			// 	} else {
-			// 		req.log.error(
-			// 			{ data: { reward: campaignData.reward } },
-			// 			"Unsupported Campaign Reward"
-			// 		);
-			// 		return res.status(402).json({
-			// 			success: false,
-			// 			data: {
-			// 				to,
-			// 				fee: 0,
-			// 				amount: 0
-			// 			}
-			// 		});
-			// 	}
-			// } else {
-			{
+					if (rewardTxReceipt.status === 0) {
+						req.log.error(
+							{ data: { rewardTxReceipt, rewardTx, rewardsToPay } },
+							"Failed to submit reward transaction"
+						);
+						return res.json({
+							success: false,
+							data: {
+								to,
+								fee,
+								amount: rewardsToPay
+							}
+						});
+					}
+
+					req.log.info(
+						{ data: { fee, rewardsToPay, rewardTx: rewardTxReceipt.transactionHash } },
+						"Fee and reward transfers complete"
+					);
+
+					rewardTxId = rewardTxReceipt.transactionHash;
+				} else {
+					req.log.error(
+						{ data: { reward: campaignData.reward } },
+						"Unsupported Campaign Reward"
+					);
+					return res.status(402).json({
+						success: false,
+						data: {
+							to,
+							fee: 0,
+							amount: 0
+						}
+					});
+				}
+			} else {
 				let rewardsToPayBN = ethers.utils.parseEther(rewardsToPay.toString());
 				let feeBN = rewardsToPayBN.mul(FEE_MULTIPLIER * 100).div(100); // x * 0.1
 				const totalToPayBN = rewardsToPayBN.add(feeBN);

@@ -341,7 +341,7 @@ const ClaimButton: React.FC<Props> = ({
 							/>
 							<Paragraph size={500} marginY={0} marginLeft={16}>
 								<Strong fontSize="inherit">Ethereum</Strong> Blockchain rewards
-								may take up to 20 minutes to process.
+								may take up to one minute to process.
 							</Paragraph>
 						</Pane>
 					)}
