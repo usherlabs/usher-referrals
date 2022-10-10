@@ -1,14 +1,14 @@
 class CustomError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = this.constructor.name;
+	constructor(message: string) {
+		super(message);
+		this.name = this.constructor.name;
 
-    Error.captureStackTrace(this, this.constructor);
-  }
+		Error.captureStackTrace(this, this.constructor);
+	}
 }
 
 export class BlockNotFoundError extends CustomError {
-  constructor() {
-    super('Block not found');
-  }
+	constructor() {
+		super("Block not found");
+	}
 }

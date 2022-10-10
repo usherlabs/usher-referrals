@@ -10,12 +10,11 @@ export const ARCONNECT_CHROME_URL =
 export const ARCONNECT_FIREFOX_URL =
 	"https://addons.mozilla.org/en-US/firefox/addon/arconnect/" as const;
 
-// Ethereum constants	
+// Ethereum constants
 export const ETHEREUM_EXPLORER_ADDRESS_URL =
 	"https://etherscan.io/address/" as const;
 
-export const ETHEREUM_EXPLORER_TX_URL =
-	"https://etherscan.io/tx/" as const;
+export const ETHEREUM_EXPLORER_TX_URL = "https://etherscan.io/tx/" as const;
 
 export const METAMASK_CHROME_URL =
 	"https://chrome.google.com/webstore/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn" as const;

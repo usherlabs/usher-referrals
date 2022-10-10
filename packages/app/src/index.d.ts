@@ -29,6 +29,6 @@ declare module "@iconscout/react-unicons" {
 }
 
 interface Window {
-	ethereum: Web3Provider
+	ethereum: Web3Provider;
 	// ethereum: ExternalProvider
 }

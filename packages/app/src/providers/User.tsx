@@ -236,12 +236,9 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 	const [, isMetaMaskLoading] = useMetaMask();
 	const [walletsLoading, setWalletsLoading] = useState(false);
 
-	useEffect(
-		() => {
-			setWalletsLoading(isArConnectLoading || isMetaMaskLoading);
-		},
-		[isArConnectLoading, isMetaMaskLoading]
-	);
+	useEffect(() => {
+		setWalletsLoading(isArConnectLoading || isMetaMaskLoading);
+	}, [isArConnectLoading, isMetaMaskLoading]);
 
 	const saveUser = useCallback((saved: User) => {
 		console.log("SAVED USER", saved);

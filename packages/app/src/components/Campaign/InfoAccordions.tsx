@@ -29,7 +29,10 @@ import Anchor from "@/components/Anchor";
 import "react-accessible-accordion/dist/fancy-example.css";
 import pascalCase from "@/utils/pascal-case";
 import truncate from "@/utils/truncate";
-import { ARWEAVE_EXPLORER_ADDRESS_URL, ETHEREUM_EXPLORER_ADDRESS_URL } from "@/constants";
+import {
+	ARWEAVE_EXPLORER_ADDRESS_URL,
+	ETHEREUM_EXPLORER_ADDRESS_URL
+} from "@/constants";
 
 export type Props = {
 	campaign: Campaign;

@@ -213,7 +213,11 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 		} else if (campaign.chain === Chains.ETHEREUM) {
 			if (campaign.reward.address) {
 				if (campaign.reward.type === RewardTypes.TOKEN) {
-					const contract = new ethers.Contract(campaign.reward.address, erc20, ethereum);
+					const contract = new ethers.Contract(
+						campaign.reward.address,
+						erc20,
+						ethereum
+					);
 					const decimals = await contract.decimals();
 					const balanceBN = await contract.balanceOf(campaign.id);
 					const balanceStr = ethers.utils.formatUnits(balanceBN, decimals);

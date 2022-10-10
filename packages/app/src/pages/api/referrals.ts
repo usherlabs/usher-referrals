@@ -32,13 +32,23 @@ const arango = getArangoClient();
  * @param partnershipId Id of the Partnership
  * @returns `true` if the user has been referred to the partnership for the first time, otherwise `false`
  */
-function setPartnershipCookie(req: ApiRequest, res: ApiResponse, partnershipId: string): boolean {
+function setPartnershipCookie(
+	req: ApiRequest,
+	res: ApiResponse,
+	partnershipId: string
+): boolean {
 	const cookies = parseCookies({ req });
-	const partnerships = cookies.__usher_partnerships ? cookies.__usher_partnerships.split(",") : [];
-	const isAlreadyReferred = partnerships.some(p => p === partnershipId);
+	const partnerships = cookies.__usher_partnerships
+		? cookies.__usher_partnerships.split(",")
+		: [];
+	const isAlreadyReferred = partnerships.some((p) => p === partnershipId);
 
 	if (!isAlreadyReferred) {
-		setCookie({ res }, "__usher_partnerships", [...partnerships, partnershipId].join(","));
+		setCookie(
+			{ res },
+			"__usher_partnerships",
+			[...partnerships, partnershipId].join(",")
+		);
 	}
 
 	return !isAlreadyReferred;
@@ -77,7 +87,7 @@ async function saveWallet(chain: string, address: string): Promise<string> {
 	`);
 
 	const result = await cursor.all();
-	return result[0]
+	return result[0];
 }
 
 /**
@@ -86,7 +96,10 @@ async function saveWallet(chain: string, address: string): Promise<string> {
  * @param partnership Partnership identifier in the database, i.e. `[key]`
  * @returns `boolean`
  */
-async function isWalletReferred(walletId: string, partnership: string): Promise<boolean> {
+async function isWalletReferred(
+	walletId: string,
+	partnership: string
+): Promise<boolean> {
 	const cursor = await arango.query(aql`
 		FOR referral IN Referrals
 		FILTER
@@ -196,14 +209,18 @@ handler.router.post(async (req, res) => {
 	req.log.debug({ partnership }, "Partnership is valid for this referral");
 
 	// Ensure that the partnership has been indexed
-	if (!await indexPartnership(partnership, campaignRef, controller, req.log)) {
+	if (
+		!(await indexPartnership(partnership, campaignRef, controller, req.log))
+	) {
 		return res.status(400).json({
 			success: false
 		});
 	}
 
 	const dataCursor = await arango.query(aql`
-		RETURN DOCUMENT("Campaigns", ${[campaignRef.chain, campaignRef.address].join(":")})
+		RETURN DOCUMENT("Campaigns", ${[campaignRef.chain, campaignRef.address].join(
+			":"
+		)})
 	`);
 	const dataResults = await dataCursor.all();
 	const [campaignData] = dataResults;

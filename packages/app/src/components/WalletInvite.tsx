@@ -1,22 +1,34 @@
 import ArConnectIcon from "@/assets/icon/arconnect.svg";
 import MetaMaskIcon from "@/assets/icon/metamask.svg";
-import { ARCONNECT_CHROME_URL, ARCONNECT_FIREFOX_URL, METAMASK_CHROME_URL, METAMASK_FIREFOX_URL } from "@/constants";
+import {
+	ARCONNECT_CHROME_URL,
+	ARCONNECT_FIREFOX_URL,
+	METAMASK_CHROME_URL,
+	METAMASK_FIREFOX_URL
+} from "@/constants";
 import { useArConnect, useMetaMask } from "@/hooks";
 import { Chains } from "@/types";
-import { Button, Heading, majorScale, Pane, Strong, Text, toaster } from "evergreen-ui";
+import {
+	Button,
+	Heading,
+	majorScale,
+	Pane,
+	Strong,
+	Text,
+	toaster
+} from "evergreen-ui";
 import Image from "next/image";
 import { useCallback, useState } from "react";
 import { browserName } from "react-device-detect";
 import * as uint8arrays from "uint8arrays";
 
 type Props = {
-	domain: string,
-	chain: Chains,
+	domain: string;
+	chain: Chains;
 	onConnect: (address: string, signature: string) => Promise<boolean>;
-}
+};
 
 const WalletInvite = ({ domain, chain, onConnect }: Props) => {
-
 	const [getArConnect] = useArConnect();
 	const [getMetaMask] = useMetaMask();
 
@@ -54,19 +66,25 @@ const WalletInvite = ({ domain, chain, onConnect }: Props) => {
 		}
 
 		try {
-			const accounts = await metamask.send("eth_requestAccounts", [])
-				.catch(() => { throw new Error("Connect with MetaMask to continue"); })
+			const accounts = await metamask
+				.send("eth_requestAccounts", [])
+				.catch(() => {
+					throw new Error("Connect with MetaMask to continue");
+				});
 
 			const [address] = accounts as string[];
 			const signer = metamask.getSigner();
 			const message = `Please connect your wallet to continue to ${domain}`;
-			const signedMessage = await signer.signMessage(uint8arrays.fromString(message))
-				.catch(() => { throw new Error("Sign the message with MetaMask to continue"); });
+			const signedMessage = await signer
+				.signMessage(uint8arrays.fromString(message))
+				.catch(() => {
+					throw new Error("Sign the message with MetaMask to continue");
+				});
 
 			// TODO: Investigate if `toLowerCase()` is really needed here
 			onConnect(address.toLowerCase(), signedMessage);
 		} catch (e) {
-			toaster.danger((e instanceof Error) ? e.message : String(e));
+			toaster.danger(e instanceof Error ? e.message : String(e));
 		} finally {
 			setConnecting(false);
 		}
@@ -85,10 +103,13 @@ const WalletInvite = ({ domain, chain, onConnect }: Props) => {
 			<Heading is="h1" size={800} marginBottom={12}>
 				👋&nbsp;&nbsp;Welcome!
 			</Heading>
-			<Text size={500} textAlign="center">You've been invited.</Text>
-			<Text size={500} textAlign="center">Please connect your wallet to continue to <Strong>{domain}</Strong></Text>
+			<Text size={500} textAlign="center">
+				You've been invited.
+			</Text>
+			<Text size={500} textAlign="center">
+				Please connect your wallet to continue to <Strong>{domain}</Strong>
+			</Text>
 			<Pane background="tint2" padding={16} margin={12} borderRadius={8}>
-
 				{chain === Chains.ARWEAVE && (
 					<Pane marginBottom={8}>
 						<Button
@@ -114,10 +135,11 @@ const WalletInvite = ({ domain, chain, onConnect }: Props) => {
 						>
 							<strong>Connect with MetaMask</strong>
 						</Button>
-					</Pane>)}
+					</Pane>
+				)}
 			</Pane>
 		</Pane>
-	)
-}
+	);
+};
 
 export default WalletInvite;

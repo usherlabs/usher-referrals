@@ -5,7 +5,12 @@ import { browserName } from "react-device-detect";
 
 import { Connections } from "@/types";
 import { useUser, useArConnect, useMetaMask } from "@/hooks/";
-import { ARCONNECT_CHROME_URL, ARCONNECT_FIREFOX_URL, METAMASK_CHROME_URL, METAMASK_FIREFOX_URL } from "@/constants";
+import {
+	ARCONNECT_CHROME_URL,
+	ARCONNECT_FIREFOX_URL,
+	METAMASK_CHROME_URL,
+	METAMASK_FIREFOX_URL
+} from "@/constants";
 import { UilLockOpenAlt } from "@iconscout/react-unicons";
 import ArConnectIcon from "@/assets/icon/arconnect.svg";
 import MetaMaskIcon from "@/assets/icon/metamask.svg";
@@ -18,7 +23,7 @@ export type Props = {
 
 const WalletConnect: React.FC<Props> = ({
 	hide = [],
-	onConnect = () => { },
+	onConnect = () => {},
 	loading: isPropLoading = false
 }) => {
 	const {

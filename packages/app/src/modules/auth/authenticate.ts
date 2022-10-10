@@ -132,7 +132,9 @@ class Authenticate {
 		const authPartnership = await auth.addPartnership(campaignReference);
 
 		const authToken = await this.getAuthToken();
-		await api.relatedPartnerships(authToken).post(authPartnership.id, campaignReference);
+		await api
+			.relatedPartnerships(authToken)
+			.post(authPartnership.id, campaignReference);
 
 		this.partnerships = [...this.partnerships, authPartnership];
 
@@ -199,13 +201,12 @@ class Authenticate {
 	}
 
 	/**
-* Deterministically produce a secret for DID production
-*/
+	 * Deterministically produce a secret for DID production
+	 */
 	public async withEthereum(
 		address: string,
 		connection: Connections,
-		provider:
-			| Web3Provider
+		provider: Web3Provider
 		// | {
 		// 	signature: (
 		// 		data: Uint8Array,
@@ -222,13 +223,21 @@ class Authenticate {
 		let sig: Uint8Array;
 		const cookies = parseCookies();
 		if (cookies.__usher_metamask) {
-			const metamaskCookies = JSON.parse(cookies.__usher_metamask) as { address: string, signature: string };
+			const metamaskCookies = JSON.parse(cookies.__usher_metamask) as {
+				address: string;
+				signature: string;
+			};
 			sig = uint8arrays.fromString(metamaskCookies.signature);
 		} else {
 			const signer = provider.getSigner();
-			const text = "To create your Usher account, please click the 'Sign' button.";
+			const text =
+				"To create your Usher account, please click the 'Sign' button.";
 			const signature = await signer.signMessage(uint8arrays.fromString(text));
-			setCookie(null, "__usher_metamask", JSON.stringify({ address, signature }));
+			setCookie(
+				null,
+				"__usher_metamask",
+				JSON.stringify({ address, signature })
+			);
 			sig = uint8arrays.fromString(signature);
 		}
 
