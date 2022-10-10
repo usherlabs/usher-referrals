@@ -1,7 +1,7 @@
 import { ethers } from "ethers";
 import EventEmitter from "events";
 import config from "../config";
-import { BlockNotFoundError } from "../errors";
+import { BlockNotFoundError } from "../errors/BlockNotFoundError";
 import { Options } from "../utils/Options";
 import { ContractEvent } from "./ContractEvent";
 import { EventFetcher } from "./EventFetcher";
@@ -13,13 +13,21 @@ export enum BlockPollingEvent {
 
 export class BlockPolling {
 	private _provider: ethers.providers.BaseProvider;
+
 	private _eventFetcher: EventFetcher;
+
 	private _emitter: EventEmitter;
+
 	private _running: boolean;
+
 	private _chunkSize: number;
+
 	private _pollInterval: number;
+
 	private _confirmations: number;
+
 	private _backoff: number;
+
 	private _latestQueriedBlock: number = 0;
 
 	constructor(

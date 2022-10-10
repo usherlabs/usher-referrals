@@ -2,7 +2,9 @@ import { ethers } from "ethers";
 
 export class Objective {
 	readonly contract: string;
+
 	readonly events: string[];
+
 	readonly topics: string[];
 
 	constructor(contract: string, events: string[]) {

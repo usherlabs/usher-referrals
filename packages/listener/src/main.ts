@@ -34,7 +34,7 @@ async function loadCampaigns() {
       }
   `);
 
-	const result = (await cursor.all()).filter((result) => !isEmpty(result));
+	const result = (await cursor.all()).filter((r) => !isEmpty(r));
 	const formatted = camelcaseKeys(result, { deep: true });
 	return formatted as {
 		id: string;
@@ -67,7 +67,7 @@ async function getCampaignAndPartnership(walletId: string, campaignId: string) {
             }
   `);
 
-	const result = (await cursor.all()).filter((result) => !isEmpty(result));
+	const result = (await cursor.all()).filter((r) => !isEmpty(r));
 	const formatted = camelcaseKeys(result, { deep: true });
 
 	return (formatted.length === 1 ? result[0] : null) as {
@@ -145,12 +145,14 @@ async function main() {
 		const matchedCampaigns = campaigns.filter((c) =>
 			c.events.some(
 				(e) =>
-					e.contractAddress == event.contractAddress &&
-					e.contractEvent == event.contractEvent
+					e.contractAddress === event.contractAddress &&
+					e.contractEvent === event.contractEvent
 			)
 		);
 
 		for (const matchedCampaign of matchedCampaigns) {
+			// TODO: review await in a for loop
+			// eslint-disable-next-line no-await-in-loop
 			const r = await getCampaignAndPartnership(
 				event.walletAddress,
 				matchedCampaign.id
@@ -161,9 +163,9 @@ async function main() {
 
 				if (campaign != null) {
 					const eventId = matchedCampaign.events.find(
-						(e) => e.contractEvent == event.contractEvent
+						(e) => e.contractEvent === event.contractEvent
 					)?.eventId;
-					if (eventId != undefined) {
+					if (eventId !== undefined) {
 						convert(campaign, eventId, partnershipId, event.transaction);
 					}
 				}

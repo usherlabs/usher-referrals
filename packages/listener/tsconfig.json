@@ -2,17 +2,20 @@
 	"$schema": "https://json.schemastore.org/tsconfig",
 	"display": "Listener",
 	"compilerOptions": {
-		"outDir": "./dist",
-		"rootDir": "./src",
+		"baseUrl": ".",
+		"outDir": "dist",
+		"rootDir": "src",
 		"strict": true,
+		"skipLibCheck": true,
 		"esModuleInterop": true,
 		"resolveJsonModule": true,
 		"moduleResolution": "node",
-		"typeRoots": ["./types", "./node_modules/@types"],
+		"types": ["node"],
+		"declaration": true,
 		"paths": {
 			"@/*": ["./src/*"]
 		}
 	},
 	"include": ["**/*.ts"],
-	"exclude": ["./node_modules"]
+	"exclude": ["node_modules"]
 }

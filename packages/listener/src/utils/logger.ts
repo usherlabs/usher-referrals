@@ -1,5 +1,5 @@
-import { appName, isProd, logLevel } from "../config";
 import pino from "pino";
+import { appName, isProd, logLevel } from "../config";
 
 export const log = pino({
 	name: appName,

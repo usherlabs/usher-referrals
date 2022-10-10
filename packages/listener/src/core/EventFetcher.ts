@@ -5,6 +5,7 @@ import { Objective } from "./Objective";
 
 export class EventFetcher {
 	private provider: ethers.providers.BaseProvider;
+
 	private objectives: Objective[] = [];
 
 	constructor(
@@ -22,6 +23,8 @@ export class EventFetcher {
 		const result: ContractEvent[] = [];
 
 		for (const objective of this.objectives) {
+			// TODO: review await in a for loop
+			// eslint-disable-next-line no-await-in-loop
 			const logs = await this.provider.getLogs({
 				fromBlock,
 				toBlock,
@@ -29,13 +32,15 @@ export class EventFetcher {
 				topics: [objective.topics]
 			});
 
-			for (const log of logs) {
-				const tx = await this.provider.getTransaction(log.transactionHash);
+			for (const l of logs) {
+				// TODO: review await in a for loop
+				// eslint-disable-next-line no-await-in-loop
+				const tx = await this.provider.getTransaction(l.transactionHash);
 				const event: ContractEvent = {
 					contractAddress: objective.contract,
 					walletAddress: tx.from.toLowerCase(),
-					contractEvent: objective.eventByTopic(log.topics[0]),
-					transaction: log.transactionHash
+					contractEvent: objective.eventByTopic(l.topics[0]),
+					transaction: l.transactionHash
 				};
 				result.push(event);
 			}

@@ -1,4 +1,5 @@
 import "dotenv/config";
+
 const pkg = require("../../package.json");
 
 // Application
@@ -17,7 +18,7 @@ export const arangoPassword = process.env.ARANGO_PASSWORD;
 // Ethereum
 export const providerUrl = process.env.PROVIDER_URL;
 export const startBlock =
-	(process.env.START_BLOCK && parseInt(process.env.START_BLOCK)) || 0;
+	(process.env.START_BLOCK && parseInt(process.env.START_BLOCK, 10)) || 0;
 
 // Block polling
 export default {

@@ -18,7 +18,7 @@ async function isTransactionConverted(transaction: string): Promise<boolean> {
     `);
 	const result = await cursor.all();
 
-	return result.length != 0;
+	return result.length !== 0;
 }
 
 /**
@@ -73,8 +73,8 @@ export async function convert(
 	const event = campaign.events[eventId];
 
 	// TODO: A lot of logic to determine the reward that implemented for a web conversion has been ommited here. Need to review.
-	let { rate } = event;
-	let reward = rate;
+	const { rate } = event;
+	const reward = rate;
 
 	if (await isTransactionConverted(transaction)) {
 		log.info(

@@ -4,9 +4,13 @@ import { ContractEvent } from "./ContractEvent";
 
 export class EventListener {
 	private readonly polling: BlockPolling;
+
 	private readonly emitter: EventEmitter = new EventEmitter();
+
 	private readonly queue: ContractEvent[] = [];
+
 	private _isRunning: boolean = false;
+
 	private _isProcessing: boolean = false;
 
 	constructor(polling: BlockPolling) {
