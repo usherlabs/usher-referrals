@@ -3,7 +3,7 @@ import Image from "next/image";
 import React, { useMemo } from "react";
 
 import Anchor from "@/components/Anchor";
-import { ARWEAVE_EXPLORER_URL, ETHEREUM_EXPLORER_URL } from "@/constants";
+import { ARWEAVE_EXPLORER_ADDRESS_URL, ETHEREUM_EXPLORER_ADDRESS_URL } from "@/constants";
 import { Campaign, Chains } from "@/types";
 import { chainImages } from "@/utils/images-map";
 import { UilTwitter } from "@iconscout/react-unicons";
@@ -21,13 +21,13 @@ const CampaignActions: React.FC<Props> = ({ campaign }) => {
 					return {
 						tooltip: "View on Arweave",
 						icon: chainImages[campaign.chain],
-						url: `${ARWEAVE_EXPLORER_URL}${campaign.id}`,
+						url: `${ARWEAVE_EXPLORER_ADDRESS_URL}${campaign.id}`,
 					};
 				case Chains.ETHEREUM:
 					return {
 						tooltip: "View on Etherscan",
 						icon: chainImages[campaign.chain],
-						url: `${ETHEREUM_EXPLORER_URL}${campaign.id}`,
+						url: `${ETHEREUM_EXPLORER_ADDRESS_URL}${campaign.id}`,
 					};
 				default:
 					return null;

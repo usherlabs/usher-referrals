@@ -44,6 +44,9 @@ import * as api from "@/api";
 import Authenticate from "@/modules/auth";
 import { getArweaveClient, getWarp } from "@/utils/arweave-client";
 import { AppEvents, events } from "@/utils/events";
+import { getEthereumClient } from "@/utils/ethereum-client";
+import { ethers } from "ethers";
+import { erc20 } from "@/abi/erc20";
 
 type CampaignPageProps = {
 	id: string;
@@ -53,6 +56,8 @@ type CampaignPageProps = {
 
 const arweave = getArweaveClient();
 const warp = getWarp();
+
+const ethereum = getEthereumClient();
 
 const getPartnershipMetrics = async (
 	ids: string[]
@@ -205,6 +210,27 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 					setFunds(f);
 				}
 			}
+		} else if (campaign.chain === Chains.ETHEREUM) {
+			if (campaign.reward.address) {
+				if (campaign.reward.type === RewardTypes.TOKEN) {
+					const contract = new ethers.Contract(campaign.reward.address, erc20, ethereum);
+					const decimals = await contract.decimals();
+					const balanceBN = await contract.balanceOf(campaign.id);
+					const balanceStr = ethers.utils.formatUnits(balanceBN, decimals);
+					const f = parseFloat(balanceStr);
+					if (f > 0) {
+						setFunds(f);
+					}
+				}
+			} else {
+				const balanceBN = await ethereum.getBalance(campaign.id);
+				const balanceStr = ethers.utils.formatEther(balanceBN);
+				const balance = parseFloat(balanceStr);
+				const f = balance * (1 - FEE_MULTIPLIER);
+				if (f > 0) {
+					setFunds(f);
+				}
+			}
 		}
 		setFundsLoading(false);
 	}, []);
@@ -234,7 +260,7 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 						});
 						const newFunds = funds - claim.amount;
 						setClaims([...claims, claim]);
-						setFunds(newFunds);
+						getCampaignFunds();
 
 						events.emit(AppEvents.REWARDS_CLAIM, {
 							claim,

@@ -1,7 +1,6 @@
 import { TileLoader } from "@glazed/tile-loader";
 import { WalletAliases } from "@usher.so/datamodels";
 import { aql } from "arangojs";
-import { ArangoError } from "arangojs/error";
 import { Base64 } from "js-base64";
 import { parseCookies, setCookie } from "nookies";
 import * as uint8arrays from "uint8arrays";
@@ -10,6 +9,7 @@ import { z } from "zod";
 import { REFERRAL_TOKEN_DELIMITER } from "@/constants";
 import { getAppDID } from "@/server/did";
 import { useRouteHandler } from "@/server/middleware";
+import { indexPartnership } from "@/server/partnership";
 import { ApiRequest, ApiResponse, CampaignReference } from "@/types";
 import { getArangoClient } from "@/utils/arango-client";
 import { ceramic } from "@/utils/ceramic-client";
@@ -83,14 +83,14 @@ async function saveWallet(chain: string, address: string): Promise<string> {
 /**
  * Checks if the Wallet is already referred by the Partnership.
  * @param walletId Wallet identifier in the database, i.e. `Wallets/[cahin]:[address]`
- * @param partnershipId Partnership identifier in the database, i.e. `Partnerships/[key]`
+ * @param partnership Partnership identifier in the database, i.e. `[key]`
  * @returns `boolean`
  */
-async function isWalletReferred(walletId: string, partnershipId: string): Promise<boolean> {
+async function isWalletReferred(walletId: string, partnership: string): Promise<boolean> {
 	const cursor = await arango.query(aql`
 		FOR referral IN Referrals
 		FILTER
-				referral._from == ${partnershipId} &&
+				referral._from == CONCAT("Partnerships/", ${partnership}) &&
 				referral._to == ${walletId}
 		RETURN referral
 	`);
@@ -100,12 +100,12 @@ async function isWalletReferred(walletId: string, partnershipId: string): Promis
 /**
  * Refers the Wallet to the Partnership.
  * @param walletId Wallet identifier in the database, i.e. `Wallets/[cahin]:[address]`
- * @param partnershipId Partnership identifier in the database, i.e. `Partnerships/[key]`
+ * @param partnership Partnership identifier in the database, i.e. `[key]`
  */
-async function referWallet(walletId: string, partnershipId: string) {
+async function referWallet(walletId: string, partnership: string) {
 	const cursor = await arango.query(aql`
 		INSERT {
-			_from: CONCAT("Partnerships/", ${partnershipId}),
+			_from: CONCAT("Partnerships/", ${partnership}),
 			_to: ${walletId}
 		} INTO Referrals
 	`);
@@ -113,11 +113,11 @@ async function referWallet(walletId: string, partnershipId: string) {
 
 /**
  * Increments number of hits of the Partnership
- * @param partnershipId A partnership to increment hits to
+ * @param partnership Partnership identifier in the database, i.e. `[key]`
  */
-async function incrementPartnershipHits(partnershipId: string) {
+async function incrementPartnershipHits(partnership: string) {
 	await arango.query(aql`
-		LET partnership = DOCUMENT(Partnerships, ${partnershipId})
+		LET partnership = DOCUMENT(Partnerships, ${partnership})
 		UPDATE partnership WITH {
 			hits: partnership.hits + 1
 		} IN Partnerships
@@ -126,17 +126,17 @@ async function incrementPartnershipHits(partnershipId: string) {
 
 /**
  * Creates a pending Conversion and a Referral edge from the Paretnership to the Conversion.
- * @param partnershipId A partnership to assight the created conversion
+ * @param partnership Partnership identifier in the database, i.e. `[key]`
  * @returns Id of the created Conversion
  */
-async function createPendigConversion(partnershipId: string): Promise<string> {
+async function createPendigConversion(partnership: string): Promise<string> {
 	const cursor = await arango.query(aql`
 		INSERT {
 			created_at: ${Date.now()}
 		} INTO Conversions OPTIONS { waitForSync: true }
 		LET conversion = NEW
 		INSERT {
-			_from: CONCAT("Partnerships/", ${partnershipId}),
+			_from: CONCAT("Partnerships/", ${partnership}),
 			_to: conversion._id
 		} INTO Referrals
 		RETURN conversion
@@ -196,88 +196,17 @@ handler.router.post(async (req, res) => {
 	req.log.debug({ partnership }, "Partnership is valid for this referral");
 
 	// Ensure that the partnership has been indexed
-	const dataCursor = await arango.query(aql`
-		RETURN {
-			partnership: DOCUMENT("Partnerships", ${partnership}),
-			campaign: DOCUMENT("Campaigns", ${[campaignRef.chain, campaignRef.address].join(":")})
-		}
-	`);
-	const dataResults = await dataCursor.all();
-	const [{ partnership: partnershipData, campaign: campaignData }] =
-		dataResults;
-
-	if (!campaignData) {
-		req.log.warn(
-			{
-				vars: {
-					partnership,
-					campaignRef
-				}
-			},
-			"Campaign does not exist"
-		);
+	if (!await indexPartnership(partnership, campaignRef, controller, req.log)) {
 		return res.status(400).json({
 			success: false
 		});
 	}
 
-	if (partnershipData) {
-		req.log.info(
-			{ vars: { partnership, results: dataResults } },
-			"Partnership already indexed"
-		);
-	} else {
-		req.log.info(
-			{ vars: { partnership, controller } },
-			"Indexing Partnership..."
-		);
-		const partnershipId = stream.id.toString();
-		try {
-			const cursor = await arango.query(aql`
-			INSERT {
-				_key: ${partnershipId},
-				created_at: ${Date.now()},
-				hits: 0,
-				rewards: 0
-			} INTO Partnerships OPTIONS { waitForSync: true }
-			LET p = NEW
-			UPSERT { _key: ${controller} }
-			INSERT { _key: ${controller}, created_at: ${Date.now()} }
-			UPDATE {}
-			IN Dids OPTIONS { waitForSync: true }
-			LET edges = (
-				FOR params IN [
-					{
-						_from: p._id,
-						_to: ${`Campaigns/${[campaignRef.chain, campaignRef.address].join(":")}`}
-					},
-					{
-						_from: CONCAT("Dids/", ${controller}),
-						_to: p._id
-					}
-				]
-					INSERT {
-						_from: params._from,
-						_to: params._to
-					} INTO Engagements
-					RETURN NEW
-			)
-			RETURN {
-				p,
-				edges
-			}
-		`);
-
-			const results = await cursor.all();
-			req.log.info({ results }, "Partnership indexed");
-		} catch (e) {
-			if (e instanceof ArangoError && e.errorNum === 1200) {
-				req.log.warn({ conflictErr: e }, "Arango Conflict Error");
-			} else {
-				throw e;
-			}
-		}
-	}
+	const dataCursor = await arango.query(aql`
+		RETURN DOCUMENT("Campaigns", ${[campaignRef.chain, campaignRef.address].join(":")})
+	`);
+	const dataResults = await dataCursor.all();
+	const [campaignData] = dataResults;
 
 	// By default, the campaign security includes everything. If disable_verification is true, then all partners can start earning rewards.
 	if (campaignData.disable_verification !== true) {

@@ -1,12 +1,11 @@
-import { ethers } from "ethers"
+import { ethereumProviderUrl } from "@/env-config";
+import { ethers } from "ethers";
 
-let ethereum: ethers.providers.Web3Provider;
+let ethereum: ethers.providers.BaseProvider;
 
 export const getEthereumClient = (useLocal = false) => {
-	if (!ethereum &&
-		typeof window !== 'undefined' &&
-		typeof window.ethereum !== 'undefined') {
-		ethereum = new ethers.providers.Web3Provider(window.ethereum);
+	if (!ethereum) {
+		ethereum = new ethers.providers.JsonRpcProvider(ethereumProviderUrl);
 	}
 	return ethereum;
 };
