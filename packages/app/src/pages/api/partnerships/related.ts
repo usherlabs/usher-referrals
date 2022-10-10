@@ -70,7 +70,7 @@ handler.router
 		try {
 			body = await schema.parseAsync(req.body);
 
-			const [did] = req.user.map(({ did }) => did);
+			const [did] = req.user.map(({ did: d }) => d);
 
 			const { partnership, campaignRef } = body;
 			const success = await indexPartnership(

@@ -30,7 +30,7 @@ type Props = {
 
 enum Step {
 	Init,
-	Captcha,
+	CaptchaCheck,
 	Wallet,
 	ProcessInvite
 }
@@ -68,12 +68,12 @@ const Invite: React.FC<Props> = () => {
 		switch (step) {
 			case Step.Init:
 				if (await isCaptchaNeeded()) {
-					setStep(Step.Captcha);
+					setStep(Step.CaptchaCheck);
 				} else if (isWalletRequired) {
 					setStep(Step.Wallet);
 				}
 				break;
-			case Step.Captcha:
+			case Step.CaptchaCheck:
 				if (isWalletRequired) {
 					setStep(Step.Wallet);
 				} else {
@@ -101,7 +101,7 @@ const Invite: React.FC<Props> = () => {
 	);
 
 	const onWalletConnect = useCallback(
-		async (address: string, signature: string) => {
+		async (address: string) => {
 			setWallet([chain, address].join(":"));
 			await nextStep();
 			return true;
@@ -172,7 +172,7 @@ const Invite: React.FC<Props> = () => {
 			if (step === Step.Init) {
 				await initialize();
 				await nextStep();
-			} else if (step == Step.ProcessInvite) {
+			} else if (step === Step.ProcessInvite) {
 				processInvite();
 			}
 		};
@@ -189,7 +189,7 @@ const Invite: React.FC<Props> = () => {
 			position="relative"
 		>
 			{step === Step.Init && <Preloader message={`You've been invited...`} />}
-			{step === Step.Captcha && <Captcha onSuccess={onCaptchaSuccess} />}
+			{step === Step.CaptchaCheck && <Captcha onSuccess={onCaptchaSuccess} />}
 			{step === Step.Wallet && (
 				<WalletInvite
 					chain={chain as Chains}

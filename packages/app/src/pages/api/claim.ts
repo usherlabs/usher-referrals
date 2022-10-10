@@ -146,7 +146,12 @@ handler.router.use(withAuth).post(async (req, res) => {
 
 	const campaignData = checkResults.find(
 		(result) => result._key === campaignKey
-	) as Campaign;
+	) as Campaign & {
+		_internal?: {
+			address: string;
+			key: string;
+		};
+	};
 
 	if (partnershipsData.length === 0 || !campaignData) {
 		req.log.warn(
@@ -494,9 +499,9 @@ handler.router.use(withAuth).post(async (req, res) => {
 			const did = await getAppDID();
 			const jwe = JSON.parse(Base64.decode(campaignData._internal.key));
 			const dec = await did.decryptJWE(jwe, { did: did.id });
-			const private_key = uint8arrays.toString(dec);
+			const privateKey = uint8arrays.toString(dec);
 
-			const wallet = new Wallet(private_key, ethereum);
+			const wallet = new Wallet(privateKey, ethereum);
 			wallet.connect(ethereum);
 
 			if (campaignData.reward.address) {
@@ -534,7 +539,7 @@ handler.router.use(withAuth).post(async (req, res) => {
 
 					// ? No fee for custom TOKENs at the moment
 
-					var rewardTx = await contract.populateTransaction.transfer(
+					const rewardTx = await contract.populateTransaction.transfer(
 						to,
 						rewardsToPayBN
 					);

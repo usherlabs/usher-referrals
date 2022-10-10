@@ -107,7 +107,7 @@ async function isWalletReferred(
 				referral._to == ${walletId}
 		RETURN referral
 	`);
-	return (await cursor.all()).length != 0;
+	return (await cursor.all()).length !== 0;
 }
 
 /**
@@ -116,7 +116,7 @@ async function isWalletReferred(
  * @param partnership Partnership identifier in the database, i.e. `[key]`
  */
 async function referWallet(walletId: string, partnership: string) {
-	const cursor = await arango.query(aql`
+	await arango.query(aql`
 		INSERT {
 			_from: CONCAT("Partnerships/", ${partnership}),
 			_to: ${walletId}
