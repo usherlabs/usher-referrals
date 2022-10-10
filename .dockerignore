@@ -1,0 +1,9 @@
+**/.git
+**/.next
+**/.turbo
+**/build
+**/dist
+**/node_modules
+
+**/Dockerfile
+**/docker-compose.yaml
