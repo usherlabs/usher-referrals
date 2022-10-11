@@ -3,55 +3,63 @@ import { BlockPolling, BlockPollingEvent } from "./BlockPolling";
 import { ContractEvent } from "./ContractEvent";
 
 export class EventListener {
+	private readonly polling: BlockPolling;
 
-  private readonly polling: BlockPolling;
-  private readonly emitter: EventEmitter = new EventEmitter();
-  private readonly queue: ContractEvent[] = [];
-  private _isRunning: boolean = false;
-  private _isProcessing: boolean = false;
+	private readonly emitter: EventEmitter = new EventEmitter();
 
-  constructor(polling: BlockPolling) {
-    this.polling = polling;
+	private readonly queue: ContractEvent[] = [];
 
-    this.polling.on(BlockPollingEvent.Block, (events: ContractEvent[]) => {
-      this.queue.push(...events);
-      this._next();
-    });
+	private _isRunning: boolean = false;
 
-    this.polling.on(BlockPollingEvent.Error, err => this._isRunning && this.emitter.emit('error', err));
-  }
+	private _isProcessing: boolean = false;
 
-  start(startBlock: number) {
-    this._isRunning = true;
-    this.polling.start(startBlock);
-  }
+	constructor(polling: BlockPolling) {
+		this.polling = polling;
 
-  stop() {
-    this._isRunning = false;
-    this.polling.stop();
-  }
+		this.polling.on(BlockPollingEvent.Block, (events: ContractEvent[]) => {
+			this.queue.push(...events);
+			this._next();
+		});
 
-  public onContractEvent(callback: (event: ContractEvent, done: () => void) => void) {
-    this.emitter.on("contractEvent", callback);
-  }
+		this.polling.on(
+			BlockPollingEvent.Error,
+			(err) => this._isRunning && this.emitter.emit("error", err)
+		);
+	}
 
-  private _next() {
-    if (this._isRunning && this.queue.length > 0 && !this._isProcessing) {
-      const event = this.queue[0];
+	start(startBlock: number) {
+		this._isRunning = true;
+		this.polling.start(startBlock);
+	}
 
-      const doneCallback = (err: Error | null = null) => {
-        if (err == null) {
-          this.queue.shift();
-        }
+	stop() {
+		this._isRunning = false;
+		this.polling.stop();
+	}
 
-        this._isProcessing = false;
-        this._next();
-      };
+	public onContractEvent(
+		callback: (event: ContractEvent, done: () => void) => void
+	) {
+		this.emitter.on("contractEvent", callback);
+	}
 
-      this._isProcessing = true;
-      if (!this.emitter.emit('contractEvent', event, doneCallback)) {
-        doneCallback();
-      }
-    }
-  }
+	private _next() {
+		if (this._isRunning && this.queue.length > 0 && !this._isProcessing) {
+			const event = this.queue[0];
+
+			const doneCallback = (err: Error | null = null) => {
+				if (err == null) {
+					this.queue.shift();
+				}
+
+				this._isProcessing = false;
+				this._next();
+			};
+
+			this._isProcessing = true;
+			if (!this.emitter.emit("contractEvent", event, doneCallback)) {
+				doneCallback();
+			}
+		}
+	}
 }

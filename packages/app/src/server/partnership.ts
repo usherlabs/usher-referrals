@@ -8,52 +8,52 @@ const arango = getArangoClient();
 
 /**
  * Ensures that the partnership has been indexed
- * @param partnership 
- * @param campaignRef 
- * @param controller 
- * @param log 
- * @returns 
+ * @param partnership
+ * @param campaignRef
+ * @param controller
+ * @param log
+ * @returns
  */
 export async function indexPartnership(
-  partnership: string,
-  campaignRef: CampaignReference,
-  controller: string,
-  log: pino.Logger): Promise<boolean> {
-  const dataCursor = await arango.query(aql`
+	partnership: string,
+	campaignRef: CampaignReference,
+	controller: string,
+	log: pino.Logger
+): Promise<boolean> {
+	const dataCursor = await arango.query(aql`
 	RETURN {
 		partnership: DOCUMENT("Partnerships", ${partnership}),
-		campaign: DOCUMENT("Campaigns", ${[campaignRef.chain, campaignRef.address].join(":")})
+		campaign: DOCUMENT("Campaigns", ${[campaignRef.chain, campaignRef.address].join(
+			":"
+		)})
 	}
 `);
-  const dataResults = await dataCursor.all();
-  const [{ partnership: partnershipData, campaign: campaignData }] =
-    dataResults;
+	const dataResults = await dataCursor.all();
+	const [{ partnership: partnershipData, campaign: campaignData }] =
+		dataResults;
 
-  if (!campaignData) {
-    log.warn(
-      {
-        vars: {
-          partnership,
-          campaignRef
-        }
-      },
-      "Campaign does not exist"
-    );
-    return false;
-  }
+	if (!campaignData) {
+		log.warn(
+			{
+				vars: {
+					partnership,
+					campaignRef
+				}
+			},
+			"Campaign does not exist"
+		);
+		return false;
+	}
 
-  if (partnershipData) {
-    log.info(
-      { vars: { partnership, results: dataResults } },
-      "Partnership already indexed"
-    );
-  } else {
-    log.info(
-      { vars: { partnership, controller } },
-      "Indexing Partnership..."
-    );
-    try {
-      const cursor = await arango.query(aql`
+	if (partnershipData) {
+		log.info(
+			{ vars: { partnership, results: dataResults } },
+			"Partnership already indexed"
+		);
+	} else {
+		log.info({ vars: { partnership, controller } }, "Indexing Partnership...");
+		try {
+			const cursor = await arango.query(aql`
 			INSERT {
 				_key: ${partnership},
 				created_at: ${Date.now()},
@@ -88,15 +88,15 @@ export async function indexPartnership(
 			}
 		`);
 
-      const results = await cursor.all();
-      log.info({ results }, "Partnership indexed");
-    } catch (e) {
-      if (e instanceof ArangoError && e.errorNum === 1200) {
-        log.warn({ conflictErr: e }, "Arango Conflict Error");
-      } else {
-        throw e;
-      }
-    }
-  }
-  return true;
+			const results = await cursor.all();
+			log.info({ results }, "Partnership indexed");
+		} catch (e) {
+			if (e instanceof ArangoError && e.errorNum === 1200) {
+				log.warn({ conflictErr: e }, "Arango Conflict Error");
+			} else {
+				throw e;
+			}
+		}
+	}
+	return true;
 }

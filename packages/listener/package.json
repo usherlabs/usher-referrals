@@ -1,27 +1,46 @@
 {
-  "name": "listener",
-  "version": "1.0.0",
-  "description": "",
-  "main": ".dist/main.js",
-  "scripts": {
-    "start": "ts-node ./src/main.ts",
-    "dev": "ts-node-dev --respawn ./src/main.ts",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "arangojs": "^7.8.0",
-    "camelcase-keys": "^7.0.2",
-    "ethers": "^5.6.8",
-    "lodash": "^4.17.21",
-    "pino": "^7.11.0"
-  },
-  "devDependencies": {
-    "@types/node": "^17.0.26",
-    "dotenv": "^16.0.0",
-    "ts-node": "^10.9.1",
-    "ts-node-dev": "^2.0.0"
-  }
+	"name": "@usher/listener",
+	"version": "1.0.0",
+	"description": "Usher Listener Node",
+	"repository": "git@gitlab.com:usherlabs/core.git",
+	"author": "Ryan Soury <ryan@usher.so>",
+	"license": "UNLICENSED",
+	"bin": {
+		"listener": "./bin/listener"
+	},
+	"files": [
+		"/dist"
+	],
+	"main": "./dist/index.js",
+	"types": "index.d.ts",
+	"private": true,
+	"scripts": {
+		"dev": "ts-node ./src/main.ts",
+		"build": "npm-run-all -s clean compile cmd:build",
+		"clean": "del dist build",
+		"compile": "tsc --project ./tsconfig.build.json && resolve-tspaths",
+		"cmd:build": "esbuild ./src/main.js --bundle --outdir=build --platform=node",
+		"cmd:watch": "esbuild ./src/main.js --bundle --outdir=build --platform=node --watch",
+		"ts": "tsc --noEmit",
+		"lint": "eslint -c ./.eslintrc ./src/**/*.ts"
+	},
+	"keywords": [],
+	"dependencies": {
+		"arangojs": "^7.8.0",
+		"camelcase-keys": "^7.0.2",
+		"dotenv": "^16.0.0",
+		"ethers": "^5.6.8",
+		"lodash": "^4.17.21",
+		"pino": "^7.11.0"
+	},
+	"devDependencies": {
+		"@types/lodash": "^4.14.182",
+		"@types/node": "^17.0.26",
+		"esbuild": "^0.14.42",
+		"npm-run-all": "^4.1.5",
+		"resolve-tspaths": "^0.6.0",
+		"ts-node": "^10.9.1",
+		"ts-node-dev": "^2.0.0",
+		"typescript": "^4.7.3"
+	}
 }

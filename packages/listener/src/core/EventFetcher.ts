@@ -4,46 +4,57 @@ import { ContractEvent } from "./ContractEvent";
 import { Objective } from "./Objective";
 
 export class EventFetcher {
-  private provider: ethers.providers.BaseProvider;
-  private objectives: Objective[] = [];
+	private provider: ethers.providers.BaseProvider;
 
-  constructor(provider: ethers.providers.BaseProvider, objectives: Objective[]) {
-    this.provider = provider;
-    this.objectives = objectives;
-  }
+	private objectives: Objective[] = [];
 
-  async getEvents(fromBlock: number, toBlock: number): Promise<ContractEvent[]> {
-    const result: ContractEvent[] = [];
+	constructor(
+		provider: ethers.providers.BaseProvider,
+		objectives: Objective[]
+	) {
+		this.provider = provider;
+		this.objectives = objectives;
+	}
 
-    for (const objective of this.objectives) {
-      const logs = await this.provider.getLogs({
-        fromBlock,
-        toBlock,
-        address: objective.contract,
-        topics: [objective.topics]
-      });
+	async getEvents(
+		fromBlock: number,
+		toBlock: number
+	): Promise<ContractEvent[]> {
+		const result: ContractEvent[] = [];
 
-      for (const log of logs) {
-        const tx = await this.provider.getTransaction(log.transactionHash);
-        const event: ContractEvent = {
-          contractAddress: objective.contract,
-          walletAddress: tx.from.toLowerCase(),
-          contractEvent: objective.eventByTopic(log.topics[0]),
-          transaction: log.transactionHash
-        }
-        result.push(event);
-      }
-    }
+		for (const objective of this.objectives) {
+			// TODO: review await in a for loop
+			// eslint-disable-next-line no-await-in-loop
+			const logs = await this.provider.getLogs({
+				fromBlock,
+				toBlock,
+				address: objective.contract,
+				topics: [objective.topics]
+			});
 
-    log.info(
-      {
-        fromBlock,
-        toBlock,
-        events: result
-      },
-      "Get Events"
-    );
+			for (const l of logs) {
+				// TODO: review await in a for loop
+				// eslint-disable-next-line no-await-in-loop
+				const tx = await this.provider.getTransaction(l.transactionHash);
+				const event: ContractEvent = {
+					contractAddress: objective.contract,
+					walletAddress: tx.from.toLowerCase(),
+					contractEvent: objective.eventByTopic(l.topics[0]),
+					transaction: l.transactionHash
+				};
+				result.push(event);
+			}
+		}
 
-    return result;
-  }
+		log.info(
+			{
+				fromBlock,
+				toBlock,
+				events: result
+			},
+			"Get Events"
+		);
+
+		return result;
+	}
 }

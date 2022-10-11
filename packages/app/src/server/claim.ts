@@ -7,40 +7,40 @@ const arango = getArangoClient();
 
 /**
  * Indexes Claim, Reduces Remaining Rewards for Partnership
- * @param partnershipsData 
- * @param rewardsToPay 
- * @param to 
- * @param rewardTxId 
- * @param fee 
- * @param feeWallet 
- * @param feeTxId 
- * @param log 
+ * @param partnershipsData
+ * @param rewardsToPay
+ * @param to
+ * @param rewardTxId
+ * @param fee
+ * @param feeWallet
+ * @param feeTxId
+ * @param log
  */
 export async function indexClaim(
-  partnershipsData: ({ _key: string } & PartnershipMetrics)[],
-  rewardsToPay: number,
-  to: string,
-  rewardTxId: string,
-  fee: number,
-  feeWallet: string,
-  feeTxId: string,
-  log: pino.Logger) {
+	partnershipsData: ({ _key: string } & PartnershipMetrics)[],
+	rewardsToPay: number,
+	to: string,
+	rewardTxId: string,
+	fee: number,
+	feeWallet: string,
+	feeTxId: string,
+	log: pino.Logger
+) {
+	let rewardsToDeductFrom = rewardsToPay;
+	const rewardDeductions: [string, number][] = [];
+	partnershipsData.forEach((p) => {
+		if (rewardsToDeductFrom > 0) {
+			const deduction = Math.min(p.rewards, rewardsToDeductFrom);
+			rewardsToDeductFrom -= deduction;
+			rewardDeductions.push([p._key, deduction]);
+		}
+	});
+	log.debug(
+		{ data: { rewardDeductions } },
+		"Reward deductions applied to Partnerships"
+	);
 
-  let rewardsToDeductFrom = rewardsToPay;
-  const rewardDeductions: [string, number][] = [];
-  partnershipsData.forEach((p) => {
-    if (rewardsToDeductFrom > 0) {
-      const deduction = Math.min(p.rewards, rewardsToDeductFrom);
-      rewardsToDeductFrom -= deduction;
-      rewardDeductions.push([p._key, deduction]);
-    }
-  });
-  log.debug(
-    { data: { rewardDeductions } },
-    "Reward deductions applied to Partnerships"
-  );
-
-  const indexCursor = await arango.query(aql`
+	const indexCursor = await arango.query(aql`
     LET ps = (
       FOR deduction IN ${rewardDeductions}
         LET partnership = DOCUMENT("Partnerships", deduction[0])
@@ -79,7 +79,7 @@ export async function indexClaim(
       edges: e
     }
   `);
-  const indexResults = await indexCursor.all();
+	const indexResults = await indexCursor.all();
 
-  log.info({ data: { indexResults } }, "Claim indexed");
+	log.info({ data: { indexResults } }, "Claim indexed");
 }

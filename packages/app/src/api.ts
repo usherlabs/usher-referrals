@@ -128,7 +128,7 @@ export const relatedPartnerships = (authToken: string) => {
 		},
 		async post(
 			partnership: string,
-			campaignRef: CampaignReference,
+			campaignRef: CampaignReference
 		): Promise<{ success: boolean }> {
 			return req
 				.post(`partnerships/related`, {

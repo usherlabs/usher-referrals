@@ -23,7 +23,13 @@ import { ceramic } from "@/utils/ceramic-client";
 import { getArangoClient } from "@/utils/arango-client";
 import withAuth from "@/server/middleware/auth";
 import { getArweaveClient, getWarp } from "@/utils/arweave-client";
-import { FEE_MULTIPLIER, FEE_ARWEAVE_WALLET, FEE_ETHEREUM_WALLET, ARWEAVE_EXPLORER_TX_URL, ETHEREUM_EXPLORER_TX_URL } from "@/constants";
+import {
+	FEE_MULTIPLIER,
+	FEE_ARWEAVE_WALLET,
+	FEE_ETHEREUM_WALLET,
+	ARWEAVE_EXPLORER_TX_URL,
+	ETHEREUM_EXPLORER_TX_URL
+} from "@/constants";
 import handleException from "@/utils/handle-exception";
 import { appPackageName, appVersion } from "@/env-config";
 import { getEthereumClient } from "@/utils/ethereum-client";
@@ -140,7 +146,12 @@ handler.router.use(withAuth).post(async (req, res) => {
 
 	const campaignData = checkResults.find(
 		(result) => result._key === campaignKey
-	) as Campaign;
+	) as Campaign & {
+		_internal?: {
+			address: string;
+			key: string;
+		};
+	};
 
 	if (partnershipsData.length === 0 || !campaignData) {
 		req.log.warn(
@@ -425,8 +436,12 @@ handler.router.use(withAuth).post(async (req, res) => {
 
 			await indexClaim(
 				partnershipsData,
-				rewardsToPay, to, rewardTxId,
-				fee, FEE_ARWEAVE_WALLET, feeTxId,
+				rewardsToPay,
+				to,
+				rewardTxId,
+				fee,
+				FEE_ARWEAVE_WALLET,
+				feeTxId,
 				req.log
 			);
 
@@ -484,18 +499,27 @@ handler.router.use(withAuth).post(async (req, res) => {
 			const did = await getAppDID();
 			const jwe = JSON.parse(Base64.decode(campaignData._internal.key));
 			const dec = await did.decryptJWE(jwe, { did: did.id });
-			const private_key = uint8arrays.toString(dec);
+			const privateKey = uint8arrays.toString(dec);
 
-			const wallet = new Wallet(private_key, ethereum);
+			const wallet = new Wallet(privateKey, ethereum);
 			wallet.connect(ethereum);
 
 			if (campaignData.reward.address) {
 				if (campaignData.reward.type === RewardTypes.TOKEN) {
-					const contract = new ethers.Contract(campaignData.reward.address, erc20, wallet);
+					const contract = new ethers.Contract(
+						campaignData.reward.address,
+						erc20,
+						wallet
+					);
 					const decimals = await contract.decimals();
-					const balanceBN = await contract.balanceOf(internalAddress) as BigNumber;
+					const balanceBN = (await contract.balanceOf(
+						internalAddress
+					)) as BigNumber;
 
-					let rewardsToPayBN = ethers.utils.parseUnits(rewardsToPay.toString(), decimals);
+					let rewardsToPayBN = ethers.utils.parseUnits(
+						rewardsToPay.toString(),
+						decimals
+					);
 
 					if (balanceBN.isZero()) {
 						req.log.error("Insufficient funding for Campaign");
@@ -515,8 +539,13 @@ handler.router.use(withAuth).post(async (req, res) => {
 
 					// ? No fee for custom TOKENs at the moment
 
-					var rewardTx = await contract.populateTransaction.transfer(to, rewardsToPayBN);
-					const rewardTxReceipt = await (await wallet.sendTransaction(rewardTx)).wait();
+					const rewardTx = await contract.populateTransaction.transfer(
+						to,
+						rewardsToPayBN
+					);
+					const rewardTxReceipt = await (
+						await wallet.sendTransaction(rewardTx)
+					).wait();
 
 					if (rewardTxReceipt.status === 0) {
 						req.log.error(
@@ -534,7 +563,13 @@ handler.router.use(withAuth).post(async (req, res) => {
 					}
 
 					req.log.info(
-						{ data: { fee, rewardsToPay, rewardTx: rewardTxReceipt.transactionHash } },
+						{
+							data: {
+								fee,
+								rewardsToPay,
+								rewardTx: rewardTxReceipt.transactionHash
+							}
+						},
 						"Fee and reward transfers complete"
 					);
 
@@ -589,7 +624,7 @@ handler.router.use(withAuth).post(async (req, res) => {
 				const feeTx = await wallet.populateTransaction({
 					to: FEE_ETHEREUM_WALLET,
 					value: feeBN,
-					nonce: await wallet.getTransactionCount() + 1
+					nonce: (await wallet.getTransactionCount()) + 1
 				});
 
 				rewardsToPay = parseFloat(ethers.utils.formatEther(rewardsToPayBN));
@@ -646,7 +681,12 @@ handler.router.use(withAuth).post(async (req, res) => {
 
 				req.log.info(
 					{
-						data: { fee, rewardsToPay, rewardTx: rewardTxReceipt.transactionHash, feeTx: feeTxReceipt.transactionHash }
+						data: {
+							fee,
+							rewardsToPay,
+							rewardTx: rewardTxReceipt.transactionHash,
+							feeTx: feeTxReceipt.transactionHash
+						}
 					},
 					"Fee and reward transfers complete"
 				);
@@ -657,8 +697,12 @@ handler.router.use(withAuth).post(async (req, res) => {
 
 			await indexClaim(
 				partnershipsData,
-				rewardsToPay, to, rewardTxId,
-				fee, FEE_ETHEREUM_WALLET, feeTxId,
+				rewardsToPay,
+				to,
+				rewardTxId,
+				fee,
+				FEE_ETHEREUM_WALLET,
+				feeTxId,
 				req.log
 			);
 

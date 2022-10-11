@@ -1,6 +1,6 @@
 export interface Options {
-  pollInterval?: number,
-  confirmations?: number,
-  chunkSize?: number,
-  backoff?: number
+	pollInterval?: number;
+	confirmations?: number;
+	chunkSize?: number;
+	backoff?: number;
 }

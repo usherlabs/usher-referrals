@@ -11,14 +11,14 @@ const arango = getArangoClient();
  * @returns true if the transaction already converted
  */
 async function isTransactionConverted(transaction: string): Promise<boolean> {
-  const cursor = await arango.query(aql`
+	const cursor = await arango.query(aql`
       FOR conversion IN Conversions
         FILTER conversion.transaction == ${transaction}
         RETURN true
     `);
-  const result = await cursor.all();
+	const result = await cursor.all();
 
-  return result.length != 0;
+	return result.length !== 0;
 }
 
 /**
@@ -28,18 +28,23 @@ async function isTransactionConverted(transaction: string): Promise<boolean> {
  * @param reward Reward
  * @param transaction Transaction hash
  */
-async function createConversion(partnershipId: string, eventId: number, reward: number, transaction: string) {
-  log.info(
-    {
-      partnershipId,
-      eventId,
-      reward,
-      transaction
-    },
-    "Creating conversion..."
-  );
+async function createConversion(
+	partnershipId: string,
+	eventId: number,
+	reward: number,
+	transaction: string
+) {
+	log.info(
+		{
+			partnershipId,
+			eventId,
+			reward,
+			transaction
+		},
+		"Creating conversion..."
+	);
 
-  await arango.query(aql`
+	await arango.query(aql`
     LET partnership = DOCUMENT("Partnerships", ${partnershipId})
     INSERT {
       partnership: ${partnershipId},
@@ -59,30 +64,35 @@ async function createConversion(partnershipId: string, eventId: number, reward: 
   `);
 }
 
-export async function convert(campaign: Campaign, eventId: number, partnershipId: string, transaction: string) {
-  const event = campaign.events[eventId];
+export async function convert(
+	campaign: Campaign,
+	eventId: number,
+	partnershipId: string,
+	transaction: string
+) {
+	const event = campaign.events[eventId];
 
-  // TODO: A lot of logic to determine the reward that implemented for a web conversion has been ommited here. Need to review.
-  let { rate } = event;
-  let reward = rate;
+	// TODO: A lot of logic to determine the reward that implemented for a web conversion has been ommited here. Need to review.
+	const { rate } = event;
+	const reward = rate;
 
-  if (await isTransactionConverted(transaction)) {
-    log.info(
-      {
-        campaign,
-        eventId,
-        transaction
-      },
-      "Event already converted"
-    );
-    return;
-  }
+	if (await isTransactionConverted(transaction)) {
+		log.info(
+			{
+				campaign,
+				eventId,
+				transaction
+			},
+			"Event already converted"
+		);
+		return;
+	}
 
-  // // TODO: Include a process to check remaining rewards -- to determine the rewards to set
-  // // Should reflect how the validator nodes should validate conversions.
-  // // TODO: Do this inside of a "basis" validator node -- this will speed up the operation of this function too.
-  // ? We shouldn't be allocating rewards with the limit in consideration
-  // ? Instead, you can earn as many limitless rewards, but may only withdraw up to a limit.
+	// // TODO: Include a process to check remaining rewards -- to determine the rewards to set
+	// // Should reflect how the validator nodes should validate conversions.
+	// // TODO: Do this inside of a "basis" validator node -- this will speed up the operation of this function too.
+	// ? We shouldn't be allocating rewards with the limit in consideration
+	// ? Instead, you can earn as many limitless rewards, but may only withdraw up to a limit.
 
-  await createConversion(partnershipId, eventId, reward, transaction);
+	await createConversion(partnershipId, eventId, reward, transaction);
 }

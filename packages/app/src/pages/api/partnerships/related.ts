@@ -23,7 +23,8 @@ const schema = z.object({
 /**
  * GET: Partnerships related to the authenticated DIDs
  */
-handler.router.use(withAuth)
+handler.router
+	.use(withAuth)
 	.get(async (req, res) => {
 		try {
 			const cursor = await arango.query(aql`
@@ -69,10 +70,15 @@ handler.router.use(withAuth)
 		try {
 			body = await schema.parseAsync(req.body);
 
-			const [did] = req.user.map(({ did }) => did);
+			const [did] = req.user.map(({ did: d }) => d);
 
 			const { partnership, campaignRef } = body;
-			const success = await indexPartnership(partnership, campaignRef, did, req.log);
+			const success = await indexPartnership(
+				partnership,
+				campaignRef,
+				did,
+				req.log
+			);
 			return res.json({
 				success
 			});

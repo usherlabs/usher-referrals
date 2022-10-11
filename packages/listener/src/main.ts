@@ -14,10 +14,10 @@ import { getJsonRpcProvider } from "./utils/json-rpc-provider";
 import { log } from "./utils/logger";
 
 async function loadCampaigns() {
-  log.info("Loading Campaigns...");
-  const arango = getArangoClient();
+	log.info("Loading Campaigns...");
+	const arango = getArangoClient();
 
-  const cursor = await arango.query(aql`
+	const cursor = await arango.query(aql`
     FOR c IN Campaigns
       FILTER c.chain == "ethereum"
       AND LENGTH(c.events[* FILTER CURRENT.contract_address != null AND CURRENT.contract_address != null]) > 0
@@ -34,15 +34,22 @@ async function loadCampaigns() {
       }
   `);
 
-  const result = (await cursor.all()).filter((result) => !isEmpty(result));
-  const formatted = camelcaseKeys(result, { deep: true });
-  return formatted as ({ id: string, events: { eventId: number, contractAddress: string, contractEvent: string }[] })[];
+	const result = (await cursor.all()).filter((r) => !isEmpty(r));
+	const formatted = camelcaseKeys(result, { deep: true });
+	return formatted as {
+		id: string;
+		events: {
+			eventId: number;
+			contractAddress: string;
+			contractEvent: string;
+		}[];
+	}[];
 }
 
 async function getCampaignAndPartnership(walletId: string, campaignId: string) {
-  const arango = getArangoClient();
+	const arango = getArangoClient();
 
-  const cursor = await arango.query(aql`
+	const cursor = await arango.query(aql`
     LET wallet = DOCUMENT(Wallets, ${["ethereum", walletId].join(":")})
 
     FOR partnership IN 1..1 INBOUND wallet Referrals
@@ -60,90 +67,113 @@ async function getCampaignAndPartnership(walletId: string, campaignId: string) {
             }
   `);
 
-  const result = (await cursor.all()).filter((result) => !isEmpty(result));
-  const formatted = camelcaseKeys(result, { deep: true });
+	const result = (await cursor.all()).filter((r) => !isEmpty(r));
+	const formatted = camelcaseKeys(result, { deep: true });
 
-  return (formatted.length === 1 ? result[0] : null) as
-    {
-      campaign: {
-        _key: string;
-      } & Campaign,
-      partnershipId: string
-    };
+	return (formatted.length === 1 ? result[0] : null) as {
+		campaign: {
+			_key: string;
+		} & Campaign;
+		partnershipId: string;
+	};
 }
 
-function createObjectives(campaigns: { id: string, events: { eventId: number, contractAddress: string, contractEvent: string }[] }[]): Objective[] {
-  const contractEvents = new Map<string, string[]>();
+function createObjectives(
+	campaigns: {
+		id: string;
+		events: {
+			eventId: number;
+			contractAddress: string;
+			contractEvent: string;
+		}[];
+	}[]
+): Objective[] {
+	const contractEvents = new Map<string, string[]>();
 
-  campaigns.forEach(campaign => {
-    campaign.events.forEach(event => {
-      const events = contractEvents.get(event.contractAddress);
+	campaigns.forEach((campaign) => {
+		campaign.events.forEach((event) => {
+			const events = contractEvents.get(event.contractAddress);
 
-      if (events) {
-        if (!events.find(e => e === event.contractEvent)) {
-          events.push(event.contractEvent);
-        }
-      } else {
-        contractEvents.set(event.contractAddress, [event.contractEvent])
-      }
-    })
-  });
+			if (events) {
+				if (!events.find((e) => e === event.contractEvent)) {
+					events.push(event.contractEvent);
+				}
+			} else {
+				contractEvents.set(event.contractAddress, [event.contractEvent]);
+			}
+		});
+	});
 
-  const objectives: Objective[] = [];
-  contractEvents.forEach((events, contract) => {
-    objectives.push(new Objective(contract, events));
-  })
+	const objectives: Objective[] = [];
+	contractEvents.forEach((events, contract) => {
+		objectives.push(new Objective(contract, events));
+	});
 
-  return objectives;
+	return objectives;
 }
 
-async function startListener(objectives: Objective[], onContractEvent: (event: ContractEvent) => void) {
-  log.info(
-    {
-      objectives
-    },
-    "Starting Listener...");
+async function startListener(
+	objectives: Objective[],
+	onContractEvent: (event: ContractEvent) => void
+) {
+	log.info(
+		{
+			objectives
+		},
+		"Starting Listener..."
+	);
 
-  const provider = getJsonRpcProvider();
+	const provider = getJsonRpcProvider();
 
-  const eventFetcher = new EventFetcher(provider, objectives);
-  const polling = new BlockPolling(provider, eventFetcher);
-  const listener = new EventListener(polling);
+	const eventFetcher = new EventFetcher(provider, objectives);
+	const polling = new BlockPolling(provider, eventFetcher);
+	const listener = new EventListener(polling);
 
-  listener.onContractEvent((event: ContractEvent, done: () => void) => {
-    onContractEvent(event);
-    done();
-  });
+	listener.onContractEvent((event: ContractEvent, done: () => void) => {
+		onContractEvent(event);
+		done();
+	});
 
-  listener.start(startBlock);
+	listener.start(startBlock);
 }
 
 async function main() {
-  const campaigns = await loadCampaigns();
-  const objectives = createObjectives(campaigns);
+	const campaigns = await loadCampaigns();
+	const objectives = createObjectives(campaigns);
 
-  const handleEvent = async (event: ContractEvent) => {
-    const matchedCampaigns = campaigns.filter(
-      c => c.events.some(
-        e => e.contractAddress == event.contractAddress && e.contractEvent == event.contractEvent));
+	const handleEvent = async (event: ContractEvent) => {
+		const matchedCampaigns = campaigns.filter((c) =>
+			c.events.some(
+				(e) =>
+					e.contractAddress === event.contractAddress &&
+					e.contractEvent === event.contractEvent
+			)
+		);
 
-    for (const matchedCampaign of matchedCampaigns) {
-      const r = await getCampaignAndPartnership(event.walletAddress, matchedCampaign.id);
+		for (const matchedCampaign of matchedCampaigns) {
+			// TODO: review await in a for loop
+			// eslint-disable-next-line no-await-in-loop
+			const r = await getCampaignAndPartnership(
+				event.walletAddress,
+				matchedCampaign.id
+			);
 
-      if (r) {
-        const { campaign, partnershipId } = r;
+			if (r) {
+				const { campaign, partnershipId } = r;
 
-        if (campaign != null) {
-          const eventId = matchedCampaign.events.find(e => e.contractEvent == event.contractEvent)?.eventId;
-          if (eventId != undefined) {
-            convert(campaign, eventId, partnershipId, event.transaction);
-          }
-        }
-      }
-    }
-  }
+				if (campaign != null) {
+					const eventId = matchedCampaign.events.find(
+						(e) => e.contractEvent === event.contractEvent
+					)?.eventId;
+					if (eventId !== undefined) {
+						convert(campaign, eventId, partnershipId, event.transaction);
+					}
+				}
+			}
+		}
+	};
 
-  startListener(objectives, handleEvent);
+	startListener(objectives, handleEvent);
 }
 
 main();
