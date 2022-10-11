@@ -14,6 +14,8 @@ RUN yarn install
 RUN yarn build
 
 FROM node:16-alpine
-COPY --from=build /app/packages/listener/dist /app
+ENV NODE_ENV=production
+
+COPY --from=build /app/packages/listener/build /app
 
 CMD [ "node", "/app/main.js" ]
