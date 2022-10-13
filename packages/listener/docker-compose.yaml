@@ -6,20 +6,13 @@ services:
     container_name: usher-listener
     environment:
       # Arangodb
-      ARANGO_URL: http://usher:8529
-      ARANGO_DATABASE: usher
-      ARANGO_USERNAME: root
-      ARANGO_PASSWORD: password
+      ARANGO_URL: ${ARANGO_URL}
+      ARANGO_DATABASE: ${ARANGO_DATABASE}
+      ARANGO_USERNAME: ${ARANGO_USERNAME}
+      ARANGO_PASSWORD: ${ARANGO_PASSWORD}
       # Ethereum
-      PROVIDER_URL: http://usher:8545
-      START_BLOCK: 1
+      PROVIDER_URL: ${PROVIDER_URL}
+      START_BLOCK: ${START_BLOCK}
       # Application
-      LOG_LEVEL: debug
-      restart: always
-    networks:
-      host: {}
-
-networks:
-  host:
-    external: true
-    name: host
+      LOG_LEVEL: ${LOG_LEVEL}
+    restart: always
