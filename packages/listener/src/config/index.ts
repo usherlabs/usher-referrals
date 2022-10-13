@@ -22,7 +22,7 @@ export const startBlock =
 
 // Block polling
 export default {
-	pollInterval: 1000,
+	pollInterval: 10000,
 	confirmations: 0,
 	chunkSize: 10000,
 	backoff: 1000
