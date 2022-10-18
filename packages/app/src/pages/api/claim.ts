@@ -180,7 +180,7 @@ handler.router.use(withAuth).post(async (req, res) => {
 		const pCursor = await arango.query(aql`
 			LET rewards_claimed = (
 				FOR p IN DOCUMENT("Partnerships", ${partnershipIds})
-					FOR cl IN 1..1 OUTBOUND p Engagements
+					FOR cl IN 1..3 ANY p Engagements
 						FILTER STARTS_WITH(cl._id, "Claims")
 						COLLECT AGGREGATE amount = SUM(cl.amount)
 						RETURN amount
