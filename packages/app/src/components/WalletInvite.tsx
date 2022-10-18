@@ -66,6 +66,12 @@ const WalletInvite = ({ domain, chain, onConnect }: Props) => {
 		}
 
 		try {
+			await metamask
+				.send("wallet_requestPermissions", [{ eth_accounts: {} }])
+				.catch(() => {
+					throw new Error("Connect with MetaMask to continue");
+				});
+
 			const accounts = await metamask
 				.send("eth_requestAccounts", [])
 				.catch(() => {

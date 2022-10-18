@@ -128,7 +128,7 @@ const getWallets = async (type: Connections): Promise<Wallet[]> => {
 						.listAccounts()
 						.catch((e) => console.trace(e));
 
-					if (metamaskWalletAddress && metamaskWalletAddress.length != 0) {
+					if (metamaskWalletAddress && metamaskWalletAddress.length !== 0) {
 						await authInstance.withEthereum(
 							metamaskWalletAddress[0],
 							type,
@@ -184,7 +184,9 @@ const connectWallet = async (type: Connections): Promise<Wallet[]> => {
 		case Connections.METAMASK: {
 			const metamask = getMetaMask();
 			if (metamask !== null) {
-				const accounts = await metamask.send("eth_requestAccounts", []);
+				await metamask
+					.send("wallet_requestPermissions", [{ eth_accounts: {} }])
+					.catch(console.error);
 
 				// @ts-ignore
 				// await metamask.connect(permissions, {
