@@ -1,6 +1,6 @@
 {
 	"name": "@usher/graph",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"description": "Usher Graph Service. Manage ingestion of decentralised data into ArangoDB",
 	"main": "index.ts",
 	"types": "index.d.ts",
