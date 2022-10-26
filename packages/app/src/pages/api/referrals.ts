@@ -13,6 +13,7 @@ import { indexPartnership } from "@/server/partnership";
 import { ApiRequest, ApiResponse, CampaignReference } from "@/types";
 import { getArangoClient } from "@/utils/arango-client";
 import { ceramic } from "@/utils/ceramic-client";
+import cuid from "cuid";
 
 const handler = useRouteHandler();
 
@@ -135,29 +136,6 @@ async function incrementPartnershipHits(partnership: string) {
 			hits: partnership.hits + 1
 		} IN Partnerships
 	`);
-}
-
-/**
- * Creates a pending Conversion and a Referral edge from the Paretnership to the Conversion.
- * @param partnership Partnership identifier in the database, i.e. `[key]`
- * @returns Id of the created Conversion
- */
-async function createPendigConversion(partnership: string): Promise<string> {
-	const cursor = await arango.query(aql`
-		INSERT {
-			created_at: ${Date.now()}
-		} INTO Conversions OPTIONS { waitForSync: true }
-		LET conversion = NEW
-		INSERT {
-			_from: CONCAT("Partnerships/", ${partnership}),
-			_to: conversion._id
-		} INTO Referrals
-		RETURN conversion
-	`);
-
-	const result = await cursor.all();
-	const [conversion] = result;
-	return conversion._key;
 }
 
 /**
@@ -286,11 +264,8 @@ handler.router.post(async (req, res) => {
 		}
 	}
 
-	// Create pending web-based Conversion
-	const conversionId = await createPendigConversion(partnership);
-
 	// Prepare a referral token for User.JS library that will use it on a Brand's pageю
-	const raw = [conversionId, partnership].join(REFERRAL_TOKEN_DELIMITER);
+	const raw = [cuid(), partnership].join(REFERRAL_TOKEN_DELIMITER);
 	const jwe = await did.createJWE(uint8arrays.fromString(raw), [did.id]);
 	const token = Base64.encodeURI(JSON.stringify(jwe));
 
