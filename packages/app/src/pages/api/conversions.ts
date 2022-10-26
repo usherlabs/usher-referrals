@@ -113,38 +113,6 @@ handler.router
 
 		req.log.debug({ token, partnership, id }, "Token is valid");
 
-		// Check conversion id of the token
-		const checkCursor = await arango.query(aql`
-			RETURN DOCUMENT("Conversions", ${id})
-		`);
-
-		const checkResult = (await checkCursor.all()).filter(
-			(result) => !isEmpty(result)
-		);
-		if (checkResult.length === 0) {
-			req.log.error(
-				{ token, id, partnership, checkResult },
-				"Conversion does not exist within index"
-			);
-			return res.status(400).json({
-				success: false
-			});
-		}
-
-		req.log.debug({ id }, "Conversion exists");
-
-		// Check if the result is already converted
-		const [result] = checkResult;
-		if (result.converted_at) {
-			req.log.error(
-				{ token, id, partnership, checkResult },
-				"Seed conversion already converted"
-			);
-			return res.status(400).json({
-				success: false
-			});
-		}
-
 		// Check the partnership id of the token
 		const stream = await loader.load<CampaignReference>(partnership);
 		// Validate that the provided partnership is valid
@@ -157,7 +125,6 @@ handler.router
 			req.log.info(
 				{
 					token,
-					id,
 					partnership,
 					streamContent: stream.content,
 					schema: stream.metadata.schema,
@@ -194,7 +161,6 @@ handler.router
 		const sig = Base64.encode(JSON.stringify(jws));
 
 		const rawCode = {
-			id,
 			partnership,
 			message,
 			sig,
@@ -231,7 +197,6 @@ handler.router
 
 		// Destruct the code and verify the signature against the message
 		let raw: {
-			id: string;
 			partnership: string;
 			message: string;
 			sig: string;
@@ -258,31 +223,23 @@ handler.router
 			});
 		}
 
-		// Validate that conversion is not already converted
-		// Check conversion id of the token
+		// Validate that event is not already converted
 		const convCheckCursor = await arango.query(aql`
-			RETURN DOCUMENT("Conversions", ${raw.id})
+			FOR conversion IN Conversions
+			FILTER
+					conversion.message == ${raw.message} &&
+					conversion.event_id == ${conversion.eventId}
+			RETURN conversion
 		`);
 
 		const convCheckResult = (await convCheckCursor.all()).filter(
 			(result) => !isEmpty(result)
 		);
-		if (convCheckResult.length === 0) {
+		if (convCheckResult.length !== 0) {
 			req.log.error(
 				{ vars: { raw } },
-				"Conversion does not exist within index"
+				"Event already converted"
 			);
-			return res.status(400).json({
-				success: false
-			});
-		}
-
-		req.log.debug({ vars: { raw } }, "Conversion exists");
-
-		// Check if the result is already converted
-		const [convResult] = convCheckResult;
-		if (convResult.converted_at) {
-			req.log.error({ vars: { raw } }, "Seed conversion already converted");
 			return res.status(400).json({
 				success: false
 			});
@@ -484,7 +441,7 @@ handler.router
 		// Update the associated Partnership's reward amount
 		const saveCursor = await arango.query(aql`
 			LET pDoc = DOCUMENT("Partnerships", ${partnershipId})
-			UPDATE { _key: ${raw.id}, } WITH {
+			INSERT {
 				partnership: ${partnershipId},
 				message: ${raw.message},
 				sig: ${raw.sig},
@@ -493,8 +450,12 @@ handler.router
 				native_id: ${conversion.nativeId || null},
 				metadata: ${conversion.metadata || null},
 				commit: ${commit || null}
-			} IN Conversions OPTIONS { waitForSync: true }
+			} INTO Conversions OPTIONS { waitForSync: true }
 			LET conversion = NEW
+			INSERT {
+				_from: pDoc._id,
+				_to: conversion._id
+			} INTO Referrals OPTIONS { waitForSync: true }
 			UPDATE pDoc WITH {
 				rewards: SUM([pDoc.rewards, ${rewards}])
 			} IN Partnerships OPTIONS { waitForSync: true }

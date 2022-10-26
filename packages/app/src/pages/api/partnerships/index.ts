@@ -39,12 +39,18 @@ handler.router.get(async (req, res) => {
 						COLLECT WITH COUNT INTO length
 						RETURN length
 			)
+			LET claimed = (
+				FOR claim IN 1..3 ANY p Engagements
+						FILTER STARTS_WITH(claim._id, "Claims")
+						COLLECT AGGREGATE amount = SUM(claim.amount)
+								RETURN amount)
 			RETURN {
 				id: p._key,
 				hits: p.hits,
 				pending_conversions: 0,
 				successful_conversions: TO_NUMBER(conversions_length),
-				rewards: TO_NUMBER(p.rewards)
+				rewards: TO_NUMBER(p.rewards),
+				rewards_claimed: TO_NUMBER(claimed)
 			}
 	`);
 
@@ -57,7 +63,7 @@ handler.router.get(async (req, res) => {
 			acc.conversions.pending += val.pending_conversions;
 			acc.conversions.successful += val.successful_conversions;
 			acc.rewards += val.rewards;
-
+			acc.campaign.claimed += val.rewards_claimed;
 			return acc;
 		},
 		{
@@ -67,7 +73,10 @@ handler.router.get(async (req, res) => {
 				pending: 0,
 				successful: 0
 			},
-			rewards: 0
+			rewards: 0,
+			campaign: {
+				claimed: 0
+			}
 		}
 	);
 

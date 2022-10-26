@@ -107,28 +107,21 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 	// Ensure that the user knows what they're being rewarded regardless of their internal rewards calculation.
 	let claimableRewards = metrics.data ? metrics.data.rewards : 0;
 	let excessRewards = 0;
-	let rewardsClaimed = 0;
+	const rewardsClaimed = metrics.data ? metrics.data.campaign.claimed : 0;
 	if (campaign) {
-		if (typeof campaign.rewardsClaimed === "number") {
-			rewardsClaimed = campaign.rewardsClaimed;
-
-			if (
-				typeof campaign.reward.limit === "number" &&
-				!!campaign.reward.limit
-			) {
-				let remainingRewards = campaign.reward.limit - campaign.rewardsClaimed;
-				if (remainingRewards < 0) {
-					remainingRewards = 0;
+		if (typeof campaign.reward.limit === "number" && !!campaign.reward.limit) {
+			let remainingRewards = campaign.reward.limit - rewardsClaimed;
+			if (remainingRewards < 0) {
+				remainingRewards = 0;
+			}
+			if (claimableRewards > remainingRewards) {
+				excessRewards = parseFloat(
+					(claimableRewards - remainingRewards).toFixed(2)
+				);
+				if (excessRewards <= 0) {
+					excessRewards = 0;
 				}
-				if (claimableRewards > remainingRewards) {
-					excessRewards = parseFloat(
-						(claimableRewards - remainingRewards).toFixed(2)
-					);
-					if (excessRewards <= 0) {
-						excessRewards = 0;
-					}
-					claimableRewards = remainingRewards;
-				}
+				claimableRewards = remainingRewards;
 			}
 		}
 	}
@@ -473,8 +466,8 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 									marginBottom={12}
 								>
 									<Progress
-										value={(rewardsClaimed || 0) / campaign.reward.limit}
-										label={`${parseFloat((rewardsClaimed || 0).toFixed(2))} / ${
+										value={rewardsClaimed / campaign.reward.limit}
+										label={`${rewardsClaimed.toFixed(2)} / ${
 											campaign.reward.limit
 										} ${campaign.reward.ticker} Claimed`}
 										showPercentage
@@ -644,19 +637,8 @@ export const getStaticProps = async ({
 	const docId = [chain, id].join(":");
 	const cursor = await arango.query(aql`
 		LET c = DOCUMENT("Campaigns", ${docId})
-		LET rewards_claimed = (
-			FOR cl IN 1..2 ANY c Engagements
-				FILTER STARTS_WITH(cl._id, "Claims")
-				COLLECT AGGREGATE amount = SUM(cl.amount)
-				RETURN amount
-		)
 		LET campaign = KEEP(c, ATTRIBUTES(c, true))
-		RETURN MERGE(
-				campaign,
-				{
-						rewards_claimed: TO_NUMBER(rewards_claimed[0])
-				}
-		)
+		RETURN campaign
 	`);
 
 	const results = (await cursor.all()).filter((result) => !isEmpty(result));
