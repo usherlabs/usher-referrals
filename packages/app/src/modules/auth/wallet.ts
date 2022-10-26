@@ -1,11 +1,9 @@
 /* eslint-disable no-underscore-dangle */
 
-/**
- * A class representing a single authentication (wallet connection)
- */
-import { WalletModel } from "@usher/ceramic";
+import { TileDocument } from "@ceramicnetwork/stream-tile";
+import { WalletAliases } from "@usher.so/datamodels";
 
-import { Wallet } from "@/types";
+import { Wallet, CampaignReference } from "@/types";
 import Auth from "./auth";
 
 type MagicWallet = {
@@ -15,12 +13,19 @@ type MagicWallet = {
 	};
 };
 
-const CERAMIC_MAGIC_WALLETS_KEY = "magicWallets";
-const CERAMIC_SHAREABLE_OWNER_KEY = "shareableOwner";
+type SetObject = {
+	set: string[];
+};
 
+const CERAMIC_MAGIC_WALLETS_KEY = "magicWallets";
+const CERAMIC_PARTNERSHIPS_KEY = "partnerships";
+
+/**
+ * A class representing a single authentication (wallet connection)
+ */
 class WalletAuth extends Auth {
 	constructor(protected _wallet: Wallet) {
-		super(WalletModel);
+		super(WalletAliases);
 	}
 
 	public get wallet() {
@@ -41,32 +46,66 @@ class WalletAuth extends Auth {
 		await this.authenticate(this.id, sig);
 	}
 
-	/**
-	 * Fetch the ShareableOwner ID
-	 */
-	public async getShareableOwnerId(): Promise<string | null> {
-		const content = await this.store.get(CERAMIC_SHAREABLE_OWNER_KEY);
-		if (content) {
-			return content.id;
-		}
-		return null;
-	}
-
-	/**
-	 * Set the ShareableOwner ID
-	 *
-	 * Ensure that the owner can be accessed by the Auth when it's ownerId is set.
-	 */
-	public async setShareableOwnerId(id: string): Promise<void> {
-		await this.store.set(CERAMIC_SHAREABLE_OWNER_KEY, { id }, { pin: true });
-	}
-
 	public getMagicWallets() {
 		return this.store.get(CERAMIC_MAGIC_WALLETS_KEY);
 	}
 
 	public addMagicWallet(wallet: MagicWallet) {
 		return this.store.merge(CERAMIC_MAGIC_WALLETS_KEY, wallet);
+	}
+
+	/**
+	 * Load Ceramic related data for the given authentication
+	 */
+	public async load() {
+		await this.loadPartnerships();
+	}
+
+	public async loadPartnerships() {
+		const setObj = await this.store.get(CERAMIC_PARTNERSHIPS_KEY);
+		console.log(setObj);
+		if (setObj) {
+			const { set } = setObj as SetObject;
+			return set;
+		}
+
+		return [];
+	}
+
+	public async addPartnership(campaignReference: CampaignReference) {
+		const doc = await TileDocument.create(
+			// @ts-ignore
+			this._ceramic,
+			campaignReference,
+			{
+				schema: this.model.getSchemaURL("Partnership"),
+				family: "usher:partnerships"
+			},
+			{
+				pin: true
+			}
+		);
+
+		console.log(`Partership created with stream id`, doc.id.toString());
+
+		let set: string[] = [];
+		const setObj = await this.store.get(CERAMIC_PARTNERSHIPS_KEY);
+		if (setObj) {
+			set = (setObj as SetObject).set;
+		}
+
+		set.push(doc.id.toString());
+
+		await this.store.set(CERAMIC_PARTNERSHIPS_KEY, { set });
+
+		console.log(`Partership added to DID set`, { set });
+
+		// ? In the future we should index the partnerships here too.
+
+		return {
+			id: doc.id.toString(),
+			campaign: campaignReference
+		};
 	}
 }
 

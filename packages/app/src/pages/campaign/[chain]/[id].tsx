@@ -44,6 +44,9 @@ import * as api from "@/api";
 import Authenticate from "@/modules/auth";
 import { getArweaveClient, getWarp } from "@/utils/arweave-client";
 import { AppEvents, events } from "@/utils/events";
+import { getEthereumClient } from "@/utils/ethereum-client";
+import { ethers } from "ethers";
+import { erc20 } from "@/abi/erc20";
 
 type CampaignPageProps = {
 	id: string;
@@ -53,6 +56,8 @@ type CampaignPageProps = {
 
 const arweave = getArweaveClient();
 const warp = getWarp();
+
+const ethereum = getEthereumClient();
 
 const getPartnershipMetrics = async (
 	ids: string[]
@@ -102,28 +107,21 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 	// Ensure that the user knows what they're being rewarded regardless of their internal rewards calculation.
 	let claimableRewards = metrics.data ? metrics.data.rewards : 0;
 	let excessRewards = 0;
-	let rewardsClaimed = 0;
+	const rewardsClaimed = metrics.data ? metrics.data.campaign.claimed : 0;
 	if (campaign) {
-		if (typeof campaign.rewardsClaimed === "number") {
-			rewardsClaimed = campaign.rewardsClaimed;
-
-			if (
-				typeof campaign.reward.limit === "number" &&
-				!!campaign.reward.limit
-			) {
-				let remainingRewards = campaign.reward.limit - campaign.rewardsClaimed;
-				if (remainingRewards < 0) {
-					remainingRewards = 0;
+		if (typeof campaign.reward.limit === "number" && !!campaign.reward.limit) {
+			let remainingRewards = campaign.reward.limit - rewardsClaimed;
+			if (remainingRewards < 0) {
+				remainingRewards = 0;
+			}
+			if (claimableRewards > remainingRewards) {
+				excessRewards = parseFloat(
+					(claimableRewards - remainingRewards).toFixed(2)
+				);
+				if (excessRewards <= 0) {
+					excessRewards = 0;
 				}
-				if (claimableRewards > remainingRewards) {
-					excessRewards = parseFloat(
-						(claimableRewards - remainingRewards).toFixed(2)
-					);
-					if (excessRewards <= 0) {
-						excessRewards = 0;
-					}
-					claimableRewards = remainingRewards;
-				}
+				claimableRewards = remainingRewards;
 			}
 		}
 	}
@@ -205,6 +203,31 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 					setFunds(f);
 				}
 			}
+		} else if (campaign.chain === Chains.ETHEREUM) {
+			if (campaign.reward.address) {
+				if (campaign.reward.type === RewardTypes.TOKEN) {
+					const contract = new ethers.Contract(
+						campaign.reward.address,
+						erc20,
+						ethereum
+					);
+					const decimals = await contract.decimals();
+					const balanceBN = await contract.balanceOf(campaign.id);
+					const balanceStr = ethers.utils.formatUnits(balanceBN, decimals);
+					const f = parseFloat(balanceStr);
+					if (f > 0) {
+						setFunds(f);
+					}
+				}
+			} else {
+				const balanceBN = await ethereum.getBalance(campaign.id);
+				const balanceStr = ethers.utils.formatEther(balanceBN);
+				const balance = parseFloat(balanceStr);
+				const f = balance * (1 - FEE_MULTIPLIER);
+				if (f > 0) {
+					setFunds(f);
+				}
+			}
 		}
 		setFundsLoading(false);
 	}, []);
@@ -234,7 +257,7 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 						});
 						const newFunds = funds - claim.amount;
 						setClaims([...claims, claim]);
-						setFunds(newFunds);
+						getCampaignFunds();
 
 						events.emit(AppEvents.REWARDS_CLAIM, {
 							claim,
@@ -443,8 +466,8 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 									marginBottom={12}
 								>
 									<Progress
-										value={(rewardsClaimed || 0) / campaign.reward.limit}
-										label={`${parseFloat((rewardsClaimed || 0).toFixed(2))} / ${
+										value={rewardsClaimed / campaign.reward.limit}
+										label={`${rewardsClaimed.toFixed(2)} / ${
 											campaign.reward.limit
 										} ${campaign.reward.ticker} Claimed`}
 										showPercentage
@@ -614,19 +637,8 @@ export const getStaticProps = async ({
 	const docId = [chain, id].join(":");
 	const cursor = await arango.query(aql`
 		LET c = DOCUMENT("Campaigns", ${docId})
-		LET rewards_claimed = (
-			FOR cl IN 1..2 ANY c Engagements
-				FILTER STARTS_WITH(cl._id, "Claims")
-				COLLECT AGGREGATE amount = SUM(cl.amount)
-				RETURN amount
-		)
 		LET campaign = KEEP(c, ATTRIBUTES(c, true))
-		RETURN MERGE(
-				campaign,
-				{
-						rewards_claimed: TO_NUMBER(rewards_claimed[0])
-				}
-		)
+		RETURN campaign
 	`);
 
 	const results = (await cursor.all()).filter((result) => !isEmpty(result));

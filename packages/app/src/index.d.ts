@@ -28,4 +28,7 @@ declare module "@iconscout/react-unicons" {
 	export const UilNotes: Icon;
 }
 
-declare module "@usher/ceramic";
+interface Window {
+	ethereum: Web3Provider;
+	// ethereum: ExternalProvider
+}

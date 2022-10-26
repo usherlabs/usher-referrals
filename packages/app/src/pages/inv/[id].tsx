@@ -1,18 +1,21 @@
-import { useCallback, useEffect, useState } from "react";
-import { Pane } from "evergreen-ui";
+import * as api from "@/api";
+import LogoImage from "@/assets/logo/Logo.png";
+import Captcha from "@/components/Captcha";
+import Preloader from "@/components/Preloader";
+import WalletInvite from "@/components/WalletInvite";
+import { botdPublicKey } from "@/env-config";
+import { CampaignReference, Chains } from "@/types";
+import { ceramic } from "@/utils/ceramic-client";
+import { AppEvents, events } from "@/utils/events";
+import handleException from "@/utils/handle-exception";
+import FingerprintJS from "@fingerprintjs/fingerprintjs";
 import Botd from "@fpjs-incubator/botd-agent";
+import { TileLoader } from "@glazed/tile-loader";
+import ono from "@jsdevtools/ono";
+import { Pane } from "evergreen-ui";
 import Image from "next/image";
 import { useRouter } from "next/router";
-import ono from "@jsdevtools/ono";
-import FingerprintJS from "@fingerprintjs/fingerprintjs";
-
-import { botdPublicKey } from "@/env-config";
-import Preloader from "@/components/Preloader";
-import Captcha from "@/components/Captcha";
-import * as api from "@/api";
-import handleException from "@/utils/handle-exception";
-import LogoImage from "@/assets/logo/Logo.png";
-import { events, AppEvents } from "@/utils/events";
+import { useCallback, useEffect, useState } from "react";
 
 const onError = () => {
 	window.location.replace(`/link-error`);
@@ -20,12 +23,106 @@ const onError = () => {
 
 type Props = {
 	id: string;
+	domain: string;
+	isWalletRequired: boolean;
+	chain: Chains;
 };
 
+enum Step {
+	Init,
+	CaptchaCheck,
+	Wallet,
+	ProcessInvite
+}
+
 const Invite: React.FC<Props> = () => {
-	const [showCaptcha, setShowCaptcha] = useState(false);
+	const [step, setStep] = useState(Step.Init);
+
+	const [chain, setChain] = useState<Chains>();
+	const [domain, setDomain] = useState<string>();
+	const [isWalletRequired, setIsWalletRequired] = useState<boolean>();
+
+	const [wallet, setWallet] = useState<string>();
+
 	const router = useRouter();
 	const id = router.query.id as string;
+
+	const isCaptchaNeeded = useCallback(async () => {
+		try {
+			// Initialize an agent at application startup.
+			const botd = await Botd.load({ publicKey: botdPublicKey });
+
+			// Get the visitor identifier when you need it.
+			const { requestId } = (await botd.detect()) as { requestId: string };
+
+			const result = await api.bot().post(requestId);
+			return !result.success;
+		} catch (e) {
+			handleException(e);
+			return true;
+		}
+	}, []);
+
+	const nextStep = useCallback(async () => {
+		// Check the current step and set a corresponding next step
+		switch (step) {
+			case Step.Init:
+				if (await isCaptchaNeeded()) {
+					setStep(Step.CaptchaCheck);
+				} else if (isWalletRequired) {
+					setStep(Step.Wallet);
+				}
+				break;
+			case Step.CaptchaCheck:
+				if (isWalletRequired) {
+					setStep(Step.Wallet);
+				} else {
+					setStep(Step.ProcessInvite);
+				}
+				break;
+			case Step.Wallet:
+				setStep(Step.ProcessInvite);
+				break;
+			default:
+				break;
+		}
+	}, [step, isCaptchaNeeded, isWalletRequired]);
+
+	const onCaptchaSuccess = useCallback(
+		async (token: string) => {
+			const { success: isSuccess } = await api.captcha().post(token);
+			if (isSuccess) {
+				await nextStep();
+				return true;
+			}
+			return false;
+		},
+		[nextStep]
+	);
+
+	const onWalletConnect = useCallback(
+		async (address: string) => {
+			setWallet([chain, address].join(":"));
+			await nextStep();
+			return true;
+		},
+		[nextStep]
+	);
+
+	const initialize = useCallback(async () => {
+		const loader = new TileLoader({ ceramic });
+		const stream = await loader.load<CampaignReference>(id);
+		const campaignRef = stream.content;
+		const {
+			data: [campaign]
+		} = await api.campaigns().get(campaignRef);
+
+		setChain(campaign.chain);
+		setDomain(new URL(campaign.details.destinationUrl).hostname);
+		setIsWalletRequired(
+			campaign.events.some((e) => e.contractAddress && e.contractEvent)
+		);
+	}, []);
 
 	const processInvite = useCallback(async () => {
 		// Start by fetching the campaign data for the given campaign
@@ -39,7 +136,7 @@ const Invite: React.FC<Props> = () => {
 		}
 
 		try {
-			const referral = await api.referrals().post(id);
+			const referral = await api.referrals().post(id, wallet);
 
 			if (!referral.success || !referral.data) {
 				onError();
@@ -68,51 +165,19 @@ const Invite: React.FC<Props> = () => {
 			handleException(e);
 			onError();
 		}
-	}, [id]);
-
-	const onCaptchaSuccess = useCallback(
-		async (token: string) => {
-			// console.log(token);
-			const { success: isSuccess } = await api.captcha().post(token);
-			if (isSuccess) {
-				processInvite();
-				return true;
-			}
-			return false;
-		},
-		[id]
-	);
+	}, [id, wallet]);
 
 	useEffect(() => {
-		if (!id) {
-			return () => {};
-		}
-		(async () => {
-			let shouldCaptcha = false;
-			try {
-				// Initialize an agent at application startup.
-				const botd = await Botd.load({ publicKey: botdPublicKey });
-
-				// Get the visitor identifier when you need it.
-				const { requestId } = (await botd.detect()) as { requestId: string };
-
-				const result = await api.bot().post(requestId);
-
-				shouldCaptcha = !result.success;
-			} catch (e) {
-				handleException(e);
-				shouldCaptcha = true;
+		const fn = async () => {
+			if (step === Step.Init) {
+				await initialize();
+				await nextStep();
+			} else if (step === Step.ProcessInvite) {
+				processInvite();
 			}
-
-			if (shouldCaptcha) {
-				setShowCaptcha(true);
-				return;
-			}
-
-			processInvite();
-		})();
-		return () => {};
-	}, [id]);
+		};
+		fn();
+	}, [step, initialize, processInvite]);
 
 	return (
 		<Pane
@@ -123,9 +188,16 @@ const Invite: React.FC<Props> = () => {
 			minHeight="100vh"
 			position="relative"
 		>
-			{showCaptcha ? (
-				<Captcha onSuccess={onCaptchaSuccess} />
-			) : (
+			{step === Step.Init && <Preloader message={`You've been invited...`} />}
+			{step === Step.CaptchaCheck && <Captcha onSuccess={onCaptchaSuccess} />}
+			{step === Step.Wallet && (
+				<WalletInvite
+					chain={chain as Chains}
+					domain={domain as string}
+					onConnect={onWalletConnect}
+				/>
+			)}
+			{step === Step.ProcessInvite && (
 				<Preloader message={`You've been invited...`} />
 			)}
 			<Pane

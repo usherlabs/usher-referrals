@@ -3,16 +3,18 @@ import { Base64 } from "js-base64";
 import * as uint8arrays from "uint8arrays";
 import { TileLoader } from "@glazed/tile-loader";
 import { aql } from "arangojs";
-import { ShareableOwnerModel } from "@usher/ceramic";
+import { WalletAliases } from "@usher.so/datamodels";
 import { TileDocument } from "@ceramicnetwork/stream-tile";
 // import ono from "@jsdevtools/ono";
 import uniq from "lodash/uniq";
 
 import {
 	AuthApiRequest,
+	Campaign,
 	CampaignReference,
 	Chains,
 	Claim,
+	PartnershipMetrics,
 	RewardTypes
 } from "@/types";
 import { useRouteHandler } from "@/server/middleware";
@@ -21,9 +23,19 @@ import { ceramic } from "@/utils/ceramic-client";
 import { getArangoClient } from "@/utils/arango-client";
 import withAuth from "@/server/middleware/auth";
 import { getArweaveClient, getWarp } from "@/utils/arweave-client";
-import { FEE_MULTIPLIER, FEE_ARWEAVE_WALLET } from "@/constants";
+import {
+	FEE_MULTIPLIER,
+	FEE_ARWEAVE_WALLET,
+	FEE_ETHEREUM_WALLET,
+	ARWEAVE_EXPLORER_TX_URL,
+	ETHEREUM_EXPLORER_TX_URL
+} from "@/constants";
 import handleException from "@/utils/handle-exception";
 import { appPackageName, appVersion } from "@/env-config";
+import { getEthereumClient } from "@/utils/ethereum-client";
+import { BigNumber, ethers, Wallet } from "ethers";
+import { indexClaim } from "@/server/claim";
+import { erc20 } from "@/abi/erc20";
 
 const handler = useRouteHandler<AuthApiRequest>();
 
@@ -36,15 +48,12 @@ const loader = new TileLoader({ ceramic });
 
 const arango = getArangoClient();
 
-const arweave = getArweaveClient();
-const warp = getWarp();
-
 const isPartnershipStreamValid = (stream: TileDocument<CampaignReference>) => {
 	return (
 		stream.content.address &&
 		stream.content.chain &&
 		stream.controllers.length > 0 &&
-		stream.metadata.schema === ShareableOwnerModel.schemas.partnership
+		stream.metadata.schema === WalletAliases.schemas.Partnership
 	);
 };
 
@@ -84,7 +93,7 @@ handler.router.use(withAuth).post(async (req, res) => {
 						partnershipParam,
 						streamContent: stream.content,
 						schema: stream.metadata.schema,
-						modelSchema: ShareableOwnerModel.schemas.partnership
+						modelSchema: WalletAliases.schemas.Partnership
 					}
 				},
 				"Partnership is invalid"
@@ -118,20 +127,32 @@ handler.router.use(withAuth).post(async (req, res) => {
 
 	// Validate that the partnership(s) and campaign are associated to authed dids
 	const checkCursor = await arango.query(aql`
-		FOR d IN ${req.user.map(({ did }) => did)}
-			FOR rd IN 1..1 ANY CONCAT("Dids/", d) Related
-				COLLECT _id = rd._id
-				FOR e IN 1..2 OUTBOUND _id Engagements
-					FILTER POSITION(${partnershipIds}, e._key) OR e._key == ${campaignKey}
-					RETURN e
+		LET dids = ${req.user.map(({ did }) => `Dids/${did}`)}
+		LET relatedDids = (
+			FOR did in dids
+				FOR rd IN 1..1 ANY did Related
+					COLLECT _id = rd._id
+						RETURN _id)
+		LET uniquedDids = UNION_DISTINCT(dids, relatedDids)
+		FOR did IN uniquedDids
+			FOR e IN 1..2 OUTBOUND did Engagements
+				FILTER POSITION(${partnershipIds}, e._key) OR e._key == ${campaignKey}
+				RETURN e
 	`);
 	const checkResults = (await checkCursor.all()).filter((result) => !!result);
 	const partnershipsData = checkResults.filter((result) =>
 		partnershipIds.includes(result._key)
-	);
+	) as ({ _key: string } & PartnershipMetrics)[];
+
 	const campaignData = checkResults.find(
 		(result) => result._key === campaignKey
-	);
+	) as Campaign & {
+		_internal?: {
+			address: string;
+			key: string;
+		};
+	};
+
 	if (partnershipsData.length === 0 || !campaignData) {
 		req.log.warn(
 			{
@@ -159,7 +180,7 @@ handler.router.use(withAuth).post(async (req, res) => {
 		const pCursor = await arango.query(aql`
 			LET rewards_claimed = (
 				FOR p IN DOCUMENT("Partnerships", ${partnershipIds})
-					FOR cl IN 1..1 OUTBOUND p Engagements
+					FOR cl IN 1..3 ANY p Engagements
 						FILTER STARTS_WITH(cl._id, "Claims")
 						COLLECT AGGREGATE amount = SUM(cl.amount)
 						RETURN amount
@@ -197,6 +218,23 @@ handler.router.use(withAuth).post(async (req, res) => {
 
 	// Ensure that amount to be paid is greater than amount in internal wallet -- otherwise send whatevers in the wallet and update partnership amount
 	if (campaignData.chain === Chains.ARWEAVE) {
+		const arweave = getArweaveClient();
+		const warp = getWarp();
+
+		// Ensure that Campaign has a signing key
+		if (!campaignData._internal || !campaignData._internal.key) {
+			req.log.error("Campaign's rewards signing key is not set");
+
+			return res.json({
+				success: false,
+				data: {
+					to,
+					fee: 0,
+					amount: 0
+				}
+			});
+		}
+
 		let rewardTxId = "";
 		let feeTxId = "";
 		const internalAddress = campaignData._internal.address;
@@ -396,67 +434,16 @@ handler.router.use(withAuth).post(async (req, res) => {
 				feeTxId = feeTx.id;
 			}
 
-			// Index Claim, Reduce Remaining Rewards for Partnership
-			let rewardsToDeductFrom = rewardsToPay;
-			const rewardDeductions: [string, number][] = [];
-			partnershipsData.forEach((p) => {
-				if (rewardsToDeductFrom > 0) {
-					let { rewards } = p;
-					if (rewardsToDeductFrom < p.rewards) {
-						rewards = p.rewards - rewardsToDeductFrom;
-					}
-					rewardsToDeductFrom -= rewards;
-					const deduction = p.rewards - rewards; // The deduction is the difference between the rewards and the new reward
-					rewardDeductions.push([p._key, deduction]);
-				}
-			});
-			req.log.debug(
-				{ data: { rewardDeductions } },
-				"Reward deductions applied to Partnerships"
+			await indexClaim(
+				partnershipsData,
+				rewardsToPay,
+				to,
+				rewardTxId,
+				fee,
+				FEE_ARWEAVE_WALLET,
+				feeTxId,
+				req.log
 			);
-
-			const indexCursor = await arango.query(aql`
-				LET ps = (
-					FOR deduction IN ${rewardDeductions}
-						LET partnership = DOCUMENT("Partnerships", deduction[0])
-						LET newRewards = MAX([partnership.rewards - deduction[1], 0])
-						RETURN MERGE(
-								partnership,
-								{
-										rewards: newRewards
-								}
-						)
-				)
-				INSERT {
-					amount: ${rewardsToPay},
-					to: ${to},
-					fee: ${fee},
-					feeWallet: ${FEE_ARWEAVE_WALLET},
-					txs: {
-						reward: ${rewardTxId},
-						fee: ${feeTxId}
-					},
-					created_at: ${Date.now()}
-				} INTO Claims
-				LET c = NEW
-				LET e = (
-					FOR p IN ps
-						UPDATE { _key: p._key } WITH { rewards: p.rewards } IN Partnerships
-						INSERT {
-							_from: p._id,
-							_to: c._id
-						} INTO Engagements
-						RETURN NEW
-				)
-				RETURN {
-					claim: c,
-					partnerships: ps,
-					edges: e
-				}
-			`);
-			const indexResults = await indexCursor.all();
-
-			req.log.info({ data: { indexResults } }, "Claim indexed");
 
 			const claim: Claim = {
 				to,
@@ -464,7 +451,7 @@ handler.router.use(withAuth).post(async (req, res) => {
 				amount: rewardsToPay,
 				tx: {
 					id: rewardTxId,
-					url: `https://viewblock.io/arweave/tx/${rewardTxId}`
+					url: `${ARWEAVE_EXPLORER_TX_URL}${rewardTxId}`
 				}
 			};
 			return res.json({
@@ -486,6 +473,266 @@ handler.router.use(withAuth).post(async (req, res) => {
 		}
 	}
 
+	if (campaignData.chain === Chains.ETHEREUM) {
+		const ethereum = getEthereumClient();
+
+		// Ensure that Campaign has a signing key
+		if (!campaignData._internal || !campaignData._internal.key) {
+			req.log.error("Campaign's rewards signing key is not set");
+
+			return res.json({
+				success: false,
+				data: {
+					to,
+					fee: 0,
+					amount: 0
+				}
+			});
+		}
+
+		let rewardTxId = "";
+		let feeTxId = "";
+		const internalAddress = campaignData._internal.address;
+
+		// Transfer fee amount minus gas x2 from previous transaction to platform wallet
+		try {
+			const did = await getAppDID();
+			const jwe = JSON.parse(Base64.decode(campaignData._internal.key));
+			const dec = await did.decryptJWE(jwe, { did: did.id });
+			const privateKey = uint8arrays.toString(dec);
+
+			const wallet = new Wallet(privateKey, ethereum);
+			wallet.connect(ethereum);
+
+			if (campaignData.reward.address) {
+				if (campaignData.reward.type === RewardTypes.TOKEN) {
+					const contract = new ethers.Contract(
+						campaignData.reward.address,
+						erc20,
+						wallet
+					);
+					const decimals = await contract.decimals();
+					const balanceBN = (await contract.balanceOf(
+						internalAddress
+					)) as BigNumber;
+
+					let rewardsToPayBN = ethers.utils.parseUnits(
+						rewardsToPay.toString(),
+						decimals
+					);
+
+					if (balanceBN.isZero()) {
+						req.log.error("Insufficient funding for Campaign");
+						return res.status(402).json({
+							success: false,
+							data: {
+								to,
+								fee: 0,
+								amount: 0
+							}
+						});
+					}
+
+					if (rewardsToPayBN.gt(balanceBN)) {
+						rewardsToPayBN = balanceBN;
+					}
+
+					// ? No fee for custom TOKENs at the moment
+
+					const rewardTx = await contract.populateTransaction.transfer(
+						to,
+						rewardsToPayBN
+					);
+					const rewardTxReceipt = await (
+						await wallet.sendTransaction(rewardTx)
+					).wait();
+
+					if (rewardTxReceipt.status === 0) {
+						req.log.error(
+							{ data: { rewardTxReceipt, rewardTx, rewardsToPay } },
+							"Failed to submit reward transaction"
+						);
+						return res.json({
+							success: false,
+							data: {
+								to,
+								fee,
+								amount: rewardsToPay
+							}
+						});
+					}
+
+					req.log.info(
+						{
+							data: {
+								fee,
+								rewardsToPay,
+								rewardTx: rewardTxReceipt.transactionHash
+							}
+						},
+						"Fee and reward transfers complete"
+					);
+
+					rewardTxId = rewardTxReceipt.transactionHash;
+				} else {
+					req.log.error(
+						{ data: { reward: campaignData.reward } },
+						"Unsupported Campaign Reward"
+					);
+					return res.status(402).json({
+						success: false,
+						data: {
+							to,
+							fee: 0,
+							amount: 0
+						}
+					});
+				}
+			} else {
+				let rewardsToPayBN = ethers.utils.parseEther(rewardsToPay.toString());
+				let feeBN = rewardsToPayBN.mul(FEE_MULTIPLIER * 100).div(100); // x * 0.1
+				const totalToPayBN = rewardsToPayBN.add(feeBN);
+
+				const balanceBN = await ethereum.getBalance(internalAddress);
+
+				if (balanceBN.isZero()) {
+					req.log.error("Insufficient funding for Campaign");
+					return res.status(402).json({
+						success: false,
+						data: {
+							to,
+							fee: 0,
+							amount: 0
+						}
+					});
+				}
+
+				if (totalToPayBN.gt(balanceBN)) {
+					feeBN = balanceBN.mul(FEE_MULTIPLIER * 100).div(100);
+					rewardsToPayBN = balanceBN.sub(feeBN);
+				}
+
+				const rewardTx = await wallet.populateTransaction({
+					to,
+					value: rewardsToPayBN,
+					nonce: await wallet.getTransactionCount()
+				});
+
+				if (totalToPayBN.gt(balanceBN)) {
+					feeBN = feeBN.sub(BigNumber.from(rewardTx.gasLimit).mul(2)); // ensure there's enough gas for the transfers.
+				}
+				const feeTx = await wallet.populateTransaction({
+					to: FEE_ETHEREUM_WALLET,
+					value: feeBN,
+					nonce: (await wallet.getTransactionCount()) + 1
+				});
+
+				rewardsToPay = parseFloat(ethers.utils.formatEther(rewardsToPayBN));
+				fee = parseFloat(ethers.utils.formatEther(feeBN));
+
+				req.log.debug(
+					{
+						data: {
+							fee,
+							rewardsToPay
+						}
+					},
+					"Fee and reward calculated"
+				);
+
+				await Promise.all([
+					wallet.signTransaction(rewardTx),
+					wallet.signTransaction(feeTx)
+				]);
+
+				const [rewardTxReceipt, feeTxReceipt] = await Promise.all([
+					(await wallet.sendTransaction(rewardTx)).wait(),
+					(await wallet.sendTransaction(feeTx)).wait()
+				]);
+
+				if (rewardTxReceipt.status === 0) {
+					req.log.error(
+						{ data: { rewardTxReceipt, rewardTx, rewardsToPay } },
+						"Failed to submit reward transaction"
+					);
+					return res.json({
+						success: false,
+						data: {
+							to,
+							fee,
+							amount: rewardsToPay
+						}
+					});
+				}
+				if (feeTxReceipt.status === 0) {
+					req.log.warn(
+						{ data: { feeTxReceipt, feeTx, fee } },
+						"Failed to submit fee transaction"
+					);
+					return res.json({
+						success: false,
+						data: {
+							to,
+							fee,
+							amount: rewardsToPay
+						}
+					});
+				}
+
+				req.log.info(
+					{
+						data: {
+							fee,
+							rewardsToPay,
+							rewardTx: rewardTxReceipt.transactionHash,
+							feeTx: feeTxReceipt.transactionHash
+						}
+					},
+					"Fee and reward transfers complete"
+				);
+
+				rewardTxId = rewardTxReceipt.transactionHash;
+				feeTxId = feeTxReceipt.transactionHash;
+			}
+
+			await indexClaim(
+				partnershipsData,
+				rewardsToPay,
+				to,
+				rewardTxId,
+				fee,
+				FEE_ETHEREUM_WALLET,
+				feeTxId,
+				req.log
+			);
+
+			const claim: Claim = {
+				to,
+				fee,
+				amount: rewardsToPay,
+				tx: {
+					id: rewardTxId,
+					url: `${ETHEREUM_EXPLORER_TX_URL}${rewardTxId}`
+				}
+			};
+			return res.json({
+				success: true,
+				data: claim
+			});
+		} catch (e) {
+			handleException(e);
+			req.log.error(
+				{
+					e,
+					data: { partnershipIds, campaignRef }
+				},
+				"Cannot execute Ethereum Rewards Transfer"
+			);
+			return res.status(400).json({
+				success: false
+			});
+		}
+	}
 	req.log.warn("Unsupported partnership");
 
 	return res.json({

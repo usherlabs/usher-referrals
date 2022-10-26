@@ -1,6 +1,6 @@
 {
 	"name": "usher",
-	"version": "0.0.4",
+	"version": "0.0.5",
 	"description": "Usher Core Repo -- Affiliate Marketing for PSCs",
 	"repository": "git@gitlab.com:usherlabs/core.git",
 	"homepage": "https://usher.so/",
@@ -9,7 +9,7 @@
 	"private": true,
 	"scripts": {
 		"clean": "del packages/*/node_modules node_modules",
-		"format": "prettier --write \"**/*.{js,jsx,mjs,ts,tsx,json,css,scss,md}\"",
+		"format": "prettier --write \"{packages, apps}/**/*.{js,jsx,mjs,ts,tsx,json,css,scss,md}\"",
 		"ngrok": "rathole ./rathole.toml"
 	},
 	"devDependencies": {

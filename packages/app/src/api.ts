@@ -1,3 +1,4 @@
+import { Partnership } from "./../../graph/src/types";
 import ky from "ky";
 import {
 	CampaignReference,
@@ -116,14 +117,41 @@ export const partnerships = () => ({
 	}
 });
 
+// Boilerplate to fetch partnershiops related to authenticated DID
+export const relatedPartnerships = (authToken: string) => {
+	const req = getAuthRequest(authToken);
+
+	return {
+		async get() {
+			const resp = await req.get(`partnerships/related`).json();
+			return resp as { success: boolean; data: Partnership[] };
+		},
+		async post(
+			partnership: string,
+			campaignRef: CampaignReference
+		): Promise<{ success: boolean }> {
+			return req
+				.post(`partnerships/related`, {
+					json: {
+						partnership,
+						campaignRef
+					}
+				})
+				.json();
+		}
+	};
+};
+
 export const referrals = () => ({
 	post: (
-		partnership: string
+		partnership: string,
+		wallet?: string
 	): Promise<{ success: boolean; data?: Referral }> => {
 		return request
 			.post(`referrals`, {
 				json: {
-					partnership
+					partnership,
+					wallet
 				}
 			})
 			.json();
@@ -143,6 +171,8 @@ export const claim = (authToken: string) => {
 		}> {
 			return req
 				.post("claim", {
+					// TODO: Temporary workaround. Needs a better solution
+					timeout: 5 * 60 * 1000, // 5 minutes
 					json: {
 						partnership,
 						to

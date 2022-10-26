@@ -25,7 +25,7 @@ const CampaignRewards: React.FC<Props> = ({
 			ticker={ticker}
 			value={
 				<>
-					{value}
+					{parseFloat(value.toFixed(6))}
 					{!!excess && (
 						<Tooltip content="You have earned excess rewards!">
 							<Text color={colors.blue500} marginLeft={4}>

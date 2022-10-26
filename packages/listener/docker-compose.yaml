@@ -1,0 +1,18 @@
+services:
+  listener:
+    build:
+      context: ../..
+      dockerfile: ./packages/listener/Dockerfile
+    container_name: usher-listener
+    environment:
+      # Arangodb
+      ARANGO_URL: ${ARANGO_URL}
+      ARANGO_DATABASE: ${ARANGO_DATABASE}
+      ARANGO_USERNAME: ${ARANGO_USERNAME}
+      ARANGO_PASSWORD: ${ARANGO_PASSWORD}
+      # Ethereum
+      PROVIDER_URL: ${PROVIDER_URL}
+      START_BLOCK: ${START_BLOCK}
+      # Application
+      LOG_LEVEL: ${LOG_LEVEL}
+    restart: always
