@@ -95,7 +95,6 @@ export type Campaign = {
 	reward: CampaignReward;
 	details: CampaignDetails;
 	advertiser: Advertiser;
-	rewardsClaimed?: number;
 	disableVerification?: boolean;
 	unlisted?: boolean;
 	whitelist?: {
@@ -143,6 +142,9 @@ export type PartnershipMetrics = {
 		successful: number;
 	};
 	rewards: number;
+	campaign: {
+		claimed: number;
+	};
 };
 
 export type Referral = {
