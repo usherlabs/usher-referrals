@@ -236,10 +236,7 @@ handler.router
 			(result) => !isEmpty(result)
 		);
 		if (convCheckResult.length !== 0) {
-			req.log.error(
-				{ vars: { raw } },
-				"Event already converted"
-			);
+			req.log.error({ vars: { raw } }, "Event already converted");
 			return res.status(400).json({
 				success: false
 			});
