@@ -23,9 +23,11 @@ export enum Chains {
 }
 
 export enum Connections {
-	MAGIC = "magic",
 	ARCONNECT = "ar_connect",
-	METAMASK = "meta_mask"
+	COINBASEWALLET = "coinbase_wallet",
+	MAGIC = "magic",
+	METAMASK = "meta_mask",
+	WALLETCONNECT = "wallet_connect"
 }
 
 export enum CampaignStrategies {

@@ -1,23 +1,21 @@
-import { DID } from "dids";
-import * as uint8arrays from "uint8arrays";
+import * as api from "@/api";
+import {
+	CampaignReference,
+	Chains,
+	Connections,
+	Partnership,
+	Wallet
+} from "@/types";
+import { getArweaveClient } from "@/utils/arweave-client";
+import { getMagicClient } from "@/utils/magic-client";
+import ono from "@jsdevtools/ono";
+import { randomString } from "@stablelib/random";
 import Arweave from "arweave";
 import { JWKInterface } from "arweave/node/lib/wallet";
-import ono from "@jsdevtools/ono";
+import { DID } from "dids";
+import ethers from "ethers";
 import { Base64 } from "js-base64";
-import { randomString } from "@stablelib/random";
-import { Web3Provider } from "@ethersproject/providers";
-import { parseCookies, setCookie } from "nookies";
-
-import { getMagicClient } from "@/utils/magic-client";
-import { getArweaveClient } from "@/utils/arweave-client";
-import {
-	Chains,
-	Wallet,
-	Connections,
-	CampaignReference,
-	Partnership
-} from "@/types";
-import * as api from "@/api";
+import * as uint8arrays from "uint8arrays";
 import WalletAuth from "./wallet";
 
 const arweave = getArweaveClient();
@@ -206,13 +204,7 @@ class Authenticate {
 	public async withEthereum(
 		address: string,
 		connection: Connections,
-		provider: Web3Provider
-		// | {
-		// 	signature: (
-		// 		data: Uint8Array,
-		// 		algorithm: RsaPssParams
-		// 	) => Promise<Uint8Array>;
-		// }
+		provider: ethers.providers.Web3Provider
 	): Promise<WalletAuth> {
 		const auth = new WalletAuth({
 			address,
@@ -221,22 +213,28 @@ class Authenticate {
 		});
 
 		let sig: Uint8Array;
-		const cookies = parseCookies();
-		if (cookies.__usher_metamask) {
-			const metamaskCookies = JSON.parse(cookies.__usher_metamask) as {
-				address: string;
-				signature: string;
-			};
-			sig = uint8arrays.fromString(metamaskCookies.signature);
+		const previouslyConnectedWallets = JSON.parse(
+			window.localStorage.getItem("connectedWallets") || "[]"
+		) as (Wallet & { signature: string })[];
+
+		const [connectedWallet] = previouslyConnectedWallets.filter(
+			(wallet) => wallet.connection === connection
+		);
+		if (connectedWallet) {
+			sig = uint8arrays.fromString(connectedWallet.signature);
 		} else {
 			const signer = provider.getSigner();
 			const text =
 				"To create your Usher account, please click the 'Sign' button.";
 			const signature = await signer.signMessage(uint8arrays.fromString(text));
-			setCookie(
-				null,
-				"__usher_metamask",
-				JSON.stringify({ address, signature })
+
+			const wallet = auth.wallet as Wallet & { signature: string };
+			wallet.signature = signature;
+
+			previouslyConnectedWallets.push(wallet);
+			window.localStorage.setItem(
+				"connectedWallets",
+				JSON.stringify(previouslyConnectedWallets)
 			);
 			sig = uint8arrays.fromString(signature);
 		}

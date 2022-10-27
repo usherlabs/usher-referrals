@@ -102,7 +102,7 @@ const WalletsManager: React.FC<Props> = ({ onClose }) => {
 
 	useEffect(() => {
 		(async () => {
-			const arconnect = getArConnect();
+			const arconnect = await getArConnect();
 			if (arconnect) {
 				try {
 					const address = await arconnect.getActiveAddress();
@@ -116,13 +116,14 @@ const WalletsManager: React.FC<Props> = ({ onClose }) => {
 					// ...
 				}
 			}
-			if (
-				wallets
-					.map((wallet) => wallet.connection)
-					.includes(Connections.MAGIC) &&
-				!hiddenConnections.includes(Connections.MAGIC)
-			) {
-				setHiddenConnections([...hiddenConnections, Connections.MAGIC]);
+			const activeConnections = wallets.map((wallet) => wallet.connection);
+			for (const connection of Object.values(Connections)) {
+				if (
+					activeConnections.includes(connection) &&
+					!hiddenConnections.includes(connection)
+				) {
+					setHiddenConnections([...hiddenConnections, connection]);
+				}
 			}
 		})();
 	}, [wallets, hiddenConnections]);

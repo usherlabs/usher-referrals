@@ -2,6 +2,33 @@
  * User provider
  */
 
+import * as api from "@/api";
+import LogoImage from "@/assets/logo/Logo-Icon.svg";
+import useArConnect from "@/hooks/use-arconnect";
+import Authenticate from "@/modules/auth";
+import {
+	CampaignReference,
+	Connections,
+	IUserContext,
+	Profile,
+	User,
+	Wallet
+} from "@/types";
+import getArConnect from "@/utils/arconnect";
+import delay from "@/utils/delay";
+import { AppEvents, events } from "@/utils/events";
+import handleException from "@/utils/handle-exception";
+import { getMagicClient } from "@/utils/magic-client";
+import { onboard } from "@/utils/onboard";
+import pascalCase from "@/utils/pascal-case";
+import { ethers } from "ethers";
+import { toaster } from "evergreen-ui";
+import produce from "immer";
+import { Base64 } from "js-base64";
+import isEqual from "lodash/isEqual";
+import once from "lodash/once";
+import { destroyCookie, parseCookies } from "nookies";
+import allSettled from "promise.allsettled";
 import React, {
 	createContext,
 	useCallback,
@@ -9,34 +36,6 @@ import React, {
 	useMemo,
 	useState
 } from "react";
-import produce from "immer";
-import allSettled from "promise.allsettled";
-import once from "lodash/once";
-import { toaster } from "evergreen-ui";
-import isEqual from "lodash/isEqual";
-import { parseCookies, destroyCookie } from "nookies";
-import { Base64 } from "js-base64";
-
-import getArConnect from "@/utils/arconnect";
-import getMetaMask from "@/utils/metamask";
-import useArConnect from "@/hooks/use-arconnect";
-import useMetaMask from "@/hooks/use-metamask";
-import {
-	User,
-	IUserContext,
-	Wallet,
-	Connections,
-	Profile,
-	CampaignReference
-} from "@/types";
-import delay from "@/utils/delay";
-import handleException from "@/utils/handle-exception";
-import Authenticate from "@/modules/auth";
-import { getMagicClient } from "@/utils/magic-client";
-import * as api from "@/api";
-import { events, AppEvents } from "@/utils/events";
-import pascalCase from "@/utils/pascal-case";
-import LogoImage from "@/assets/logo/Logo-Icon.svg";
 
 type Props = {
 	children: React.ReactNode;
@@ -91,10 +90,41 @@ const onWalletsError = (connection: Connections) => {
 const getWallets = async (type: Connections): Promise<Wallet[]> => {
 	// Fetch Currently authenticated User by referring to their connected wallets.
 	let wallets: Wallet[] = [];
+
+	const previouslyConnectedWallets = JSON.parse(
+		window.localStorage.getItem("connectedWallets") || "[]"
+	) as Wallet[];
+	const [previouslyConnectedWallet] = previouslyConnectedWallets.filter(
+		(w) => w.connection === type
+	);
+
 	try {
+		const getWalletsWithOnbaord = async (onboardWalletLabel: string) => {
+			if (previouslyConnectedWallet) {
+				await onboard.connectWallet({
+					autoSelect: {
+						label: onboardWalletLabel,
+						disableModals: true
+					}
+				});
+			}
+
+			const [wallet] = onboard.state
+				.get()
+				.wallets.filter((w) => w.label === onboardWalletLabel);
+
+			if (wallet && wallet.accounts.length > 0) {
+				await authInstance.withEthereum(
+					wallet.accounts[0].address,
+					type,
+					new ethers.providers.Web3Provider(wallet.provider)
+				);
+			}
+		};
+
 		switch (type) {
 			case Connections.ARCONNECT: {
-				const arconnect = getArConnect();
+				const arconnect = await getArConnect();
 				if (arconnect) {
 					const arweaveWalletAddress = await arconnect
 						.getActiveAddress()
@@ -105,9 +135,12 @@ const getWallets = async (type: Connections): Promise<Wallet[]> => {
 							type,
 							arconnect
 						);
-						wallets = authInstance.getWallets();
 					}
 				}
+				break;
+			}
+			case Connections.COINBASEWALLET: {
+				await getWalletsWithOnbaord("Coinbase Wallet");
 				break;
 			}
 			case Connections.MAGIC: {
@@ -115,34 +148,24 @@ const getWallets = async (type: Connections): Promise<Wallet[]> => {
 				const { magic } = getMagicClient();
 				const isLoggedIn = await magic.user.isLoggedIn();
 				if (isLoggedIn) {
-					await authInstance.withMagic();
 					// Magic will produce and authenticate multiple wallets for each blockchain it supports -- ie. Eth & Arweave
-					wallets = authInstance.getWallets();
+					await authInstance.withMagic();
 				}
 				break;
 			}
 			case Connections.METAMASK: {
-				const metamask = getMetaMask();
-				if (metamask) {
-					const metamaskWalletAddress = await metamask
-						.listAccounts()
-						.catch((e) => console.trace(e));
-
-					if (metamaskWalletAddress && metamaskWalletAddress.length !== 0) {
-						await authInstance.withEthereum(
-							metamaskWalletAddress[0],
-							type,
-							metamask
-						);
-						wallets = authInstance.getWallets();
-					}
-				}
+				await getWalletsWithOnbaord("MetaMask");
+				break;
+			}
+			case Connections.WALLETCONNECT: {
+				await getWalletsWithOnbaord("WalletConnect");
 				break;
 			}
 			default: {
 				break;
 			}
 		}
+		wallets = authInstance.getWallets();
 	} catch (e) {
 		onWalletsError(type);
 		handleException(e);
@@ -156,7 +179,7 @@ const getWallets = async (type: Connections): Promise<Wallet[]> => {
 const connectWallet = async (type: Connections): Promise<Wallet[]> => {
 	switch (type) {
 		case Connections.ARCONNECT: {
-			const arconnect = getArConnect();
+			const arconnect = await getArConnect();
 			if (arconnect !== null) {
 				const permissions = ["ACCESS_ADDRESS", "SIGNATURE"];
 				// @ts-ignore
@@ -170,6 +193,13 @@ const connectWallet = async (type: Connections): Promise<Wallet[]> => {
 			}
 			break;
 		}
+		case Connections.COINBASEWALLET: {
+			await onboard.connectWallet({
+				autoSelect: { disableModals: true, label: "Coinbase Wallet" }
+			});
+
+			return getWallets(type);
+		}
 		case Connections.MAGIC: {
 			const { magic } = getMagicClient();
 			const isLoggedIn = await magic.user.isLoggedIn();
@@ -182,22 +212,18 @@ const connectWallet = async (type: Connections): Promise<Wallet[]> => {
 			break;
 		}
 		case Connections.METAMASK: {
-			const metamask = getMetaMask();
-			if (metamask !== null) {
-				await metamask
-					.send("wallet_requestPermissions", [{ eth_accounts: {} }])
-					.catch(console.error);
+			await onboard.connectWallet({
+				autoSelect: { disableModals: true, label: "MetaMask" }
+			});
 
-				// @ts-ignore
-				// await metamask.connect(permissions, {
-				// 	name: "Usher",
-				// 	logo: LogoImage
-				// });
+			return getWallets(type);
+		}
+		case Connections.WALLETCONNECT: {
+			await onboard.connectWallet({
+				autoSelect: { disableModals: true, label: "WalletConnect" }
+			});
 
-				await delay(1000);
-				return getWallets(type);
-			}
-			break;
+			return getWallets(type);
 		}
 		default: {
 			break;
@@ -210,7 +236,7 @@ const connectWallet = async (type: Connections): Promise<Wallet[]> => {
 const disconnectWallet = async (type: Connections) => {
 	switch (type) {
 		case Connections.ARCONNECT: {
-			const arconnect = getArConnect();
+			const arconnect = await getArConnect();
 			if (arconnect !== null) {
 				await arconnect.disconnect();
 				await delay(500);
@@ -235,12 +261,11 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 	const [user, setUser] = useState<User>(defaultValues);
 	const [loading, setLoading] = useState(false);
 	const [, isArConnectLoading] = useArConnect();
-	const [, isMetaMaskLoading] = useMetaMask();
 	const [walletsLoading, setWalletsLoading] = useState(false);
 
 	useEffect(() => {
-		setWalletsLoading(isArConnectLoading || isMetaMaskLoading);
-	}, [isArConnectLoading, isMetaMaskLoading]);
+		setWalletsLoading(isArConnectLoading);
+	}, [isArConnectLoading]);
 
 	const saveUser = useCallback((saved: User) => {
 		console.log("SAVED USER", saved);
@@ -381,26 +406,18 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 	const loadUser = useCallback(
 		once(async () => {
 			console.log("Loading user ...");
-			const res = await allSettled<Wallet[]>(
-				Object.values(Connections).map((value) =>
-					getWallets(value).then((fetched) => {
-						saveWallets(fetched);
-						return fetched;
-					})
-				)
-			);
 
 			const fetchedWallets: Wallet[] = [];
-			for (let i = res.length - 1; i >= 0; i -= 1) {
-				if (res[i].status === "fulfilled") {
-					// @ts-ignore
-					const { value = [] } = res[i];
-					value.forEach((v: Wallet) => {
-						if (!fetchedWallets.find((w) => isEqual(w, v))) {
-							fetchedWallets.push(v);
-						}
-					});
-				}
+			for (const connection of Object.values(Connections)) {
+				// We are traversing all the supported connections one by one synchronously
+				// eslint-disable-next-line no-await-in-loop
+				const wallets = await getWallets(connection);
+				saveWallets(wallets);
+				wallets.forEach((wallet) => {
+					if (!fetchedWallets.find((fw) => isEqual(fw, wallet))) {
+						fetchedWallets.push(wallet);
+					}
+				});
 			}
 
 			console.log("Wallets loaded. Fetching verifications ...", fetchedWallets);

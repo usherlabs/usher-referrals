@@ -1,39 +1,27 @@
-/**
- * See https://github.com/martonlederer/use-arconnect/blob/master/src/index.ts
- */
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import getArConnect from "@/utils/arconnect";
 
-const useArConnect = (): [typeof getArConnect, boolean] => {
+const useArConnect = (): [
+	() => typeof window.arweaveWallet | null,
+	boolean
+] => {
 	const [isLoading, setLoading] = useState(true);
+	const [arConnect, setArConnect] = useState<
+		typeof window.arweaveWallet | null
+	>(null);
+
+	const callback = useCallback(() => {
+		return arConnect;
+	}, [arConnect]);
 
 	useEffect(() => {
-		if (window.arweaveWallet) {
+		getArConnect().then((result) => {
+			setArConnect(() => result);
 			setLoading(false);
-		} else {
-			window.addEventListener("arweaveWalletLoaded", () => {
-				setLoading(false);
-			});
-			const interval = setInterval(() => {
-				if (window.arweaveWallet) {
-					clearInterval(interval);
-					setLoading(false);
-				}
-			}, 500);
-			const timeout = setTimeout(() => {
-				clearInterval(interval);
-				setLoading(false); // ArConnect not loaded...
-			}, 2000);
-
-			return () => {
-				clearTimeout(timeout);
-				clearInterval(interval);
-			};
-		}
-		return () => {};
+		});
 	}, []);
 
-	return [getArConnect, isLoading];
+	return [callback, isLoading];
 };
 
 export default useArConnect;
