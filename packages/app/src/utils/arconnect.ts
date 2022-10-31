@@ -5,7 +5,8 @@ export default () => {
 		if (arweaveWallet !== undefined) {
 			resolve(arweaveWallet);
 		} else if (window.arweaveWallet !== undefined) {
-			resolve(window.arweaveWallet);
+			arweaveWallet = window.arweaveWallet;
+			resolve(arweaveWallet);
 		} else {
 			const interval = setInterval(() => {
 				if (window.arweaveWallet) {

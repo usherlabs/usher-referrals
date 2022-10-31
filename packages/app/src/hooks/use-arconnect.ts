@@ -1,27 +1,20 @@
-import { useCallback, useEffect, useState } from "react";
 import getArConnect from "@/utils/arconnect";
+import { useEffect, useState } from "react";
 
-const useArConnect = (): [
-	() => typeof window.arweaveWallet | null,
-	boolean
-] => {
+const useArConnect = (): [typeof window.arweaveWallet | null, boolean] => {
 	const [isLoading, setLoading] = useState(true);
 	const [arConnect, setArConnect] = useState<
 		typeof window.arweaveWallet | null
 	>(null);
 
-	const callback = useCallback(() => {
-		return arConnect;
-	}, [arConnect]);
-
 	useEffect(() => {
 		getArConnect().then((result) => {
-			setArConnect(() => result);
+			setArConnect(result);
 			setLoading(false);
 		});
 	}, []);
 
-	return [callback, isLoading];
+	return [arConnect, isLoading];
 };
 
 export default useArConnect;

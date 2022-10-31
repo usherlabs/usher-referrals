@@ -2,18 +2,12 @@ import ArConnectIcon from "@/assets/icon/arconnect.svg";
 import CoinbaseWalletIcon from "@/assets/icon/coinbasewallet.svg";
 import MetaMaskIcon from "@/assets/icon/metamask.svg";
 import WalletConnectIcon from "@/assets/icon/walletconnect.svg";
-import {
-	ARCONNECT_CHROME_URL,
-	ARCONNECT_FIREFOX_URL,
-	METAMASK_CHROME_URL,
-	METAMASK_FIREFOX_URL
-} from "@/constants";
 import { useUser } from "@/hooks/";
-import { Connections } from "@/types";
+import { Chains, Connections, Wallet } from "@/types";
+import { ProviderLabel } from "@/utils/onboard";
 import { UilLockOpenAlt } from "@iconscout/react-unicons";
 import { Pane } from "evergreen-ui";
 import React, { useCallback, useState } from "react";
-import { browserName } from "react-device-detect";
 import { WalletConnectButton } from "./WalletConnectButton";
 
 export type Props = {
@@ -35,42 +29,40 @@ const WalletConnect: React.FC<Props> = ({
 	const [isConnecting, setConnecting] = useState(false);
 	const isLoading = isUserLoading || isConnecting || isPropLoading;
 
-	const connectWallet = useCallback(async (connection: Connections) => {
-		setConnecting(true);
-		connect(connection)
-			.then(() => {
-				onConnect(connection); // used to close the sidesheet.
-			})
-			.finally(() => {
-				setConnecting(false);
-			});
-	}, []);
+	const signingMessage =
+		"To create your Usher account, please click the 'Sign' button.";
 
-	const connectArConnect = useCallback(async () => {
-		if (!window.arweaveWallet) {
-			const openLink = browserName.toLowerCase().includes("firefox")
-				? ARCONNECT_FIREFOX_URL
-				: ARCONNECT_CHROME_URL;
-			window.open(openLink);
-		} else {
-			await connectWallet(Connections.ARCONNECT);
-		}
-	}, [browserName]);
+	const connectWallet = useCallback(
+		async (address: string, signature: string, connection: Connections) => {
+			const wallet: Wallet & { signature: string } = {
+				chain: Chains.ETHEREUM,
+				connection,
+				address,
+				signature
+			};
 
-	const connectMetaMask = useCallback(async () => {
-		if (
-			!window.ethereum ||
-			!window.ethereum.isMetaMask ||
-			window.ethereum.isBraveWallet
-		) {
-			const openLink = browserName.toLowerCase().includes("firefox")
-				? METAMASK_FIREFOX_URL
-				: METAMASK_CHROME_URL;
-			window.open(openLink);
-		} else {
-			await connectWallet(Connections.METAMASK);
-		}
-	}, [browserName]);
+			// #region connectedWallets
+			const previouslyConnectedWallets = JSON.parse(
+				window.localStorage.getItem("connectedWallets") || "[]"
+			) as (Wallet & { signature: string })[];
+			previouslyConnectedWallets.push(wallet);
+			window.localStorage.setItem(
+				"connectedWallets",
+				JSON.stringify(previouslyConnectedWallets)
+			);
+			// #endregion
+
+			setConnecting(true);
+			connect(connection)
+				.then(() => {
+					onConnect(connection); // used to close the sidesheet.
+				})
+				.finally(() => {
+					setConnecting(false);
+				});
+		},
+		[]
+	);
 
 	return (
 		<Pane display="flex" flexDirection="column">
@@ -78,40 +70,60 @@ const WalletConnect: React.FC<Props> = ({
 				<WalletConnectButton
 					text="ArConnect"
 					icon={ArConnectIcon}
+					providerLabel={ProviderLabel.ArConnect}
+					signingMessage={signingMessage}
 					isConnecting={isLoading}
-					onClick={connectArConnect}
+					onConnect={async (address: string, signature: string) =>
+						connectWallet(address, signature, Connections.ARCONNECT)
+					}
 				/>
 			)}
 			{!hide.includes(Connections.METAMASK) && (
 				<WalletConnectButton
 					text="MetaMask"
 					icon={MetaMaskIcon}
-					isConnecting={isConnecting}
-					onClick={connectMetaMask}
+					providerLabel={ProviderLabel.MetaMask}
+					signingMessage={signingMessage}
+					isConnecting={isLoading}
+					onConnect={async (address: string, signature: string) =>
+						connectWallet(address, signature, Connections.METAMASK)
+					}
 				/>
 			)}
 			{!hide.includes(Connections.WALLETCONNECT) && (
 				<WalletConnectButton
 					text="WalletConnect"
 					icon={WalletConnectIcon}
-					isConnecting={isConnecting}
-					onClick={() => connectWallet(Connections.WALLETCONNECT)}
+					providerLabel={ProviderLabel.WalletConnect}
+					signingMessage={signingMessage}
+					isConnecting={isLoading}
+					onConnect={async (address: string, signature: string) =>
+						connectWallet(address, signature, Connections.WALLETCONNECT)
+					}
 				/>
 			)}
 			{!hide.includes(Connections.COINBASEWALLET) && (
 				<WalletConnectButton
 					text="CoinbaseWallet"
 					icon={CoinbaseWalletIcon}
-					isConnecting={isConnecting}
-					onClick={() => connectWallet(Connections.COINBASEWALLET)}
+					providerLabel={ProviderLabel.CoinbaseWallet}
+					signingMessage={signingMessage}
+					isConnecting={isLoading}
+					onConnect={async (address: string, signature: string) =>
+						connectWallet(address, signature, Connections.COINBASEWALLET)
+					}
 				/>
 			)}
 			{!hide.includes(Connections.MAGIC) && (
 				<WalletConnectButton
 					text="Email, SMS, and more"
 					icon={<UilLockOpenAlt size="28" />}
-					isConnecting={isConnecting}
-					onClick={() => connectWallet(Connections.MAGIC)}
+					providerLabel={ProviderLabel.Magic}
+					signingMessage={signingMessage}
+					isConnecting={isLoading}
+					onConnect={async (address: string, signature: string) =>
+						connectWallet(address, signature, Connections.MAGIC)
+					}
 				/>
 			)}
 		</Pane>

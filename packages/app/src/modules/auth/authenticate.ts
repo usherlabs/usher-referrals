@@ -13,7 +13,6 @@ import { randomString } from "@stablelib/random";
 import Arweave from "arweave";
 import { JWKInterface } from "arweave/node/lib/wallet";
 import { DID } from "dids";
-import ethers from "ethers";
 import { Base64 } from "js-base64";
 import * as uint8arrays from "uint8arrays";
 import WalletAuth from "./wallet";
@@ -203,8 +202,7 @@ class Authenticate {
 	 */
 	public async withEthereum(
 		address: string,
-		connection: Connections,
-		provider: ethers.providers.Web3Provider
+		connection: Connections
 	): Promise<WalletAuth> {
 		const auth = new WalletAuth({
 			address,
@@ -212,7 +210,6 @@ class Authenticate {
 			connection
 		});
 
-		let sig: Uint8Array;
 		const previouslyConnectedWallets = JSON.parse(
 			window.localStorage.getItem("connectedWallets") || "[]"
 		) as (Wallet & { signature: string })[];
@@ -220,24 +217,7 @@ class Authenticate {
 		const [connectedWallet] = previouslyConnectedWallets.filter(
 			(wallet) => wallet.connection === connection
 		);
-		if (connectedWallet) {
-			sig = uint8arrays.fromString(connectedWallet.signature);
-		} else {
-			const signer = provider.getSigner();
-			const text =
-				"To create your Usher account, please click the 'Sign' button.";
-			const signature = await signer.signMessage(uint8arrays.fromString(text));
-
-			const wallet = auth.wallet as Wallet & { signature: string };
-			wallet.signature = signature;
-
-			previouslyConnectedWallets.push(wallet);
-			window.localStorage.setItem(
-				"connectedWallets",
-				JSON.stringify(previouslyConnectedWallets)
-			);
-			sig = uint8arrays.fromString(signature);
-		}
+		const sig = uint8arrays.fromString(connectedWallet.signature);
 
 		await auth.connect(sig);
 		const { did } = auth;

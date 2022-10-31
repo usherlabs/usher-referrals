@@ -97,15 +97,14 @@ const WalletsManager: React.FC<Props> = ({ onClose }) => {
 	const balances = useQuery(["balances", wallets], () => getBalances(wallets), {
 		staleTime: 10000
 	});
-	const [getArConnect] = useArConnect();
+	const [arConnect] = useArConnect();
 	const [hiddenConnections, setHiddenConnections] = useState<Connections[]>([]);
 
 	useEffect(() => {
 		(async () => {
-			const arconnect = await getArConnect();
-			if (arconnect) {
+			if (arConnect) {
 				try {
-					const address = await arconnect.getActiveAddress();
+					const address = await arConnect.getActiveAddress();
 					if (
 						wallets.map((wallet) => wallet.address).includes(address) &&
 						!hiddenConnections.includes(Connections.ARCONNECT)

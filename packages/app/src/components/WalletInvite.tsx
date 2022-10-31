@@ -2,100 +2,23 @@ import ArConnectIcon from "@/assets/icon/arconnect.svg";
 import CoinbaseWalletIcon from "@/assets/icon/coinbasewallet.svg";
 import MetaMaskIcon from "@/assets/icon/metamask.svg";
 import WalletConnectIcon from "@/assets/icon/walletconnect.svg";
-import {
-	ARCONNECT_CHROME_URL,
-	ARCONNECT_FIREFOX_URL,
-	METAMASK_CHROME_URL,
-	METAMASK_FIREFOX_URL
-} from "@/constants";
-import { useArConnect } from "@/hooks";
 import { Chains } from "@/types";
-import { onboard } from "@/utils/onboard";
-import { ethers } from "ethers";
-import { Heading, Pane, Strong, Text, toaster } from "evergreen-ui";
-import { useCallback, useState } from "react";
-import { browserName } from "react-device-detect";
-import * as uint8arrays from "uint8arrays";
+import { ProviderLabel } from "@/utils/onboard";
+import { Heading, Pane, Strong, Text } from "evergreen-ui";
+import { useMemo } from "react";
 import { WalletConnectButton } from "./WalletConnectButton";
 
 type Props = {
 	domain: string;
 	chain: Chains;
-	onConnect: (address: string, signature: string) => Promise<boolean>;
+	onConnect: (address: string, signature: string) => Promise<void>;
 };
 
 const WalletInvite = ({ domain, chain, onConnect }: Props) => {
-	const [getArConnect] = useArConnect();
-
-	const [isConnecting, setConnecting] = useState(false);
-
-	const connectArConnect = useCallback(async () => {
-		const arconnect = await getArConnect();
-		if (arconnect) {
-			setConnecting(true);
-			// connect(Connections.ARCONNECT)
-			// 	.then(() => {
-			// 		onConnect(Connections.ARCONNECT); // used to close the sidesheet.
-			// 	})
-			// 	.finally(() => {
-			// 		setConnecting(false);
-			// 	});
-		} else {
-			const openLink = browserName.toLowerCase().includes("firefox")
-				? ARCONNECT_FIREFOX_URL
-				: ARCONNECT_CHROME_URL;
-			window.open(openLink);
-		}
-	}, [browserName]);
-
-	const connectWallet = useCallback(async (onboardWalletLabel: string) => {
-		setConnecting(true);
-
-		try {
-			const [walletState] = await onboard.connectWallet({
-				autoSelect: { disableModals: true, label: onboardWalletLabel }
-			});
-			const [account] = walletState.accounts;
-			const provider = new ethers.providers.Web3Provider(walletState.provider);
-			const signer = provider.getSigner();
-
-			const message = `Please connect your wallet to continue to ${domain}`;
-			const signedMessage = await signer
-				.signMessage(uint8arrays.fromString(message))
-				.catch(() => {
-					throw new Error("Sign the message with your wallet to continue");
-				});
-
-			// TODO: Investigate if `toLowerCase()` is really needed here
-			onConnect(account.address.toLowerCase(), signedMessage);
-		} catch (e) {
-			toaster.danger(e instanceof Error ? e.message : String(e));
-		} finally {
-			setConnecting(false);
-		}
-	}, []);
-
-	const connectMetaMask = useCallback(async () => {
-		setConnecting(true);
-		try {
-			if (
-				!window.ethereum ||
-				!window.ethereum.isMetaMask ||
-				window.ethereum.isBraveWallet
-			) {
-				const openLink = browserName.toLowerCase().includes("firefox")
-					? METAMASK_FIREFOX_URL
-					: METAMASK_CHROME_URL;
-				window.open(openLink);
-			} else {
-				await connectWallet("MetaMask");
-			}
-		} catch (e) {
-			toaster.danger(e instanceof Error ? e.message : String(e));
-		} finally {
-			setConnecting(false);
-		}
-	}, [browserName]);
+	const signingMessage = useMemo(
+		() => `Please connect your wallet to continue to ${domain}`,
+		[domain]
+	);
 
 	return (
 		<Pane
@@ -121,8 +44,9 @@ const WalletInvite = ({ domain, chain, onConnect }: Props) => {
 					<WalletConnectButton
 						text="ArConnect"
 						icon={ArConnectIcon}
-						isConnecting={isConnecting}
-						onClick={connectArConnect}
+						providerLabel={ProviderLabel.ArConnect}
+						signingMessage={signingMessage}
+						onConnect={onConnect}
 					/>
 				)}
 				{chain === Chains.ETHEREUM && (
@@ -130,20 +54,23 @@ const WalletInvite = ({ domain, chain, onConnect }: Props) => {
 						<WalletConnectButton
 							text="MetaMask"
 							icon={MetaMaskIcon}
-							isConnecting={isConnecting}
-							onClick={connectMetaMask}
+							providerLabel={ProviderLabel.MetaMask}
+							signingMessage={signingMessage}
+							onConnect={onConnect}
 						/>
 						<WalletConnectButton
 							text="WalletConnect"
 							icon={WalletConnectIcon}
-							isConnecting={isConnecting}
-							onClick={() => connectWallet("WalletConnect")}
+							providerLabel={ProviderLabel.WalletConnect}
+							signingMessage={signingMessage}
+							onConnect={onConnect}
 						/>
 						<WalletConnectButton
 							text="CoinbaseWallet"
 							icon={CoinbaseWalletIcon}
-							isConnecting={isConnecting}
-							onClick={() => connectWallet("Coinbase Wallet")}
+							providerLabel={ProviderLabel.CoinbaseWallet}
+							signingMessage={signingMessage}
+							onConnect={onConnect}
 						/>
 					</Pane>
 				)}
