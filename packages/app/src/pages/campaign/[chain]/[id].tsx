@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback, useEffect, useMemo } from "react";
 import { useRouter } from "next/router";
 import { Pane, toaster } from "evergreen-ui";
 import camelcaseKeys from "camelcase-keys";
@@ -103,6 +103,19 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 		["partnership-metrics", viewingPartnerships, claims],
 		() => getPartnershipMetrics(viewingPartnerships.map((p) => p.id))
 	);
+
+	const canClaimThisMonth = useMemo(() => {
+		if (chain !== Chains.ETHEREUM || !metrics.data) {
+			return true;
+		}
+
+		const lastClaimedDate = new Date(metrics.data.lastClaimedAt);
+		const now = new Date(Date.now());
+		return (
+			lastClaimedDate.getUTCFullYear() !== now.getUTCFullYear() &&
+			lastClaimedDate.getUTCMonth() !== now.getUTCMonth()
+		);
+	}, [metrics]);
 
 	// Ensure that the user knows what they're being rewarded regardless of their internal rewards calculation.
 	let claimableRewards = metrics.data ? metrics.data.rewards : 0;
@@ -538,6 +551,7 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 											amount={
 												claimableRewards > funds ? funds : claimableRewards
 											}
+											canClaimThisMonth={canClaimThisMonth}
 											reward={campaign.reward as CampaignReward}
 											active={
 												!!verifications.captcha &&

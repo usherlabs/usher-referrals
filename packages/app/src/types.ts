@@ -142,6 +142,7 @@ export type PartnershipMetrics = {
 		successful: number;
 	};
 	rewards: number;
+	lastClaimedAt: number;
 	campaign: {
 		claimed: number;
 	};
