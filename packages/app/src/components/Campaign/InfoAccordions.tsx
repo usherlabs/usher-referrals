@@ -156,10 +156,7 @@ const CampaignInfoAccordions: React.FC<Props> = ({ campaign }) => {
 								Rewards are paid in{" "}
 								<Strong>
 									{name} ({ticker})
-								</Strong>{" "}
-								{campaign.reward.type !== RewardTypes.TOKEN && (
-									<Strong>{campaign.reward.type.toUpperCase()}s</Strong>
-								)}
+								</Strong>
 							</ListItem>
 							{campaign.events.length > 1 ? (
 								<ListItem>
