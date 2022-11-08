@@ -218,7 +218,7 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 			}
 		} else if (campaign.chain === Chains.ETHEREUM) {
 			if (campaign.reward.address) {
-				if (campaign.reward.type === RewardTypes.TOKEN) {
+				if (campaign.reward.type === RewardTypes.ERC20) {
 					const contract = new ethers.Contract(
 						campaign.reward.address,
 						erc20,

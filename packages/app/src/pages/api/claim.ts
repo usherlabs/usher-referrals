@@ -536,7 +536,7 @@ handler.router.use(withAuth).post(async (req, res) => {
 			wallet.connect(ethereum);
 
 			if (campaignData.reward.address) {
-				if (campaignData.reward.type === RewardTypes.TOKEN) {
+				if (campaignData.reward.type === RewardTypes.ERC20) {
 					const contract = new ethers.Contract(
 						campaignData.reward.address,
 						erc20,
