@@ -75,7 +75,7 @@ export const ETHEREUM_CHAINS = byTargetEnv({
 		{
 			id: ETHEREUM_CHAIN_ID,
 			rpcUrl: ETHEREUM_RPC_URL,
-			label: "Etherum Mainnet",
+			label: "Ethereum Mainnet",
 			token: "ETH"
 		}
 	],
