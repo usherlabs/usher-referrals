@@ -35,6 +35,7 @@ export enum CampaignStrategies {
 
 export enum RewardTypes {
 	TOKEN = "token",
+	ERC20 = "erc20",
 	NFT = "nft",
 	PST = "pst"
 }
