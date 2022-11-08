@@ -214,6 +214,37 @@ handler.router.use(withAuth).post(async (req, res) => {
 		});
 	}
 
+	// Limit of once per month to Ethereum Claims
+	if (campaignData.chain === Chains.ETHEREUM) {
+		const pCursor = await arango.query(aql`
+			LET last_claimed_at = (
+				FOR p IN DOCUMENT("Partnerships", ${partnershipIds})
+					FOR cl IN 1..1 ANY p Engagements
+						FILTER STARTS_WITH(cl._id, "Claims")
+						COLLECT AGGREGATE last_claimed_at = MAX(cl.created_at)
+             RETURN last_claimed_at
+      )
+			RETURN TO_NUMBER(last_claimed_at)
+		`);
+		const pResults = await pCursor.all();
+		const [lastClaimedAt] = pResults; // will always return an array with a single integer result.
+
+		if (lastClaimedAt > 0) {
+			const lastClaimedDate = new Date(lastClaimedAt);
+			const now = new Date(Date.now());
+			const canClaimThisMonth =
+				lastClaimedDate.getUTCFullYear() !== now.getUTCFullYear() &&
+				lastClaimedDate.getUTCMonth() !== now.getUTCMonth();
+			if (!canClaimThisMonth) {
+				req.log.info("Rewards already claimed this month");
+				return res.status(200).json({
+					success: false,
+					message: "Rewards already claimed this month"
+				});
+			}
+		}
+	}
+
 	let fee = 0;
 
 	// Ensure that amount to be paid is greater than amount in internal wallet -- otherwise send whatevers in the wallet and update partnership amount
