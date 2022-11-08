@@ -1,5 +1,7 @@
 // #region TargetEnv
 
+import { ethereumProviderUrl } from "@/env-config";
+
 enum TargetEnv {
 	production = "production",
 	staging = "staging",
@@ -65,8 +67,8 @@ export const ETHEREUM_CHAIN_ID = byTargetEnv({
 });
 
 export const ETHEREUM_RPC_URL = byTargetEnv({
-	p: process.env.NEXT_PUBLIC_ETHEREUM_PROVIDER_URL || "",
-	s: process.env.NEXT_PUBLIC_ETHEREUM_PROVIDER_URL || "",
+	p: ethereumProviderUrl,
+	s: ethereumProviderUrl,
 	d: "http://localhost:8545"
 });
 
