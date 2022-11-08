@@ -18,6 +18,10 @@ import "@/integrations";
 import { isProd, mauticOrigin } from "@/env-config";
 import { AppEvents, events } from "@/utils/events";
 
+import { initOnboard } from "@/utils/onboard";
+
+initOnboard();
+
 if (!isProd) {
 	// @ts-ignore
 	import("@/admin");

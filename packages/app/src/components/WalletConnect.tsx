@@ -1,19 +1,14 @@
-import React, { useCallback, useState } from "react";
-import { Pane, Button, majorScale } from "evergreen-ui";
-import Image from "next/image";
-import { browserName } from "react-device-detect";
-
-import { Connections } from "@/types";
-import { useUser, useArConnect, useMetaMask } from "@/hooks/";
-import {
-	ARCONNECT_CHROME_URL,
-	ARCONNECT_FIREFOX_URL,
-	METAMASK_CHROME_URL,
-	METAMASK_FIREFOX_URL
-} from "@/constants";
-import { UilLockOpenAlt } from "@iconscout/react-unicons";
 import ArConnectIcon from "@/assets/icon/arconnect.svg";
+import CoinbaseWalletIcon from "@/assets/icon/coinbasewallet.svg";
 import MetaMaskIcon from "@/assets/icon/metamask.svg";
+import WalletConnectIcon from "@/assets/icon/walletconnect.svg";
+import { useUser } from "@/hooks/";
+import { Chains, Connections, Wallet } from "@/types";
+import { ProviderLabel } from "@/utils/onboard";
+import { UilLockOpenAlt } from "@iconscout/react-unicons";
+import { Pane } from "evergreen-ui";
+import React, { useCallback, useState } from "react";
+import { WalletConnectButton } from "./WalletConnectButton";
 
 export type Props = {
 	hide?: Connections[];
@@ -30,102 +25,106 @@ const WalletConnect: React.FC<Props> = ({
 		isLoading: isUserLoading,
 		actions: { connect }
 	} = useUser();
-	const [getArConnect] = useArConnect();
-	const [getMetaMask] = useMetaMask();
 
 	const [isConnecting, setConnecting] = useState(false);
 	const isLoading = isUserLoading || isConnecting || isPropLoading;
 
-	const connectArConnect = useCallback(() => {
-		const arconnect = getArConnect();
-		if (arconnect) {
+	const signingMessage =
+		"To create your Usher account, please click the 'Sign' button.";
+
+	const connectWallet = useCallback(
+		async (address: string, signature: string, connection: Connections) => {
+			const wallet: Wallet & { signature: string } = {
+				chain: Chains.ETHEREUM,
+				connection,
+				address,
+				signature
+			};
+
+			// #region connectedWallets
+			const previouslyConnectedWallets = JSON.parse(
+				window.localStorage.getItem("connectedWallets") || "[]"
+			) as (Wallet & { signature: string })[];
+			previouslyConnectedWallets.push(wallet);
+			window.localStorage.setItem(
+				"connectedWallets",
+				JSON.stringify(previouslyConnectedWallets)
+			);
+			// #endregion
+
 			setConnecting(true);
-			connect(Connections.ARCONNECT)
+			connect(connection)
 				.then(() => {
-					onConnect(Connections.ARCONNECT); // used to close the sidesheet.
+					onConnect(connection); // used to close the sidesheet.
 				})
 				.finally(() => {
 					setConnecting(false);
 				});
-		} else {
-			const openLink = browserName.toLowerCase().includes("firefox")
-				? ARCONNECT_FIREFOX_URL
-				: ARCONNECT_CHROME_URL;
-			window.open(openLink);
-		}
-	}, [browserName]);
-
-	const connectMagic = useCallback(() => {
-		setConnecting(true);
-		connect(Connections.MAGIC)
-			.then(() => {
-				onConnect(Connections.MAGIC);
-			})
-			.finally(() => {
-				setConnecting(false);
-			});
-	}, []);
-
-	const connectMetaMask = useCallback(() => {
-		const metamask = getMetaMask();
-
-		if (metamask) {
-			setConnecting(true);
-			connect(Connections.METAMASK)
-				.then(() => {
-					onConnect(Connections.METAMASK); // used to close the sidesheet.
-				})
-				.finally(() => {
-					setConnecting(false);
-				});
-		} else {
-			const openLink = browserName.toLowerCase().includes("firefox")
-				? METAMASK_FIREFOX_URL
-				: METAMASK_CHROME_URL;
-			window.open(openLink);
-		}
-	}, [browserName]);
+		},
+		[]
+	);
 
 	return (
 		<Pane display="flex" flexDirection="column">
 			{!hide.includes(Connections.ARCONNECT) && (
-				<Pane marginBottom={8}>
-					<Button
-						height={majorScale(7)}
-						iconBefore={<Image src={ArConnectIcon} width={30} height={30} />}
-						onClick={connectArConnect}
-						isLoading={isLoading}
-						minWidth={300}
-					>
-						<strong>Connect with ArConnect</strong>
-					</Button>
-				</Pane>
+				<WalletConnectButton
+					text="ArConnect"
+					icon={ArConnectIcon}
+					providerLabel={ProviderLabel.ArConnect}
+					signingMessage={signingMessage}
+					isConnecting={isLoading}
+					onConnect={async (address: string, signature: string) =>
+						connectWallet(address, signature, Connections.ARCONNECT)
+					}
+				/>
 			)}
 			{!hide.includes(Connections.METAMASK) && (
-				<Pane marginBottom={8}>
-					<Button
-						height={majorScale(7)}
-						iconBefore={<Image src={MetaMaskIcon} width={30} height={30} />}
-						onClick={connectMetaMask}
-						isLoading={isLoading}
-						minWidth={300}
-					>
-						<strong>Connect with MetaMask</strong>
-					</Button>
-				</Pane>
+				<WalletConnectButton
+					text="MetaMask"
+					icon={MetaMaskIcon}
+					providerLabel={ProviderLabel.MetaMask}
+					signingMessage={signingMessage}
+					isConnecting={isLoading}
+					onConnect={async (address: string, signature: string) =>
+						connectWallet(address, signature, Connections.METAMASK)
+					}
+				/>
+			)}
+			{!hide.includes(Connections.WALLETCONNECT) && (
+				<WalletConnectButton
+					text="WalletConnect"
+					icon={WalletConnectIcon}
+					providerLabel={ProviderLabel.WalletConnect}
+					signingMessage={signingMessage}
+					isConnecting={isLoading}
+					onConnect={async (address: string, signature: string) =>
+						connectWallet(address, signature, Connections.WALLETCONNECT)
+					}
+				/>
+			)}
+			{!hide.includes(Connections.COINBASEWALLET) && (
+				<WalletConnectButton
+					text="CoinbaseWallet"
+					icon={CoinbaseWalletIcon}
+					providerLabel={ProviderLabel.CoinbaseWallet}
+					signingMessage={signingMessage}
+					isConnecting={isLoading}
+					onConnect={async (address: string, signature: string) =>
+						connectWallet(address, signature, Connections.COINBASEWALLET)
+					}
+				/>
 			)}
 			{!hide.includes(Connections.MAGIC) && (
-				<Pane>
-					<Button
-						height={majorScale(7)}
-						iconBefore={() => <UilLockOpenAlt size="28" />}
-						onClick={connectMagic}
-						isLoading={isLoading}
-						minWidth={300}
-					>
-						<strong>Email, SMS, and more</strong>
-					</Button>
-				</Pane>
+				<WalletConnectButton
+					text="Email, SMS, and more"
+					icon={<UilLockOpenAlt size="28" />}
+					providerLabel={ProviderLabel.Magic}
+					signingMessage={signingMessage}
+					isConnecting={isLoading}
+					onConnect={async (address: string, signature: string) =>
+						connectWallet(address, signature, Connections.MAGIC)
+					}
+				/>
 			)}
 		</Pane>
 	);

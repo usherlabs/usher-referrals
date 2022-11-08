@@ -108,7 +108,6 @@ const Invite: React.FC<Props> = () => {
 		async (address: string) => {
 			setWallet([chain, address].join(":"));
 			nextStep();
-			return true;
 		},
 		[nextStep]
 	);
