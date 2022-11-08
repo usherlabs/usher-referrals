@@ -43,14 +43,22 @@ handler.router.get(async (req, res) => {
 				FOR claim IN 1..3 ANY p Engagements
 						FILTER STARTS_WITH(claim._id, "Claims")
 						COLLECT AGGREGATE amount = SUM(claim.amount)
-								RETURN amount)
+								RETURN amount
+			)
+			LET last_claimed_at = (
+				FOR claim IN 1..1 ANY p Engagements
+						FILTER STARTS_WITH(claim._id, "Claims")
+						COLLECT AGGREGATE last_claimed_at = MAX(claim.created_at)
+								RETURN last_claimed_at
+			)
 			RETURN {
 				id: p._key,
 				hits: p.hits,
 				pending_conversions: 0,
 				successful_conversions: TO_NUMBER(conversions_length),
 				rewards: TO_NUMBER(p.rewards),
-				rewards_claimed: TO_NUMBER(claimed)
+				rewards_claimed: TO_NUMBER(claimed),
+				last_claimed_at: last_claimed_at
 			}
 	`);
 
@@ -63,6 +71,7 @@ handler.router.get(async (req, res) => {
 			acc.conversions.pending += val.pending_conversions;
 			acc.conversions.successful += val.successful_conversions;
 			acc.rewards += val.rewards;
+			acc.lastClaimedAt = Math.max(acc.lastClaimedAt, val.last_claimed_at);
 			acc.campaign.claimed += val.rewards_claimed;
 			return acc;
 		},
@@ -74,6 +83,7 @@ handler.router.get(async (req, res) => {
 				successful: 0
 			},
 			rewards: 0,
+			lastClaimedAt: 0,
 			campaign: {
 				claimed: 0
 			}
