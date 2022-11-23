@@ -33,12 +33,10 @@ abstract class Auth {
 	constructor(aliases: IModelAliases) {
 		this._ceramic = new CeramicClient(ceramicUrl); // new instance of ceramic client for each DID;
 		const model = new DataModel({
-			// @ts-ignore
 			ceramic: this._ceramic,
 			aliases
 		});
 		const store = new DIDDataStore({
-			// @ts-ignore
 			ceramic: this._ceramic,
 			model
 		});

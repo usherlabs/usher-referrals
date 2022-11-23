@@ -17,10 +17,10 @@
 		"migrate": "arangomigo ./.arangomigo.yml"
 	},
 	"dependencies": {
-		"@ceramicnetwork/http-client": "^2.2.0",
-		"@ceramicnetwork/stream-tile": "^2.2.1",
-		"@glazed/datamodel": "^0.3.0",
-		"@glazed/tile-loader": "^0.2.0",
+		"@ceramicnetwork/http-client": "^2.10.0",
+		"@ceramicnetwork/stream-tile": "^2.9.0",
+		"@glazed/datamodel": "^0.3.1",
+		"@glazed/tile-loader": "^0.2.1",
 		"@sentry/integrations": "^7.2.0",
 		"@sentry/node": "^7.2.0",
 		"arangojs": "^7.8.0",

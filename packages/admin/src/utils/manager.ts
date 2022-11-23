@@ -44,7 +44,6 @@ export const getManager = async () => {
 	const ceramic = await getCeramic();
 
 	// Create a manager for the model
-	// @ts-ignore
 	const manager = new ModelManager({ ceramic });
 
 	return manager;

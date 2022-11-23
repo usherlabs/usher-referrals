@@ -80,12 +80,7 @@ handler.router.use(withAuth).post(async (req, res) => {
 	);
 	for (let i = 0; i < streams.length; i += 1) {
 		const stream = streams[i];
-		if (
-			!isPartnershipStreamValid(
-				// @ts-ignore
-				stream
-			)
-		) {
+		if (!isPartnershipStreamValid(stream)) {
 			req.log.warn(
 				{
 					data: {

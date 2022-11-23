@@ -78,7 +78,7 @@ class WalletAuth extends Auth {
 			this._ceramic,
 			campaignReference,
 			{
-				schema: this.model.getSchemaURL("Partnership"),
+				schema: this.model.getSchemaURL("Partnership") ?? undefined,
 				family: "usher:partnerships"
 			},
 			{

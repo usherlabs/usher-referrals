@@ -116,12 +116,7 @@ handler.router
 		// Check the partnership id of the token
 		const stream = await loader.load<CampaignReference>(partnership);
 		// Validate that the provided partnership is valid
-		if (
-			!isPartnershipStreamValid(
-				// @ts-ignore
-				stream
-			)
-		) {
+		if (!isPartnershipStreamValid(stream)) {
 			req.log.info(
 				{
 					token,
@@ -244,12 +239,7 @@ handler.router
 
 		const stream = await loader.load<CampaignReference>(raw.partnership);
 		// Validate that the provided partnership is valid
-		if (
-			!isPartnershipStreamValid(
-				// @ts-ignore
-				stream
-			)
-		) {
+		if (!isPartnershipStreamValid(stream)) {
 			req.log.info(
 				{
 					vars: {
