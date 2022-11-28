@@ -5,7 +5,7 @@ import EthereumIcon from "@/assets/icon/ethereum-icon.svg";
 import MagicLinkIcon from "@/assets/icon/magic-icon.png";
 import MetaMaskIcon from "@/assets/icon/metamask.svg";
 import WalletConnectIcon from "@/assets/icon/walletconnect.svg";
-import { Chains, Connections } from "@/types";
+import { Chains, Connections } from "@usher.so/shared";
 
 export const connectionImages = {
 	[Connections.ARCONNECT]: ArConnectIcon,

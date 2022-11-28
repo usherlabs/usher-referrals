@@ -9,7 +9,7 @@ import {
 } from "evergreen-ui";
 import startCase from "lodash/startCase";
 
-import { Chains } from "@/types";
+import { Chains } from "@usher.so/shared";
 
 export type Props = {
 	chain: Chains;

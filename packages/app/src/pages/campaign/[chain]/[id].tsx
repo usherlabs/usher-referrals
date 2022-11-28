@@ -16,13 +16,12 @@ import Rewards from "@/components/Campaign/Rewards";
 import InfoAccordions from "@/components/Campaign/InfoAccordions";
 import WhitelistAlert from "@/components/Campaign/WhitelistAlert";
 import Progress from "@/components/Progress";
+import { Chains, Wallet } from "@usher.so/shared";
 import {
-	Chains,
 	Campaign,
 	RewardTypes,
 	CampaignReward,
 	PartnershipMetrics,
-	Wallet,
 	Claim
 } from "@/types";
 import Skeleton from "react-loading-skeleton";
@@ -41,7 +40,6 @@ import { useSeedData } from "@/env-config";
 import * as mediaQueries from "@/utils/media-queries";
 import { getArangoClient } from "@/utils/arango-client";
 import * as api from "@/api";
-import Authenticate from "@/modules/auth";
 import { getArweaveClient, getWarp } from "@/utils/arweave-client";
 import { AppEvents, events } from "@/utils/events";
 import { getEthereumClient } from "@/utils/ethereum-client";
@@ -77,6 +75,7 @@ const getPartnershipMetrics = async (
 
 const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 	const {
+		auth,
 		user: { wallets, partnerships, verifications },
 		isLoading: isUserLoading,
 		actions: { addPartnership }
@@ -250,8 +249,7 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 		async (wallet: Wallet) => {
 			setClaiming(true);
 			try {
-				const authInstance = Authenticate.getInstance();
-				const authToken = await authInstance.getAuthToken();
+				const authToken = await auth.getAuthToken();
 				const response = await api.claim(authToken).post(
 					viewingPartnerships.map((p) => p.id),
 					wallet.address

@@ -7,7 +7,7 @@ import {
 	METAMASK_FIREFOX_URL
 } from "@/constants";
 import { useArConnect } from "@/hooks";
-import { Chains } from "@/types";
+import { Chains } from "@usher.so/shared";
 import { getMagicClient } from "@/utils/magic-client";
 import { ProviderLabel } from "@/utils/onboard";
 import { WalletState } from "@web3-onboard/core";

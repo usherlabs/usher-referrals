@@ -9,7 +9,8 @@ import {
 } from "evergreen-ui";
 import { css } from "@linaria/core";
 
-import { Partnership, PartnershipMetrics } from "@/types";
+import { Partnership } from "@usher.so/partnerships";
+import { PartnershipMetrics } from "@/types";
 import InviteLink from "@/components/InviteLink";
 import Metric from "@/components/Metric";
 import getInviteLink from "@/utils/get-invite-link";

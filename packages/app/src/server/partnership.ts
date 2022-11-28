@@ -1,4 +1,4 @@
-import { CampaignReference } from "@/types";
+import { CampaignReference } from "@usher.so/partnerships";
 import { getArangoClient } from "@/utils/arango-client";
 import { aql } from "arangojs";
 import { ArangoError } from "arangojs/error";

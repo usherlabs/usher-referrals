@@ -1,8 +1,12 @@
 import { NextPageContext, NextApiRequest, NextApiResponse } from "next";
 // import { BaseLogger } from "pino";
-import { DataModel } from "@glazed/datamodel";
-import { DIDDataStore } from "@glazed/did-datastore";
-import { ModelTypeAliases } from "@glazed/types";
+import { Authenticate } from "@usher.so/auth";
+import {
+	CampaignReference,
+	Partnership,
+	Partnerships
+} from "@usher.so/partnerships";
+import { Chains, Connections, Wallet } from "@usher.so/shared";
 
 /**
  * ###### ENUMS ######
@@ -14,20 +18,6 @@ export enum Breakpoints {
 	medium = 768,
 	large = 889,
 	xLarge = 1200
-}
-
-export enum Chains {
-	ARWEAVE = "arweave",
-	ETHEREUM = "ethereum"
-	// POLYGON = "polygon"
-}
-
-export enum Connections {
-	ARCONNECT = "ar_connect",
-	COINBASEWALLET = "coinbase_wallet",
-	MAGIC = "magic",
-	METAMASK = "meta_mask",
-	WALLETCONNECT = "wallet_connect"
 }
 
 export enum CampaignStrategies {
@@ -105,22 +95,6 @@ export type Campaign = {
 		externalLink: string;
 	};
 	attributable?: boolean;
-};
-
-export type Wallet = {
-	chain: Chains;
-	connection: Connections;
-	address: string;
-};
-
-export type CampaignReference = {
-	chain: Chains;
-	address: string;
-};
-
-export type Partnership = {
-	id: string;
-	campaign: CampaignReference;
 };
 
 export type Profile = {
@@ -215,25 +189,6 @@ export interface AuthApiRequest extends ApiRequest {
 
 export interface ApiResponse extends NextApiResponse {}
 
-export interface IDIDDataStore
-	extends DIDDataStore<
-		ModelTypeAliases<
-			Record<string, any>,
-			Record<string, string>,
-			Record<string, string>
-		>,
-		string
-	> {}
-export interface IDataModel
-	extends DataModel<
-		ModelTypeAliases<
-			Record<string, any>,
-			Record<string, string>,
-			Record<string, string>
-		>,
-		any
-	> {}
-
 export interface IUserActions {
 	connect: (type: Connections) => Promise<void>;
 	disconnect: (type: Connections) => Promise<void>;
@@ -244,6 +199,8 @@ export interface IUserActions {
 }
 
 export interface IUserContext extends IUserActions {
+	auth: Authenticate;
 	user: User;
+	partnerships: Partnerships;
 	loading: boolean;
 }

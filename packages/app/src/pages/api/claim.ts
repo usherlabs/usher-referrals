@@ -11,12 +11,12 @@ import uniq from "lodash/uniq";
 import {
 	AuthApiRequest,
 	Campaign,
-	CampaignReference,
-	Chains,
 	Claim,
 	PartnershipMetrics,
 	RewardTypes
 } from "@/types";
+import { Chains } from "@usher.so/shared";
+import { CampaignReference } from "@usher.so/partnerships";
 import { useRouteHandler } from "@/server/middleware";
 import { getAppDID } from "@/server/did";
 import { ceramic } from "@/utils/ceramic-client";

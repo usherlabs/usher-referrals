@@ -27,7 +27,6 @@ import useRedir from "@/hooks/use-redir";
 import Captcha from "@/components/Captcha";
 import delay from "@/utils/delay";
 import * as api from "@/api";
-import Authenticate from "@/modules/auth";
 import handleException from "@/utils/handle-exception";
 import { userFetched } from "@/providers/User";
 import * as mediaQueries from "@/utils/media-queries";
@@ -49,6 +48,7 @@ const HEADER_HEIGHT = 70 as const;
 const DashboardContainer: React.FC<Props> = ({ children }) => {
 	const { colors } = useTheme();
 	const {
+		auth,
 		user: {
 			wallets,
 			profile,
@@ -200,8 +200,7 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 	const onCaptchaSuccess = useCallback(
 		async (token: string) => {
 			try {
-				const authInstance = Authenticate.getInstance();
-				const authToken = await authInstance.getAuthToken();
+				const authToken = await auth.getAuthToken();
 				const { success: isSuccess } = await api.captcha(authToken).post(token);
 				if (isSuccess) {
 					await delay(1000);

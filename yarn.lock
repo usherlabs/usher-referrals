@@ -6856,6 +6856,13 @@ babel-plugin-polyfill-regenerator@^0.4.1:
   dependencies:
     "@babel/helper-define-polyfill-provider" "^0.3.3"
 
+babel-plugin-symlink-import@^0.1.1:
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/babel-plugin-symlink-import/-/babel-plugin-symlink-import-0.1.1.tgz#b0597684aee1758bf99147035dd657bd46c81278"
+  integrity sha512-Io896gzUKJI5D+ySDimcTvDFbV//Ot+G9q3ZmdCUY1u/uqYjk3s/BkL9iE8FqTboIgqn+1wMeyb0eNAHDtz/mw==
+  dependencies:
+    find-nearest-package-json "^2.0.1"
+
 babel-plugin-transform-react-remove-prop-types@^0.4.24:
   version "0.4.24"
   resolved "https://registry.yarnpkg.com/babel-plugin-transform-react-remove-prop-types/-/babel-plugin-transform-react-remove-prop-types-0.4.24.tgz#f2edaf9b4c6a5fbe5c1d678bfb531078c1555f3a"
@@ -10482,6 +10489,11 @@ filter-obj@^1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/filter-obj/-/filter-obj-1.1.0.tgz#9b311112bc6c6127a16e016c6c5d7f19e0805c5b"
   integrity sha512-8rXg1ZnX7xzy2NGDVkBVaAy+lSlPNwad13BtgSlLuxfIslyt5Vg64U7tFcCt4WS1R0hvtnQybT/IyCkGZ3DpXQ==
+
+find-nearest-package-json@^2.0.1:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/find-nearest-package-json/-/find-nearest-package-json-2.0.1.tgz#e631453ff9506c6b0c1be7f84937d18a68ef756b"
+  integrity sha512-tKybJ3JqUtuUoHwoe86yEIsday9w23uOF6JQPa9bWKnBrZS4n7f4Me8nSEynMAiL8c11dQerzgexY+hgmH+OXg==
 
 find-requires@^1.0.0:
   version "1.0.0"
@@ -17284,7 +17296,7 @@ tslib@^2.0.0, tslib@^2.0.1, tslib@^2.1.0, tslib@^2.2.0, tslib@^2.3.0, tslib@^2.3
   resolved "https://registry.yarnpkg.com/tslib/-/tslib-2.4.0.tgz#7cecaa7f073ce680a05847aa77be941098f36dc3"
   integrity sha512-d6xOpEDfsi2CZVlPQzGeux8XMwLT9hssAsaPYExaQMuYskwb+x1x7J371tWlbBdWHroy99KnVB6qIkUbs5X3UQ==
 
-tslib@^2.0.3:
+tslib@^2.0.3, tslib@^2.4.1:
   version "2.4.1"
   resolved "https://registry.yarnpkg.com/tslib/-/tslib-2.4.1.tgz#0d0bfbaac2880b91e22df0768e55be9753a5b17e"
   integrity sha512-tGyy4dAjRIEwI7BzsB0lynWgOpfqjUdq91XXAlIWD2OwKBH7oCl/GZG/HT4BOHrTlPMOASlMQ7veyTqpmRcrNA==

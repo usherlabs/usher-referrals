@@ -3,7 +3,7 @@ import CoinbaseWalletIcon from "@/assets/icon/coinbasewallet.svg";
 import MetaMaskIcon from "@/assets/icon/metamask.svg";
 import WalletConnectIcon from "@/assets/icon/walletconnect.svg";
 import { useUser } from "@/hooks/";
-import { Chains, Connections, Wallet } from "@/types";
+import { Chains, Connections, Wallet } from "@usher.so/shared";
 import { ProviderLabel } from "@/utils/onboard";
 import { UilLockOpenAlt } from "@iconscout/react-unicons";
 import { Pane } from "evergreen-ui";

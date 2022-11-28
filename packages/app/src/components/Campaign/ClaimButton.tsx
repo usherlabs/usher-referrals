@@ -17,7 +17,8 @@ import {
 import Image from "next/image";
 import { css } from "@linaria/core";
 
-import { Wallet, CampaignReward, Chains, Connections, Claim } from "@/types";
+import { Chains, Connections, Wallet } from "@usher.so/shared";
+import { CampaignReward, Claim } from "@/types";
 import ValueCard from "@/components/ValueCard";
 import Anchor from "@/components/Anchor";
 import { chainImages, connectionImages } from "@/utils/images-map";

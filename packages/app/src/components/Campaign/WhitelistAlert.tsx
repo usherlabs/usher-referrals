@@ -12,7 +12,7 @@ import {
 } from "evergreen-ui";
 import { css, cx } from "@linaria/core";
 
-import { Partnership } from "@/types";
+import { Partnership } from "@usher.so/partnerships";
 import Anchor from "@/components/Anchor";
 import { useUser } from "@/hooks";
 // import { UilExternalLinkAlt } from "@iconscout/react-unicons";

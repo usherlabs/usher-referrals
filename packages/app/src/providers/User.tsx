@@ -5,15 +5,9 @@
 import * as api from "@/api";
 import { ETHEREUM_CHAIN_ID } from "@/constants";
 import useArConnect from "@/hooks/use-arconnect";
-import Authenticate from "@/modules/auth";
-import {
-	CampaignReference,
-	Connections,
-	IUserContext,
-	Profile,
-	User,
-	Wallet
-} from "@/types";
+import { Authenticate } from "@usher.so/auth";
+import { Connections, Wallet } from "@usher.so/shared";
+import { IUserContext, Profile, User } from "@/types";
 import getArConnect from "@/utils/arconnect";
 import delay from "@/utils/delay";
 import { AppEvents, events } from "@/utils/events";
@@ -36,6 +30,15 @@ import React, {
 	useState
 } from "react";
 
+import { getArweaveClient } from "@/utils/arweave-client";
+import { getEthereumClient } from "@/utils/ethereum-client";
+import { ethers } from "ethers";
+import { ceramicUrl } from "@/env-config";
+import { CampaignReference, Partnerships } from "@usher.so/partnerships";
+
+const arweave = getArweaveClient();
+const ethProvider = getEthereumClient() as ethers.providers.Web3Provider;
+
 type Props = {
 	children: React.ReactNode;
 };
@@ -52,8 +55,13 @@ const defaultValues: User = {
 	}
 };
 
+const authInstance = new Authenticate(ceramicUrl, arweave, ethProvider);
+const partnerships = new Partnerships(authInstance);
+
 export const UserContext = createContext<IUserContext>({
+	auth: authInstance,
 	user: defaultValues,
+	partnerships,
 	loading: false,
 	async connect() {
 		// ...
@@ -74,8 +82,6 @@ export const UserContext = createContext<IUserContext>({
 		// ...
 	}
 });
-
-const authInstance = Authenticate.getInstance();
 
 // Only fetch user on page load
 let isUserFetched = false;
@@ -139,6 +145,7 @@ const getWallets = async (type: Connections): Promise<Wallet[]> => {
 
 				if (wallet && wallet.accounts.length > 0) {
 					await authInstance.withEthereum(wallet.accounts[0].address, type);
+					await partnerships.loadRelatedPartnerships();
 				}
 			}
 		};
@@ -156,6 +163,7 @@ const getWallets = async (type: Connections): Promise<Wallet[]> => {
 							type,
 							arConnect
 						);
+						await partnerships.loadRelatedPartnerships();
 					}
 				}
 				break;
@@ -171,6 +179,7 @@ const getWallets = async (type: Connections): Promise<Wallet[]> => {
 				if (isLoggedIn) {
 					// Magic will produce and authenticate multiple wallets for each blockchain it supports -- ie. Eth & Arweave
 					await authInstance.withMagic();
+					await partnerships.loadRelatedPartnerships();
 				}
 				break;
 			}
@@ -287,11 +296,11 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 
 	const addPartnership = useCallback(
 		async (partnership: CampaignReference) => {
-			const partnerships = await authInstance.addPartnership(partnership);
+			const newPartnerships = await partnerships.addPartnership(partnership);
 			events.emit(AppEvents.START_PARTNERSHIP, { partnership });
 
 			const newUser = produce(user, (draft) => {
-				draft.partnerships = [...partnerships];
+				draft.partnerships = [...newPartnerships];
 			});
 
 			saveUser(newUser);
@@ -300,9 +309,6 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 	);
 
 	const loadUserWithWallets = useCallback(async (withWallets: Wallet[]) => {
-		// get partnerships
-		const partnerships = authInstance.getPartnerships();
-
 		// Load verifications and profile
 		const authToken = await authInstance.getAuthToken();
 		const [captcha, personhood, profileData] = await allSettled<
@@ -348,7 +354,7 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 
 		const newUser = produce(user, (draft) => {
 			draft.wallets = withWallets;
-			draft.partnerships = partnerships;
+			draft.partnerships = partnerships.getPartnerships();
 			if (profile) {
 				draft.profile = profile;
 			}
@@ -414,7 +420,9 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 
 	const value = useMemo(
 		() => ({
+			auth: authInstance,
 			user,
+			partnerships,
 			loading: loading || walletsLoading,
 			connect,
 			disconnect: disconnectWallet,

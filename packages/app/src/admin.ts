@@ -2,17 +2,20 @@
  * An Admin ONLY File used for managing Auth Instance from within the Browser.
  */
 
-import Authenticate from "@/modules/auth";
+export {};
 
-const authInstance = Authenticate.getInstance();
+// TODO: What is the purpose of this code? It never used.
+// import { Authenticate } from "@usher.so/auth";
 
-export const UsherAdmin = {
-	auth() {
-		return authInstance;
-	}
-};
+// const authInstance = Authenticate.getInstance();
 
-if (typeof window !== "undefined") {
-	// @ts-ignore
-	window.UsherAdmin = UsherAdmin;
-}
+// export const UsherAdmin = {
+// 	auth() {
+// 		return authInstance;
+// 	}
+// };
+
+// if (typeof window !== "undefined") {
+// 	// @ts-ignore
+// 	window.UsherAdmin = UsherAdmin;
+// }

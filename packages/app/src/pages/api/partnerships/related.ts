@@ -2,7 +2,8 @@ import { aql } from "arangojs";
 import isEmpty from "lodash/isEmpty";
 import { z } from "zod";
 
-import { AuthApiRequest, Chains } from "@/types";
+import { Chains } from "@usher.so/shared";
+import { AuthApiRequest } from "@/types";
 import { useRouteHandler } from "@/server/middleware";
 import withAuth from "@/server/middleware/auth";
 import { getArangoClient } from "@/utils/arango-client";

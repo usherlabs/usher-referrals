@@ -8,7 +8,8 @@ import { TileLoader } from "@glazed/tile-loader";
 import { WalletAliases } from "@usher.so/datamodels";
 import cors from "cors";
 
-import { CampaignReference, Campaign, CampaignStrategies } from "@/types";
+import { CampaignReference } from "@usher.so/partnerships";
+import { Campaign, CampaignStrategies } from "@/types";
 import { useRouteHandler, expressMiddleware } from "@/server/middleware";
 import { getAppDID } from "@/server/did";
 import { getArangoClient } from "@/utils/arango-client";

@@ -2,7 +2,7 @@ import ArConnectIcon from "@/assets/icon/arconnect.svg";
 import CoinbaseWalletIcon from "@/assets/icon/coinbasewallet.svg";
 import MetaMaskIcon from "@/assets/icon/metamask.svg";
 import WalletConnectIcon from "@/assets/icon/walletconnect.svg";
-import { Chains } from "@/types";
+import { Chains } from "@usher.so/shared";
 import { ProviderLabel } from "@/utils/onboard";
 import { Heading, Pane, Strong, Text } from "evergreen-ui";
 import { useMemo } from "react";
