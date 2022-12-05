@@ -8,13 +8,8 @@ import { TileDocument } from "@ceramicnetwork/stream-tile";
 // import ono from "@jsdevtools/ono";
 import uniq from "lodash/uniq";
 
-import {
-	AuthApiRequest,
-	Campaign,
-	Claim,
-	PartnershipMetrics,
-	RewardTypes
-} from "@/types";
+import { AuthApiRequest, Claim, PartnershipMetrics } from "@/types";
+import { Campaign, RewardTypes } from "@usher.so/campaigns";
 import { Chains } from "@usher.so/shared";
 import { CampaignReference } from "@usher.so/partnerships";
 import { useRouteHandler } from "@/server/middleware";

@@ -1,7 +1,7 @@
 import React from "react";
 import { Pane } from "evergreen-ui";
 
-import { Campaign } from "@/types";
+import { Campaign } from "@usher.so/campaigns";
 import { useRandomColor } from "@/hooks";
 
 export type Props = {

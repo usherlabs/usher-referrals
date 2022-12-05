@@ -9,7 +9,7 @@ import { WalletAliases } from "@usher.so/datamodels";
 import cors from "cors";
 
 import { CampaignReference } from "@usher.so/partnerships";
-import { Campaign, CampaignStrategies } from "@/types";
+import { Campaign, CampaignStrategies } from "@usher.so/campaigns";
 import { useRouteHandler, expressMiddleware } from "@/server/middleware";
 import { getAppDID } from "@/server/did";
 import { getArangoClient } from "@/utils/arango-client";

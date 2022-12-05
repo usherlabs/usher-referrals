@@ -17,13 +17,8 @@ import InfoAccordions from "@/components/Campaign/InfoAccordions";
 import WhitelistAlert from "@/components/Campaign/WhitelistAlert";
 import Progress from "@/components/Progress";
 import { Chains, Wallet } from "@usher.so/shared";
-import {
-	Campaign,
-	RewardTypes,
-	CampaignReward,
-	PartnershipMetrics,
-	Claim
-} from "@/types";
+import { Campaign, RewardTypes, CampaignReward } from "@usher.so/campaigns";
+import { PartnershipMetrics, Claim } from "@/types";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import useRedir from "@/hooks/use-redir";

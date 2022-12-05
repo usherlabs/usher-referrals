@@ -1,12 +1,7 @@
 import ky from "ky";
 import { CampaignReference } from "@usher.so/partnerships";
-import {
-	Campaign,
-	PartnershipMetrics,
-	Referral,
-	Profile,
-	Claim
-} from "@/types";
+import { PartnershipMetrics, Referral, Profile, Claim } from "@/types";
+import { Campaign } from "@usher.so/campaigns";
 
 // const formatQs = (o: Record<string, string>) => {
 // 	const searchParams = new URLSearchParams(o);

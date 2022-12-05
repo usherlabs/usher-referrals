@@ -2,7 +2,7 @@ import React from "react";
 import { css } from "@linaria/core";
 import { Pane, Paragraph, Strong, useTheme } from "evergreen-ui";
 
-import { Campaign } from "@/types";
+import { Campaign } from "@usher.so/campaigns";
 import Anchor from "@/components/Anchor";
 import truncate from "@/utils/truncate";
 import { useRandomColor } from "@/hooks";

@@ -8,7 +8,7 @@ import {
 	ETHEREUM_EXPLORER_ADDRESS_URL
 } from "@/constants";
 import { Chains } from "@usher.so/shared";
-import { Campaign } from "@/types";
+import { Campaign } from "@usher.so/campaigns";
 import { chainImages } from "@/utils/images-map";
 import { UilTwitter } from "@iconscout/react-unicons";
 

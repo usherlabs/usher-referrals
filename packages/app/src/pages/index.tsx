@@ -22,7 +22,7 @@ import { useUser } from "@/hooks";
 import CampaignCard from "@/components/CampaignCard";
 import Anchor from "@/components/Anchor";
 import { CampaignReference } from "@usher.so/partnerships";
-import { Campaign } from "@/types";
+import { Campaign } from "@usher.so/campaigns";
 import delay from "@/utils/delay";
 import { useSeedData } from "@/env-config";
 import * as api from "@/api";

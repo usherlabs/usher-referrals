@@ -1,7 +1,7 @@
 import React from "react";
 import { Heading, Strong, useTheme, Text, Paragraph } from "evergreen-ui";
 
-import { Campaign } from "@/types";
+import { Campaign } from "@usher.so/campaigns";
 import Anchor from "@/components/Anchor";
 import truncate from "@/utils/truncate";
 

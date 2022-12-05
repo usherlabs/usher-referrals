@@ -25,7 +25,7 @@ import startCase from "lodash/startCase";
 import { cx, css } from "@linaria/core";
 
 import { Chains } from "@usher.so/shared";
-import { RewardTypes, Campaign, CampaignStrategies } from "@/types";
+import { Campaign, CampaignStrategies, RewardTypes } from "@usher.so/campaigns";
 import Anchor from "@/components/Anchor";
 import "react-accessible-accordion/dist/fancy-example.css";
 import pascalCase from "@/utils/pascal-case";
