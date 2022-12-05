@@ -1,6 +1,8 @@
-// #region TargetEnv
-
 import { ethereumProviderUrl } from "@/env-config";
+import { AuthOptions } from "@usher.so/auth";
+import { ApiOptions } from "@usher.so/shared";
+
+// #region TargetEnv
 
 enum TargetEnv {
 	production = "production",
@@ -117,6 +119,30 @@ export const METAMASK_FIREFOX_URL =
 	"https://addons.mozilla.org/en-US/firefox/addon/ether-metamask/" as const;
 
 // #endregion
+
+export const AUTH_OPTIONS = byTargetEnv<AuthOptions>({
+	p: {
+		environment: "production"
+	},
+	s: {
+		environment: "staging"
+	},
+	d: {
+		environment: "staging"
+	}
+});
+
+export const API_OPTIONS = byTargetEnv<ApiOptions>({
+	p: {
+		environment: "production"
+	},
+	s: {
+		environment: "staging"
+	},
+	d: {
+		url: "/api"
+	}
+});
 
 export const MAX_SCREEN_WIDTH = 1480 as const;
 

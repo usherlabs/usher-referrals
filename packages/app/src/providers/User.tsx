@@ -3,7 +3,7 @@
  */
 
 import * as api from "@/api";
-import { ETHEREUM_CHAIN_ID } from "@/constants";
+import { API_OPTIONS, AUTH_OPTIONS, ETHEREUM_CHAIN_ID } from "@/constants";
 import useArConnect from "@/hooks/use-arconnect";
 import { Authenticate } from "@usher.so/auth";
 import { Connections, Wallet } from "@usher.so/shared";
@@ -33,7 +33,6 @@ import React, {
 import { getArweaveClient } from "@/utils/arweave-client";
 import { getEthereumClient } from "@/utils/ethereum-client";
 import { ethers } from "ethers";
-import { ceramicUrl } from "@/env-config";
 import { CampaignReference, Partnerships } from "@usher.so/partnerships";
 
 const arweave = getArweaveClient();
@@ -55,8 +54,8 @@ const defaultValues: User = {
 	}
 };
 
-const authInstance = new Authenticate(ceramicUrl, arweave, ethProvider);
-const partnerships = new Partnerships(authInstance);
+const authInstance = new Authenticate(arweave, ethProvider, AUTH_OPTIONS);
+const partnerships = new Partnerships(authInstance, API_OPTIONS);
 
 export const UserContext = createContext<IUserContext>({
 	auth: authInstance,
