@@ -1,7 +1,5 @@
 import ky from "ky";
-import { CampaignReference } from "@usher.so/partnerships";
 import { PartnershipMetrics, Referral, Profile, Claim } from "@/types";
-import { Campaign } from "@usher.so/campaigns";
 
 // const formatQs = (o: Record<string, string>) => {
 // 	const searchParams = new URLSearchParams(o);
@@ -69,28 +67,6 @@ export const bot = () => ({
 				}
 			})
 			.json()
-});
-
-export const campaigns = () => ({
-	get: (
-		references?: CampaignReference | CampaignReference[]
-	): Promise<{ success: boolean; data: Campaign[] }> => {
-		let qs = "";
-		if (references) {
-			if (!Array.isArray(references)) {
-				references = [references];
-			}
-			if (references.length > 0) {
-				const params = new URLSearchParams();
-				const q = references
-					.map((ref) => [ref.chain, ref.address].join(":"))
-					.join(",");
-				params.set("q", q);
-				qs = `?${params.toString()}`;
-			}
-		}
-		return request.get(`campaigns${qs}`).json();
-	}
 });
 
 export const partnerships = () => ({

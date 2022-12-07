@@ -17,6 +17,8 @@ import { Pane } from "evergreen-ui";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { useCallback, useEffect, useState } from "react";
+import { Campaigns } from "@usher.so/campaigns";
+import { API_OPTIONS } from "@/constants";
 
 const onError = () => {
 	window.location.replace(`/link-error`);
@@ -36,6 +38,8 @@ enum Step {
 	Wallet,
 	ProcessInvite
 }
+
+const campaignsProvider = new Campaigns(API_OPTIONS);
 
 const Invite: React.FC<Props> = () => {
 	const [step, setStep] = useState(Step.Init);
@@ -117,9 +121,7 @@ const Invite: React.FC<Props> = () => {
 		const loader = new TileLoader({ ceramic });
 		const stream = await loader.load<CampaignReference>(id);
 		const campaignRef = stream.content;
-		const {
-			data: [campaign]
-		} = await api.campaigns().get(campaignRef);
+		const [campaign] = await campaignsProvider.getCampaigns([campaignRef]);
 
 		setChain(campaign.chain);
 		setDomain(new URL(campaign.details.destinationUrl).hostname);
