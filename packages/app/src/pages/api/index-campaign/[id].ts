@@ -6,10 +6,14 @@ import { ceramic } from "@/utils/ceramic-client";
 import { TileLoader } from "@glazed/tile-loader";
 import {
 	Advertiser,
+	AdvertiserDoc,
+	advertiserDocSchema,
 	Campaign,
 	CampaignDetails,
-	CampaignStrategies,
-	RewardTypes
+	CampaignDetailsDoc,
+	campaignDetailsDocSchema,
+	CampaignDoc,
+	campaignDocSchema
 } from "@usher.so/campaigns";
 import { Chains } from "@usher.so/shared";
 import { aql } from "arangojs";
@@ -17,52 +21,6 @@ import camelcaseKeys from "camelcase-keys";
 import { ethers } from "ethers";
 import { Base64 } from "js-base64";
 import { fromString } from "uint8arrays";
-import { z } from "zod";
-
-const campaignDocSchema = z.object({
-	id: z.string().optional(),
-	chain: z.nativeEnum(Chains),
-	disable_verification: z.boolean().optional(),
-	events: z.array(
-		z.object({
-			strategy: z.nativeEnum(CampaignStrategies),
-			rate: z.number(),
-			nativeLimit: z.number().optional(),
-			perCommit: z.number().optional(),
-			description: z.string().optional(),
-			contractAddress: z.string().optional(),
-			contractEvent: z.string().optional()
-		})
-	),
-	reward: z.object({
-		name: z.string(),
-		ticker: z.string(),
-		type: z.nativeEnum(RewardTypes),
-		address: z.string().optional()
-	}),
-	details: z.string(),
-	advertiser: z.string()
-});
-
-const advertiserSchema = z.object({
-	name: z.string().optional(),
-	icon: z.string().optional(),
-	description: z.string().optional(),
-	external_link: z.string().optional(),
-	twitter: z.string()
-});
-
-const detailsSchema = z.object({
-	destination_url: z.string(),
-	name: z.string(),
-	description: z.string().optional(),
-	image: z.string().optional(),
-	external_link: z.string().optional()
-});
-
-type CampaignDoc = z.infer<typeof campaignDocSchema>;
-type AdvertiserDoc = z.infer<typeof advertiserSchema>;
-type DetailsDoc = z.infer<typeof detailsSchema>;
 
 type CampaignlWallet = {
 	address: string;
@@ -168,7 +126,7 @@ async function getCampaignAdvertiser(streamId: string): Promise<Advertiser> {
 		const advertiserDoc = stream.content;
 
 		// Validate the received details
-		await advertiserSchema.parseAsync(advertiserDoc);
+		await advertiserDocSchema.parseAsync(advertiserDoc);
 
 		const advertiser = camelcaseKeys(advertiserDoc);
 		return advertiser;
@@ -186,11 +144,11 @@ async function getCampaignAdvertiser(streamId: string): Promise<Advertiser> {
 async function getCampaignDetails(streamId: string): Promise<CampaignDetails> {
 	try {
 		const loader = new TileLoader({ ceramic });
-		const stream = await loader.load<DetailsDoc>(streamId);
+		const stream = await loader.load<CampaignDetailsDoc>(streamId);
 		const detailsDoc = stream.content;
 
 		// Validate the received details
-		await detailsSchema.parseAsync(detailsDoc);
+		await campaignDetailsDocSchema.parseAsync(detailsDoc);
 
 		const details = camelcaseKeys(detailsDoc);
 		return details;
