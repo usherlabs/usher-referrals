@@ -121,27 +121,19 @@ export const METAMASK_FIREFOX_URL =
 // #endregion
 
 export const AUTH_OPTIONS = byTargetEnv<AuthOptions>({
-	p: {
-		environment: "production"
-	},
-	s: {
-		environment: "staging"
-	},
-	d: {
-		environment: "staging"
-	}
+	p: new AuthOptions({ environment: "production" }),
+	s: new AuthOptions({ environment: "staging" }),
+	d: new AuthOptions({ ceramicUrl: "http://localhost:7007" })
 });
 
 export const API_OPTIONS = byTargetEnv<ApiOptions>({
-	p: {
-		environment: "production"
-	},
-	s: {
-		environment: "staging"
-	},
-	d: {
-		url: "/api"
-	}
+	p: new ApiOptions({ environment: "production" }),
+	s: new ApiOptions({ environment: "staging" }),
+	d: new ApiOptions({
+		arweaveUrl: "http://localhost:1984",
+		ceramicUrl: "http://localhost:7007",
+		usherUrl: "/api"
+	})
 });
 
 export const MAX_SCREEN_WIDTH = 1480 as const;
