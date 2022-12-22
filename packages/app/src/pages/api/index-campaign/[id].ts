@@ -1,5 +1,5 @@
 import { getAppDID } from "@/server/did";
-import { useRouteHandler } from "@/server/middleware";
+import { expressMiddleware, useRouteHandler } from "@/server/middleware";
 import { getArangoClient } from "@/utils/arango-client";
 import { getArweaveClient } from "@/utils/arweave-client";
 import { ceramic } from "@/utils/ceramic-client";
@@ -18,6 +18,7 @@ import {
 import { Chains } from "@usher.so/shared";
 import { aql } from "arangojs";
 import camelcaseKeys from "camelcase-keys";
+import cors from "cors";
 import { ethers } from "ethers";
 import { Base64 } from "js-base64";
 import { fromString } from "uint8arrays";
@@ -188,57 +189,65 @@ async function createWallet(chain: Chains): Promise<CampaignlWallet> {
 	};
 }
 
-handler.router.get(async (req, res) => {
-	const { id } = req.query;
+handler.router
+	.use(
+		expressMiddleware(
+			cors({
+				preflightContinue: true
+			})
+		)
+	)
+	.get(async (req, res) => {
+		const { id } = req.query;
 
-	if (typeof id !== "string") {
-		return res.status(400).json({
-			success: false
+		if (typeof id !== "string") {
+			return res.status(400).json({
+				success: false
+			});
+		}
+
+		const originCampaign = await getOriginCampaing(id);
+		const { chain } = originCampaign;
+		const indexedCampaign = await loadCampaignByOrigin(id);
+
+		const details = await getCampaignDetails(originCampaign.details);
+		const advertiser = await getCampaignAdvertiser(originCampaign.advertiser);
+
+		if (!indexedCampaign) {
+			const owner = await getOriginCampaingOwner(id);
+			const internalWallet = await createWallet(chain);
+			const campaign = {
+				id: internalWallet.address,
+				chain,
+				owner,
+				origin: id,
+				disableVerification: originCampaign.disable_verification,
+				events: originCampaign.events,
+				reward: originCampaign.reward,
+				details,
+				advertiser,
+				_internal: {
+					address: internalWallet.address,
+					key: internalWallet.key
+				}
+			} as Campaign & { _internal: CampaignlWallet };
+			await insertCampaing(campaign);
+		} else {
+			const campaign: Campaign = {
+				id: indexedCampaign.id,
+				chain: indexedCampaign.chain,
+				details,
+				advertiser
+			} as Campaign;
+			await updateCampaing(campaign);
+		}
+
+		const resultCampaign = await loadCampaignByOrigin(id);
+
+		return res.json({
+			success: true,
+			campaign: resultCampaign
 		});
-	}
-
-	const originCampaign = await getOriginCampaing(id);
-	const { chain } = originCampaign;
-	const indexedCampaign = await loadCampaignByOrigin(id);
-
-	const details = await getCampaignDetails(originCampaign.details);
-	const advertiser = await getCampaignAdvertiser(originCampaign.advertiser);
-
-	if (!indexedCampaign) {
-		const owner = await getOriginCampaingOwner(id);
-		const internalWallet = await createWallet(chain);
-		const campaign = {
-			id: internalWallet.address,
-			chain,
-			owner,
-			origin: id,
-			disableVerification: originCampaign.disable_verification,
-			events: originCampaign.events,
-			reward: originCampaign.reward,
-			details,
-			advertiser,
-			_internal: {
-				address: internalWallet.address,
-				key: internalWallet.key
-			}
-		} as Campaign & { _internal: CampaignlWallet };
-		await insertCampaing(campaign);
-	} else {
-		const campaign: Campaign = {
-			id: indexedCampaign.id,
-			chain: indexedCampaign.chain,
-			details,
-			advertiser
-		} as Campaign;
-		await updateCampaing(campaign);
-	}
-
-	const resultCampaign = await loadCampaignByOrigin(id);
-
-	return res.json({
-		success: true,
-		campaign: resultCampaign
 	});
-});
 
 export default handler.handle();
