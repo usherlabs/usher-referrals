@@ -3,6 +3,7 @@
 		"id": "ksFTLgrwQGtNrhRz6MWyd3a4lvK1Oh-QF1HYcEeeF12",
 		"chain": "arweave",
 		"owner": "ksFTLgrwQGtNrhRz6MWyd3a4lvK1Oh-QF1HYcEeeFVk",
+		"origin": "5F8ZZbyTZZtj7p0W0ufLLuzKCFIoOu755FIrW9Obiw4",
 		"events": [
 			{
 				"strategy": "flat",

@@ -79,14 +79,24 @@ const arweave = getArweaveClient();
  * @returns
  */
 async function getOriginCampaing(id: string): Promise<CampaignDoc> {
-	const data = await arweave.transactions.getData(id, { decode: true });
+	const data = (await arweave.transactions.getData(id, {
+		decode: true,
+		string: true
+	})) as string;
 
-	try {
-		const campaign = (await campaignDocSchema.parseAsync(data)) as CampaignDoc;
-		return campaign;
-	} catch {
-		throw new Error("Invalid Campaign format");
-	}
+	const json = JSON.parse(data);
+
+	return campaignDocSchema.parseAsync(json);
+}
+
+/**
+ * Loads an Owner of the origin campaign from Arweave
+ * @param id
+ * @returns
+ */
+async function getOriginCampaingOwner(id: string): Promise<string> {
+	const transaction = await arweave.transactions.get(id);
+	return transaction.owner_address;
 }
 
 /**
@@ -99,7 +109,7 @@ async function loadCampaignByOrigin(origin: string): Promise<Campaign> {
 	const dataCursor = await arango.query(aql`
 		FOR campaign IN Campaigns
 			FILTER campaign.origin == ${origin}
-			RETURN UNSET(campaign, "_internal")	
+			RETURN UNSET(campaign, "_key", "_id", "_rev", "_internal")
 	`);
 	const [campaign] = await dataCursor.all();
 	return campaign;
@@ -237,11 +247,12 @@ handler.router.get(async (req, res) => {
 	const advertiser = await getCampaignAdvertiser(originCampaign.advertiser);
 
 	if (!indexedCampaign) {
+		const owner = await getOriginCampaingOwner(id);
 		const internalWallet = await createWallet(chain);
 		const campaign = {
 			id: internalWallet.address,
 			chain,
-			// TODO: Get an owner of the Arweave transaction that created the origin campaign.
+			owner,
 			origin: id,
 			disableVerification: originCampaign.disable_verification,
 			events: originCampaign.events,
@@ -268,7 +279,7 @@ handler.router.get(async (req, res) => {
 
 	return res.json({
 		success: true,
-		body: resultCampaign
+		campaign: resultCampaign
 	});
 });
 
