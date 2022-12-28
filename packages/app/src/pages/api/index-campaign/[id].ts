@@ -21,6 +21,7 @@ import camelcaseKeys from "camelcase-keys";
 import cors from "cors";
 import { ethers } from "ethers";
 import { Base64 } from "js-base64";
+import snakecaseKeys from "snakecase-keys";
 import { fromString } from "uint8arrays";
 
 type CampaignlWallet = {
@@ -38,14 +39,21 @@ const arweave = getArweaveClient();
  * @returns
  */
 async function getOriginCampaing(id: string): Promise<CampaignDoc> {
-	const data = (await arweave.transactions.getData(id, {
-		decode: true,
-		string: true
-	})) as string;
+	try {
+		const data = (await arweave.transactions.getData(id, {
+			decode: true,
+			string: true
+		})) as string;
 
-	const json = JSON.parse(data);
+		const obj = JSON.parse(data);
+		const doc = camelcaseKeys(obj);
 
-	return campaignDocSchema.parseAsync(json);
+		const campaign = await campaignDocSchema.parseAsync(doc);
+		return campaign;
+	} catch {
+		// TODO: Hande errors
+		throw new Error("Unable to get Campaign");
+	}
 }
 
 /**
@@ -71,7 +79,7 @@ async function loadCampaignByOrigin(origin: string): Promise<Campaign> {
 			RETURN UNSET(campaign, "_key", "_id", "_rev", "_internal")
 	`);
 	const [campaign] = await dataCursor.all();
-	return campaign;
+	return camelcaseKeys(campaign, { deep: true });
 }
 
 /**
@@ -83,7 +91,7 @@ async function insertCampaing(
 ) {
 	const doc = {
 		_key: [campaign.chain, campaign.id].join(":"),
-		...campaign
+		...snakecaseKeys(campaign, { deep: true, exclude: ["_internal"] })
 	};
 
 	const cursor = await arango.query(aql`
@@ -106,8 +114,8 @@ async function updateCampaing(campaign: Campaign) {
 	const cursor = await arango.query(aql`
 		UPDATE ${doc}
 		WITH {
-			details: ${campaign.details},
-			advertiser: ${campaign.advertiser}
+			details: ${snakecaseKeys(campaign.details, { deep: true })},
+			advertiser: ${snakecaseKeys(campaign.advertiser, { deep: true })}
 		}
 		IN Campaigns OPTIONS { waitForSync: true }
 	`);
@@ -124,12 +132,11 @@ async function getCampaignAdvertiser(streamId: string): Promise<Advertiser> {
 	try {
 		const loader = new TileLoader({ ceramic });
 		const stream = await loader.load<AdvertiserDoc>(streamId);
-		const advertiserDoc = stream.content;
+		const { content } = stream;
 
-		// Validate the received details
-		await advertiserDocSchema.parseAsync(advertiserDoc);
+		const doc = camelcaseKeys(content);
+		const advertiser = await advertiserDocSchema.parseAsync(doc);
 
-		const advertiser = camelcaseKeys(advertiserDoc);
 		return advertiser;
 	} catch {
 		// TODO: Hande errors
@@ -146,12 +153,11 @@ async function getCampaignDetails(streamId: string): Promise<CampaignDetails> {
 	try {
 		const loader = new TileLoader({ ceramic });
 		const stream = await loader.load<CampaignDetailsDoc>(streamId);
-		const detailsDoc = stream.content;
+		const { content } = stream;
 
-		// Validate the received details
-		await campaignDetailsDocSchema.parseAsync(detailsDoc);
+		const doc = camelcaseKeys(content);
+		const details = await campaignDetailsDocSchema.parseAsync(doc);
 
-		const details = camelcaseKeys(detailsDoc);
 		return details;
 	} catch {
 		// TODO: Hande errors
@@ -180,7 +186,7 @@ async function createWallet(chain: Chains): Promise<CampaignlWallet> {
 	}
 
 	const did = await getAppDID();
-	const jwe = await did.createJWE(fromString(JSON.stringify(key)), [did.id]);
+	const jwe = await did.createJWE(fromString(key), [did.id]);
 	key = Base64.encode(JSON.stringify(jwe));
 
 	return {
@@ -221,7 +227,7 @@ handler.router
 				chain,
 				owner,
 				origin: id,
-				disableVerification: originCampaign.disable_verification,
+				disableVerification: originCampaign.disableVerification,
 				events: originCampaign.events,
 				reward: originCampaign.reward,
 				details,

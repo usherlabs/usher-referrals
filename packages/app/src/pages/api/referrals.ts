@@ -5,6 +5,7 @@ import { Base64 } from "js-base64";
 import { parseCookies, setCookie } from "nookies";
 import * as uint8arrays from "uint8arrays";
 import { z } from "zod";
+import camelcaseKeys from "camelcase-keys";
 
 import { REFERRAL_TOKEN_DELIMITER } from "@/constants";
 import { getAppDID } from "@/server/did";
@@ -15,6 +16,7 @@ import { ApiRequest, ApiResponse } from "@/types";
 import { getArangoClient } from "@/utils/arango-client";
 import { ceramic } from "@/utils/ceramic-client";
 import cuid from "cuid";
+import { Campaign } from "@usher.so/campaigns";
 
 const handler = useRouteHandler();
 
@@ -201,11 +203,11 @@ handler.router.post(async (req, res) => {
 			":"
 		)})
 	`);
-	const dataResults = await dataCursor.all();
-	const [campaignData] = dataResults;
+	const [dataResults] = (await dataCursor.all()) as Campaign[];
+	const campaignData = camelcaseKeys(dataResults, { deep: true });
 
-	// By default, the campaign security includes everything. If disable_verification is true, then all partners can start earning rewards.
-	if (campaignData.disable_verification !== true) {
+	// By default, the campaign security includes everything. If disableVerification is true, then all partners can start earning rewards.
+	if (campaignData.disableVerification !== true) {
 		// Check that the Partner is Verified, if the Campaign requires as such
 		const verifyCheckCursor = await arango.query(aql`
 			FOR d IN 1..1 INBOUND CONCAT("Partnerships/", ${partnership}) Engagements
@@ -276,7 +278,7 @@ handler.router.post(async (req, res) => {
 
 	const newToken = [prefix, token].join(".");
 
-	const url = new URL(campaignData.details.destination_url);
+	const url = new URL(campaignData.details.destinationUrl);
 	url.searchParams.set("_ushrt", newToken);
 
 	return res.json({
