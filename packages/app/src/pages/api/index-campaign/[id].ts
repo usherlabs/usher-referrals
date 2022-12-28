@@ -46,7 +46,7 @@ async function getOriginCampaing(id: string): Promise<CampaignDoc> {
 		})) as string;
 
 		const obj = JSON.parse(data);
-		const doc = camelcaseKeys(obj);
+		const doc = camelcaseKeys(obj, { deep: true });
 
 		const campaign = await campaignDocSchema.parseAsync(doc);
 		return campaign;
@@ -134,7 +134,7 @@ async function getCampaignAdvertiser(streamId: string): Promise<Advertiser> {
 		const stream = await loader.load<AdvertiserDoc>(streamId);
 		const { content } = stream;
 
-		const doc = camelcaseKeys(content);
+		const doc = camelcaseKeys(content, { deep: true });
 		const advertiser = await advertiserDocSchema.parseAsync(doc);
 
 		return advertiser;
@@ -155,7 +155,7 @@ async function getCampaignDetails(streamId: string): Promise<CampaignDetails> {
 		const stream = await loader.load<CampaignDetailsDoc>(streamId);
 		const { content } = stream;
 
-		const doc = camelcaseKeys(content);
+		const doc = camelcaseKeys(content, { deep: true });
 		const details = await campaignDetailsDocSchema.parseAsync(doc);
 
 		return details;
