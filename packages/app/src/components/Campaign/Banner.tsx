@@ -2,14 +2,14 @@ import React from "react";
 import { Pane } from "evergreen-ui";
 
 import { Campaign } from "@usher.so/campaigns";
-import { useRandomColor } from "@/hooks";
+import { useDerivedColor } from "@/hooks";
 
 export type Props = {
 	campaign: Campaign;
 };
 
 const CampaignBanner: React.FC<Props> = ({ campaign }) => {
-	const rColor = useRandomColor();
+	const rColor = useDerivedColor(campaign.id);
 
 	return (
 		<Pane
