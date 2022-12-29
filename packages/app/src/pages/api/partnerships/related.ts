@@ -1,10 +1,11 @@
 import { aql } from "arangojs";
 import isEmpty from "lodash/isEmpty";
 import { z } from "zod";
+import cors from "cors";
 
 import { Chains } from "@usher.so/shared";
 import { AuthApiRequest } from "@/types";
-import { useRouteHandler } from "@/server/middleware";
+import { expressMiddleware, useRouteHandler } from "@/server/middleware";
 import withAuth from "@/server/middleware/auth";
 import { getArangoClient } from "@/utils/arango-client";
 import { indexPartnership } from "@/server/partnership";
@@ -26,6 +27,13 @@ const schema = z.object({
  */
 handler.router
 	.use(withAuth)
+	.use(
+		expressMiddleware(
+			cors({
+				preflightContinue: true
+			})
+		)
+	)
 	.get(async (req, res) => {
 		try {
 			const cursor = await arango.query(aql`
