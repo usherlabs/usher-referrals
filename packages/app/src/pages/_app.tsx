@@ -2,7 +2,7 @@ import "es6-shim";
 
 import React, { useEffect } from "react";
 import { AppProps } from "next/app";
-import { DefaultSeo } from "next-seo";
+import { DefaultSeo, NextSeoProps } from "next-seo";
 import { ThemeProvider, mergeTheme, defaultTheme } from "evergreen-ui";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { useRouter } from "next/router";
@@ -20,6 +20,13 @@ import { AppEvents, events } from "@/utils/events";
 
 import { initOnboard } from "@/utils/onboard";
 
+type Props = AppProps & {
+	pageProps: {
+		seo?: NextSeoProps;
+		noUser?: boolean;
+	};
+};
+
 initOnboard();
 
 if (!isProd) {
@@ -31,7 +38,7 @@ const queryClient = new QueryClient();
 
 const dynamicStaticPathnames = ["/inv/[id]"];
 
-const App = ({ Component, pageProps }: AppProps) => {
+const App = ({ Component, pageProps }: Props) => {
 	const router = useRouter();
 
 	const theme = mergeTheme(defaultTheme, {

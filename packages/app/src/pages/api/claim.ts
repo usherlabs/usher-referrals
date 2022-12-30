@@ -7,6 +7,7 @@ import { WalletAliases } from "@usher.so/datamodels";
 import { TileDocument } from "@ceramicnetwork/stream-tile";
 // import ono from "@jsdevtools/ono";
 import uniq from "lodash/uniq";
+import { BigNumber, ethers, Wallet } from "ethers";
 
 import { AuthApiRequest, Claim, PartnershipMetrics } from "@/types";
 import { Campaign, RewardTypes } from "@usher.so/campaigns";
@@ -28,7 +29,6 @@ import {
 import handleException from "@/utils/handle-exception";
 import { appPackageName, appVersion } from "@/env-config";
 import { getEthereumClient } from "@/utils/ethereum-client";
-import { BigNumber, ethers, Wallet } from "ethers";
 import { indexClaim } from "@/server/claim";
 import { erc20 } from "@/abi/erc20";
 
@@ -530,6 +530,8 @@ handler.router.use(withAuth).post(async (req, res) => {
 					const contract = new ethers.Contract(
 						campaignData.reward.address,
 						erc20,
+						// TODO: Figure out which correct variable to pass. Wallet implements Signer, but this constructor requires Signer | Provider | undefined
+						// @ts-ignore
 						wallet
 					);
 					const decimals = await contract.decimals();

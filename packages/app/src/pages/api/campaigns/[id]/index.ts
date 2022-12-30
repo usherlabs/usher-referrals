@@ -23,8 +23,10 @@ import { ethers } from "ethers";
 import { Base64 } from "js-base64";
 import snakecaseKeys from "snakecase-keys";
 import { fromString } from "uint8arrays";
+import got from "got";
+import ono from "@jsdevtools/ono";
 
-type CampaignlWallet = {
+type CampaignWallet = {
 	address: string;
 	key: string;
 };
@@ -40,19 +42,13 @@ const arweave = getArweaveClient();
  */
 async function getOriginCampaign(id: string): Promise<CampaignDoc> {
 	try {
-		const data = (await arweave.transactions.getData(id, {
-			decode: true,
-			string: true
-		})) as string;
-
-		const obj = JSON.parse(data);
-		const doc = camelcaseKeys(obj, { deep: true });
+		const data = (await got.get(`https://arweave.net/${id}`).json()) as Object;
+		const doc = camelcaseKeys(data, { deep: true });
 
 		const campaign = await campaignDocSchema.parseAsync(doc);
 		return campaign;
-	} catch {
-		// TODO: Hande errors
-		throw new Error("Unable to get Campaign");
+	} catch (e) {
+		throw ono("Unable to get Campaign", e);
 	}
 }
 
@@ -86,8 +82,8 @@ async function loadCampaignByOrigin(origin: string): Promise<Campaign> {
  * Inserts a campaign to Arango database
  * @param campaign
  */
-async function insertCampaing(
-	campaign: Campaign & { _internal: CampaignlWallet }
+async function insertCampaign(
+	campaign: Campaign & { _internal: CampaignWallet }
 ) {
 	const doc = {
 		_key: [campaign.chain, campaign.id].join(":"),
@@ -106,7 +102,7 @@ async function insertCampaing(
  * Updates a campaing in Arango database
  * @param campaign
  */
-async function updateCampaing(campaign: Campaign) {
+async function updateCampaign(campaign: Campaign) {
 	const doc = {
 		_key: [campaign.chain, campaign.id].join(":")
 	};
@@ -138,9 +134,8 @@ async function getCampaignAdvertiser(streamId: string): Promise<Advertiser> {
 		const advertiser = await advertiserDocSchema.parseAsync(doc);
 
 		return advertiser;
-	} catch {
-		// TODO: Hande errors
-		throw new Error("Unable to get Advertiser");
+	} catch (e) {
+		throw ono("Unable to get Advertiser", e);
 	}
 }
 
@@ -159,9 +154,8 @@ async function getCampaignDetails(streamId: string): Promise<CampaignDetails> {
 		const details = await campaignDetailsDocSchema.parseAsync(doc);
 
 		return details;
-	} catch {
-		// TODO: Hande errors
-		throw new Error("Unable to get Campaign Details");
+	} catch (e) {
+		throw ono("Unable to get Campaign Details", e);
 	}
 }
 
@@ -170,7 +164,7 @@ async function getCampaignDetails(streamId: string): Promise<CampaignDetails> {
  * @param chain
  * @returns
  */
-async function createWallet(chain: Chains): Promise<CampaignlWallet> {
+async function createWallet(chain: Chains): Promise<CampaignWallet> {
 	let address: string;
 	let key: string;
 
@@ -220,7 +214,16 @@ handler.router
 		const advertiser = await getCampaignAdvertiser(originCampaign.advertiser);
 
 		if (!indexedCampaign) {
-			const owner = await getOriginCampaignOwner(id);
+			let { owner } = originCampaign;
+			if (!owner) {
+				try {
+					owner = await getOriginCampaignOwner(id);
+				} catch (e) {
+					throw new Error(
+						`Cannot get owner of Campaign. Please wait for the Campaign's Arweave Transaction to be mined. View status here: https://viewblock.io/arweave/tx/${id}`
+					);
+				}
+			}
 			const internalWallet = await createWallet(chain);
 			const campaign = {
 				id: internalWallet.address,
@@ -236,8 +239,8 @@ handler.router
 					address: internalWallet.address,
 					key: internalWallet.key
 				}
-			} as Campaign & { _internal: CampaignlWallet };
-			await insertCampaing(campaign);
+			} as Campaign & { _internal: CampaignWallet };
+			await insertCampaign(campaign);
 		} else {
 			const campaign: Campaign = {
 				id: indexedCampaign.id,
@@ -245,7 +248,7 @@ handler.router
 				details,
 				advertiser
 			} as Campaign;
-			await updateCampaing(campaign);
+			await updateCampaign(campaign);
 		}
 
 		const resultCampaign = await loadCampaignByOrigin(id);
