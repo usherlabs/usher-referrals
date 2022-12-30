@@ -259,4 +259,4 @@ handler.router
 		});
 	});
 
-export default handler.handle();
+export default handler.cors().handle();

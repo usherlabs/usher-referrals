@@ -5261,30 +5261,10 @@
   resolved "https://registry.yarnpkg.com/@ungap/promise-all-settled/-/promise-all-settled-1.1.2.tgz#aa58042711d6e3275dd37dc597e5d31e8c290a44"
   integrity sha512-sL/cEvJWAnClXw0wHk85/2L0G6Sj8UB0Ctc1TEMbKSsmpRosqhwj9gWgFRZSrBr2f9tiXISwNhCPmlfqUqyb9Q==
 
-"@usher.so/auth@^0.0.1":
-  version "0.0.1"
-  resolved "http://localhost:4873/@usher.so%2fauth/-/auth-0.0.1.tgz#fb747cf8f18ddc0f9c0b1f506c017f7e07b7cb97"
-  integrity sha512-wS6zuS9C+/53qoSuIzZY0KNgCtQQEDf9GB6PKjlY9VhL/7Ejcbcb4VH5ye8NdkvZmhUNjOsdgm2Rue/mfUglKQ==
-
-"@usher.so/campaigns@^0.0.1":
-  version "0.0.1"
-  resolved "http://localhost:4873/@usher.so%2fcampaigns/-/campaigns-0.0.1.tgz#e94d12cabb8edf068ec6a98613f37c5dd03dfbeb"
-  integrity sha512-zK92dTJlqcYeoNW6eUzEEtHQ3XMe/z+xbMz8zuH80mTRJ/Ks41olx6abtVz6BnDqDyvdPoWMGQlIJExq2YqsVg==
-
 "@usher.so/datamodels@^0.0.7":
   version "0.0.7"
   resolved "https://registry.yarnpkg.com/@usher.so/datamodels/-/datamodels-0.0.7.tgz#f5398024e820f78b5f92713e7d55e96532b090c1"
   integrity sha512-/WxmNCnuPz/kCcRtVl3nn/fIL6pm2dG3VpGqmoO4+e7IxDS4aJqeKtX13a57/49PLa5mOLngaVLKDD96sftI6A==
-
-"@usher.so/partnerships@^0.0.1":
-  version "0.0.1"
-  resolved "http://localhost:4873/@usher.so%2fpartnerships/-/partnerships-0.0.1.tgz#f687bc409d517b33d324200ff5a263d627979280"
-  integrity sha512-UcxJ20lwgo58uuk92LaGswJKKmXdRVPIfsDFoPlp7jlFs3UsKHr8/Q+Rp1SmO28tATSoyNTPITyTLtH0ZdPMew==
-
-"@usher.so/shared@^0.0.1":
-  version "0.0.1"
-  resolved "http://localhost:4873/@usher.so%2fshared/-/shared-0.0.1.tgz#9cd94b84777a7680261f3f97187b42348d90583a"
-  integrity sha512-WFOUo7r55R5sweanculp53hoMQkHMxrmWMMnudn0JVuqKXjxh6m0/diQTiS3GbwCLY2pL3Qma8lKD3sYafpC3A==
 
 "@walletconnect/browser-utils@^1.8.0":
   version "1.8.0"
@@ -11305,6 +11285,14 @@ isomorphic-fetch@^2.1.1:
     node-fetch "^1.0.1"
     whatwg-fetch ">=0.10.0"
 
+isomorphic-unfetch@^3.1.0:
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/isomorphic-unfetch/-/isomorphic-unfetch-3.1.0.tgz#87341d5f4f7b63843d468438128cb087b7c3e98f"
+  integrity sha512-geDJjpoZ8N0kWexiwkX8F9NkTsXhetLPVbZFQ+JTW239QNOwvB0gniuR1Wc6f0AMTn7/mFGyXvHTifrCp/GH8Q==
+  dependencies:
+    node-fetch "^2.6.1"
+    unfetch "^4.2.0"
+
 isomorphic-ws@^4.0.1:
   version "4.0.1"
   resolved "https://registry.yarnpkg.com/isomorphic-ws/-/isomorphic-ws-4.0.1.tgz#55fd4cd6c5e6491e76dc125938dd863f5cd4f2dc"
@@ -17091,7 +17079,7 @@ unfetch@^3.1.1:
   resolved "https://registry.yarnpkg.com/unfetch/-/unfetch-3.1.2.tgz#dc271ef77a2800768f7b459673c5604b5101ef77"
   integrity sha512-L0qrK7ZeAudGiKYw6nzFjnJ2D5WHblUBwmHIqtPS6oKUd+Hcpk7/hKsSmcHsTlpd1TbTNsiRBUKRq3bHLNIqIw==
 
-unfetch@^4.1.0:
+unfetch@^4.1.0, unfetch@^4.2.0:
   version "4.2.0"
   resolved "https://registry.yarnpkg.com/unfetch/-/unfetch-4.2.0.tgz#7e21b0ef7d363d8d9af0fb929a5555f6ef97a3be"
   integrity sha512-F9p7yYCn6cIW9El1zi0HI6vqpeIvBsr3dSuRO6Xuppb1u5rXpCPmMvLSyECLhybr9isec8Ohl0hPekMVrEinDA==

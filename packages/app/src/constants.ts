@@ -126,11 +126,11 @@ export const AUTH_OPTIONS = byTargetEnv<AuthOptions>({
 	d: new AuthOptions({ ceramicUrl: "http://localhost:7007" })
 });
 
+// ? usherUrl can remain '/api' across environments here because the API is apart of this NEXT app.
 export const API_OPTIONS = byTargetEnv<ApiOptions>({
-	p: new ApiOptions({ environment: "production" }),
-	s: new ApiOptions({ environment: "staging" }),
+	p: new ApiOptions({ environment: "production", usherUrl: "/api" }),
+	s: new ApiOptions({ environment: "staging", usherUrl: "/api" }),
 	d: new ApiOptions({
-		arweaveUrl: "http://localhost:1984",
 		ceramicUrl: "http://localhost:7007",
 		usherUrl: "/api"
 	})

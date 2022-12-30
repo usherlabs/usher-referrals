@@ -26,7 +26,6 @@ const schema = z.object({
  * GET: Partnerships related to the authenticated DIDs
  */
 handler.router
-	.use(withAuth)
 	.use(
 		expressMiddleware(
 			cors({
@@ -34,6 +33,7 @@ handler.router
 			})
 		)
 	)
+	.use(withAuth)
 	.get(async (req, res) => {
 		try {
 			const cursor = await arango.query(aql`
@@ -98,4 +98,4 @@ handler.router
 		}
 	});
 
-export default handler.handle();
+export default handler.cors().handle();
