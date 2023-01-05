@@ -98,10 +98,10 @@ export const setup = mw(async () => {
 
 	if (!isEmpty(juneApiKey)) {
 		// Catch all tracking
-		const june = await getJune(juneApiKey);
+		const juneInstance = await getJune(juneApiKey);
 		Object.values(AppEvents).forEach((appEvent) => {
 			events.on(appEvent, (properties: Object) => {
-				june.track(appEvent, properties);
+				juneInstance.track(appEvent, properties);
 			});
 		});
 	}
@@ -144,8 +144,8 @@ export const identifyUser = mw(async (id: string, properties: any) => {
 	}
 
 	if (!isEmpty(juneApiKey)) {
-		const june = await getJune(juneApiKey);
-		june.identify(id, properties);
+		const juneInstance = await getJune(juneApiKey);
+		juneInstance.identify(id, properties);
 	}
 
 	return null;

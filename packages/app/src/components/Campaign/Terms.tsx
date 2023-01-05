@@ -18,7 +18,7 @@ import {
 import startCase from "lodash/startCase";
 import { css } from "@linaria/core";
 
-import { Campaign, CampaignStrategies, RewardTypes } from "@/types";
+import { Campaign, CampaignStrategies, RewardTypes } from "@usher.so/campaigns";
 import Anchor from "@/components/Anchor";
 import { UilExternalLinkAlt } from "@iconscout/react-unicons";
 

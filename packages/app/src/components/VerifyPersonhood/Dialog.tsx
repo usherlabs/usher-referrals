@@ -15,7 +15,7 @@ import CopyToClipboard from "react-copy-to-clipboard";
 import { QRCodeSVG } from "qrcode.react";
 import { isProd, ngrokUrl } from "@/env-config";
 
-import Authenticate from "@/modules/auth";
+import { useUser } from "@/hooks";
 
 type Props = {
 	isShown: boolean;
@@ -24,13 +24,13 @@ type Props = {
 
 const VerifyPersonhoodDialog: React.FC<Props> = ({ isShown, onClose }) => {
 	const { colors } = useTheme();
+	const { auth } = useUser();
 	const [isLoading, setLoading] = useState(false);
 	const [verifyUrl, setVerifyUrl] = useState("");
 
 	const onStart = useCallback(async () => {
 		setLoading(true);
-		const authInstance = Authenticate.getInstance();
-		const authToken = await authInstance.getAuthToken();
+		const authToken = await auth.getAuthToken();
 		let { origin } = window.location;
 		if (!isProd && ngrokUrl) {
 			origin = ngrokUrl;

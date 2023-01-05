@@ -7,16 +7,12 @@ import { WalletAliases } from "@usher.so/datamodels";
 import { TileDocument } from "@ceramicnetwork/stream-tile";
 // import ono from "@jsdevtools/ono";
 import uniq from "lodash/uniq";
+import { BigNumber, ethers, Wallet } from "ethers";
 
-import {
-	AuthApiRequest,
-	Campaign,
-	CampaignReference,
-	Chains,
-	Claim,
-	PartnershipMetrics,
-	RewardTypes
-} from "@/types";
+import { AuthApiRequest, Claim, PartnershipMetrics } from "@/types";
+import { Campaign, RewardTypes } from "@usher.so/campaigns";
+import { Chains } from "@usher.so/shared";
+import { CampaignReference } from "@usher.so/partnerships";
 import { useRouteHandler } from "@/server/middleware";
 import { getAppDID } from "@/server/did";
 import { ceramic } from "@/utils/ceramic-client";
@@ -33,7 +29,6 @@ import {
 import handleException from "@/utils/handle-exception";
 import { appPackageName, appVersion } from "@/env-config";
 import { getEthereumClient } from "@/utils/ethereum-client";
-import { BigNumber, ethers, Wallet } from "ethers";
 import { indexClaim } from "@/server/claim";
 import { erc20 } from "@/abi/erc20";
 
@@ -80,12 +75,7 @@ handler.router.use(withAuth).post(async (req, res) => {
 	);
 	for (let i = 0; i < streams.length; i += 1) {
 		const stream = streams[i];
-		if (
-			!isPartnershipStreamValid(
-				// @ts-ignore
-				stream
-			)
-		) {
+		if (!isPartnershipStreamValid(stream)) {
 			req.log.warn(
 				{
 					data: {
@@ -212,6 +202,37 @@ handler.router.use(withAuth).post(async (req, res) => {
 				amount: 0
 			}
 		});
+	}
+
+	// Limit of once per month to Ethereum Claims
+	if (campaignData.chain === Chains.ETHEREUM) {
+		const pCursor = await arango.query(aql`
+			LET last_claimed_at = (
+				FOR p IN DOCUMENT("Partnerships", ${partnershipIds})
+					FOR cl IN 1..1 ANY p Engagements
+						FILTER STARTS_WITH(cl._id, "Claims")
+						COLLECT AGGREGATE last_claimed_at = MAX(cl.created_at)
+             RETURN last_claimed_at
+      )
+			RETURN TO_NUMBER(last_claimed_at)
+		`);
+		const pResults = await pCursor.all();
+		const [lastClaimedAt] = pResults; // will always return an array with a single integer result.
+
+		if (lastClaimedAt > 0) {
+			const lastClaimedDate = new Date(lastClaimedAt);
+			const now = new Date(Date.now());
+			const canClaimThisMonth =
+				lastClaimedDate.getUTCFullYear() !== now.getUTCFullYear() &&
+				lastClaimedDate.getUTCMonth() !== now.getUTCMonth();
+			if (!canClaimThisMonth) {
+				req.log.info("Rewards already claimed this month");
+				return res.status(200).json({
+					success: false,
+					message: "Rewards already claimed this month"
+				});
+			}
+		}
 	}
 
 	let fee = 0;
@@ -505,10 +526,12 @@ handler.router.use(withAuth).post(async (req, res) => {
 			wallet.connect(ethereum);
 
 			if (campaignData.reward.address) {
-				if (campaignData.reward.type === RewardTypes.TOKEN) {
+				if (campaignData.reward.type === RewardTypes.ERC20) {
 					const contract = new ethers.Contract(
 						campaignData.reward.address,
 						erc20,
+						// TODO: Figure out which correct variable to pass. Wallet implements Signer, but this constructor requires Signer | Provider | undefined
+						// @ts-ignore
 						wallet
 					);
 					const decimals = await contract.decimals();

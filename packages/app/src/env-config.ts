@@ -7,9 +7,6 @@ export const appVersion = process.env.APP_VERSION;
 export const appName = `${appPackageName}@${appVersion}`;
 export const useSeedData = process.env.NEXT_PUBLIC_USE_SEED_DATA === "true";
 export const arweaveLocalPort = process.env.NEXT_PUBLIC_ARWEAVE_LOCAL_PORT;
-export const ethereumProviderUrl =
-	process.env.NEXT_PUBLIC_ETHEREUM_PROVIDER_URL;
-
 export const ngrokUrl = process.env.NEXT_PUBLIC_NGROK_URL;
 
 /* ========== TRACKING ========== */
@@ -31,6 +28,9 @@ export const ceramicUrl =
 export const hcaptchaSiteKey = process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY;
 
 export const magicPublicKey = process.env.NEXT_PUBLIC_MAGIC_KEY;
+
+export const ethereumProviderUrl =
+	process.env.NEXT_PUBLIC_ETHEREUM_PROVIDER_URL || "";
 
 /* ========== SECURITY ========== */
 export const inviteOrigin = process.env.NEXT_PUBLIC_INVITE_ORIGIN;

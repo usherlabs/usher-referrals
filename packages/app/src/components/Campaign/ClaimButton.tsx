@@ -17,7 +17,9 @@ import {
 import Image from "next/image";
 import { css } from "@linaria/core";
 
-import { Wallet, CampaignReward, Chains, Connections, Claim } from "@/types";
+import { CampaignReward } from "@usher.so/campaigns";
+import { Chains, Connections, Wallet } from "@usher.so/shared";
+import { Claim } from "@/types";
 import ValueCard from "@/components/ValueCard";
 import Anchor from "@/components/Anchor";
 import { chainImages, connectionImages } from "@/utils/images-map";
@@ -30,6 +32,7 @@ export type Props = {
 	wallets: Wallet[];
 	amount: number;
 	reward: CampaignReward;
+	canClaimThisMonth: boolean;
 	isComplete: boolean;
 	isClaiming?: boolean;
 	active?: boolean; // Determined by whether the limit has been reached
@@ -42,6 +45,7 @@ const ClaimButton: React.FC<Props> = ({
 	wallets,
 	amount,
 	reward,
+	canClaimThisMonth,
 	isComplete,
 	active: isActive = false,
 	buttonProps
@@ -97,6 +101,24 @@ const ClaimButton: React.FC<Props> = ({
 				: {})}
 		/>
 	);
+
+	const ButtonContent = () => {
+		if (!canClaimThisMonth) {
+			return (
+				<Strong fontSize="1.1em">Rewards already claimed this month</Strong>
+			);
+		}
+
+		if (amount <= 0) {
+			return <Strong fontSize="1.1em">Not enough rewards to be paid</Strong>;
+		}
+
+		return (
+			<Strong color="#fff" fontSize="1.1em">
+				👉&nbsp;&nbsp;Claim Rewards
+			</Strong>
+		);
+	};
 
 	return (
 		<>
@@ -339,10 +361,15 @@ const ClaimButton: React.FC<Props> = ({
 								width={70}
 								height={70}
 							/>
-							<Paragraph size={500} marginY={0} marginLeft={16}>
-								<Strong fontSize="inherit">Ethereum</Strong> Blockchain rewards
-								may take up to one minute to process.
-							</Paragraph>
+							<Pane>
+								<Paragraph size={500} marginY={0} marginLeft={16}>
+									<Strong fontSize="inherit">Ethereum</Strong> Blockchain may
+									take up to one minute to process.
+								</Paragraph>
+								<Paragraph size={500} marginY={0} marginLeft={16}>
+									Rewards can be claimed once per month.
+								</Paragraph>
+							</Pane>
 						</Pane>
 					)}
 					{!claim && (
@@ -356,15 +383,9 @@ const ClaimButton: React.FC<Props> = ({
 							right={10}
 							bottom={10}
 							isLoading={isClaiming}
-							disabled={amount <= 0}
+							disabled={!canClaimThisMonth || amount <= 0}
 						>
-							{amount > 0 ? (
-								<Strong color="#fff" fontSize="1.1em">
-									👉&nbsp;&nbsp;Claim Rewards
-								</Strong>
-							) : (
-								<Strong fontSize="1.1em">Not enough rewards to be paid</Strong>
-							)}
+							<ButtonContent />
 						</Button>
 					)}
 				</Pane>

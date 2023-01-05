@@ -2,7 +2,7 @@ import React from "react";
 import { Pane, Button, majorScale } from "evergreen-ui";
 import Image from "next/image";
 
-import { Connections } from "@/types";
+import { Connections } from "@usher.so/shared";
 import { useUser } from "@/hooks/";
 import { connectionImages } from "@/utils/images-map";
 import pascalCase from "@/utils/pascal-case";

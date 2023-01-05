@@ -17,7 +17,7 @@ import {
 import Image from "next/image";
 
 import truncate from "@/utils/truncate";
-import { Wallet } from "@/types";
+import { Wallet } from "@usher.so/shared";
 import { connectionImages } from "@/utils/images-map";
 
 export type Props = {

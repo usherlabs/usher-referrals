@@ -28,11 +28,7 @@ updateCmd
 	.action(async (id, filepath, options) => {
 		const ceramic = await getCeramic(options.key);
 		const schema = await jsonfile.readFile(filepath);
-		const doc = await TileDocument.load(
-			// @ts-ignore
-			ceramic,
-			id
-		);
+		const doc = await TileDocument.load(ceramic, id);
 		await doc.update(schema);
 		console.log(
 			chalk.green(`Schema stream ${doc.id.toString()} has been updated`)

@@ -22,11 +22,7 @@ updateCmd
 	.option("-k, --key <string>", "DID Key")
 	.action(async (id, content, options) => {
 		const ceramic = await getCeramic(options.key);
-		const doc = await TileDocument.load(
-			// @ts-ignore
-			ceramic,
-			id
-		);
+		const doc = await TileDocument.load(ceramic, id);
 		await doc.update(content);
 		console.log(
 			chalk.green(`Definition stream ${doc.id.toString()} has been updated`)

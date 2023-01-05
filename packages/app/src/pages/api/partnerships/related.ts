@@ -1,9 +1,11 @@
 import { aql } from "arangojs";
 import isEmpty from "lodash/isEmpty";
 import { z } from "zod";
+import cors from "cors";
 
-import { AuthApiRequest, Chains } from "@/types";
-import { useRouteHandler } from "@/server/middleware";
+import { Chains } from "@usher.so/shared";
+import { AuthApiRequest } from "@/types";
+import { expressMiddleware, useRouteHandler } from "@/server/middleware";
 import withAuth from "@/server/middleware/auth";
 import { getArangoClient } from "@/utils/arango-client";
 import { indexPartnership } from "@/server/partnership";
@@ -24,6 +26,13 @@ const schema = z.object({
  * GET: Partnerships related to the authenticated DIDs
  */
 handler.router
+	.use(
+		expressMiddleware(
+			cors({
+				preflightContinue: true
+			})
+		)
+	)
 	.use(withAuth)
 	.get(async (req, res) => {
 		try {
@@ -89,4 +98,4 @@ handler.router
 		}
 	});
 
-export default handler.handle();
+export default handler.cors().handle();

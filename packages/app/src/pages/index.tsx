@@ -10,40 +10,37 @@ import {
 } from "evergreen-ui";
 import { useQuery } from "react-query";
 import range from "lodash/range";
-import camelcaseKeys from "camelcase-keys";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import isEmpty from "lodash/isEmpty";
 import { css } from "@linaria/core";
-import uniqWith from "lodash/uniqWith";
-import isEqual from "lodash/isEqual";
 
 import { useUser } from "@/hooks";
 import CampaignCard from "@/components/CampaignCard";
 import Anchor from "@/components/Anchor";
-import { Campaign, CampaignReference } from "@/types";
-import delay from "@/utils/delay";
-import { useSeedData } from "@/env-config";
-import * as api from "@/api";
+import { Campaigns } from "@usher.so/campaigns";
 import * as mediaQueries from "@/utils/media-queries";
+import { API_OPTIONS } from "@/constants";
 
-const getCampaigns = async (refs: CampaignReference[]): Promise<Campaign[]> => {
-	if (useSeedData) {
-		await delay(2000);
-		const campaignsData = (await import("@/seed/campaigns.json")).default;
-		const campaigns = camelcaseKeys(campaignsData, { deep: true });
+// TODO: Consider what to do wiht the seed logic
+// const getCampaigns = async (refs: CampaignReference[]): Promise<Campaign[]> => {
+// 	if (useSeedData) {
+// 		await delay(2000);
+// 		const campaignsData = (await import("@/seed/campaigns.json")).default;
+// 		const campaigns = camelcaseKeys(campaignsData, { deep: true });
 
-		return campaigns as Campaign[];
-	}
+// 		return campaigns as Campaign[];
+// 	}
 
-	if (refs.length === 0) {
-		return [];
-	}
+// 	if (refs.length === 0) {
+// 		return [];
+// 	}
 
-	const campaigns = await api.campaigns().get(uniqWith(refs, isEqual));
+// 	const campaigns = await api.campaigns().get(uniqWith(refs, isEqual));
 
-	return campaigns.data;
-};
+// 	return campaigns.data;
+// };
+const campaignsProvider = new Campaigns(API_OPTIONS);
 
 const Partnerships = () => {
 	const {
@@ -51,7 +48,7 @@ const Partnerships = () => {
 		isLoading: isUserLoading
 	} = useUser();
 	const campaigns = useQuery(["active-campaigns", partnerships], () =>
-		getCampaigns(partnerships.map(({ campaign }) => campaign))
+		campaignsProvider.getCampaigns(partnerships.map(({ campaign }) => campaign))
 	);
 	const isLoading = isUserLoading || campaigns.isLoading;
 

@@ -4,7 +4,8 @@ import Captcha from "@/components/Captcha";
 import Preloader from "@/components/Preloader";
 import WalletInvite from "@/components/WalletInvite";
 import { botdPublicKey } from "@/env-config";
-import { CampaignReference, Chains } from "@/types";
+import { Chains } from "@usher.so/shared";
+import { CampaignReference } from "@usher.so/partnerships";
 import { ceramic } from "@/utils/ceramic-client";
 import { AppEvents, events } from "@/utils/events";
 import handleException from "@/utils/handle-exception";
@@ -16,6 +17,8 @@ import { Pane } from "evergreen-ui";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { useCallback, useEffect, useState } from "react";
+import { Campaigns } from "@usher.so/campaigns";
+import { API_OPTIONS } from "@/constants";
 
 const onError = () => {
 	window.location.replace(`/link-error`);
@@ -30,16 +33,20 @@ type Props = {
 
 enum Step {
 	Init,
+	Start,
 	CaptchaCheck,
 	Wallet,
 	ProcessInvite
 }
+
+const campaignsProvider = new Campaigns(API_OPTIONS);
 
 const Invite: React.FC<Props> = () => {
 	const [step, setStep] = useState(Step.Init);
 
 	const [chain, setChain] = useState<Chains>();
 	const [domain, setDomain] = useState<string>();
+	const [isCaptchaNeeded, setIsCaptchaNeeded] = useState<boolean>();
 	const [isWalletRequired, setIsWalletRequired] = useState<boolean>();
 
 	const [wallet, setWallet] = useState<string>();
@@ -47,7 +54,7 @@ const Invite: React.FC<Props> = () => {
 	const router = useRouter();
 	const id = router.query.id as string;
 
-	const isCaptchaNeeded = useCallback(async () => {
+	const fetchIsCaptchaNeeded = useCallback(async () => {
 		try {
 			// Initialize an agent at application startup.
 			const botd = await Botd.load({ publicKey: botdPublicKey });
@@ -63,14 +70,16 @@ const Invite: React.FC<Props> = () => {
 		}
 	}, []);
 
-	const nextStep = useCallback(async () => {
+	const nextStep = useCallback(() => {
 		// Check the current step and set a corresponding next step
 		switch (step) {
-			case Step.Init:
-				if (await isCaptchaNeeded()) {
+			case Step.Start:
+				if (isCaptchaNeeded) {
 					setStep(Step.CaptchaCheck);
 				} else if (isWalletRequired) {
 					setStep(Step.Wallet);
+				} else {
+					setStep(Step.ProcessInvite);
 				}
 				break;
 			case Step.CaptchaCheck:
@@ -92,7 +101,7 @@ const Invite: React.FC<Props> = () => {
 		async (token: string) => {
 			const { success: isSuccess } = await api.captcha().post(token);
 			if (isSuccess) {
-				await nextStep();
+				nextStep();
 				return true;
 			}
 			return false;
@@ -103,8 +112,7 @@ const Invite: React.FC<Props> = () => {
 	const onWalletConnect = useCallback(
 		async (address: string) => {
 			setWallet([chain, address].join(":"));
-			await nextStep();
-			return true;
+			nextStep();
 		},
 		[nextStep]
 	);
@@ -113,16 +121,15 @@ const Invite: React.FC<Props> = () => {
 		const loader = new TileLoader({ ceramic });
 		const stream = await loader.load<CampaignReference>(id);
 		const campaignRef = stream.content;
-		const {
-			data: [campaign]
-		} = await api.campaigns().get(campaignRef);
+		const [campaign] = await campaignsProvider.getCampaigns([campaignRef]);
 
 		setChain(campaign.chain);
 		setDomain(new URL(campaign.details.destinationUrl).hostname);
 		setIsWalletRequired(
 			campaign.events.some((e) => e.contractAddress && e.contractEvent)
 		);
-	}, []);
+		setIsCaptchaNeeded(await fetchIsCaptchaNeeded());
+	}, [fetchIsCaptchaNeeded]);
 
 	const processInvite = useCallback(async () => {
 		// Start by fetching the campaign data for the given campaign
@@ -168,16 +175,21 @@ const Invite: React.FC<Props> = () => {
 	}, [id, wallet]);
 
 	useEffect(() => {
-		const fn = async () => {
-			if (step === Step.Init) {
-				await initialize();
+		(async () => {
+			await initialize();
+			setStep(Step.Start);
+		})();
+	}, [initialize]);
+
+	useEffect(() => {
+		(async () => {
+			if (step === Step.Start) {
 				await nextStep();
 			} else if (step === Step.ProcessInvite) {
-				processInvite();
+				await processInvite();
 			}
-		};
-		fn();
-	}, [step, initialize, processInvite]);
+		})();
+	}, [step, nextStep, processInvite]);
 
 	return (
 		<Pane

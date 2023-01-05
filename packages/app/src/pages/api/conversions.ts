@@ -8,7 +8,8 @@ import { TileLoader } from "@glazed/tile-loader";
 import { WalletAliases } from "@usher.so/datamodels";
 import cors from "cors";
 
-import { CampaignReference, Campaign, CampaignStrategies } from "@/types";
+import { CampaignReference } from "@usher.so/partnerships";
+import { Campaign, CampaignStrategies } from "@usher.so/campaigns";
 import { useRouteHandler, expressMiddleware } from "@/server/middleware";
 import { getAppDID } from "@/server/did";
 import { getArangoClient } from "@/utils/arango-client";
@@ -116,12 +117,7 @@ handler.router
 		// Check the partnership id of the token
 		const stream = await loader.load<CampaignReference>(partnership);
 		// Validate that the provided partnership is valid
-		if (
-			!isPartnershipStreamValid(
-				// @ts-ignore
-				stream
-			)
-		) {
+		if (!isPartnershipStreamValid(stream)) {
 			req.log.info(
 				{
 					token,
@@ -244,12 +240,7 @@ handler.router
 
 		const stream = await loader.load<CampaignReference>(raw.partnership);
 		// Validate that the provided partnership is valid
-		if (
-			!isPartnershipStreamValid(
-				// @ts-ignore
-				stream
-			)
-		) {
+		if (!isPartnershipStreamValid(stream)) {
 			req.log.info(
 				{
 					vars: {

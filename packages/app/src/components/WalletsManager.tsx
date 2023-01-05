@@ -26,7 +26,7 @@ import isNumber from "is-number";
 import ono from "@jsdevtools/ono";
 
 import pascalCase from "@/utils/pascal-case";
-import { Wallet, Chains, Connections } from "@/types";
+import { Chains, Connections, Wallet } from "@usher.so/shared";
 import truncate from "@/utils/truncate";
 import { getArweaveClient } from "@/utils/arweave-client";
 import WalletConnect from "@/components/WalletConnect";
@@ -35,7 +35,6 @@ import InputField from "@/components/InputField";
 import { useArConnect, useUser } from "@/hooks";
 import { connectionImages } from "@/utils/images-map";
 import handleException from "@/utils/handle-exception";
-import Authenticate from "@/modules/auth";
 import { getEthereumClient } from "@/utils/ethereum-client";
 import { ethers } from "ethers";
 
@@ -83,6 +82,7 @@ const getBalances = async (wallets: Wallet[]) => {
 
 const WalletsManager: React.FC<Props> = ({ onClose }) => {
 	const {
+		auth,
 		user: { wallets },
 		isLoading: isUserLoading
 	} = useUser();
@@ -97,15 +97,14 @@ const WalletsManager: React.FC<Props> = ({ onClose }) => {
 	const balances = useQuery(["balances", wallets], () => getBalances(wallets), {
 		staleTime: 10000
 	});
-	const [getArConnect] = useArConnect();
+	const [arConnect] = useArConnect();
 	const [hiddenConnections, setHiddenConnections] = useState<Connections[]>([]);
 
 	useEffect(() => {
 		(async () => {
-			const arconnect = getArConnect();
-			if (arconnect) {
+			if (arConnect) {
 				try {
-					const address = await arconnect.getActiveAddress();
+					const address = await arConnect.getActiveAddress();
 					if (
 						wallets.map((wallet) => wallet.address).includes(address) &&
 						!hiddenConnections.includes(Connections.ARCONNECT)
@@ -116,13 +115,14 @@ const WalletsManager: React.FC<Props> = ({ onClose }) => {
 					// ...
 				}
 			}
-			if (
-				wallets
-					.map((wallet) => wallet.connection)
-					.includes(Connections.MAGIC) &&
-				!hiddenConnections.includes(Connections.MAGIC)
-			) {
-				setHiddenConnections([...hiddenConnections, Connections.MAGIC]);
+			const activeConnections = wallets.map((wallet) => wallet.connection);
+			for (const connection of Object.values(Connections)) {
+				if (
+					activeConnections.includes(connection) &&
+					!hiddenConnections.includes(connection)
+				) {
+					setHiddenConnections([...hiddenConnections, connection]);
+				}
 			}
 		})();
 	}, [wallets, hiddenConnections]);
@@ -174,8 +174,7 @@ const WalletsManager: React.FC<Props> = ({ onClose }) => {
 		setSendingFunds(true);
 		try {
 			// Get the auth for this wallet
-			const authInstance = Authenticate.getInstance();
-			const jwk = await authInstance.getMagicArweaveJwk();
+			const jwk = await auth.getMagicArweaveJwk();
 			const tx = await arweave.createTransaction(
 				{
 					target: showSendFunds.wallet.address,

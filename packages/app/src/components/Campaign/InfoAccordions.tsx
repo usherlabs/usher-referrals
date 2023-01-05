@@ -24,7 +24,8 @@ import {
 import startCase from "lodash/startCase";
 import { cx, css } from "@linaria/core";
 
-import { RewardTypes, Campaign, CampaignStrategies, Chains } from "@/types";
+import { Chains } from "@usher.so/shared";
+import { Campaign, CampaignStrategies, RewardTypes } from "@usher.so/campaigns";
 import Anchor from "@/components/Anchor";
 import "react-accessible-accordion/dist/fancy-example.css";
 import pascalCase from "@/utils/pascal-case";
@@ -156,10 +157,7 @@ const CampaignInfoAccordions: React.FC<Props> = ({ campaign }) => {
 								Rewards are paid in{" "}
 								<Strong>
 									{name} ({ticker})
-								</Strong>{" "}
-								{campaign.reward.type !== RewardTypes.TOKEN && (
-									<Strong>{campaign.reward.type.toUpperCase()}s</Strong>
-								)}
+								</Strong>
 							</ListItem>
 							{campaign.events.length > 1 ? (
 								<ListItem>

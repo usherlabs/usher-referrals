@@ -1,13 +1,5 @@
-import { Partnership } from "./../../graph/src/types";
 import ky from "ky";
-import {
-	CampaignReference,
-	Campaign,
-	PartnershipMetrics,
-	Referral,
-	Profile,
-	Claim
-} from "@/types";
+import { PartnershipMetrics, Referral, Profile, Claim } from "@/types";
 
 // const formatQs = (o: Record<string, string>) => {
 // 	const searchParams = new URLSearchParams(o);
@@ -77,28 +69,6 @@ export const bot = () => ({
 			.json()
 });
 
-export const campaigns = () => ({
-	get: (
-		references?: CampaignReference | CampaignReference[]
-	): Promise<{ success: boolean; data: Campaign[] }> => {
-		let qs = "";
-		if (references) {
-			if (!Array.isArray(references)) {
-				references = [references];
-			}
-			if (references.length > 0) {
-				const params = new URLSearchParams();
-				const q = references
-					.map((ref) => [ref.chain, ref.address].join(":"))
-					.join(",");
-				params.set("q", q);
-				qs = `?${params.toString()}`;
-			}
-		}
-		return request.get(`campaigns${qs}`).json();
-	}
-});
-
 export const partnerships = () => ({
 	get: (
 		ids: string | string[]
@@ -116,31 +86,6 @@ export const partnerships = () => ({
 		return request.get(`partnerships${qs}`).json();
 	}
 });
-
-// Boilerplate to fetch partnershiops related to authenticated DID
-export const relatedPartnerships = (authToken: string) => {
-	const req = getAuthRequest(authToken);
-
-	return {
-		async get() {
-			const resp = await req.get(`partnerships/related`).json();
-			return resp as { success: boolean; data: Partnership[] };
-		},
-		async post(
-			partnership: string,
-			campaignRef: CampaignReference
-		): Promise<{ success: boolean }> {
-			return req
-				.post(`partnerships/related`, {
-					json: {
-						partnership,
-						campaignRef
-					}
-				})
-				.json();
-		}
-	};
-};
 
 export const referrals = () => ({
 	post: (

@@ -2,10 +2,10 @@ import React from "react";
 import { css } from "@linaria/core";
 import { Pane, Paragraph, Strong, useTheme } from "evergreen-ui";
 
-import { Campaign } from "@/types";
+import { Campaign } from "@usher.so/campaigns";
 import Anchor from "@/components/Anchor";
 import truncate from "@/utils/truncate";
-import { useRandomColor } from "@/hooks";
+import { useDerivedColor } from "@/hooks";
 import * as mediaQueries from "@/utils/media-queries";
 
 export type Props = {
@@ -14,7 +14,7 @@ export type Props = {
 
 const CampaignCard: React.FC<Props> = ({ campaign }) => {
 	const { colors } = useTheme();
-	const rColor = useRandomColor();
+	const rColor = useDerivedColor(campaign.id);
 
 	return (
 		<Pane

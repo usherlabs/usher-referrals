@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback, useEffect, useMemo } from "react";
 import { useRouter } from "next/router";
 import { Pane, toaster } from "evergreen-ui";
 import camelcaseKeys from "camelcase-keys";
@@ -16,15 +16,9 @@ import Rewards from "@/components/Campaign/Rewards";
 import InfoAccordions from "@/components/Campaign/InfoAccordions";
 import WhitelistAlert from "@/components/Campaign/WhitelistAlert";
 import Progress from "@/components/Progress";
-import {
-	Chains,
-	Campaign,
-	RewardTypes,
-	CampaignReward,
-	PartnershipMetrics,
-	Wallet,
-	Claim
-} from "@/types";
+import { Chains, Wallet } from "@usher.so/shared";
+import { Campaign, RewardTypes, CampaignReward } from "@usher.so/campaigns";
+import { PartnershipMetrics, Claim } from "@/types";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import useRedir from "@/hooks/use-redir";
@@ -41,7 +35,6 @@ import { useSeedData } from "@/env-config";
 import * as mediaQueries from "@/utils/media-queries";
 import { getArangoClient } from "@/utils/arango-client";
 import * as api from "@/api";
-import Authenticate from "@/modules/auth";
 import { getArweaveClient, getWarp } from "@/utils/arweave-client";
 import { AppEvents, events } from "@/utils/events";
 import { getEthereumClient } from "@/utils/ethereum-client";
@@ -77,6 +70,7 @@ const getPartnershipMetrics = async (
 
 const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 	const {
+		auth,
 		user: { wallets, partnerships, verifications },
 		isLoading: isUserLoading,
 		actions: { addPartnership }
@@ -103,6 +97,19 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 		["partnership-metrics", viewingPartnerships, claims],
 		() => getPartnershipMetrics(viewingPartnerships.map((p) => p.id))
 	);
+
+	const canClaimThisMonth = useMemo(() => {
+		if (chain !== Chains.ETHEREUM || !metrics.data) {
+			return true;
+		}
+
+		const lastClaimedDate = new Date(metrics.data.lastClaimedAt);
+		const now = new Date(Date.now());
+		return (
+			lastClaimedDate.getUTCFullYear() !== now.getUTCFullYear() &&
+			lastClaimedDate.getUTCMonth() !== now.getUTCMonth()
+		);
+	}, [metrics]);
 
 	// Ensure that the user knows what they're being rewarded regardless of their internal rewards calculation.
 	let claimableRewards = metrics.data ? metrics.data.rewards : 0;
@@ -205,7 +212,7 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 			}
 		} else if (campaign.chain === Chains.ETHEREUM) {
 			if (campaign.reward.address) {
-				if (campaign.reward.type === RewardTypes.TOKEN) {
+				if (campaign.reward.type === RewardTypes.ERC20) {
 					const contract = new ethers.Contract(
 						campaign.reward.address,
 						erc20,
@@ -237,8 +244,7 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 		async (wallet: Wallet) => {
 			setClaiming(true);
 			try {
-				const authInstance = Authenticate.getInstance();
-				const authToken = await authInstance.getAuthToken();
+				const authToken = await auth.getAuthToken();
 				const response = await api.claim(authToken).post(
 					viewingPartnerships.map((p) => p.id),
 					wallet.address
@@ -538,6 +544,7 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 											amount={
 												claimableRewards > funds ? funds : claimableRewards
 											}
+											canClaimThisMonth={canClaimThisMonth}
 											reward={campaign.reward as CampaignReward}
 											active={
 												!!verifications.captcha &&

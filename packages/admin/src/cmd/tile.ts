@@ -20,11 +20,7 @@ loadCmd
 	.option("-k, --key <string>", "DID Key")
 	.action(async (id, options) => {
 		const ceramic = await getCeramic(options.key);
-		const doc = await TileDocument.load(
-			// @ts-ignore
-			ceramic,
-			id
-		);
+		const doc = await TileDocument.load(ceramic, id);
 		console.log(chalk.green(`Stream ${doc.id.toString()} loaded:`));
 		if (options.commits) {
 			console.log(
@@ -59,11 +55,7 @@ updateSchemaCmd
 	.option("-k, --key <string>", "DID Key")
 	.action(async (id, schemaCommitId, options) => {
 		const ceramic = await getCeramic(options.key);
-		const doc = await TileDocument.load(
-			// @ts-ignore
-			ceramic,
-			id
-		);
+		const doc = await TileDocument.load(ceramic, id);
 		await doc.update(doc.content, { schema: schemaCommitId });
 		chalk.green(
 			`Tile ${doc.id.toString()} has been updated to use schema ${schemaCommitId}`

@@ -50,6 +50,11 @@ const nextConfig = {
 	},
 	images: {
 		domains: ["gateway.pinata.cloud", "usher.so", "pages.usher.so"]
+	},
+	webpack: (config) => {
+		// eslint-disable-next-line no-param-reassign
+		config.resolve.symlinks = false;
+		return config;
 	}
 };
 

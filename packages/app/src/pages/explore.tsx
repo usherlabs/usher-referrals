@@ -5,7 +5,7 @@ import isEmpty from "lodash/isEmpty";
 import { css } from "@linaria/core";
 
 import CampaignCard from "@/components/CampaignCard";
-import { Campaign } from "@/types";
+import { Campaign } from "@usher.so/campaigns";
 import { useSeedData } from "@/env-config";
 import { getArangoClient } from "@/utils/arango-client";
 import * as mediaQueries from "@/utils/media-queries";
