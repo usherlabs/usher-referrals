@@ -1,31 +1,41 @@
-import React, { useEffect, useState, useCallback } from "react";
 import Image from "next/image";
-import {
-	Pane,
-	Heading,
-	Button,
-	useTheme,
-	Label,
-	Spinner,
-	Popover,
-	Menu,
-	Position,
-	LogOutIcon,
-	CogIcon,
-	MenuIcon,
-	Badge
-} from "evergreen-ui";
+import React, { ReactElement, useCallback, useEffect, useState } from "react";
+
 import { UilUserCircle, UilWallet } from "@iconscout/react-unicons";
 import { css, cx } from "@linaria/core";
+import {
+	Badge,
+	Button,
+	CogIcon,
+	Heading,
+	Label,
+	LogOutIcon,
+	Menu,
+	MenuIcon,
+	Pane,
+	Popover,
+	Position,
+	SideSheet,
+	Spinner,
+	useTheme
+} from "evergreen-ui";
 import { useRouter } from "next/router";
 
+import DiscordIcon from "@/assets/icon/discord-icon-black.svg";
+import GitHubIcon from "@/assets/icon/github-icon-black.svg";
+import LogoImage from "@/assets/logo/Logo-Icon.svg";
 import Anchor from "@/components/Anchor";
 import { useUser } from "@/hooks";
 import useRedir from "@/hooks/use-redir";
 import * as mediaQueries from "@/utils/media-queries";
-import SideSheet from "@/components/SideSheet";
-
-import LogoImage from "@/assets/logo/Logo-Icon.svg";
+import {
+	Book,
+	Building,
+	LinkSquare,
+	Messages,
+	Profile2User,
+	TrendUp
+} from "iconsax-react";
 
 type Props = {
 	height: number;
@@ -35,18 +45,59 @@ type Props = {
 	onLogoutClick: () => void;
 };
 
-const menu = [
+type MenuItem = {
+	href: string;
+	text: string;
+	icon?: ReactElement;
+	external?: boolean;
+};
+
+const mainItems: MenuItem[] = [
+	{
+		href: "/collections",
+		text: "Collections",
+		icon: <LinkSquare size={32} />
+	},
+	{
+		href: "/conversions",
+		text: "Conversions",
+		icon: <Messages size={32} />
+	},
 	{
 		href: "/",
-		text: "My Partnerships"
+		text: "Partnerships",
+		icon: <Profile2User size={32} />
 	},
 	{
 		href: "/explore",
-		text: "Explore"
+		text: "Campaigns",
+		icon: <TrendUp size={32} />
+	}
+];
+
+const footerItems: MenuItem[] = [
+	{
+		href: "https://usher.so/?ref=app",
+		text: "About",
+		icon: <Building />,
+		external: true
 	},
 	{
-		href: "https://go.usher.so/register",
-		text: "Start a Campaign",
+		href: "https://docs.usher.so/?ref=app",
+		text: "Docs",
+		icon: <Book />,
+		external: true
+	},
+	{
+		href: "https://go.usher.so/discord",
+		text: "Discord",
+		icon: <Image src={DiscordIcon} height={32} width={32} />,
+		external: true
+	},
+	{
+		href: "https://github.com/usherlabs",
+		text: "GitHub",
+		icon: <Image src={GitHubIcon} height={32} width={32} />,
 		external: true
 	}
 ];
@@ -68,6 +119,56 @@ const Header: React.FC<Props> = ({
 	const [showMobileMenu, setShowMobileMenu] = useState(false);
 	const loginUrl = useRedir("/login");
 	const router = useRouter();
+
+	const buildMenu = useCallback(
+		(items: MenuItem[]) => {
+			return items.map((item) => (
+				<Anchor
+					key={item.text}
+					href={item.href}
+					external={item.external || false}
+				>
+					<Button
+						appearance="minimal"
+						borderRadius="10px"
+						boxShadow="none !important"
+						width="100%"
+						height="58px"
+						display="flex"
+						justifyContent="start"
+						className={cx(
+							css`
+								:hover label {
+									color: #000 !important;
+								}
+							`,
+							currentPathname === item.href
+								? css`
+										 {
+											background-color: #ffffff;
+										}
+								  `
+								: ""
+						)}
+						iconBefore={item.icon}
+					>
+						<Label
+							fontSize="22px"
+							fontWeight={400}
+							color="#7F92A4"
+							pointerEvents="none"
+						>
+							{item.text}
+						</Label>
+					</Button>
+				</Anchor>
+			));
+		},
+		[currentPathname]
+	);
+
+	const mainMenu = buildMenu(mainItems);
+	const footerMenu = buildMenu(footerItems);
 
 	// Listen for route change and update the new url pathname
 	const onRouteChangeComplete = useCallback(
@@ -115,50 +216,22 @@ const Header: React.FC<Props> = ({
 		</Button>
 	);
 
-	const MenuItems = menu.map((item) => (
-		<Anchor key={item.text} href={item.href} external={item.external || false}>
-			<Button
-				appearance="minimal"
-				height={height}
-				boxShadow="none !important"
-				position="relative"
-				className={cx(
-					css`
-						:hover label {
-							color: #000 !important;
-						}
-					`,
-					currentPathname === item.href
-						? css`
-							&:after {
-								content: "";
-								position: absolute;
-								background-color: #3366FF
-								left: 0;
-								right: 0;
-								bottom: 0;
-								height: 3px;
-							}
-						`
-						: ""
-				)}
-			>
-				<Label size={500} color={colors.gray800} pointerEvents="none">
-					{item.text}
-				</Label>
-			</Button>
-		</Anchor>
-	));
-
 	return (
-		<Pane width="100%" background="tint2" height={height} {...props}>
+		<Pane width="100%" height={height} {...props}>
 			<Pane
 				marginX="auto"
 				display="flex"
 				alignItems="center"
 				justifyContent="space-between"
 			>
-				<Anchor href="/">
+				<Anchor
+					href="/"
+					className={css`
+						${mediaQueries.gtLarge} {
+							display: none !important;
+						}
+					`}
+				>
 					<Pane
 						alignItems="center"
 						display="flex"
@@ -185,7 +258,7 @@ const Header: React.FC<Props> = ({
 								}
 							`}
 						>
-							Usher
+							usher
 						</Heading>
 						<Badge color="yellow" marginX={8}>
 							ALPHA
@@ -193,6 +266,7 @@ const Header: React.FC<Props> = ({
 					</Pane>
 				</Anchor>
 				<Pane
+					display="flex"
 					paddingX={16}
 					className={css`
 						${mediaQueries.isXSmall} {
@@ -200,16 +274,6 @@ const Header: React.FC<Props> = ({
 						}
 					`}
 				>
-					<Pane
-						className={css`
-							display: inline-block;
-							${mediaQueries.isLarge} {
-								display: none !important;
-							}
-						`}
-					>
-						{MenuItems}
-					</Pane>
 					{wallets.length === 0 ? (
 						<Anchor href={loginUrl}>{ProfileButton}</Anchor>
 					) : (
@@ -291,7 +355,8 @@ const Header: React.FC<Props> = ({
 						}
 					`}
 				>
-					{MenuItems}
+					<Pane>{mainMenu}</Pane>
+					<Pane>{footerMenu}</Pane>
 				</Pane>
 			</SideSheet>
 		</Pane>

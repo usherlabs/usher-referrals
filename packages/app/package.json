@@ -64,6 +64,7 @@
 		"express-pino-logger": "^7.0.0",
 		"form-data": "^4.0.0",
 		"got": "^12.0.3",
+		"iconsax-react": "^0.0.8",
 		"immer": "^9.0.14",
 		"is-number": "^7.0.0",
 		"isomorphic-unfetch": "^3.1.0",

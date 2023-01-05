@@ -13,14 +13,13 @@ import range from "lodash/range";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import isEmpty from "lodash/isEmpty";
-import { css } from "@linaria/core";
 
 import { useUser } from "@/hooks";
 import CampaignCard from "@/components/CampaignCard";
 import Anchor from "@/components/Anchor";
 import { Campaigns } from "@usher.so/campaigns";
-import * as mediaQueries from "@/utils/media-queries";
 import { API_OPTIONS } from "@/constants";
+import PageHeader from "@/components/PageHeader";
 
 // TODO: Consider what to do wiht the seed logic
 // const getCampaigns = async (refs: CampaignReference[]): Promise<Campaign[]> => {
@@ -53,30 +52,12 @@ const Partnerships = () => {
 	const isLoading = isUserLoading || campaigns.isLoading;
 
 	return (
-		<Pane
-			display="flex"
-			alignItems="center"
-			flexDirection="column"
-			marginX="auto"
-			padding={48}
-			width="100%"
-			className={css`
-				${mediaQueries.isLarge} {
-					padding: 20px 10px !important;
-				}
-			`}
-		>
-			<Heading
-				is="h1"
-				size={900}
-				width="100%"
-				padding={16}
-				textAlign="left"
-				fontSize="2.5em"
-				marginBottom={24}
-			>
-				My Partnerships
-			</Heading>
+		<Pane marginX="auto" width="100%">
+			<PageHeader
+				title="My Partnerships"
+				description="TODO: This page needs a description here"
+			/>
+
 			<Pane width="100%" display="flex" flexWrap="wrap">
 				{isLoading &&
 					isEmpty(campaigns.data) &&
