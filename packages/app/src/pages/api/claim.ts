@@ -223,7 +223,7 @@ handler.router.use(withAuth).post(async (req, res) => {
 			const lastClaimedDate = new Date(lastClaimedAt);
 			const now = new Date(Date.now());
 			const canClaimThisMonth =
-				lastClaimedDate.getUTCFullYear() !== now.getUTCFullYear() &&
+				lastClaimedDate.getUTCFullYear() !== now.getUTCFullYear() ||
 				lastClaimedDate.getUTCMonth() !== now.getUTCMonth();
 			if (!canClaimThisMonth) {
 				req.log.info("Rewards already claimed this month");

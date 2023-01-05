@@ -106,7 +106,7 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 		const lastClaimedDate = new Date(metrics.data.lastClaimedAt);
 		const now = new Date(Date.now());
 		return (
-			lastClaimedDate.getUTCFullYear() !== now.getUTCFullYear() &&
+			lastClaimedDate.getUTCFullYear() !== now.getUTCFullYear() ||
 			lastClaimedDate.getUTCMonth() !== now.getUTCMonth()
 		);
 	}, [metrics]);
