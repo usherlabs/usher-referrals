@@ -8,24 +8,33 @@ declare module "@iconscout/react-unicons" {
 
 	export type Icon = (props: IconProps) => JSX.Element;
 
-	export const UilUserCircle: Icon;
-	export const UilWallet: Icon;
-	export const UilLockOpenAlt: Icon;
-	export const UilTwitter: Icon;
-	export const UilGlob: Icon;
-	export const UilExternalLinkAlt: Icon;
-	export const UilHardHat: Icon;
-	export const UilLockAccess: Icon;
-	export const UilDna: Icon;
+	export const UilArrowCircleDown: Icon;
+	export const UilArrowGrowth: Icon;
+	export const UilAwardAlt: Icon;
+	export const UilBookAlt: Icon;
 	export const UilCoins: Icon;
+	export const UilComments: Icon;
+	export const UilDiscord: Icon;
+	export const UilDna: Icon;
+	export const UilExclamationOctagon: Icon;
+	export const UilExternalLinkAlt: Icon;
+	export const UilFileContract: Icon;
+	export const UilGithub: Icon;
+	export const UilGithubAlt: Icon;
+	export const UilGlob: Icon;
+	export const UilHardHat: Icon;
+	export const UilLabel: Icon;
+	export const UilLink: Icon;
+	export const UilLockAccess: Icon;
+	export const UilLockOpenAlt: Icon;
+	export const UilNotes: Icon;
 	export const UilSelfie: Icon;
 	export const UilShieldCheck: Icon;
-	export const UilExclamationOctagon: Icon;
-	export const UilArrowCircleDown: Icon;
-	export const UilAwardAlt: Icon;
-	export const UilFileContract: Icon;
-	export const UilLabel: Icon;
-	export const UilNotes: Icon;
+	export const UilStar: Icon;
+	export const UilTwitter: Icon;
+	export const UilUserCircle: Icon;
+	export const UilUsersAlt: Icon;
+	export const UilWallet: Icon;
 }
 
 interface Window {

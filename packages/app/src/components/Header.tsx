@@ -1,7 +1,18 @@
 import Image from "next/image";
 import React, { ReactElement, useCallback, useEffect, useState } from "react";
 
-import { UilUserCircle, UilWallet } from "@iconscout/react-unicons";
+import {
+	UilArrowGrowth,
+	UilBookAlt,
+	UilComments,
+	UilDiscord,
+	UilGithub,
+	UilLink,
+	UilStar,
+	UilUserCircle,
+	UilUsersAlt,
+	UilWallet
+} from "@iconscout/react-unicons";
 import { css, cx } from "@linaria/core";
 import {
 	Badge,
@@ -21,21 +32,11 @@ import {
 } from "evergreen-ui";
 import { useRouter } from "next/router";
 
-import DiscordIcon from "@/assets/icon/discord-icon-black.svg";
-import GitHubIcon from "@/assets/icon/github-icon-black.svg";
 import LogoImage from "@/assets/logo/Logo-Icon.svg";
 import Anchor from "@/components/Anchor";
 import { useUser } from "@/hooks";
 import useRedir from "@/hooks/use-redir";
 import * as mediaQueries from "@/utils/media-queries";
-import {
-	Book,
-	Building,
-	LinkSquare,
-	Messages,
-	Profile2User,
-	TrendUp
-} from "iconsax-react";
 
 type Props = {
 	height: number;
@@ -56,22 +57,22 @@ const mainItems: MenuItem[] = [
 	{
 		href: "/collections",
 		text: "Collections",
-		icon: <LinkSquare size={32} />
+		icon: <UilLink size={32} />
 	},
 	{
 		href: "/conversions",
 		text: "Conversions",
-		icon: <Messages size={32} />
+		icon: <UilComments size={32} />
 	},
 	{
 		href: "/",
 		text: "Partnerships",
-		icon: <Profile2User size={32} />
+		icon: <UilUsersAlt size={32} />
 	},
 	{
 		href: "/explore",
 		text: "Campaigns",
-		icon: <TrendUp size={32} />
+		icon: <UilArrowGrowth size={32} />
 	}
 ];
 
@@ -79,25 +80,25 @@ const footerItems: MenuItem[] = [
 	{
 		href: "https://usher.so/?ref=app",
 		text: "About",
-		icon: <Building />,
+		icon: <UilStar size={32} />,
 		external: true
 	},
 	{
 		href: "https://docs.usher.so/?ref=app",
 		text: "Docs",
-		icon: <Book />,
+		icon: <UilBookAlt size={32} />,
 		external: true
 	},
 	{
 		href: "https://go.usher.so/discord",
 		text: "Discord",
-		icon: <Image src={DiscordIcon} height={32} width={32} />,
+		icon: <UilDiscord size={32} />,
 		external: true
 	},
 	{
 		href: "https://github.com/usherlabs",
 		text: "GitHub",
-		icon: <Image src={GitHubIcon} height={32} width={32} />,
+		icon: <UilGithub size={32} />,
 		external: true
 	}
 ];
