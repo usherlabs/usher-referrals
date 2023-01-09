@@ -38,12 +38,29 @@ const Collections: React.FC<Props> = () => {
 				description="Collect wallet connections through a shareable invite link."
 			/>
 			<Pane display="flex" alignItems="center" marginY="20px">
-				<Text flex="1">{links.length} Results Found</Text>
+				<Text flex="1" fontSize="20px">
+					{links.length} Results Found
+				</Text>
 				<TextInput
 					flex="0.8"
+					fontSize="18px"
+					height="50px"
+					border="1px solid rgba(195, 197, 214, 0.5)"
+					borderRadius="10px"
 					placeholder="Paste URL here to create a link..."
 				/>
-				<Button appearance="primary">Create Link</Button>
+				<Button
+					appearance="primary"
+					height="50px"
+					borderRadius="10px"
+					marginLeft="15px"
+					backgroundColor="#2C9CF2"
+					paddingX="22px"
+				>
+					<Text color="#FFFFFF" fontSize="20px" fontWeight="500">
+						Create Link
+					</Text>
+				</Button>
 			</Pane>
 			{links?.length > 0 && (
 				<Pane

@@ -29,7 +29,9 @@ const LinkDetails: React.FC<Props> = ({ link }) => {
 						{link.title}
 					</Text>
 					<Pane>
-						<Button>Edit</Button>
+						<Button width="73px" fontSize="16px" fontWeight="500">
+							Edit
+						</Button>
 						<Button appearance="minimal">
 							<UilEllipsisV />
 						</Button>
@@ -82,7 +84,9 @@ const LinkDetails: React.FC<Props> = ({ link }) => {
 						{link.publicUrl}
 					</Text>
 					<Pane>
-						<Button>Copy</Button>
+						<Button width="73px" fontSize="16px" fontWeight="500">
+							Copy
+						</Button>
 						<Button appearance="minimal">
 							<UilEllipsisV />
 						</Button>
