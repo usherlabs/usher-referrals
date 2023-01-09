@@ -52,7 +52,7 @@ const Partnerships = () => {
 	const isLoading = isUserLoading || campaigns.isLoading;
 
 	return (
-		<Pane marginX="auto" width="100%">
+		<Pane display="flex" flexDirection="column" height="100vh" padding="40px">
 			<PageHeader
 				title="My Partnerships"
 				description="TODO: This page needs a description here"

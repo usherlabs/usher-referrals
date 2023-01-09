@@ -265,7 +265,6 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 				<Pane
 					flex="1"
 					marginLeft={SIDEMENU_WIDTH}
-					padding={40}
 					className={css`
 						${mediaQueries.isLarge} {
 							margin-left: 0px !important;

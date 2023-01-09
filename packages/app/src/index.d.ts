@@ -8,14 +8,18 @@ declare module "@iconscout/react-unicons" {
 
 	export type Icon = (props: IconProps) => JSX.Element;
 
+	export const UilAnalytics: Icon;
 	export const UilArrowCircleDown: Icon;
 	export const UilArrowGrowth: Icon;
 	export const UilAwardAlt: Icon;
 	export const UilBookAlt: Icon;
+	export const UilClockFive: Icon;
 	export const UilCoins: Icon;
 	export const UilComments: Icon;
+	export const UilCornerDownRight: Icon;
 	export const UilDiscord: Icon;
 	export const UilDna: Icon;
+	export const UilEllipsisV: Icon;
 	export const UilExclamationOctagon: Icon;
 	export const UilExternalLinkAlt: Icon;
 	export const UilFileContract: Icon;

@@ -1,5 +1,7 @@
 import ky from "ky";
-import { PartnershipMetrics, Referral, Profile, Claim } from "@/types";
+
+import { Claim, PartnershipMetrics, Profile, Referral } from "@/types";
+import { Link, LinkHit } from "./components/Collection/types";
 
 // const formatQs = (o: Record<string, string>) => {
 // 	const searchParams = new URLSearchParams(o);
@@ -141,6 +143,21 @@ export const profile = (authToken: string) => {
 		},
 		get(): Promise<{ success: boolean; profile: Profile }> {
 			return req.get("profile", { timeout: 30000 }).json();
+		}
+	};
+};
+
+export const collections = () => {
+	// const req = getAuthRequest(authToken);
+	return {
+		get: (): Promise<{ success: boolean; data: Link[] }> => {
+			return request.get(`collections`).json();
+		},
+		getById: (id: string): Promise<{ success: boolean; data: Link[] }> => {
+			return request.get(`collections/${id}`).json();
+		},
+		getHits: (id: string): Promise<{ success: boolean; data: LinkHit[] }> => {
+			return request.get(`collections/${id}/hits`).json();
 		}
 	};
 };
