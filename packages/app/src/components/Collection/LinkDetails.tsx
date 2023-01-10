@@ -1,11 +1,13 @@
 import {
 	UilAnalytics,
 	UilClockFive,
-	UilCornerDownRight,
-	UilEllipsisV
+	UilCornerDownRight
 } from "@iconscout/react-unicons";
 import date from "date-and-time";
-import { Button, Pane, Text } from "evergreen-ui";
+import { Button, Pane, Text, toaster } from "evergreen-ui";
+import { useCallback } from "react";
+import CopyToClipboard from "react-copy-to-clipboard";
+
 import { Link } from "./types";
 
 type Props = {
@@ -13,6 +15,12 @@ type Props = {
 };
 
 const LinkDetails: React.FC<Props> = ({ link }) => {
+	const onCopy = useCallback(async () => {
+		toaster.notify("Copied!", {
+			id: "copied"
+		});
+	}, []);
+
 	return (
 		<Pane marginLeft="20px">
 			<Pane
@@ -28,14 +36,9 @@ const LinkDetails: React.FC<Props> = ({ link }) => {
 					<Text fontSize="20px" fontWeight="500">
 						{link.title}
 					</Text>
-					<Pane>
-						<Button width="73px" fontSize="16px" fontWeight="500">
-							Edit
-						</Button>
-						<Button appearance="minimal">
-							<UilEllipsisV />
-						</Button>
-					</Pane>
+					<Button width="73px" fontSize="16px" fontWeight="500">
+						Edit
+					</Button>
 				</Pane>
 				<Pane
 					display="flex"
@@ -83,23 +86,12 @@ const LinkDetails: React.FC<Props> = ({ link }) => {
 					<Text fontSize="20px" fontWeight="500" color="#2C9CF2">
 						{link.publicUrl}
 					</Text>
-					<Pane>
+					<CopyToClipboard text={link.publicUrl} onCopy={onCopy}>
 						<Button width="73px" fontSize="16px" fontWeight="500">
 							Copy
 						</Button>
-						<Button appearance="minimal">
-							<UilEllipsisV />
-						</Button>
-					</Pane>
+					</CopyToClipboard>
 				</Pane>
-				<Text
-					fontSize="18px"
-					fontWeight="500"
-					marginTop="10px"
-					marginBottom="15px"
-				>
-					1 Click
-				</Text>
 				<Pane
 					paddingX="12px"
 					paddingY="10px"
@@ -109,7 +101,9 @@ const LinkDetails: React.FC<Props> = ({ link }) => {
 					borderRadius="10px"
 				>
 					<UilCornerDownRight color="#575D72" />
-					<Text marginLeft="10px">{link.destinationUrl}</Text>
+					<Text marginLeft="10px" fontSize="16px">
+						{link.destinationUrl}
+					</Text>
 				</Pane>
 			</Pane>
 		</Pane>

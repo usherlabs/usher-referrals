@@ -35,11 +35,20 @@ const LinkVisitorsList: React.FC<Props> = ({ linkId }) => {
 				border="1px solid #E1E2EB"
 				borderRadius="8px"
 			>
-				<Table.Head>
-					{/* <Table.SearchHeaderCell /> */}
-					<Table.TextHeaderCell>Address</Table.TextHeaderCell>
-					<Table.TextHeaderCell>Last Activity</Table.TextHeaderCell>
-					<Table.TextHeaderCell>Connection Type</Table.TextHeaderCell>
+				<Table.Head
+					height={50}
+					backgroundColor="#FFF"
+					fontSize={18}
+					fontWeight={500}
+					textTransform="none"
+				>
+					<Table.TextHeaderCell flexGrow={2}>Address</Table.TextHeaderCell>
+					<Table.TextHeaderCell flexGrow={1}>
+						Last Activity
+					</Table.TextHeaderCell>
+					<Table.TextHeaderCell flexGrow={1}>
+						Connection Type
+					</Table.TextHeaderCell>
 				</Table.Head>
 				<Table.Body
 					className={css`
@@ -59,10 +68,10 @@ const LinkVisitorsList: React.FC<Props> = ({ linkId }) => {
 					`}
 				>
 					{hits.map((hit) => (
-						<Table.Row key={hit.id} isSelectable>
-							<Table.TextCell>{hit.address}</Table.TextCell>
-							<Table.TextCell>{format(hit.lastActivityAt)}</Table.TextCell>
-							<Table.TextCell>{hit.connection}</Table.TextCell>
+						<Table.Row key={hit.id} height={50} fontSize={16} fontWeight={400}>
+							<Table.Cell flexGrow={2}>{hit.address}</Table.Cell>
+							<Table.Cell flexGrow={1}>{format(hit.lastActivityAt)}</Table.Cell>
+							<Table.Cell flexGrow={1}>{hit.connection}</Table.Cell>
 						</Table.Row>
 					))}
 				</Table.Body>

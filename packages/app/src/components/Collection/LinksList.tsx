@@ -2,8 +2,8 @@ import { css } from "@linaria/core";
 import date from "date-and-time";
 import { Pane, Text } from "evergreen-ui";
 import { useCallback } from "react";
-import LinkChart from "./LinkChart";
 
+import LinkChart from "./LinkChart";
 import { Link } from "./types";
 
 type Props = {
@@ -57,7 +57,9 @@ const LinksList: React.FC<Props> = ({ links, onSelect }) => {
 						alignItems="flex-end"
 						justifyContent="space-between"
 					>
-						<Text marginRight="12px">{link.publicUrl}</Text>
+						<Text marginRight="12px" fontSize="16px" color="#2C9CF2">
+							{link.publicUrl}
+						</Text>
 						<LinkChart />
 					</Pane>
 				</Pane>
