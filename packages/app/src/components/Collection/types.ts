@@ -6,7 +6,7 @@ export type Link = {
 	title: string;
 	publicUrl: string;
 	destinationUrl: string;
-	conncections?: Connections[];
+	connections?: Connections[];
 	createdAt: number;
 	hits: number;
 };
@@ -19,18 +19,18 @@ export type LinkHit = {
 };
 
 const dummyLink1: Link = {
-	id: "100200301",
+	id: "1001",
 	title: "Express Wallet Checkout",
 	publicUrl: "app.usher.so/express-wallet-checkout",
 	destinationUrl:
 		"https://b.stripecdn.com/docs-statics/rocket-rides-express.e98682f9952040439f72c9c4",
-	conncections: [Connections.ARCONNECT, Connections.METAMASK],
+	connections: [Connections.ARCONNECT, Connections.METAMASK],
 	createdAt: date.addDays(new Date(), -5).getTime(),
 	hits: 78
 };
 
 const dummyLink2: Link = {
-	id: "100200301",
+	id: "2001",
 	title: "Partpack Online - Review",
 	publicUrl: "app.usher.so/partpack-online-review",
 	destinationUrl:
@@ -56,7 +56,7 @@ const links: Link[] = [
 		.map((link, i) => {
 			return {
 				...link,
-				id: i.toString(),
+				id: (2000 + i).toString(),
 				createdAt: date.addDays(new Date(link.createdAt), -(2 ** i)).getTime()
 			};
 		})
@@ -67,13 +67,17 @@ const hits = Array<LinkHit>(dummyHits)
 	.map((hit, i) => {
 		return {
 			...hit,
-			id: i.toString(),
+			id: (2000 + i).toString(),
 			linkId: links[i % links.length]?.id,
 			lastActivityAt: date
 				.addMinutes(new Date(hit.lastActivityAt), -(3 * i))
 				.getTime()
 		};
 	});
+
+links.forEach((link) => {
+	link.hits = hits.filter((hit) => hit.linkId === link.id).length;
+});
 
 export const dummyData = {
 	links,

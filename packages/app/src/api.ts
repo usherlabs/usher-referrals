@@ -1,6 +1,7 @@
 import ky from "ky";
 
 import { Claim, PartnershipMetrics, Profile, Referral } from "@/types";
+import { Connections } from "@usher.so/shared";
 import { Link, LinkHit } from "./components/Collection/types";
 
 // const formatQs = (o: Record<string, string>) => {
@@ -158,6 +159,26 @@ export const collections = () => {
 		},
 		getHits: (id: string): Promise<{ success: boolean; data: LinkHit[] }> => {
 			return request.get(`collections/${id}/hits`).json();
+		},
+		post: (link: {
+			title: string;
+			destinationUrl: string;
+			connections: Connections[];
+		}): Promise<{ success: boolean; data: Link }> => {
+			return request.post(`collections`, { json: link }).json();
+		},
+		put: (
+			id: string,
+			link: {
+				title: string;
+				destinationUrl: string;
+				connections: Connections[];
+			}
+		): Promise<{ success: boolean }> => {
+			return request.put(`collections/${id}`, { json: link }).json();
+		},
+		delete: (id: string): Promise<{ success: boolean }> => {
+			return request.delete(`collections/${id}`).json();
 		}
 	};
 };

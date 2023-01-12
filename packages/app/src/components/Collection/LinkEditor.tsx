@@ -13,6 +13,7 @@ import {
 } from "evergreen-ui";
 import { ChangeEvent, useCallback, useState } from "react";
 
+import * as api from "@/api";
 import { Link } from "./types";
 
 type Props = {
@@ -24,7 +25,7 @@ const LinkEditor: React.FC<Props> = ({ link, onClose }) => {
 	const [title, setTitile] = useState(link.title);
 	const [destinationUrl, setDestinationUrl] = useState(link.destinationUrl);
 	const [connections, setConnections] = useState<Set<Connections>>(
-		new Set<Connections>(link.conncections)
+		new Set<Connections>(link.connections)
 	);
 
 	const handleConnectionsChange = useCallback(
@@ -42,11 +43,25 @@ const LinkEditor: React.FC<Props> = ({ link, onClose }) => {
 		[connections]
 	);
 
-	const handleSave = useCallback(() => {
-		onClose();
-	}, []);
+	const handleSave = useCallback(async () => {
+		const payload = {
+			title,
+			destinationUrl,
+			connections: [...connections.values()]
+		};
 
-	const handleDelete = useCallback(() => {
+		if (link.id) {
+			await api.collections().put(link.id, payload);
+		} else {
+			await api.collections().post(payload);
+		}
+
+		onClose();
+	}, [title, destinationUrl, connections]);
+
+	const handleDelete = useCallback(async () => {
+		await api.collections().delete(link.id);
+
 		onClose();
 	}, []);
 

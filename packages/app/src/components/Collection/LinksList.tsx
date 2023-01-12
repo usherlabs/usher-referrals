@@ -60,7 +60,7 @@ const LinksList: React.FC<Props> = ({ links, onSelect }) => {
 						<Text marginRight="12px" fontSize="16px" color="#2C9CF2">
 							{link.publicUrl}
 						</Text>
-						<LinkChart />
+						<LinkChart link={link} />
 					</Pane>
 				</Pane>
 			))}
