@@ -4,6 +4,7 @@ import { useQuery } from "react-query";
 import { format } from "timeago.js";
 
 import * as api from "@/api";
+import pascalCase from "@/utils/pascal-case";
 import { LinkHit } from "./types";
 
 type Props = {
@@ -71,7 +72,7 @@ const LinkVisitorsList: React.FC<Props> = ({ linkId }) => {
 						<Table.Row key={hit.id} height={50} fontSize={16} fontWeight={400}>
 							<Table.Cell flexGrow={2}>{hit.address}</Table.Cell>
 							<Table.Cell flexGrow={1}>{format(hit.lastActivityAt)}</Table.Cell>
-							<Table.Cell flexGrow={1}>{hit.connection}</Table.Cell>
+							<Table.Cell flexGrow={1}>{pascalCase(hit.connection)}</Table.Cell>
 						</Table.Row>
 					))}
 				</Table.Body>

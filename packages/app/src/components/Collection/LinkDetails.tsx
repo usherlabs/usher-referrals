@@ -5,9 +5,11 @@ import {
 } from "@iconscout/react-unicons";
 import date from "date-and-time";
 import { Button, Pane, Text, toaster } from "evergreen-ui";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import CopyToClipboard from "react-copy-to-clipboard";
 
+import SideSheet from "@/components/SideSheet";
+import LinkEditor from "./LinkEditor";
 import { Link } from "./types";
 
 type Props = {
@@ -15,6 +17,12 @@ type Props = {
 };
 
 const LinkDetails: React.FC<Props> = ({ link }) => {
+	const [isEditing, setIsEditing] = useState<boolean>(false);
+
+	const handleLinkEditorClose = useCallback(() => {
+		setIsEditing(false);
+	}, []);
+
 	const onCopy = useCallback(async () => {
 		toaster.notify("Copied!", {
 			id: "copied"
@@ -36,7 +44,7 @@ const LinkDetails: React.FC<Props> = ({ link }) => {
 					<Text fontSize="20px" fontWeight="500">
 						{link.title}
 					</Text>
-					<Button width="73px" fontSize="16px" fontWeight="500">
+					<Button width="73px" onClick={() => setIsEditing(true)}>
 						Edit
 					</Button>
 				</Pane>
@@ -87,9 +95,7 @@ const LinkDetails: React.FC<Props> = ({ link }) => {
 						{link.publicUrl}
 					</Text>
 					<CopyToClipboard text={link.publicUrl} onCopy={onCopy}>
-						<Button width="73px" fontSize="16px" fontWeight="500">
-							Copy
-						</Button>
+						<Button width="73px">Copy</Button>
 					</CopyToClipboard>
 				</Pane>
 				<Pane
@@ -106,6 +112,9 @@ const LinkDetails: React.FC<Props> = ({ link }) => {
 					</Text>
 				</Pane>
 			</Pane>
+			<SideSheet isShown={isEditing} onCloseComplete={handleLinkEditorClose}>
+				<LinkEditor link={link} onClose={handleLinkEditorClose} />
+			</SideSheet>
 		</Pane>
 	);
 };

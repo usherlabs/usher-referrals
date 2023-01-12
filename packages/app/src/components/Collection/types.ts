@@ -1,11 +1,12 @@
-import date from "date-and-time";
 import { Connections } from "@usher.so/shared";
+import date from "date-and-time";
 
 export type Link = {
 	id: string;
 	title: string;
 	publicUrl: string;
 	destinationUrl: string;
+	conncections?: Connections[];
 	createdAt: number;
 	hits: number;
 };
@@ -23,6 +24,7 @@ const dummyLink1: Link = {
 	publicUrl: "app.usher.so/express-wallet-checkout",
 	destinationUrl:
 		"https://b.stripecdn.com/docs-statics/rocket-rides-express.e98682f9952040439f72c9c4",
+	conncections: [Connections.ARCONNECT, Connections.METAMASK],
 	createdAt: date.addDays(new Date(), -5).getTime(),
 	hits: 78
 };
@@ -47,7 +49,7 @@ const dummyHit: LinkHit = {
 const dummyLinks = 10;
 const dummyHits = 200;
 
-const links = [
+const links: Link[] = [
 	dummyLink1,
 	...Array<Link>(dummyLinks)
 		.fill(dummyLink2)
@@ -66,7 +68,7 @@ const hits = Array<LinkHit>(dummyHits)
 		return {
 			...hit,
 			id: i.toString(),
-			linkId: links[i % links.length].id,
+			linkId: links[i % links.length]?.id,
 			lastActivityAt: date
 				.addMinutes(new Date(hit.lastActivityAt), -(3 * i))
 				.getTime()
