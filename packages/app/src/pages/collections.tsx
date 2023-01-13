@@ -132,7 +132,10 @@ const Collections: React.FC<Props> = () => {
 						</Pane>
 						{currentLink && (
 							<Pane flex="2" display="flex" flexDirection="column">
-								<LinkDetails link={currentLink} />
+								<LinkDetails
+									link={currentLink}
+									onEditorClose={() => handleLinkEditorClose()}
+								/>
 								<LinkVisitorsList linkId={currentLink.id} />
 							</Pane>
 						)}

@@ -14,13 +14,15 @@ import { Link } from "./types";
 
 type Props = {
 	link: Link;
+	onEditorClose: () => void;
 };
 
-const LinkDetails: React.FC<Props> = ({ link }) => {
+const LinkDetails: React.FC<Props> = ({ link, onEditorClose }) => {
 	const [isEditing, setIsEditing] = useState<boolean>(false);
 
 	const handleLinkEditorClose = useCallback(() => {
 		setIsEditing(false);
+		onEditorClose();
 	}, []);
 
 	const onCopy = useCallback(async () => {
