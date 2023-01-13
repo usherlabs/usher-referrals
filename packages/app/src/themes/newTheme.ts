@@ -10,30 +10,32 @@ const colors = {
 	// border: "rgba(195, 197, 214, 0.5)"
 };
 
-export const neWtheme = mergeTheme(theme, {
+export const newTheme = mergeTheme(theme, {
 	// Custom appearance for evergreen components
 	// See https://evergreen.segment.com/introduction/theming#custom_appearances
 	components: {
 		Button: {
-			appearances: {
-				default: {
-					backgroundColor: colors.background,
-					color: colors.text
-				},
-				primary: {
-					backgroundColor: colors.primary,
-					color: "#FFFFFF"
-				},
-				danger: {
-					backgroundColor: "#FFFFFF",
-					color: colors.danger,
-					border: `1px solid ${colors.danger}`,
-					_hover: {
-						backgroundColor: colors.danger,
-						color: "#FFFFFF"
-					}
-				}
-			},
+			// The following theming for Button breaks its apprearance on a Dialog when
+			// used with intent i.e. <Dialog intent="danger"></Dialog>
+			// appearances: {
+			// 	default: {
+			// 		backgroundColor: colors.background,
+			// 		color: colors.text
+			// 	},
+			// 	primary: {
+			// 		backgroundColor: colors.primary,
+			// 		color: "#FFFFFF"
+			// 	},
+			// 	danger: {
+			// 		backgroundColor: "#FFFFFF",
+			// 		color: colors.danger,
+			// 		border: `1px solid ${colors.danger}`,
+			// 		_hover: {
+			// 			backgroundColor: colors.danger,
+			// 			color: "#FFFFFF"
+			// 		}
+			// 	}
+			// },
 			sizes: {
 				medium: {
 					height: "32px",

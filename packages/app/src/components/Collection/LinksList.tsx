@@ -1,21 +1,19 @@
 import { css } from "@linaria/core";
 import date from "date-and-time";
 import { Pane, Text } from "evergreen-ui";
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 
 import LinkChart from "./LinkChart";
 import { Link } from "./types";
 
 type Props = {
 	links: Link[];
+	activeLink?: Link;
 	onSelect?: (link: Link) => void;
 };
 
-const LinksList: React.FC<Props> = ({ links, onSelect }) => {
-	const [activeLink, setActiveLink] = useState<Link>();
-
+const LinksList: React.FC<Props> = ({ links, activeLink, onSelect }) => {
 	const handleClick = useCallback((link: Link) => {
-		setActiveLink(link);
 		if (onSelect) {
 			onSelect(link);
 		}

@@ -114,7 +114,11 @@ const LinkDetails: React.FC<Props> = ({ link, onEditorClose }) => {
 					</Text>
 				</Pane>
 			</Pane>
-			<SideSheet isShown={isEditing} onCloseComplete={handleLinkEditorClose}>
+			<SideSheet
+				shouldShowCloseButton={false}
+				isShown={isEditing}
+				onCloseComplete={handleLinkEditorClose}
+			>
 				<LinkEditor link={link} onClose={handleLinkEditorClose} />
 			</SideSheet>
 		</Pane>

@@ -7,7 +7,7 @@ import {
 	TextInput,
 	ThemeProvider
 } from "evergreen-ui";
-import { ChangeEvent, useCallback, useState } from "react";
+import { ChangeEvent, useCallback, useEffect, useState } from "react";
 import { useQuery } from "react-query";
 
 import * as api from "@/api";
@@ -17,7 +17,7 @@ import LinksList from "@/components/Collection/LinksList";
 import LinkVisitorsList from "@/components/Collection/LinkVisitorsList";
 import { Link } from "@/components/Collection/types";
 import PageHeader from "@/components/PageHeader";
-import { neWtheme } from "@/themes/newTheme";
+import { newTheme } from "@/themes/newTheme";
 
 type Props = {};
 
@@ -67,8 +67,24 @@ const Collections: React.FC<Props> = () => {
 		setCurrentLink(link);
 	}, []);
 
+	useEffect(() => {
+		const newCurrentlink = links?.find((link) => link.id === currentLink?.id);
+
+		if (newCurrentlink && newCurrentlink === currentLink) {
+			return;
+		}
+
+		if (newCurrentlink && newCurrentlink !== currentLink) {
+			setCurrentLink(newCurrentlink);
+		} else if (links && links.length > 0) {
+			setCurrentLink(links[0]);
+		} else {
+			setCurrentLink(undefined);
+		}
+	}, [links, currentLink]);
+
 	return (
-		<ThemeProvider value={neWtheme}>
+		<ThemeProvider value={newTheme}>
 			<Pane display="flex" flexDirection="column" height="100vh" padding="40px">
 				<PageHeader
 					title="Collections"
@@ -128,7 +144,11 @@ const Collections: React.FC<Props> = () => {
 								}
 							`}
 						>
-							<LinksList links={links} onSelect={handleSelect} />
+							<LinksList
+								links={links}
+								activeLink={currentLink}
+								onSelect={handleSelect}
+							/>
 						</Pane>
 						{currentLink && (
 							<Pane flex="2" display="flex" flexDirection="column">
