@@ -1,20 +1,24 @@
 import { Pane, Text } from "evergreen-ui";
 import Image from "next/image";
 
-// import DummyChartActive from "./DummyChartActive.png";
+import DummyChartActive from "./DummyChartActive.png";
 import DummyChartInactive from "./DummyChartInactive.png";
 import { Link } from "./types";
 
-type Props = { link: Link };
+type Props = { link: Link; isActive: boolean };
 
-const LinkChart: React.FC<Props> = ({ link }) => {
+const LinkChart: React.FC<Props> = ({ link, isActive }) => {
 	return (
 		<Pane display="flex" alignItems="flex-end">
 			<Text fontSize="16px" lineHeight="12px" marginRight="6px">
 				{link.hits}
 			</Text>
 			<Pane height={24} width={33}>
-				<Image src={DummyChartInactive} />
+				{isActive ? (
+					<Image src={DummyChartActive} />
+				) : (
+					<Image src={DummyChartInactive} />
+				)}
 			</Pane>
 		</Pane>
 	);

@@ -1,7 +1,7 @@
 import { css } from "@linaria/core";
 import date from "date-and-time";
 import { Pane, Text } from "evergreen-ui";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 
 import LinkChart from "./LinkChart";
 import { Link } from "./types";
@@ -12,8 +12,13 @@ type Props = {
 };
 
 const LinksList: React.FC<Props> = ({ links, onSelect }) => {
+	const [activeLink, setActiveLink] = useState<Link>();
+
 	const handleClick = useCallback((link: Link) => {
-		if (onSelect) onSelect(link);
+		setActiveLink(link);
+		if (onSelect) {
+			onSelect(link);
+		}
 	}, []);
 
 	return (
@@ -22,7 +27,11 @@ const LinksList: React.FC<Props> = ({ links, onSelect }) => {
 				<Pane
 					key={link.id}
 					margin="20px"
-					border="1px solid #E1E2EB"
+					border={
+						link.id === activeLink?.id
+							? "1px solid #2c9cf2"
+							: "1px solid #E1E2EB"
+					}
 					borderRadius="8px"
 					cursor="pointer"
 					className={css`
@@ -30,9 +39,6 @@ const LinksList: React.FC<Props> = ({ links, onSelect }) => {
 						box-shadow: none;
 						transform: translateY(0);
 						&:hover {
-							border: 1px solid #2c9cf2;
-						}
-						&:active {
 							border: 1px solid #2c9cf2;
 						}
 					`}
@@ -60,7 +66,7 @@ const LinksList: React.FC<Props> = ({ links, onSelect }) => {
 						<Text marginRight="12px" fontSize="16px" color="#2C9CF2">
 							{link.publicUrl}
 						</Text>
-						<LinkChart link={link} />
+						<LinkChart link={link} isActive={link.id === activeLink?.id} />
 					</Pane>
 				</Pane>
 			))}
