@@ -35,22 +35,22 @@ const mainItems: MenuItem[] = [
 	{
 		href: "/collections",
 		text: "Collections",
-		icon: <UilLink size={32} />
+		icon: <UilLink size={28} />
 	},
 	{
 		href: "/conversions",
 		text: "Conversions",
-		icon: <UilComments size={32} />
+		icon: <UilComments size={28} />
 	},
 	{
 		href: "/",
 		text: "Partnerships",
-		icon: <UilUsersAlt size={32} />
+		icon: <UilUsersAlt size={28} />
 	},
 	{
 		href: "/explore",
 		text: "Campaigns",
-		icon: <UilArrowGrowth size={32} />
+		icon: <UilArrowGrowth size={28} />
 	}
 ];
 
@@ -58,25 +58,25 @@ const footerItems: MenuItem[] = [
 	{
 		href: "https://usher.so/?ref=app",
 		text: "About",
-		icon: <UilStar size={32} />,
+		icon: <UilStar size={28} />,
 		external: true
 	},
 	{
 		href: "https://docs.usher.so/?ref=app",
 		text: "Docs",
-		icon: <UilBookAlt size={32} />,
+		icon: <UilBookAlt size={28} />,
 		external: true
 	},
 	{
 		href: "https://go.usher.so/discord",
 		text: "Discord",
-		icon: <UilDiscord size={32} />,
+		icon: <UilDiscord size={28} />,
 		external: true
 	},
 	{
 		href: "https://github.com/usherlabs",
 		text: "GitHub",
-		icon: <UilGithub size={32} />,
+		icon: <UilGithub size={28} />,
 		external: true
 	}
 ];
@@ -110,7 +110,7 @@ const SideMenu: React.FC<Props> = ({ width, ...props }) => {
 	}, []);
 
 	const buildMenu = useCallback(
-		(items: MenuItem[]) => {
+		(items: MenuItem[], isSmall = false) => {
 			return items.map((item) => (
 				<Anchor
 					key={item.text}
@@ -122,7 +122,7 @@ const SideMenu: React.FC<Props> = ({ width, ...props }) => {
 						borderRadius="10px"
 						boxShadow="none !important"
 						width="100%"
-						height="58px"
+						height={isSmall ? 42 : 52}
 						display="flex"
 						justifyContent="start"
 						className={cx(
@@ -140,9 +140,10 @@ const SideMenu: React.FC<Props> = ({ width, ...props }) => {
 								: ""
 						)}
 						iconBefore={item.icon}
+						marginBottom={1}
 					>
 						<Label
-							fontSize="22px"
+							fontSize={isSmall ? 16 : 20}
 							fontWeight={400}
 							color="#7F92A4"
 							pointerEvents="none"
@@ -157,7 +158,7 @@ const SideMenu: React.FC<Props> = ({ width, ...props }) => {
 	);
 
 	const mainMenu = buildMenu(mainItems);
-	const footerMenu = buildMenu(footerItems);
+	const footerMenu = buildMenu(footerItems, true);
 
 	return (
 		<Pane
@@ -179,7 +180,7 @@ const SideMenu: React.FC<Props> = ({ width, ...props }) => {
 				height="100%"
 				position="absolute"
 				style={{
-					opacity: 0.6,
+					opacity: 0.3,
 					mixBlendMode: "color-burn",
 					backgroundSize: "614px",
 					backgroundPositionX: "530px",
@@ -226,7 +227,8 @@ const SideMenu: React.FC<Props> = ({ width, ...props }) => {
 					flexDirection="column"
 					justifyContent="space-between"
 					overflow="auto"
-					padding={40}
+					paddingY={20}
+					paddingX={30}
 					className={css`
 						${mediaQueries.isLarge} {
 							display: none !important;

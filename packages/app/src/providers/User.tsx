@@ -30,13 +30,10 @@ import React, {
 	useState
 } from "react";
 
-import { getArweaveClient } from "@/utils/arweave-client";
+// import { getArweaveClient } from "@/utils/arweave-client";
 import { getEthereumClient } from "@/utils/ethereum-client";
 import { ethers } from "ethers";
 import { CampaignReference, Partnerships } from "@usher.so/partnerships";
-
-const arweave = getArweaveClient();
-const ethProvider = getEthereumClient() as ethers.providers.Web3Provider;
 
 type Props = {
 	children: React.ReactNode;
@@ -54,7 +51,15 @@ const defaultValues: User = {
 	}
 };
 
-const authInstance = new Authenticate(arweave, ethProvider, AUTH_OPTIONS);
+// const arweave = getArweaveClient();
+const ethProvider = getEthereumClient() as ethers.providers.Web3Provider;
+const authInstance = new Authenticate(
+	{
+		// arweave,
+		ethereum: ethProvider
+	},
+	AUTH_OPTIONS
+);
 const partnerships = new Partnerships(authInstance, API_OPTIONS);
 
 export const UserContext = createContext<IUserContext>({
@@ -173,7 +178,8 @@ const getWallets = async (type: Connections): Promise<Wallet[]> => {
 			}
 			case Connections.MAGIC: {
 				// Produce the user with Magic here...
-				const { magic } = getMagicClient();
+				const { magic, ethProvider: magicEthProvider } = getMagicClient();
+				authInstance.setProvider("magic", magicEthProvider);
 				const isLoggedIn = await magic.user.isLoggedIn();
 				if (isLoggedIn) {
 					// Magic will produce and authenticate multiple wallets for each blockchain it supports -- ie. Eth & Arweave
