@@ -376,7 +376,7 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 
 			const fetchedWallets: Wallet[] = [];
 			for (const connection of Object.values(Connections)) {
-				// We are traversing all the supported connections one by one synchronously
+				// Load the first wallet to auto-authenticate
 				// eslint-disable-next-line no-await-in-loop
 				const wallets = await getWallets(connection);
 				saveWallets(wallets);
@@ -385,6 +385,9 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 						fetchedWallets.push(wallet);
 					}
 				});
+				if (wallets.length > 0) {
+					break;
+				}
 			}
 
 			console.log("Wallets loaded. Fetching verifications ...", fetchedWallets);
