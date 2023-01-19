@@ -55,7 +55,7 @@ const Partnerships = () => {
 		<Pane display="flex" flexDirection="column" height="100vh" padding="40px">
 			<PageHeader
 				title="My Partnerships"
-				description="TODO: This page needs a description here"
+				description="View Campaigns you are in partnerships with."
 			/>
 
 			<Pane width="100%" display="flex" flexWrap="wrap">
@@ -73,7 +73,7 @@ const Partnerships = () => {
 						</Pane>
 					))}
 				{!isLoading && isEmpty(campaigns.data) && (
-					<Pane paddingX={16}>
+					<Pane paddingX={16} marginTop={40}>
 						<Heading size={700} marginBottom={8}>
 							Start by engaging campaigns
 						</Heading>

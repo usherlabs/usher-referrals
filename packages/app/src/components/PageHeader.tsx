@@ -1,6 +1,6 @@
 import * as mediaQueries from "@/utils/media-queries";
 import { css } from "@linaria/core";
-import { Heading, Pane } from "evergreen-ui";
+import { Heading, Pane, Paragraph } from "evergreen-ui";
 
 type Props = {
 	title: string;
@@ -18,10 +18,18 @@ const PageHeader: React.FC<Props> = ({ title, description }) => {
 				}
 			`}
 		>
-			<Heading is="h1" width="100%" fontWeight={700} fontSize="2em">
+			<Heading
+				is="h1"
+				width="100%"
+				fontWeight={700}
+				fontSize="2em"
+				marginBottom={15}
+			>
 				{title}
 			</Heading>
-			<p>{description}</p>
+			<Paragraph size={600} marginBottom={10}>
+				{description}
+			</Paragraph>
 		</Pane>
 	);
 };
