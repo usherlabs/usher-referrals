@@ -1,15 +1,6 @@
 import { mergeTheme } from "evergreen-ui";
 import { theme } from "./theme";
 
-const colors = {
-	text: "#0A1B30",
-	background: "#F9FAFC",
-	primary: "#2C9CF2",
-	danger: "tomato",
-	border: "lime"
-	// border: "rgba(195, 197, 214, 0.5)"
-};
-
 export const newTheme = mergeTheme(theme, {
 	// Custom appearance for evergreen components
 	// See https://evergreen.segment.com/introduction/theming#custom_appearances
@@ -52,9 +43,6 @@ export const newTheme = mergeTheme(theme, {
 			}
 		},
 		Input: {
-			baseStyle: {
-				border: `1px solid ${colors.border}`
-			},
 			sizes: {
 				medium: {
 					height: "40px",
@@ -69,14 +57,18 @@ export const newTheme = mergeTheme(theme, {
 			}
 		},
 		Label: {
-			baseStyle: {
-				color: colors.text
-			},
 			sizes: {
 				400: {
 					fontSize: "16px"
 				}
 			}
 		}
+		// Checkbox: {
+		// 	baseStyle: {
+		// 		fontSize: "12px",
+		// 		color: "red",
+		// 		backgroundColor: "red"
+		// 	}
+		// }
 	}
 });
