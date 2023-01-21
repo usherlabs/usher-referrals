@@ -230,8 +230,6 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 	return (
 		<>
 			<Pane
-				display="flex"
-				flexDirection="column"
 				className={css`
 					${mediaQueries.gtLarge} {
 						flex-direction: row !important;

@@ -15,7 +15,7 @@ import {
 } from "evergreen-ui";
 import { ChangeEvent, useCallback, useState } from "react";
 
-import * as api from "@/api";
+import { useCollections } from "@/hooks/use-collections";
 import Anchor from "../Anchor";
 import { Link } from "./types";
 
@@ -25,6 +25,8 @@ type Props = {
 };
 
 const LinkEditor: React.FC<Props> = ({ link, onClose }) => {
+	const { createLink, updateLink, deleteLink } = useCollections();
+
 	const [title, setTitile] = useState(link.title);
 	const [destinationUrl, setDestinationUrl] = useState(link.destinationUrl);
 	const [connections, setConnections] = useState<Set<Connections>>(
@@ -55,17 +57,15 @@ const LinkEditor: React.FC<Props> = ({ link, onClose }) => {
 		};
 
 		if (link.id) {
-			await api.collections().put(link.id, payload);
+			await updateLink(link.id, payload);
 		} else {
-			await api.collections().post(payload);
+			await createLink(payload);
 		}
-
 		onClose();
 	}, [title, destinationUrl, connections]);
 
 	const handleDelete = useCallback(async () => {
-		await api.collections().delete(link.id);
-
+		await deleteLink(link.id);
 		onClose();
 	}, []);
 

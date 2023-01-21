@@ -1,23 +1,15 @@
 import { css } from "@linaria/core";
 import date from "date-and-time";
 import { Pane, Text } from "evergreen-ui";
-import { useCallback } from "react";
 
+import { useCollections } from "@/hooks/use-collections";
+import { getCollectionLink } from "@/utils/get-collection-link";
 import LinkChart from "./LinkChart";
-import { Link } from "./types";
 
-type Props = {
-	links: Link[];
-	activeLink?: Link;
-	onSelect?: (link: Link) => void;
-};
+type Props = {};
 
-const LinksList: React.FC<Props> = ({ links, activeLink, onSelect }) => {
-	const handleClick = useCallback((link: Link) => {
-		if (onSelect) {
-			onSelect(link);
-		}
-	}, []);
+const LinksList: React.FC<Props> = () => {
+	const { links, currentLink, setCurrentLink } = useCollections();
 
 	return (
 		<Pane>
@@ -26,7 +18,7 @@ const LinksList: React.FC<Props> = ({ links, activeLink, onSelect }) => {
 					key={link.id}
 					margin="20px"
 					border={
-						link.id === activeLink?.id
+						link.id === currentLink?.id
 							? "1px solid #2c9cf2"
 							: "1px solid #E1E2EB"
 					}
@@ -40,7 +32,7 @@ const LinksList: React.FC<Props> = ({ links, activeLink, onSelect }) => {
 							border: 1px solid #2c9cf2;
 						}
 					`}
-					onClick={() => handleClick(link)}
+					onClick={() => setCurrentLink(link)}
 				>
 					<Pane
 						padding="15px"
@@ -61,10 +53,19 @@ const LinksList: React.FC<Props> = ({ links, activeLink, onSelect }) => {
 						alignItems="flex-end"
 						justifyContent="space-between"
 					>
-						<Text marginRight="12px" fontSize="16px" color="#2C9CF2">
-							{link.publicUrl}
+						<Text
+							marginRight="12px"
+							fontSize="16px"
+							color="#2C9CF2"
+							overflow="hidden"
+							className={css`
+								overflow-wrap: break-word;
+								word-wrap: break-word;
+							`}
+						>
+							{getCollectionLink(link.id)}
 						</Text>
-						<LinkChart link={link} isActive={link.id === activeLink?.id} />
+						<LinkChart link={link} isActive={link.id === currentLink?.id} />
 					</Pane>
 				</Pane>
 			))}

@@ -9,6 +9,7 @@ export type Link = {
 	connections?: Connections[];
 	createdAt: number;
 	hits: number;
+	// redirects: number;
 };
 
 export type LinkHit = {
@@ -18,8 +19,10 @@ export type LinkHit = {
 	lastActivityAt: number;
 };
 
+// Dummy data used for development purposes.
+// TODO: Have to be removed before go to production.
 const dummyLink1: Link = {
-	id: "1001",
+	id: "kjzl6cwe1jw149c7h6jytcm2tgsellwmjfq3iox11orsufcvc9b9o7vswn3tq8l",
 	title: "Express Wallet Checkout",
 	publicUrl: "app.usher.so/express-wallet-checkout",
 	destinationUrl:
@@ -46,8 +49,8 @@ const dummyHit: LinkHit = {
 	lastActivityAt: new Date().getTime()
 };
 
-const dummyLinks = 10;
-const dummyHits = 200;
+const dummyLinks = 2;
+const dummyHits = 50;
 
 const links: Link[] = [
 	dummyLink1,
