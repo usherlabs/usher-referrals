@@ -1,5 +1,6 @@
+import { useState, useCallback } from "react";
 import { css } from "@linaria/core";
-import { Pane, Table } from "evergreen-ui";
+import { Pane, Table, Text, Label } from "evergreen-ui";
 import { useQuery } from "react-query";
 import { format } from "timeago.js";
 
@@ -22,8 +23,17 @@ const getLinkHits = async (id: string): Promise<LinkHit[] | null> => {
 };
 
 const LinkVisitorsList: React.FC<Props> = ({ linkId }) => {
-	const hits =
+	const hitsData =
 		useQuery(["linkHist", linkId], () => getLinkHits(linkId)).data || [];
+	const [hits, setHits] = useState(hitsData);
+
+	const filterHits = useCallback((value: string) => {
+		let filteredHits = hits;
+		if (value.length > 2) {
+			filteredHits = hits.filter((h) => h.address.includes(value));
+		}
+		setHits(filteredHits);
+	}, []);
 
 	return (
 		<Pane flex="1" overflow="hidden">
@@ -39,16 +49,26 @@ const LinkVisitorsList: React.FC<Props> = ({ linkId }) => {
 				<Table.Head
 					height={50}
 					backgroundColor="#FFF"
-					fontSize={18}
-					fontWeight={500}
 					textTransform="none"
+					className={css`
+						label,
+						input {
+							font-size: 1.1em;
+							color: rgba(0, 0, 0, 0.75);
+						}
+					`}
 				>
-					<Table.TextHeaderCell flexGrow={2}>Address</Table.TextHeaderCell>
+					<Table.SearchHeaderCell
+						placeholder="Address"
+						onChange={filterHits}
+						flexGrow={2}
+						paddingRight={0}
+					/>
 					<Table.TextHeaderCell flexGrow={1}>
-						Last Activity
+						<Label>Last Activity</Label>
 					</Table.TextHeaderCell>
 					<Table.TextHeaderCell flexGrow={1}>
-						Connection Type
+						<Label>Connection Type</Label>
 					</Table.TextHeaderCell>
 				</Table.Head>
 				<Table.Body
@@ -70,9 +90,15 @@ const LinkVisitorsList: React.FC<Props> = ({ linkId }) => {
 				>
 					{hits.map((hit) => (
 						<Table.Row key={hit.id} height={50} fontSize={16} fontWeight={400}>
-							<Table.Cell flexGrow={2}>{hit.address}</Table.Cell>
-							<Table.Cell flexGrow={1}>{format(hit.lastActivityAt)}</Table.Cell>
-							<Table.Cell flexGrow={1}>{pascalCase(hit.connection)}</Table.Cell>
+							<Table.Cell flexGrow={2}>
+								<Text>{hit.address}</Text>
+							</Table.Cell>
+							<Table.Cell flexGrow={1}>
+								<Text>{format(hit.lastActivityAt)}</Text>
+							</Table.Cell>
+							<Table.Cell flexGrow={1}>
+								<Text>{pascalCase(hit.connection)}</Text>
+							</Table.Cell>
 						</Table.Row>
 					))}
 				</Table.Body>
