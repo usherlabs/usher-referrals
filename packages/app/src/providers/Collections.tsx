@@ -24,6 +24,7 @@ const COLLECTIONS_QUERY_KEY = "collections";
 
 export interface ICollectionsContext {
 	isLoading: boolean;
+	isSaving: boolean;
 	links: Link[];
 	currentLink?: Link;
 	setCurrentLink: Dispatch<SetStateAction<Link | undefined>>;
@@ -45,6 +46,7 @@ export interface ICollectionsContext {
 
 export const CollectionsContext = createContext<ICollectionsContext>({
 	isLoading: false,
+	isSaving: false,
 	links: [],
 	currentLink: undefined,
 	setCurrentLink: () => {
@@ -79,7 +81,6 @@ export const CollectionsContextProvider: React.FC<Props> = ({ children }) => {
 
 	const {
 		isLoading: isLinksLoading,
-		isFetching: isLinksFetching,
 		data: links,
 		refetch
 	} = useQuery({
@@ -111,6 +112,7 @@ export const CollectionsContextProvider: React.FC<Props> = ({ children }) => {
 	});
 
 	const [currentLink, setCurrentLink] = useState<Link>();
+	const [isSaving, setIsSaving] = useState(false);
 
 	useEffect(() => {
 		const newCurrentlink = links?.find((link) => link.id === currentLink?.id);
@@ -129,8 +131,8 @@ export const CollectionsContextProvider: React.FC<Props> = ({ children }) => {
 	}, [links, currentLink]);
 
 	const isLoading = useMemo(() => {
-		return isUserLoading || isLinksLoading || isLinksFetching;
-	}, [isUserLoading, isLinksLoading, isLinksFetching]);
+		return isUserLoading || isLinksLoading;
+	}, [isUserLoading, isLinksLoading]);
 
 	const createLink = useCallback(
 		async (link: {
@@ -141,6 +143,7 @@ export const CollectionsContextProvider: React.FC<Props> = ({ children }) => {
 			if (!ceramic) {
 				return;
 			}
+			setIsSaving(true);
 
 			const model = new DataModel({ ceramic, aliases: modelAliases });
 			const store = new DIDDataStore({ ceramic, model });
@@ -169,6 +172,7 @@ export const CollectionsContextProvider: React.FC<Props> = ({ children }) => {
 			linkIds.ids.push(createdLink.id.toString());
 			await store.set(model.aliases.definitions.LinksDef, linkIds);
 
+			setIsSaving(false);
 			queryClient.invalidateQueries(COLLECTIONS_QUERY_KEY);
 		},
 		[ceramic]
@@ -186,10 +190,12 @@ export const CollectionsContextProvider: React.FC<Props> = ({ children }) => {
 			if (!ceramic) {
 				return;
 			}
+			setIsSaving(true);
 
 			const linkTileDocument = await TileDocument.load(ceramic, id);
 			await linkTileDocument.update(link);
 
+			setIsSaving(false);
 			queryClient.invalidateQueries(COLLECTIONS_QUERY_KEY);
 		},
 		[ceramic]
@@ -212,6 +218,7 @@ export const CollectionsContextProvider: React.FC<Props> = ({ children }) => {
 	const context = useMemo<ICollectionsContext>(
 		() => ({
 			isLoading,
+			isSaving,
 			links: links || [],
 			currentLink,
 			setCurrentLink,
@@ -219,7 +226,7 @@ export const CollectionsContextProvider: React.FC<Props> = ({ children }) => {
 			updateLink,
 			deleteLink
 		}),
-		[isLoading, links, currentLink, createLink]
+		[isLoading, isSaving, links, currentLink, createLink]
 	);
 
 	return (

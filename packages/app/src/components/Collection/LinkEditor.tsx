@@ -25,7 +25,7 @@ type Props = {
 };
 
 const LinkEditor: React.FC<Props> = ({ link, onClose }) => {
-	const { createLink, updateLink, deleteLink } = useCollections();
+	const { isSaving, createLink, updateLink, deleteLink } = useCollections();
 
 	const [title, setTitile] = useState(link.title);
 	const [destinationUrl, setDestinationUrl] = useState(link.destinationUrl);
@@ -96,6 +96,8 @@ const LinkEditor: React.FC<Props> = ({ link, onClose }) => {
 					<TextInput
 						width="100%"
 						value={title}
+						autoFocus
+						disabled={isSaving}
 						onChange={(e: { target: { value: any } }) =>
 							setTitile(e.target.value)
 						}
@@ -106,6 +108,7 @@ const LinkEditor: React.FC<Props> = ({ link, onClose }) => {
 						fontSize="16px"
 						resize="vertical"
 						value={destinationUrl}
+						disabled={isSaving}
 						onChange={(e: { target: { value: any } }) =>
 							setDestinationUrl(e.target.value)
 						}
@@ -118,6 +121,7 @@ const LinkEditor: React.FC<Props> = ({ link, onClose }) => {
 								key={connection}
 								label={pascalCase(connection)}
 								checked={connections.has(connection)}
+								disabled={isSaving}
 								onChange={(e: ChangeEvent<HTMLInputElement>) =>
 									handleConnectionsChange(connection, e.target.checked)
 								}
@@ -138,14 +142,18 @@ const LinkEditor: React.FC<Props> = ({ link, onClose }) => {
 				gap={majorScale(2)}
 			>
 				{link.id && (
-					<Button intent="danger" onClick={() => setIsConfirmationShown(true)}>
+					<Button
+						intent="danger"
+						disabled={isSaving}
+						onClick={() => setIsConfirmationShown(true)}
+					>
 						Delete Link
 					</Button>
 				)}
-				<Button marginLeft="auto" onClick={onClose}>
+				<Button marginLeft="auto" disabled={isSaving} onClick={onClose}>
 					Cancel
 				</Button>
-				<Button appearance="primary" autoFocus onClick={handleSave}>
+				<Button appearance="primary" isLoading={isSaving} onClick={handleSave}>
 					Save
 				</Button>
 			</Pane>
