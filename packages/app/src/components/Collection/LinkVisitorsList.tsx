@@ -1,6 +1,5 @@
 import { css } from "@linaria/core";
 import { Label, Pane, Table, Text } from "evergreen-ui";
-import { useCallback, useState } from "react";
 import { useQuery } from "react-query";
 import { format } from "timeago.js";
 
@@ -23,17 +22,10 @@ const getLinkHits = async (id: string): Promise<LinkHit[] | null> => {
 };
 
 const LinkVisitorsList: React.FC<Props> = ({ linkId }) => {
-	const hitsData =
-		useQuery(["linkHist", linkId], () => getLinkHits(linkId)).data || [];
-	const [hits, setHits] = useState(hitsData);
-
-	const filterHits = useCallback((value: string) => {
-		let filteredHits = hits;
-		if (value.length > 2) {
-			filteredHits = hits.filter((h) => h.address.includes(value));
-		}
-		setHits(filteredHits);
-	}, []);
+	const { data: hits } = useQuery({
+		queryKey: ["linkHist", linkId],
+		queryFn: async () => (await getLinkHits(linkId)) || []
+	});
 
 	return (
 		<Pane flex="1" overflow="hidden">
@@ -58,12 +50,9 @@ const LinkVisitorsList: React.FC<Props> = ({ linkId }) => {
 						}
 					`}
 				>
-					<Table.SearchHeaderCell
-						placeholder="Address"
-						onChange={filterHits}
-						flexGrow={2}
-						paddingRight={0}
-					/>
+					<Table.TextHeaderCell flexGrow={1}>
+						<Label>Address</Label>
+					</Table.TextHeaderCell>
 					<Table.TextHeaderCell flexGrow={1}>
 						<Label>Last Activity</Label>
 					</Table.TextHeaderCell>
@@ -88,10 +77,18 @@ const LinkVisitorsList: React.FC<Props> = ({ linkId }) => {
 						}
 					`}
 				>
-					{hits.map((hit) => (
+					{hits?.map((hit) => (
 						<Table.Row key={hit.id} height={50} fontSize={16} fontWeight={400}>
 							<Table.Cell flexGrow={2}>
-								<Text>{hit.address}</Text>
+								<Text
+									overflow="hidden"
+									className={css`
+										overflow-wrap: break-word;
+										word-wrap: break-word;
+									`}
+								>
+									{hit.address}
+								</Text>
 							</Table.Cell>
 							<Table.Cell flexGrow={1}>
 								<Text>{format(hit.lastActivityAt)}</Text>
