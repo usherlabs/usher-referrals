@@ -37,7 +37,7 @@ if (!isProd) {
 
 const queryClient = new QueryClient();
 
-const dynamicStaticPathnames = ["/inv/[id]"];
+const dynamicStaticPathnames = ["/inv/[id]", "/link/[id]"];
 
 const App = ({ Component, pageProps }: Props) => {
 	const router = useRouter();
