@@ -21,26 +21,12 @@ export type LinkHit = {
 
 // Dummy data used for development purposes.
 // TODO: Have to be removed before go to production.
-const dummyLink1: Link = {
-	id: "kjzl6cwe1jw149c7h6jytcm2tgsellwmjfq3iox11orsufcvc9b9o7vswn3tq8l",
-	title: "Express Wallet Checkout",
-	publicUrl: "app.usher.so/express-wallet-checkout",
-	destinationUrl:
-		"https://b.stripecdn.com/docs-statics/rocket-rides-express.e98682f9952040439f72c9c4",
-	connections: [Connections.ARCONNECT, Connections.METAMASK],
-	createdAt: date.addDays(new Date(), -5).getTime(),
-	hits: 78
-};
-
-const dummyLink2: Link = {
-	id: "2001",
-	title: "Partpack Online - Review",
-	publicUrl: "app.usher.so/partpack-online-review",
-	destinationUrl:
-		"https://b.stripecdn.com/docs-statics/rocket-rides-express.e98682f9952040439f72c9c4",
-	createdAt: date.addDays(new Date(), -10).getTime(),
-	hits: 78
-};
+const linkIds: string[] = [
+	"kjzl6cwe1jw149x0wb3y5vemhsutsjn2npcyc92iypwqt9i6f3j2a3hzxiagz82",
+	"kjzl6cwe1jw148baqj7yn02tf1pcz6ykcuws7ulwopb4zhqn58b6zywvouspadx",
+	"kjzl6cwe1jw148ccg3yrh07252dletvl6q66wwq8uaoqdna9tx606qhsqgyikd9",
+	"kjzl6cwe1jw14azr688d5eouk04f6xaardjz6r6a9xhcdfzwgod67hf9sh9rz60"
+];
 
 const dummyHit: LinkHit = {
 	id: "100200301",
@@ -49,21 +35,7 @@ const dummyHit: LinkHit = {
 	lastActivityAt: new Date().getTime()
 };
 
-const dummyLinks = 2;
-const dummyHits = 50;
-
-const links: Link[] = [
-	dummyLink1,
-	...Array<Link>(dummyLinks)
-		.fill(dummyLink2)
-		.map((link, i) => {
-			return {
-				...link,
-				id: (2000 + i).toString(),
-				createdAt: date.addDays(new Date(link.createdAt), -(2 ** i)).getTime()
-			};
-		})
-];
+const dummyHits = 130;
 
 const hits = Array<LinkHit>(dummyHits)
 	.fill(dummyHit)
@@ -71,18 +43,13 @@ const hits = Array<LinkHit>(dummyHits)
 		return {
 			...hit,
 			id: (2000 + i).toString(),
-			linkId: links[i % links.length]?.id,
+			linkId: linkIds[i % linkIds.length],
 			lastActivityAt: date
 				.addMinutes(new Date(hit.lastActivityAt), -(3 * i))
 				.getTime()
 		};
 	});
 
-links.forEach((link) => {
-	link.hits = hits.filter((hit) => hit.linkId === link.id).length;
-});
-
 export const dummyData = {
-	links,
 	hits
 };
