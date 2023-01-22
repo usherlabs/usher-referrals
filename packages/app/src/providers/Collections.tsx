@@ -193,7 +193,7 @@ export const CollectionsContextProvider: React.FC<Props> = ({ children }) => {
 			setIsSaving(true);
 
 			const linkTileDocument = await TileDocument.load(ceramic, id);
-			await linkTileDocument.update(link);
+			await linkTileDocument.update(snakecaseKeys(link));
 
 			setIsSaving(false);
 			queryClient.invalidateQueries(COLLECTIONS_QUERY_KEY);
