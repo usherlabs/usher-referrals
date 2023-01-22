@@ -50,7 +50,7 @@ const LinkVisitorsList: React.FC<Props> = ({ linkId }) => {
 						}
 					`}
 				>
-					<Table.TextHeaderCell flexGrow={1}>
+					<Table.TextHeaderCell flexGrow={2}>
 						<Label>Address</Label>
 					</Table.TextHeaderCell>
 					<Table.TextHeaderCell flexGrow={1}>
