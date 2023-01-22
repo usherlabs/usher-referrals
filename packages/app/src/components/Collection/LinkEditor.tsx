@@ -16,8 +16,8 @@ import {
 import { ChangeEvent, useCallback, useState } from "react";
 
 import { useCollections } from "@/hooks/use-collections";
+import { Link } from "../../programs/collections/types";
 import Anchor from "../Anchor";
-import { Link } from "./types";
 
 type Props = {
 	link: Link;

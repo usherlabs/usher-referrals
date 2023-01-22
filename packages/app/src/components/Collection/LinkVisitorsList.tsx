@@ -1,12 +1,12 @@
-import { useState, useCallback } from "react";
 import { css } from "@linaria/core";
-import { Pane, Table, Text, Label } from "evergreen-ui";
+import { Label, Pane, Table, Text } from "evergreen-ui";
+import { useCallback, useState } from "react";
 import { useQuery } from "react-query";
 import { format } from "timeago.js";
 
 import * as api from "@/api";
 import pascalCase from "@/utils/pascal-case";
-import { LinkHit } from "./types";
+import { LinkHit } from "../../programs/collections/types";
 
 type Props = {
 	linkId: string;

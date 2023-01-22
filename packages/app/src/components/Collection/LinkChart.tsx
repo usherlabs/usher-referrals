@@ -1,9 +1,9 @@
 import { Pane, Text } from "evergreen-ui";
 import Image from "next/image";
 
+import { Link } from "../../programs/collections/types";
 import DummyChartActive from "./DummyChartActive.png";
 import DummyChartInactive from "./DummyChartInactive.png";
-import { Link } from "./types";
 
 type Props = { link: Link; isActive: boolean };
 

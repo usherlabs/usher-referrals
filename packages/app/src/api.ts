@@ -2,7 +2,7 @@ import ky from "ky";
 
 import { Claim, PartnershipMetrics, Profile, Referral } from "@/types";
 import { Connections } from "@usher.so/shared";
-import { Link, LinkHit } from "./components/Collection/types";
+import { Link, LinkHit } from "@/programs/collections/types";
 
 // const formatQs = (o: Record<string, string>) => {
 // 	const searchParams = new URLSearchParams(o);

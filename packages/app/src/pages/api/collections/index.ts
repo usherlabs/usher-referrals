@@ -3,7 +3,7 @@ import { z } from "zod";
 import { AuthApiRequest } from "@/types";
 import cors from "cors";
 
-import { dummyData, Link } from "@/components/Collection/types";
+import { dummyData, Link } from "@/programs/collections/types";
 import { expressMiddleware, useRouteHandler } from "@/server/middleware";
 import { Connections } from "@usher.so/shared";
 

@@ -16,9 +16,9 @@ import { useQuery, useQueryClient } from "react-query";
 import snakecaseKeys from "snakecase-keys";
 
 // import * as api from "@/api";
-import { Link } from "@/components/Collection/types";
 import { useUser } from "@/hooks";
-import modelAliases from "./model.json" assert { type: "json" };
+import { Link } from "@/programs/collections/types";
+import modelAliases from "@/programs/datamodels/aliases/Links.json" assert { type: "json" };
 
 const COLLECTIONS_QUERY_KEY = "collections";
 

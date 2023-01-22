@@ -6,8 +6,8 @@ import LinkDetails from "@/components/Collection/LinkDetails";
 import LinkEditor from "@/components/Collection/LinkEditor";
 import LinksList from "@/components/Collection/LinksList";
 import LinkVisitorsList from "@/components/Collection/LinkVisitorsList";
-import { Link } from "@/components/Collection/types";
 import { useCollections } from "@/hooks/use-collections";
+import { Link } from "@/programs/collections/types";
 
 type Props = {};
 

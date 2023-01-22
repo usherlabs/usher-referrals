@@ -1,4 +1,4 @@
-import { dummyData } from "@/components/Collection/types";
+import { dummyData } from "@/programs/collections/types";
 import { expressMiddleware, useRouteHandler } from "@/server/middleware";
 // import withAuth from "@/server/middleware/auth";
 import { AuthApiRequest } from "@/types";
