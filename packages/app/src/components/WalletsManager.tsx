@@ -24,6 +24,7 @@ import allSettled from "promise.allsettled";
 import isEmpty from "lodash/isEmpty";
 import isNumber from "is-number";
 import ono from "@jsdevtools/ono";
+import { MagicWallet } from "@usher.so/auth/src/lib/magicWallet";
 
 import pascalCase from "@/utils/pascal-case";
 import { Chains, Connections, Wallet } from "@usher.so/shared";
@@ -174,7 +175,8 @@ const WalletsManager: React.FC<Props> = ({ onClose }) => {
 		setSendingFunds(true);
 		try {
 			// Get the auth for this wallet
-			const jwk = await auth.getMagicArweaveJwk();
+			const magicAuth = new MagicWallet(auth, arweave);
+			const jwk = await magicAuth.getMagicArweaveJwk();
 			const tx = await arweave.createTransaction(
 				{
 					target: showSendFunds.wallet.address,
