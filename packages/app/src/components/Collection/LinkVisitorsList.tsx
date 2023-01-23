@@ -89,14 +89,14 @@ const LinkVisitorsList: React.FC<Props> = ({ linkId }) => {
 										word-wrap: break-word;
 									`}
 								>
-									{hit.address}
+									{hit.address || "N/A"}
 								</Text>
 							</Table.Cell>
 							<Table.Cell flexGrow={1}>
 								<Text>{format(hit.lastActivityAt)}</Text>
 							</Table.Cell>
 							<Table.Cell flexGrow={1}>
-								<Text>{pascalCase(hit.connection)}</Text>
+								<Text>{pascalCase(hit.connection) || "N/A"}</Text>
 							</Table.Cell>
 						</Table.Row>
 					))}
