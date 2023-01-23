@@ -9,6 +9,7 @@ export type Link = {
 	createdAt: number;
 	hits: number;
 	redirects: number;
+	isArchived: boolean;
 };
 
 export type LinkStats = {

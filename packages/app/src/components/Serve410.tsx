@@ -33,7 +33,7 @@ const Serve410 = () => {
 				marginBottom={16}
 				textAlign="center"
 			>
-				This link has been deactivated!
+				This link has been archived!
 			</Heading>
 			<Heading
 				is="h2"

@@ -8,8 +8,8 @@ export async function getStaticProps() {
 	return {
 		props: {
 			seo: {
-				title: "Link Deactivated",
-				description: "This link has been deactivated!"
+				title: "Link Archived",
+				description: "This link has been Archived!"
 			}
 		}
 	};

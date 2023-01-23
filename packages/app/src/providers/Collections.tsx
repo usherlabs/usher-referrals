@@ -41,7 +41,7 @@ export interface ICollectionsContext {
 			connections: Connections[];
 		}
 	) => Promise<void>;
-	deleteLink: (id: string) => Promise<void>;
+	archiveLink: (id: string) => Promise<void>;
 }
 
 export const CollectionsContext = createContext<ICollectionsContext>({
@@ -58,7 +58,7 @@ export const CollectionsContext = createContext<ICollectionsContext>({
 	updateLink: async () => {
 		//
 	},
-	deleteLink: async () => {
+	archiveLink: async () => {
 		//
 	}
 });
@@ -79,11 +79,7 @@ export const CollectionsContextProvider: React.FC<Props> = ({ children }) => {
 		return auth.getAuth(wallet.address).ceramic;
 	}, [user, user.wallets, isUserLoading]);
 
-	const {
-		isLoading: isLinksLoading,
-		data: links,
-		refetch
-	} = useQuery({
+	const { isLoading: isLinksLoading, data: links } = useQuery({
 		queryKey: [COLLECTIONS_QUERY_KEY, ceramic === undefined],
 		queryFn: async () => {
 			if (!ceramic) {
@@ -107,15 +103,17 @@ export const CollectionsContextProvider: React.FC<Props> = ({ children }) => {
 				id: key
 			}));
 
+			const liks = contents.filter((content) => !content.isArchived);
+
 			const stats = (await api.collections().get()).data;
 
-			contents.forEach((content) => {
+			liks.forEach((content) => {
 				const linkStats = stats.find((s) => s.id === content.id);
 				content.hits = linkStats?.hits || 0;
 				content.redirects = linkStats?.redirects || 0;
 			});
 
-			return contents;
+			return liks;
 		}
 	});
 
@@ -209,16 +207,24 @@ export const CollectionsContextProvider: React.FC<Props> = ({ children }) => {
 		[ceramic]
 	);
 
-	const deleteLink = useCallback(
+	const archiveLink = useCallback(
 		async (id: string) => {
 			if (!ceramic) {
 				return;
 			}
 
-			// TODO: Is it possible to delete a stream from Ceramic?
-			console.log(`Here we are going to delete the link ${id}`);
+			setIsSaving(true);
 
-			refetch();
+			const linkTileDocument = await TileDocument.load(ceramic, id);
+			await linkTileDocument.update(
+				snakecaseKeys({
+					...(linkTileDocument.content as Link),
+					isArchived: true
+				})
+			);
+
+			setIsSaving(false);
+			queryClient.invalidateQueries(COLLECTIONS_QUERY_KEY);
 		},
 		[ceramic]
 	);
@@ -232,7 +238,7 @@ export const CollectionsContextProvider: React.FC<Props> = ({ children }) => {
 			setCurrentLink,
 			createLink,
 			updateLink,
-			deleteLink
+			archiveLink
 		}),
 		[isLoading, isSaving, links, currentLink, createLink]
 	);

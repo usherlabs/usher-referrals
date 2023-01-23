@@ -12,14 +12,15 @@ import { Link } from "@/programs/collections/types";
 
 type Props = {};
 
-const newLinkDefaultState = {
+const newLinkDefaultState: Link = {
 	id: "",
 	title: "",
 	destinationUrl: "",
 	publicUrl: "",
 	createdAt: 0,
 	hits: 0,
-	redirects: 0
+	redirects: 0,
+	isArchived: false
 };
 
 const Collections: React.FC<Props> = () => {

@@ -14,6 +14,7 @@ type Link = {
 	id: string;
 	destination_url: string;
 	connections: Connections[];
+	is_archived: boolean;
 };
 
 const LinkPage: React.FC = () => {
@@ -25,6 +26,11 @@ const LinkPage: React.FC = () => {
 	useEffect(() => {
 		(async () => {
 			const doc = (await TileDocument.load(ceramic, id)).content as Link;
+			if (doc.is_archived) {
+				window.location.replace(`/410`);
+				return;
+			}
+
 			setLink(doc);
 			if (doc) {
 				setDomain(new URL(doc.destination_url).hostname);
@@ -53,11 +59,13 @@ const LinkPage: React.FC = () => {
 			minHeight="100vh"
 			position="relative"
 		>
-			<WalletInvite
-				domain={domain as string}
-				connections={link?.connections}
-				onConnect={onWalletConnect}
-			/>
+			{link && (
+				<WalletInvite
+					domain={domain as string}
+					connections={link.connections}
+					onConnect={onWalletConnect}
+				/>
+			)}
 			<Pane
 				zIndex={100}
 				position="fixed"

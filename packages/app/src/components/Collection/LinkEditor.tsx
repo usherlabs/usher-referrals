@@ -25,7 +25,7 @@ type Props = {
 };
 
 const LinkEditor: React.FC<Props> = ({ link, onClose }) => {
-	const { isSaving, createLink, updateLink, deleteLink } = useCollections();
+	const { isSaving, createLink, updateLink, archiveLink } = useCollections();
 
 	const [title, setTitile] = useState(link.title);
 	const [destinationUrl, setDestinationUrl] = useState(link.destinationUrl);
@@ -64,8 +64,8 @@ const LinkEditor: React.FC<Props> = ({ link, onClose }) => {
 		onClose();
 	}, [title, destinationUrl, connections]);
 
-	const handleDelete = useCallback(async () => {
-		await deleteLink(link.id);
+	const handleArchive = useCallback(async () => {
+		await archiveLink(link.id);
 		onClose();
 	}, []);
 
@@ -147,7 +147,7 @@ const LinkEditor: React.FC<Props> = ({ link, onClose }) => {
 						disabled={isSaving}
 						onClick={() => setIsConfirmationShown(true)}
 					>
-						Delete Link
+						Archive Link
 					</Button>
 				)}
 				<Button marginLeft="auto" disabled={isSaving} onClick={onClose}>
@@ -158,22 +158,24 @@ const LinkEditor: React.FC<Props> = ({ link, onClose }) => {
 				</Button>
 			</Pane>
 			<Dialog
+				hasCancel={!isSaving}
+				isConfirmLoading={isSaving}
 				isShown={isConfirmationShown}
-				title="Delete Link"
+				title="Archive Link"
 				intent="danger"
 				onCloseComplete={() => setIsConfirmationShown(false)}
-				onConfirm={() => handleDelete()}
-				confirmLabel="Delete Link"
+				onConfirm={() => handleArchive()}
+				confirmLabel="Archive Link"
 			>
 				<Paragraph>
-					Deleting this link will redirect anyone who clicks on it to the&nbsp;
+					Archiving this link will redirect anyone who clicks on it to the&nbsp;
 					<Anchor href="/410" target="blank">
 						Usher error page
 					</Anchor>
 					.
 				</Paragraph>
 				<Paragraph>This action cannot be undone.</Paragraph>
-				<Paragraph>Are you sure you want to delete this link?</Paragraph>
+				<Paragraph>Are you sure you want to archive this link?</Paragraph>
 			</Dialog>
 		</Pane>
 	);
