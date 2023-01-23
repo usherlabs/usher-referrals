@@ -13,7 +13,11 @@ type Props = {
 	domain: string;
 	chain?: Chains;
 	connections?: Connections[];
-	onConnect: (address: string, signature: string) => Promise<void>;
+	onConnect: (
+		connection: Connections,
+		address: string,
+		signature: string
+	) => Promise<void>;
 };
 
 /**
@@ -58,6 +62,7 @@ const WalletInvite = ({ domain, chain, connections, onConnect }: Props) => {
 				<Pane display="flex" flexDirection="column">
 					{isApplicable(Chains.ARWEAVE, Connections.ARCONNECT) && (
 						<WalletConnectButton
+							connection={Connections.ARCONNECT}
 							text="ArConnect"
 							icon={ArConnectIcon}
 							providerLabel={ProviderLabel.ArConnect}
@@ -67,6 +72,7 @@ const WalletInvite = ({ domain, chain, connections, onConnect }: Props) => {
 					)}
 					{isApplicable(Chains.ETHEREUM, Connections.METAMASK) && (
 						<WalletConnectButton
+							connection={Connections.METAMASK}
 							text="MetaMask"
 							icon={MetaMaskIcon}
 							providerLabel={ProviderLabel.MetaMask}
@@ -76,6 +82,7 @@ const WalletInvite = ({ domain, chain, connections, onConnect }: Props) => {
 					)}
 					{isApplicable(Chains.ETHEREUM, Connections.WALLETCONNECT) && (
 						<WalletConnectButton
+							connection={Connections.WALLETCONNECT}
 							text="WalletConnect"
 							icon={WalletConnectIcon}
 							providerLabel={ProviderLabel.WalletConnect}
@@ -85,6 +92,7 @@ const WalletInvite = ({ domain, chain, connections, onConnect }: Props) => {
 					)}
 					{isApplicable(Chains.ETHEREUM, Connections.COINBASEWALLET) && (
 						<WalletConnectButton
+							connection={Connections.COINBASEWALLET}
 							text="CoinbaseWallet"
 							icon={CoinbaseWalletIcon}
 							providerLabel={ProviderLabel.CoinbaseWallet}

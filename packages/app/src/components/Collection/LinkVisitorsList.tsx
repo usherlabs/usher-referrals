@@ -5,14 +5,16 @@ import { format } from "timeago.js";
 
 import * as api from "@/api";
 import pascalCase from "@/utils/pascal-case";
-import { LinkHit } from "../../programs/collections/types";
+import { CollectionRecord } from "../../programs/collections/types";
 
 type Props = {
 	linkId: string;
 };
 
-const getLinkHits = async (id: string): Promise<LinkHit[] | null> => {
-	const response = await api.collections().getHits(id);
+const getCollection = async (
+	id: string
+): Promise<CollectionRecord[] | null> => {
+	const response = await api.collections().getById(id);
 
 	if (!response.success) {
 		return null;
@@ -23,8 +25,8 @@ const getLinkHits = async (id: string): Promise<LinkHit[] | null> => {
 
 const LinkVisitorsList: React.FC<Props> = ({ linkId }) => {
 	const { data: hits } = useQuery({
-		queryKey: ["linkHist", linkId],
-		queryFn: async () => (await getLinkHits(linkId)) || []
+		queryKey: ["collection", linkId],
+		queryFn: async () => (await getCollection(linkId)) || []
 	});
 
 	return (

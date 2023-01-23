@@ -119,7 +119,7 @@ const LinkDetails: React.FC<Props> = ({ onEditorClose }) => {
 							</CopyToClipboard>
 						</Pane>
 						<Text marginLeft="4px" fontSize="18px" fontWeight="500">
-							{currentLink.hits} Click
+							{currentLink.redirects} Click
 						</Text>
 						<Pane
 							paddingX="12px"

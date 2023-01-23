@@ -7,7 +7,7 @@ import {
 	METAMASK_FIREFOX_URL
 } from "@/constants";
 import { useArConnect } from "@/hooks";
-import { Chains } from "@usher.so/shared";
+import { Chains, Connections } from "@usher.so/shared";
 import { getMagicClient } from "@/utils/magic-client";
 import { ProviderLabel } from "@/utils/onboard";
 import { WalletState } from "@web3-onboard/core";
@@ -21,15 +21,21 @@ import { browserName } from "react-device-detect";
 import * as uint8arrays from "uint8arrays";
 
 type Props = {
+	connection: Connections;
 	text: string;
 	icon: JSX.Element | any;
 	providerLabel: ProviderLabel;
 	signingMessage: string;
 	isConnecting?: boolean;
-	onConnect: (address: string, signature: string) => Promise<void>;
+	onConnect: (
+		connection: Connections,
+		address: string,
+		signature: string
+	) => Promise<void>;
 };
 
 export const WalletConnectButton = ({
+	connection,
 	text,
 	icon,
 	providerLabel,
@@ -214,7 +220,7 @@ export const WalletConnectButton = ({
 			if (!signedMessage) {
 				signMessage();
 			} else {
-				onConnect(arweaveWallet, signedMessage);
+				onConnect(connection, arweaveWallet, signedMessage);
 			}
 		} else {
 			if (!connectedEthChain || !ethWallet) {
@@ -231,7 +237,7 @@ export const WalletConnectButton = ({
 			} else {
 				// TODO: Investigate if `toLowerCase()` is really needed here
 				const [account] = ethWallet.accounts;
-				onConnect(account.address.toLowerCase(), signedMessage);
+				onConnect(connection, account.address.toLowerCase(), signedMessage);
 			}
 		}
 	}, [isLoading, connectedEthChain, ethWallet, signedMessage, signMessage]);

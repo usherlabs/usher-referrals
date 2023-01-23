@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useRouter } from "next/router";
 import { useCallback, useEffect, useState } from "react";
 
+import * as api from "@/api";
 import LogoImage from "@/assets/logo/Logo.png";
 import WalletInvite from "@/components/WalletInvite";
 
@@ -28,18 +29,20 @@ const LinkPage: React.FC = () => {
 			if (doc) {
 				setDomain(new URL(doc.destination_url).hostname);
 			}
-
-			// TODO: Call the API to register Link Hit
+			api.hits().post(id);
 		})();
 	}, [id]);
 
-	const onWalletConnect = useCallback(async () => {
-		// TODO: Call the API to collect connected wallet
+	const onWalletConnect = useCallback(
+		async (conection: Connections, address: string) => {
+			api.redirects().post(id, conection, address);
 
-		if (link) {
-			window.location.replace(link?.destination_url);
-		}
-	}, [link]);
+			if (link) {
+				window.location.replace(link?.destination_url);
+			}
+		},
+		[link]
+	);
 
 	return (
 		<Pane

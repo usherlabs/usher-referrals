@@ -1,8 +1,8 @@
 import ky from "ky";
 
+import { CollectionRecord, LinkStats } from "@/programs/collections/types";
 import { Claim, PartnershipMetrics, Profile, Referral } from "@/types";
 import { Connections } from "@usher.so/shared";
-import { Link, LinkHit } from "@/programs/collections/types";
 
 // const formatQs = (o: Record<string, string>) => {
 // 	const searchParams = new URLSearchParams(o);
@@ -148,37 +148,40 @@ export const profile = (authToken: string) => {
 	};
 };
 
+export const hits = () => {
+	return {
+		post: (id: string): Promise<{ success: boolean }> => {
+			return request.post(`collections/${id}/hits`, { json: { id } }).json();
+		}
+	};
+};
+
+export const redirects = () => {
+	return {
+		post: (
+			linkId: string,
+			connection: Connections,
+			address: string
+		): Promise<{ success: boolean }> => {
+			return request
+				.post(`collections/${linkId}/redirects`, {
+					json: { connection, address }
+				})
+				.json();
+		}
+	};
+};
+
 export const collections = () => {
 	// const req = getAuthRequest(authToken);
 	return {
-		get: (): Promise<{ success: boolean; data: Link[] }> => {
+		get: (): Promise<{ success: boolean; data: LinkStats[] }> => {
 			return request.get(`collections`).json();
 		},
-		getById: (id: string): Promise<{ success: boolean; data: Link[] }> => {
+		getById: (
+			id: string
+		): Promise<{ success: boolean; data: CollectionRecord[] }> => {
 			return request.get(`collections/${id}`).json();
-		},
-		getHits: (id: string): Promise<{ success: boolean; data: LinkHit[] }> => {
-			return request.get(`collections/${id}/hits`).json();
-		},
-		post: (link: {
-			title: string;
-			destinationUrl: string;
-			connections: Connections[];
-		}): Promise<{ success: boolean; data: Link }> => {
-			return request.post(`collections`, { json: link }).json();
-		},
-		put: (
-			id: string,
-			link: {
-				title: string;
-				destinationUrl: string;
-				connections: Connections[];
-			}
-		): Promise<{ success: boolean }> => {
-			return request.put(`collections/${id}`, { json: link }).json();
-		},
-		delete: (id: string): Promise<{ success: boolean }> => {
-			return request.delete(`collections/${id}`).json();
 		}
 	};
 };

@@ -15,7 +15,7 @@ import {
 import { useQuery, useQueryClient } from "react-query";
 import snakecaseKeys from "snakecase-keys";
 
-// import * as api from "@/api";
+import * as api from "@/api";
 import { useUser } from "@/hooks";
 import { Link } from "@/programs/collections/types";
 import modelAliases from "@/programs/datamodels/aliases/Links.json" assert { type: "json" };
@@ -106,6 +106,14 @@ export const CollectionsContextProvider: React.FC<Props> = ({ children }) => {
 				...(camelcaseKeys(streams[key].content) as Link),
 				id: key
 			}));
+
+			const stats = (await api.collections().get()).data;
+
+			contents.forEach((content) => {
+				const linkStats = stats.find((s) => s.id === content.id);
+				content.hits = linkStats?.hits || 0;
+				content.redirects = linkStats?.redirects || 0;
+			});
 
 			return contents;
 		}
