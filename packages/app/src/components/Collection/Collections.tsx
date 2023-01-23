@@ -17,7 +17,8 @@ const newLinkDefaultState = {
 	destinationUrl: "",
 	publicUrl: "",
 	createdAt: 0,
-	hits: 0
+	hits: 0,
+	redirects: 0
 };
 
 const Collections: React.FC<Props> = () => {
