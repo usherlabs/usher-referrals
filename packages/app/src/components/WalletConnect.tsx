@@ -68,6 +68,7 @@ const WalletConnect: React.FC<Props> = ({
 		<Pane display="flex" flexDirection="column">
 			{!hide.includes(Connections.ARCONNECT) && (
 				<WalletConnectButton
+					connection={Connections.ARCONNECT}
 					text="ArConnect"
 					icon={ArConnectIcon}
 					providerLabel={ProviderLabel.ArConnect}
@@ -80,6 +81,7 @@ const WalletConnect: React.FC<Props> = ({
 			)}
 			{!hide.includes(Connections.METAMASK) && (
 				<WalletConnectButton
+					connection={Connections.METAMASK}
 					text="MetaMask"
 					icon={MetaMaskIcon}
 					providerLabel={ProviderLabel.MetaMask}
@@ -92,6 +94,7 @@ const WalletConnect: React.FC<Props> = ({
 			)}
 			{!hide.includes(Connections.WALLETCONNECT) && (
 				<WalletConnectButton
+					connection={Connections.WALLETCONNECT}
 					text="WalletConnect"
 					icon={WalletConnectIcon}
 					providerLabel={ProviderLabel.WalletConnect}
@@ -104,6 +107,7 @@ const WalletConnect: React.FC<Props> = ({
 			)}
 			{!hide.includes(Connections.COINBASEWALLET) && (
 				<WalletConnectButton
+					connection={Connections.COINBASEWALLET}
 					text="CoinbaseWallet"
 					icon={CoinbaseWalletIcon}
 					providerLabel={ProviderLabel.CoinbaseWallet}
@@ -116,6 +120,7 @@ const WalletConnect: React.FC<Props> = ({
 			)}
 			{!hide.includes(Connections.MAGIC) && (
 				<WalletConnectButton
+					connection={Connections.MAGIC}
 					text="Email, SMS, and more"
 					icon={<UilLockOpenAlt size="28" />}
 					providerLabel={ProviderLabel.Magic}
