@@ -1,5 +1,6 @@
 import { css } from "@linaria/core";
 import { Button, Pane, SideSheet, Text, TextInput } from "evergreen-ui";
+import pluralize from "pluralize";
 import { ChangeEvent, useCallback, useState } from "react";
 
 import LinkDetails from "@/components/Collection/LinkDetails";
@@ -50,7 +51,7 @@ const Collections: React.FC<Props> = () => {
 			<Pane display="flex" alignItems="center" marginY="20px">
 				{links && links.length > 0 && (
 					<Text flex="0.8" fontSize="20px">
-						{links.length} Results Found
+						{`${pluralize("Result", links.length, true)} Found`}
 					</Text>
 				)}
 				<TextInput

@@ -6,6 +6,7 @@ import {
 import { css } from "@linaria/core";
 import date from "date-and-time";
 import { Button, Pane, Text, toaster } from "evergreen-ui";
+import pluralize from "pluralize";
 import { useCallback, useState } from "react";
 import CopyToClipboard from "react-copy-to-clipboard";
 
@@ -85,7 +86,7 @@ const LinkDetails: React.FC<Props> = ({ onEditorClose }) => {
 						<Pane display="flex" alignItems="center">
 							<UilAnalytics size="24px" />
 							<Text marginLeft="4px" fontSize="18px" fontWeight="500">
-								{currentLink.hits} Hits
+								{pluralize("Hit", currentLink.hits, true)}
 							</Text>
 						</Pane>
 					</Pane>
@@ -119,7 +120,7 @@ const LinkDetails: React.FC<Props> = ({ onEditorClose }) => {
 							</CopyToClipboard>
 						</Pane>
 						<Text marginLeft="4px" fontSize="18px" fontWeight="500">
-							{currentLink.redirects} Click
+							{pluralize("Click", currentLink.redirects, true)}
 						</Text>
 						<Pane
 							paddingX="12px"
