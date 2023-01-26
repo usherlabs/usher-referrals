@@ -1,7 +1,6 @@
 import {
 	UilArrowGrowth,
 	UilBookAlt,
-	UilComments,
 	UilDiscord,
 	UilGithub,
 	UilLink,
@@ -18,6 +17,7 @@ import LogoImage from "@/assets/logo/Logo-Icon-White.svg";
 import BackgroundImage from "@/assets/side-menu-background.jpg";
 import Anchor from "@/components/Anchor";
 import SideSheet from "@/components/SideSheet";
+import { useUser } from "@/hooks";
 import * as mediaQueries from "@/utils/media-queries";
 
 type Props = {
@@ -28,24 +28,29 @@ type MenuItem = {
 	href: string;
 	text: string;
 	icon?: ReactElement;
-	external?: boolean;
+	isExternal?: boolean;
+	isSecured?: boolean;
 };
 
 const mainItems: MenuItem[] = [
 	{
 		href: "/collections",
 		text: "Collections",
-		icon: <UilLink size={28} />
+		icon: <UilLink size={28} />,
+		isSecured: true
 	},
-	{
-		href: "/conversions",
-		text: "Conversions",
-		icon: <UilComments size={28} />
-	},
+	// Temporary hidden
+	// {
+	// 	href: "/conversions",
+	// 	text: "Conversions",
+	// 	icon: <UilComments size={28} />,
+	// 	isSecured: true
+	// },
 	{
 		href: "/",
 		text: "Partnerships",
-		icon: <UilUsersAlt size={28} />
+		icon: <UilUsersAlt size={28} />,
+		isSecured: true
 	},
 	{
 		href: "/explore",
@@ -59,25 +64,25 @@ const footerItems: MenuItem[] = [
 		href: "https://usher.so/?ref=app",
 		text: "About",
 		icon: <UilStar size={28} />,
-		external: true
+		isExternal: true
 	},
 	{
 		href: "https://docs.usher.so/?ref=app",
 		text: "Docs",
 		icon: <UilBookAlt size={28} />,
-		external: true
+		isExternal: true
 	},
 	{
 		href: "https://go.usher.so/discord",
 		text: "Discord",
 		icon: <UilDiscord size={28} />,
-		external: true
+		isExternal: true
 	},
 	{
 		href: "https://github.com/usherlabs",
 		text: "GitHub",
 		icon: <UilGithub size={28} />,
-		external: true
+		isExternal: true
 	}
 ];
 
@@ -86,6 +91,7 @@ const SideMenu: React.FC<Props> = ({ width, ...props }) => {
 	const [currentPathname, setCurrentPathname] = useState("");
 	const [showMobileMenu, setShowMobileMenu] = useState(false);
 	const router = useRouter();
+	const { isAuthenticated } = useUser();
 
 	// Listen for route change and update the new url pathname
 	const onRouteChangeComplete = useCallback(
@@ -111,50 +117,52 @@ const SideMenu: React.FC<Props> = ({ width, ...props }) => {
 
 	const buildMenu = useCallback(
 		(items: MenuItem[], isSmall = false) => {
-			return items.map((item) => (
-				<Anchor
-					key={item.text}
-					href={item.href}
-					external={item.external || false}
-				>
-					<Button
-						appearance="minimal"
-						borderRadius="10px"
-						boxShadow="none !important"
-						width="100%"
-						height={isSmall ? 42 : 52}
-						display="flex"
-						justifyContent="start"
-						className={cx(
-							css`
-								:hover label {
-									color: #000 !important;
-								}
-							`,
-							currentPathname === item.href
-								? css`
-										 {
-											background-color: #ffffff;
-										}
-								  `
-								: ""
-						)}
-						iconBefore={item.icon}
-						marginBottom={1}
+			return items
+				.filter((item) => !item.isSecured || isAuthenticated)
+				.map((item) => (
+					<Anchor
+						key={item.text}
+						href={item.href}
+						external={item.isExternal || false}
 					>
-						<Label
-							fontSize={isSmall ? 16 : 20}
-							fontWeight={400}
-							color="#7F92A4"
-							pointerEvents="none"
+						<Button
+							appearance="minimal"
+							borderRadius="10px"
+							boxShadow="none !important"
+							width="100%"
+							height={isSmall ? 42 : 52}
+							display="flex"
+							justifyContent="start"
+							className={cx(
+								css`
+									:hover label {
+										color: #000 !important;
+									}
+								`,
+								currentPathname === item.href
+									? css`
+											 {
+												background-color: #ffffff;
+											}
+									  `
+									: ""
+							)}
+							iconBefore={item.icon}
+							marginBottom={1}
 						>
-							{item.text}
-						</Label>
-					</Button>
-				</Anchor>
-			));
+							<Label
+								fontSize={isSmall ? 16 : 20}
+								fontWeight={400}
+								color="#7F92A4"
+								pointerEvents="none"
+							>
+								{item.text}
+							</Label>
+						</Button>
+					</Anchor>
+				));
 		},
-		[currentPathname]
+		[currentPathname, isAuthenticated]
 	);
 
 	const mainMenu = buildMenu(mainItems);

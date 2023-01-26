@@ -67,6 +67,7 @@ export const UserContext = createContext<IUserContext>({
 	user: defaultValues,
 	partnerships,
 	loading: false,
+	isAuthenticated: false,
 	async connect() {
 		// ...
 	},
@@ -432,6 +433,7 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 			user,
 			partnerships,
 			loading: loading || walletsLoading,
+			isAuthenticated: wallets.length > 0,
 			connect,
 			disconnect: disconnectWallet,
 			setCaptcha,
@@ -439,7 +441,7 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 			setProfile,
 			addPartnership
 		}),
-		[user, loading, walletsLoading]
+		[user, loading, walletsLoading, wallets]
 	);
 
 	return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
