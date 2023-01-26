@@ -34,8 +34,9 @@ import { useRouter } from "next/router";
 
 import LogoImage from "@/assets/logo/Logo-Icon.svg";
 import Anchor from "@/components/Anchor";
-import { useUser } from "@/hooks";
+import { useUser, useWindowSize } from "@/hooks";
 import useRedir from "@/hooks/use-redir";
+import { Breakpoints } from "@/types";
 import * as mediaQueries from "@/utils/media-queries";
 
 type Props = {
@@ -111,6 +112,7 @@ const Header: React.FC<Props> = ({
 	onLogoutClick,
 	...props
 }) => {
+	const windowSize = useWindowSize();
 	const { colors } = useTheme();
 	const {
 		user: { wallets },
@@ -192,6 +194,12 @@ const Header: React.FC<Props> = ({
 			router.events.off("routeChangeComplete", onRouteChangeComplete);
 		};
 	}, []);
+
+	useEffect(() => {
+		if (showMobileMenu && windowSize.width > Breakpoints.large) {
+			setShowMobileMenu(false);
+		}
+	}, [windowSize]);
 
 	const menuButtonProps = {
 		appearance: "minimal",
