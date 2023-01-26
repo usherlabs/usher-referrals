@@ -27,6 +27,7 @@ FILTER POSITION(@didKeys, did._key)
 		FOR wallet, connection IN 1..1 OUTBOUND link Connections
 			SORT connection.timestamp DESC
 			RETURN {
+					_id: connection._id,
 					address: wallet.address,
 					timestamp: connection.timestamp,
 					connection: connection.connection
