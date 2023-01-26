@@ -7,8 +7,15 @@ import LinkDetails from "@/components/Collection/LinkDetails";
 import LinkEditor from "@/components/Collection/LinkEditor";
 import LinksList from "@/components/Collection/LinksList";
 import LinkVisitorsList from "@/components/Collection/LinkVisitorsList";
+import { useWindowSize } from "@/hooks";
 import { useCollections } from "@/hooks/use-collections";
 import { Link } from "@/programs/collections/types";
+import { Breakpoints } from "@/types";
+
+enum Mode {
+	List,
+	Details
+}
 
 type Props = {};
 
@@ -24,11 +31,13 @@ const newLinkDefaultState: Link = {
 };
 
 const Collections: React.FC<Props> = () => {
-	const { isLoading, links, currentLink } = useCollections();
+	const { width: windowWidth } = useWindowSize();
+	const { isLoading, links, currentLink, setCurrentLink } = useCollections();
 	const [newLinkDestinationUrl, setNewLinkDestinationUrl] =
 		useState<string>("");
 	const [isCreating, setIsCreating] = useState<boolean>(false);
 	const [newLink, setNewLink] = useState<Link>(newLinkDefaultState);
+	const [mode, setMode] = useState<Mode>(Mode.List);
 
 	const createNewLink = useCallback(() => {
 		setNewLink({
@@ -37,6 +46,14 @@ const Collections: React.FC<Props> = () => {
 		});
 		setIsCreating(true);
 	}, [newLinkDestinationUrl]);
+
+	const handleSelect = useCallback(
+		(link: Link) => {
+			setCurrentLink(link);
+			setMode(Mode.Details);
+		},
+		[setCurrentLink]
+	);
 
 	const handleLinkEditorClose = useCallback(() => {
 		setIsCreating(false);
@@ -50,62 +67,74 @@ const Collections: React.FC<Props> = () => {
 	return (
 		<>
 			<Pane display="flex" alignItems="center" marginY="20px">
-				{links && links.length > 0 && (
-					<Text flex="0.8" fontSize="20px">
-						{`${pluralize("Result", links.length, true)} Found`}
-					</Text>
+				{(windowWidth > Breakpoints.xLarge || mode === Mode.List) && (
+					<>
+						{links && links.length > 0 && (
+							<Text flex="0.8" fontSize="20px">
+								{`${pluralize("Result", links.length, true)} Found`}
+							</Text>
+						)}
+						<TextInput
+							size="large"
+							flex="1"
+							placeholder="Paste URL here to create a link..."
+							value={newLinkDestinationUrl}
+							onChange={(e: ChangeEvent<HTMLInputElement>) =>
+								setNewLinkDestinationUrl(e.target.value)
+							}
+						/>
+						<Button
+							appearance="primary"
+							size="large"
+							marginLeft="15px"
+							onClick={createNewLink}
+						>
+							Create Link
+						</Button>
+					</>
 				)}
-				<TextInput
-					size="large"
-					flex="1"
-					placeholder="Paste URL here to create a link..."
-					value={newLinkDestinationUrl}
-					onChange={(e: ChangeEvent<HTMLInputElement>) =>
-						setNewLinkDestinationUrl(e.target.value)
-					}
-				/>
-				<Button
-					appearance="primary"
-					size="large"
-					marginLeft="15px"
-					onClick={createNewLink}
-				>
-					Create Link
-				</Button>
+				{windowWidth < Breakpoints.xLarge && mode === Mode.Details && (
+					<Button onClick={() => setMode(Mode.List)}>
+						&lt;&lt; Back to List
+					</Button>
+				)}
 			</Pane>
 			{links && links.length > 0 && (
 				<Pane
 					flex="1"
 					display="flex"
+					gap="20px"
 					padding="20px"
 					backgroundColor="#F9FAFC"
 					borderRadius="12px"
 					overflow="hidden"
 				>
-					<Pane
-						flex="30%"
-						backgroundColor="#FFFFFF"
-						borderRadius="8px"
-						overflow="auto"
-						className={css`
-							scrollbar-width: thin;
-							scrollbar-color: #ddd #fff;
-							::-webkit-scrollbar {
-								width: 8px;
-							}
-							::-webkit-scrollbar-track {
-								background: #fff;
-								border-radius: 4px;
-							}
-							::-webkit-scrollbar-thumb {
-								background: #ddd;
-								border-radius: 4px;
-							}
-						`}
-					>
-						<LinksList />
-					</Pane>
-					{currentLink && (
+					{(windowWidth > Breakpoints.xLarge || mode === Mode.List) && (
+						<Pane
+							flex="30%"
+							backgroundColor="#FFFFFF"
+							borderRadius="8px"
+							overflow="auto"
+							className={css`
+								scrollbar-width: thin;
+								scrollbar-color: #ddd #fff;
+								::-webkit-scrollbar {
+									width: 8px;
+								}
+								::-webkit-scrollbar-track {
+									background: #fff;
+									border-radius: 4px;
+								}
+								::-webkit-scrollbar-thumb {
+									background: #ddd;
+									border-radius: 4px;
+								}
+							`}
+						>
+							<LinksList onSelect={handleSelect} />
+						</Pane>
+					)}
+					{mode === Mode.Details && currentLink && (
 						<Pane
 							flex="70%"
 							display="flex"

@@ -15,7 +15,6 @@ const LinkVisitorsList: React.FC<Props> = () => {
 			<Table
 				display="flex"
 				flexDirection="column"
-				marginLeft="20px"
 				backgroundColor="#FFFFFF"
 				height="100%"
 				border="1px solid #E1E2EB"

@@ -3,13 +3,16 @@ import date from "date-and-time";
 import { Pane, Text } from "evergreen-ui";
 
 import { useCollections } from "@/hooks/use-collections";
+import { Link } from "@/programs/collections/types";
 import { getCollectionLink } from "@/utils/get-collection-link";
 import LinkChart from "./LinkChart";
 
-type Props = {};
+type Props = {
+	onSelect: (link: Link) => void;
+};
 
-const LinksList: React.FC<Props> = () => {
-	const { links, currentLink, setCurrentLink } = useCollections();
+const LinksList: React.FC<Props> = ({ onSelect }) => {
+	const { links, currentLink } = useCollections();
 
 	return (
 		<Pane>
@@ -32,7 +35,7 @@ const LinksList: React.FC<Props> = () => {
 							border: 1px solid #2c9cf2;
 						}
 					`}
-					onClick={() => setCurrentLink(link)}
+					onClick={() => onSelect(link)}
 				>
 					<Pane
 						padding="15px"

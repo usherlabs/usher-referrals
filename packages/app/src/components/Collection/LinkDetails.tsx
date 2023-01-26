@@ -36,7 +36,7 @@ const LinkDetails: React.FC<Props> = ({ onEditorClose }) => {
 	}, []);
 
 	return (
-		<Pane marginLeft="20px">
+		<Pane>
 			{!currentLink && <Text>No Link</Text>}
 			{currentLink && (
 				<>
@@ -49,11 +49,15 @@ const LinkDetails: React.FC<Props> = ({ onEditorClose }) => {
 						border="1px solid #E1E2EB"
 						borderRadius="8px"
 					>
-						<Pane display="flex" justifyContent="space-between">
+						<Pane display="flex" justifyContent="space-between" gap="1em">
 							<Text fontSize="20px" fontWeight="500">
 								{currentLink.title}
 							</Text>
-							<Button width="73px" onClick={() => setIsEditing(true)}>
+							<Button
+								width="73px"
+								minWidth="73px"
+								onClick={() => setIsEditing(true)}
+							>
 								Edit
 							</Button>
 						</Pane>
@@ -99,7 +103,7 @@ const LinkDetails: React.FC<Props> = ({ onEditorClose }) => {
 						border="1px solid #E1E2EB"
 						borderRadius="8px"
 					>
-						<Pane display="flex" justifyContent="space-between">
+						<Pane display="flex" justifyContent="space-between" gap="1em">
 							<Text
 								fontSize="20px"
 								fontWeight="500"
@@ -116,7 +120,9 @@ const LinkDetails: React.FC<Props> = ({ onEditorClose }) => {
 								text={getCollectionLink(currentLink.id)}
 								onCopy={onCopy}
 							>
-								<Button width="73px">Copy</Button>
+								<Button width="73px" minWidth="73px">
+									Copy
+								</Button>
 							</CopyToClipboard>
 						</Pane>
 						<Text marginLeft="4px" fontSize="18px" fontWeight="500">
