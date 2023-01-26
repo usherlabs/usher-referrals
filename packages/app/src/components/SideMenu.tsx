@@ -1,95 +1,23 @@
-import {
-	UilArrowGrowth,
-	UilBookAlt,
-	UilDiscord,
-	UilGithub,
-	UilLink,
-	UilStar,
-	UilUsersAlt
-} from "@iconscout/react-unicons";
 import { css, cx } from "@linaria/core";
 import { Badge, Button, Label, Pane, Text, useTheme } from "evergreen-ui";
 import Image from "next/image";
 import { useRouter } from "next/router";
-import React, { ReactElement, useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
 import LogoImage from "@/assets/logo/Logo-Icon-White.svg";
 import BackgroundImage from "@/assets/side-menu-background.jpg";
 import Anchor from "@/components/Anchor";
-import SideSheet from "@/components/SideSheet";
 import { useUser } from "@/hooks";
+import { menu, MenuItem } from "@/menu";
 import * as mediaQueries from "@/utils/media-queries";
 
 type Props = {
 	width: number;
 };
 
-type MenuItem = {
-	href: string;
-	text: string;
-	icon?: ReactElement;
-	isExternal?: boolean;
-	isSecured?: boolean;
-};
-
-const mainItems: MenuItem[] = [
-	{
-		href: "/collections",
-		text: "Collections",
-		icon: <UilLink size={28} />,
-		isSecured: true
-	},
-	// Temporary hidden
-	// {
-	// 	href: "/conversions",
-	// 	text: "Conversions",
-	// 	icon: <UilComments size={28} />,
-	// 	isSecured: true
-	// },
-	{
-		href: "/",
-		text: "Partnerships",
-		icon: <UilUsersAlt size={28} />,
-		isSecured: true
-	},
-	{
-		href: "/explore",
-		text: "Campaigns",
-		icon: <UilArrowGrowth size={28} />
-	}
-];
-
-const footerItems: MenuItem[] = [
-	{
-		href: "https://usher.so/?ref=app",
-		text: "About",
-		icon: <UilStar size={28} />,
-		isExternal: true
-	},
-	{
-		href: "https://docs.usher.so/?ref=app",
-		text: "Docs",
-		icon: <UilBookAlt size={28} />,
-		isExternal: true
-	},
-	{
-		href: "https://go.usher.so/discord",
-		text: "Discord",
-		icon: <UilDiscord size={28} />,
-		isExternal: true
-	},
-	{
-		href: "https://github.com/usherlabs",
-		text: "GitHub",
-		icon: <UilGithub size={28} />,
-		isExternal: true
-	}
-];
-
 const SideMenu: React.FC<Props> = ({ width, ...props }) => {
 	const { colors } = useTheme();
 	const [currentPathname, setCurrentPathname] = useState("");
-	const [showMobileMenu, setShowMobileMenu] = useState(false);
 	const router = useRouter();
 	const { isAuthenticated } = useUser();
 
@@ -99,7 +27,6 @@ const SideMenu: React.FC<Props> = ({ width, ...props }) => {
 			if (url !== currentPathname) {
 				setCurrentPathname(url);
 			}
-			setShowMobileMenu(false);
 		},
 		[currentPathname]
 	);
@@ -165,8 +92,8 @@ const SideMenu: React.FC<Props> = ({ width, ...props }) => {
 		[currentPathname, isAuthenticated]
 	);
 
-	const mainMenu = buildMenu(mainItems);
-	const footerMenu = buildMenu(footerItems, true);
+	const mainMenu = buildMenu(menu.mainItems);
+	const footerMenu = buildMenu(menu.footerItems, true);
 
 	return (
 		<Pane
@@ -247,28 +174,6 @@ const SideMenu: React.FC<Props> = ({ width, ...props }) => {
 					<Pane>{footerMenu}</Pane>
 				</Pane>
 			</Pane>
-			<SideSheet
-				isShown={showMobileMenu}
-				onCloseComplete={() => setShowMobileMenu(false)}
-				preventBodyScrolling
-			>
-				<Pane
-					display="flex"
-					flexDirection="column"
-					width="100%"
-					className={css`
-						button {
-							width: 100%;
-							text-align: left;
-							display: flex;
-							justify-content: flex-start;
-						}
-					`}
-				>
-					{mainMenu}
-					{footerMenu}
-				</Pane>
-			</SideSheet>
 		</Pane>
 	);
 };

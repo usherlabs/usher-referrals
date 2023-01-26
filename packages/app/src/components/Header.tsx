@@ -1,24 +1,14 @@
 import Image from "next/image";
-import React, { ReactElement, useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
-import {
-	UilArrowGrowth,
-	UilBookAlt,
-	UilComments,
-	UilDiscord,
-	UilGithub,
-	UilLink,
-	UilStar,
-	UilUserCircle,
-	UilUsersAlt,
-	UilWallet
-} from "@iconscout/react-unicons";
+import { UilUserCircle, UilWallet } from "@iconscout/react-unicons";
 import { css, cx } from "@linaria/core";
 import {
 	Badge,
 	Button,
 	CogIcon,
 	Heading,
+	CrossIcon,
 	Label,
 	LogOutIcon,
 	Menu,
@@ -33,9 +23,11 @@ import {
 import { useRouter } from "next/router";
 
 import LogoImage from "@/assets/logo/Logo-Icon.svg";
+import BackgroundImage from "@/assets/side-menu-background.jpg";
 import Anchor from "@/components/Anchor";
 import { useUser, useWindowSize } from "@/hooks";
 import useRedir from "@/hooks/use-redir";
+import { menu, MenuItem } from "@/menu";
 import { Breakpoints } from "@/types";
 import * as mediaQueries from "@/utils/media-queries";
 
@@ -46,63 +38,6 @@ type Props = {
 	onSettingsClick: () => void;
 	onLogoutClick: () => void;
 };
-
-type MenuItem = {
-	href: string;
-	text: string;
-	icon?: ReactElement;
-	external?: boolean;
-};
-
-const mainItems: MenuItem[] = [
-	{
-		href: "/collections",
-		text: "Collections",
-		icon: <UilLink size={32} />
-	},
-	{
-		href: "/conversions",
-		text: "Conversions",
-		icon: <UilComments size={32} />
-	},
-	{
-		href: "/",
-		text: "Partnerships",
-		icon: <UilUsersAlt size={32} />
-	},
-	{
-		href: "/explore",
-		text: "Campaigns",
-		icon: <UilArrowGrowth size={32} />
-	}
-];
-
-const footerItems: MenuItem[] = [
-	{
-		href: "https://usher.so/?ref=app",
-		text: "About",
-		icon: <UilStar size={32} />,
-		external: true
-	},
-	{
-		href: "https://docs.usher.so/?ref=app",
-		text: "Docs",
-		icon: <UilBookAlt size={32} />,
-		external: true
-	},
-	{
-		href: "https://go.usher.so/discord",
-		text: "Discord",
-		icon: <UilDiscord size={32} />,
-		external: true
-	},
-	{
-		href: "https://github.com/usherlabs",
-		text: "GitHub",
-		icon: <UilGithub size={32} />,
-		external: true
-	}
-];
 
 const Header: React.FC<Props> = ({
 	height,
@@ -122,56 +57,59 @@ const Header: React.FC<Props> = ({
 	const [showMobileMenu, setShowMobileMenu] = useState(false);
 	const loginUrl = useRedir("/login");
 	const router = useRouter();
+	const { isAuthenticated } = useUser();
 
 	const buildMenu = useCallback(
-		(items: MenuItem[]) => {
-			return items.map((item) => (
-				<Anchor
-					key={item.text}
-					href={item.href}
-					external={item.external || false}
-				>
-					<Button
-						appearance="minimal"
-						borderRadius="10px"
-						boxShadow="none !important"
-						width="100%"
-						height="58px"
-						display="flex"
-						justifyContent="start"
-						className={cx(
-							css`
-								:hover label {
-									color: #000 !important;
-								}
-							`,
-							currentPathname === item.href
-								? css`
-										 {
-											background-color: #ffffff;
-										}
-								  `
-								: ""
-						)}
-						iconBefore={item.icon}
+		(items: MenuItem[], isSmall = false) => {
+			return items
+				.filter((item) => !item.isSecured || isAuthenticated)
+				.map((item) => (
+					<Anchor
+						key={item.text}
+						href={item.href}
+						external={item.isExternal || false}
 					>
-						<Label
-							fontSize="22px"
-							fontWeight={400}
-							color="#7F92A4"
-							pointerEvents="none"
+						<Button
+							appearance="minimal"
+							borderRadius="10px"
+							boxShadow="none !important"
+							width="100%"
+							height={isSmall ? 42 : 52}
+							display="flex"
+							justifyContent="start"
+							className={cx(
+								css`
+									:hover label {
+										color: #000 !important;
+									}
+								`,
+								currentPathname === item.href
+									? css`
+											 {
+												background-color: #ffffff;
+											}
+									  `
+									: ""
+							)}
+							iconBefore={item.icon}
 						>
-							{item.text}
-						</Label>
-					</Button>
-				</Anchor>
-			));
+							<Label
+								fontSize="22px"
+								fontWeight={400}
+								color="#7F92A4"
+								pointerEvents="none"
+							>
+								{item.text}
+							</Label>
+						</Button>
+					</Anchor>
+				));
 		},
-		[currentPathname]
+		[currentPathname, isAuthenticated]
 	);
 
-	const mainMenu = buildMenu(mainItems);
-	const footerMenu = buildMenu(footerItems);
+	const mainMenu = buildMenu(menu.mainItems);
+	const footerMenu = buildMenu(menu.footerItems, true);
 
 	// Listen for route change and update the new url pathname
 	const onRouteChangeComplete = useCallback(
@@ -347,14 +285,33 @@ const Header: React.FC<Props> = ({
 				</Pane>
 			</Pane>
 			<SideSheet
+				width="100%"
 				isShown={showMobileMenu}
 				onCloseComplete={() => setShowMobileMenu(false)}
 				preventBodyScrolling
 			>
 				<Pane
+					width="100%"
+					height="100%"
+					position="absolute"
+					style={{
+						opacity: 0.3,
+						mixBlendMode: "color-burn",
+						backgroundSize: "614px",
+						backgroundPositionX: "530px",
+						backgroundPositionY: "-5px",
+						backgroundImage: `url(${BackgroundImage.src}`
+					}}
+				/>
+				<Pane
+					background="#0A1B30"
 					display="flex"
 					flexDirection="column"
+					justifyContent="space-between"
 					width="100%"
+					height="100%"
+					paddingY="1em"
+					paddingX="2em"
 					className={css`
 						button {
 							width: 100%;
@@ -364,7 +321,31 @@ const Header: React.FC<Props> = ({
 						}
 					`}
 				>
-					<Pane>{mainMenu}</Pane>
+					<Pane>
+						<Pane
+							display="flex"
+							justifyContent="flex-end"
+							className={css`
+								button {
+									display: flex;
+									justify-content: center;
+									aling-items: center;
+									height: 48px;
+									width: 48px;
+									padding: 0px;
+									margin-bottom: 8px;
+								}
+							`}
+						>
+							<Button
+								appearance="minimal"
+								onClick={() => setShowMobileMenu(false)}
+							>
+								<CrossIcon size={36} color={colors.gray700} />
+							</Button>
+						</Pane>
+						{mainMenu}
+					</Pane>
 					<Pane>{footerMenu}</Pane>
 				</Pane>
 			</SideSheet>
