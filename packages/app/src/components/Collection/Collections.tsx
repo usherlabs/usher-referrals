@@ -113,7 +113,7 @@ const Collections: React.FC<Props> = () => {
 							overflow="hidden"
 						>
 							<LinkDetails onEditorClose={() => handleLinkEditorClose()} />
-							<LinkVisitorsList linkId={currentLink.id} />
+							<LinkVisitorsList />
 						</Pane>
 					)}
 				</Pane>
