@@ -1,14 +1,16 @@
-import { expressMiddleware, useRouteHandler } from "@/server/middleware";
 import cors from "cors";
+import { z } from "zod";
 
-// import withAuth from "@/server/middleware/auth";
+import { expressMiddleware, useRouteHandler } from "@/server/middleware";
+import { fetchLinkStats, indexLink } from "@/server/link";
+import withAuth from "@/server/middleware/auth";
 import { AuthApiRequest } from "@/types";
-// import { getArangoClient } from "@/utils/arango-client";
-import { dummyData } from "@/programs/collections/types";
 
 const handler = useRouteHandler<AuthApiRequest>();
 
-// const arango = getArangoClient();
+const postSchema = z.object({
+	linkId: z.string()
+});
 
 handler.router
 	.use(
@@ -18,31 +20,12 @@ handler.router
 			})
 		)
 	)
-	// .use(withAuth)
+	.use(withAuth)
 	.get(async (req, res) => {
 		try {
-			const linkIds = new Set(dummyData.hits.map((hit) => hit.linkId));
+			const dids = req.user.map(({ did }) => did);
 
-			const results = [...linkIds].map((linkId) => {
-				const hits = dummyData.hits.filter(
-					(hit) => hit.linkId === linkId
-				).length;
-				const redirects = dummyData.redirects.filter(
-					(redirect) => redirect.linkId === linkId
-				).length;
-				return {
-					id: linkId,
-					hits,
-					redirects
-				};
-			});
-
-			// const cursor = await arango.query(aql`
-			// `);
-
-			// const results = (await cursor.all()).filter((result) => !isEmpty(result));
-
-			// req.log.debug({ results }, "related partnerships fetch results");
+			const results = await fetchLinkStats(dids);
 
 			return res.json({
 				success: true,
@@ -50,6 +33,24 @@ handler.router
 			});
 		} catch (e) {
 			req.log.error(e);
+			return res.status(400).json({
+				success: false
+			});
+		}
+	})
+	.post(async (req, res) => {
+		let body: z.infer<typeof postSchema>;
+		try {
+			body = await postSchema.parseAsync(req.body);
+			const [did] = req.user.map(({ did: d }) => d);
+			const { linkId } = body;
+
+			await indexLink(linkId, did, req.log);
+
+			return res.json({
+				success: true
+			});
+		} catch (e) {
 			return res.status(400).json({
 				success: false
 			});

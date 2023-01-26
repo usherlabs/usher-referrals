@@ -17,16 +17,19 @@ import snakecaseKeys from "snakecase-keys";
 
 import * as api from "@/api";
 import { useUser } from "@/hooks";
-import { Link } from "@/programs/collections/types";
+import { Link, LinkConnection } from "@/programs/collections/types";
 import modelAliases from "@/programs/datamodels/aliases/Links.json" assert { type: "json" };
 
 const COLLECTIONS_QUERY_KEY = "collections";
+const CONNECTIONS_QUERY_KEY = "connections";
 
 export interface ICollectionsContext {
 	isLoading: boolean;
 	isSaving: boolean;
 	links: Link[];
 	currentLink?: Link;
+	isConnectionsLoading: boolean;
+	connections: LinkConnection[];
 	setCurrentLink: Dispatch<SetStateAction<Link | undefined>>;
 	createLink: (link: {
 		title: string;
@@ -49,6 +52,8 @@ export const CollectionsContext = createContext<ICollectionsContext>({
 	isSaving: false,
 	links: [],
 	currentLink: undefined,
+	isConnectionsLoading: false,
+	connections: [],
 	setCurrentLink: () => {
 		//
 	},
@@ -105,7 +110,8 @@ export const CollectionsContextProvider: React.FC<Props> = ({ children }) => {
 
 			const liks = contents.filter((content) => !content.isArchived);
 
-			const stats = (await api.collections().get()).data;
+			const stats = (await api.collections(await auth.getAuthToken()).get())
+				.data;
 
 			liks.forEach((content) => {
 				const linkStats = stats.find((s) => s.id === content.id);
@@ -119,6 +125,20 @@ export const CollectionsContextProvider: React.FC<Props> = ({ children }) => {
 
 	const [currentLink, setCurrentLink] = useState<Link>();
 	const [isSaving, setIsSaving] = useState(false);
+
+	const { isLoading: isConnectionsLoading, data: connections } = useQuery({
+		queryKey: [CONNECTIONS_QUERY_KEY, currentLink, currentLink === undefined],
+		queryFn: async () => {
+			if (!currentLink) {
+				return [];
+			}
+			const response = (
+				await api.collections(await auth.getAuthToken()).getById(currentLink.id)
+			).data;
+
+			return response;
+		}
+	});
 
 	useEffect(() => {
 		const newCurrentlink = links?.find((link) => link.id === currentLink?.id);
@@ -178,10 +198,14 @@ export const CollectionsContextProvider: React.FC<Props> = ({ children }) => {
 			linkIds.ids.push(createdLink.id.toString());
 			await store.set(model.aliases.definitions.LinksDef, linkIds);
 
+			await api
+				.collections(await auth.getAuthToken())
+				.post(createdLink.id.toString());
+
 			setIsSaving(false);
 			queryClient.invalidateQueries(COLLECTIONS_QUERY_KEY);
 		},
-		[ceramic]
+		[ceramic, auth]
 	);
 
 	const updateLink = useCallback(
@@ -235,12 +259,24 @@ export const CollectionsContextProvider: React.FC<Props> = ({ children }) => {
 			isSaving,
 			links: links || [],
 			currentLink,
+			isConnectionsLoading,
+			connections: connections || [],
 			setCurrentLink,
 			createLink,
 			updateLink,
 			archiveLink
 		}),
-		[isLoading, isSaving, links, currentLink, createLink]
+		[
+			isLoading,
+			isSaving,
+			links,
+			currentLink,
+			isConnectionsLoading,
+			connections,
+			createLink,
+			updateLink,
+			archiveLink
+		]
 	);
 
 	return (

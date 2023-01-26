@@ -1,10 +1,11 @@
+/* eslint-disable @typescript-eslint/no-shadow */
 import * as api from "@/api";
 import LogoImage from "@/assets/logo/Logo.png";
 import Captcha from "@/components/Captcha";
 import Preloader from "@/components/Preloader";
 import WalletInvite from "@/components/WalletInvite";
 import { botdPublicKey } from "@/env-config";
-import { Chains } from "@usher.so/shared";
+import { Chains, Connections } from "@usher.so/shared";
 import { CampaignReference } from "@usher.so/partnerships";
 import { ceramic } from "@/utils/ceramic-client";
 import { AppEvents, events } from "@/utils/events";
@@ -50,6 +51,7 @@ const Invite: React.FC<Props> = () => {
 	const [isWalletRequired, setIsWalletRequired] = useState<boolean>();
 
 	const [wallet, setWallet] = useState<string>();
+	const [connection, setConnection] = useState<Connections>();
 
 	const router = useRouter();
 	const id = router.query.id as string;
@@ -110,7 +112,8 @@ const Invite: React.FC<Props> = () => {
 	);
 
 	const onWalletConnect = useCallback(
-		async (address: string) => {
+		async (chain: Chains, address: string, connection: Connections) => {
+			setConnection(connection);
 			setWallet([chain, address].join(":"));
 			nextStep();
 		},
@@ -142,8 +145,14 @@ const Invite: React.FC<Props> = () => {
 			return;
 		}
 
+		if (!wallet || !connection) {
+			handleException(ono("Invite being processed when there is no wallet"));
+			onError();
+			return;
+		}
+
 		try {
-			const referral = await api.referrals().post(id, wallet);
+			const referral = await api.referrals().post(id, wallet, connection);
 
 			if (!referral.success || !referral.data) {
 				onError();

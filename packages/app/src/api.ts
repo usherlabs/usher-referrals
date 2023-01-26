@@ -1,8 +1,9 @@
+import { Chains, Connections } from "@usher.so/shared";
+import camelcaseKeys from "camelcase-keys";
 import ky from "ky";
 
-import { CollectionRecord, LinkStats } from "@/programs/collections/types";
+import { LinkConnection, LinkStats } from "@/programs/collections/types";
 import { Claim, PartnershipMetrics, Profile, Referral } from "@/types";
-import { Connections } from "@usher.so/shared";
 
 // const formatQs = (o: Record<string, string>) => {
 // 	const searchParams = new URLSearchParams(o);
@@ -93,13 +94,15 @@ export const partnerships = () => ({
 export const referrals = () => ({
 	post: (
 		partnership: string,
-		wallet?: string
+		wallet: string,
+		connection: Connections
 	): Promise<{ success: boolean; data?: Referral }> => {
 		return request
 			.post(`referrals`, {
 				json: {
 					partnership,
-					wallet
+					wallet,
+					connection
 				}
 			})
 			.json();
@@ -160,28 +163,36 @@ export const redirects = () => {
 	return {
 		post: (
 			linkId: string,
-			connection: Connections,
-			address: string
+			chain: Chains,
+			address: string,
+			connection: Connections
 		): Promise<{ success: boolean }> => {
 			return request
 				.post(`collections/${linkId}/redirects`, {
-					json: { connection, address }
+					json: { chain, address, connection }
 				})
 				.json();
 		}
 	};
 };
 
-export const collections = () => {
-	// const req = getAuthRequest(authToken);
+export const collections = (authToken: string) => {
+	const req = getAuthRequest(authToken);
 	return {
 		get: (): Promise<{ success: boolean; data: LinkStats[] }> => {
-			return request.get(`collections`).json();
+			return req.get(`collections`).json();
 		},
-		getById: (
+		getById: async (
 			id: string
-		): Promise<{ success: boolean; data: CollectionRecord[] }> => {
-			return request.get(`collections/${id}`).json();
+		): Promise<{ success: boolean; data: LinkConnection[] }> => {
+			const json = await req.get(`collections/${id}`).json<{
+				success: boolean;
+				data: LinkConnection[];
+			}>();
+			return camelcaseKeys(json, { deep: true });
+		},
+		post: async (id: string): Promise<{ success: boolean }> => {
+			return req.post(`collections`, { json: { linkId: id } }).json();
 		}
 	};
 };

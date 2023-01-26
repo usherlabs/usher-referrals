@@ -1,33 +1,14 @@
 import { css } from "@linaria/core";
 import { Label, Pane, Table, Text } from "evergreen-ui";
-import { useQuery } from "react-query";
 import { format } from "timeago.js";
 
-import * as api from "@/api";
+import { useCollections } from "@/hooks/use-collections";
 import pascalCase from "@/utils/pascal-case";
-import { CollectionRecord } from "../../programs/collections/types";
 
-type Props = {
-	linkId: string;
-};
+type Props = {};
 
-const getCollection = async (
-	id: string
-): Promise<CollectionRecord[] | null> => {
-	const response = await api.collections().getById(id);
-
-	if (!response.success) {
-		return null;
-	}
-
-	return response.data;
-};
-
-const LinkVisitorsList: React.FC<Props> = ({ linkId }) => {
-	const { data: hits } = useQuery({
-		queryKey: ["collection", linkId],
-		queryFn: async () => (await getCollection(linkId)) || []
-	});
+const LinkVisitorsList: React.FC<Props> = () => {
+	const { connections } = useCollections();
 
 	return (
 		<Pane flex="1" overflow="hidden">
@@ -79,7 +60,7 @@ const LinkVisitorsList: React.FC<Props> = ({ linkId }) => {
 						}
 					`}
 				>
-					{hits?.map((hit) => (
+					{connections?.map((hit) => (
 						<Table.Row key={hit.id} height={50} fontSize={16} fontWeight={400}>
 							<Table.Cell flexGrow={2}>
 								<Text
@@ -89,14 +70,14 @@ const LinkVisitorsList: React.FC<Props> = ({ linkId }) => {
 										word-wrap: break-word;
 									`}
 								>
-									{hit.address || "N/A"}
+									{hit.address}
 								</Text>
 							</Table.Cell>
 							<Table.Cell flexGrow={1}>
-								<Text>{format(hit.lastActivityAt)}</Text>
+								<Text>{format(hit.timestamp)}</Text>
 							</Table.Cell>
 							<Table.Cell flexGrow={1}>
-								<Text>{pascalCase(hit.connection) || "N/A"}</Text>
+								<Text>{pascalCase(hit.connection)}</Text>
 							</Table.Cell>
 						</Table.Row>
 					))}

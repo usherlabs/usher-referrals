@@ -1,6 +1,6 @@
 import { ceramic } from "@/utils/ceramic-client";
 import { TileDocument } from "@ceramicnetwork/stream-tile";
-import { Connections } from "@usher.so/shared";
+import { Chains, Connections } from "@usher.so/shared";
 import { Pane } from "evergreen-ui";
 import Image from "next/image";
 import { useRouter } from "next/router";
@@ -40,11 +40,11 @@ const LinkPage: React.FC = () => {
 	}, [id]);
 
 	const onWalletConnect = useCallback(
-		async (conection: Connections, address: string) => {
-			api.redirects().post(id, conection, address);
+		async (chain: Chains, address: string, conection: Connections) => {
+			const result = await api.redirects().post(id, chain, address, conection);
 
-			if (link) {
-				window.location.replace(link?.destination_url);
+			if (link && result.success) {
+				window.location.replace(link.destination_url);
 			}
 		},
 		[link]

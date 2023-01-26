@@ -1,14 +1,16 @@
+import { Chains, Connections } from "@usher.so/shared";
 import cors from "cors";
-import cuid from "cuid";
 import { z } from "zod";
 
-import { dummyData, LinkRedirect } from "@/programs/collections/types";
+import { createLinkConnection } from "@/server/connections";
+import { incrementLinkRedirects } from "@/server/link";
 import { expressMiddleware, useRouteHandler } from "@/server/middleware";
-import { Connections } from "@usher.so/shared";
+import { createWallet, fetchWallet, updateWallet } from "@/server/wallet";
 
 const postSchema = z.object({
-	connection: z.nativeEnum(Connections),
-	address: z.string()
+	chain: z.nativeEnum(Chains),
+	address: z.string(),
+	connection: z.nativeEnum(Connections)
 });
 
 const handler = useRouteHandler();
@@ -30,26 +32,29 @@ handler.router
 				success: false
 			});
 		}
+		const { chain, address, connection } = body;
 
 		try {
-			const { id: linkId } = req.query;
-			if (typeof linkId !== "string") {
+			const { id: linkkey } = req.query;
+			if (typeof linkkey !== "string") {
 				throw new Error("id is not a string");
 			}
 
-			const redirect: LinkRedirect = {
-				id: cuid(),
-				linkId,
-				connection: body.connection,
-				address: body.address,
-				lastActivityAt: new Date().getTime()
-			};
+			let wallet = await fetchWallet(chain, address);
+			if (!wallet) {
+				wallet = await createWallet(chain, address, [connection]);
+			} else if (!wallet.connections.includes(connection)) {
+				wallet = await updateWallet(chain, address, [
+					...wallet.connections,
+					connection
+				]);
+			}
 
-			dummyData.redirects.push(redirect);
+			await createLinkConnection(linkkey, wallet._key, connection);
+			await incrementLinkRedirects(linkkey);
 
 			return res.json({
-				success: true,
-				data: redirect
+				success: true
 			});
 		} catch (e) {
 			req.log.error(e);

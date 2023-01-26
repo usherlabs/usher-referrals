@@ -1,13 +1,14 @@
+import { UilLockOpenAlt } from "@iconscout/react-unicons";
+import { Chains, Connections, Wallet } from "@usher.so/shared";
+import React, { useCallback, useState } from "react";
+
 import ArConnectIcon from "@/assets/icon/arconnect.svg";
 import CoinbaseWalletIcon from "@/assets/icon/coinbasewallet.svg";
 import MetaMaskIcon from "@/assets/icon/metamask.svg";
 import WalletConnectIcon from "@/assets/icon/walletconnect.svg";
 import { useUser } from "@/hooks/";
-import { Chains, Connections, Wallet } from "@usher.so/shared";
 import { ProviderLabel } from "@/utils/onboard";
-import { UilLockOpenAlt } from "@iconscout/react-unicons";
 import { Pane } from "evergreen-ui";
-import React, { useCallback, useState } from "react";
 import { WalletConnectButton } from "./WalletConnectButton";
 
 export type Props = {
@@ -68,6 +69,7 @@ const WalletConnect: React.FC<Props> = ({
 		<Pane display="flex" flexDirection="column">
 			{!hide.includes(Connections.ARCONNECT) && (
 				<WalletConnectButton
+					chain={Chains.ARWEAVE}
 					connection={Connections.ARCONNECT}
 					text="ArConnect"
 					icon={ArConnectIcon}
@@ -81,6 +83,7 @@ const WalletConnect: React.FC<Props> = ({
 			)}
 			{!hide.includes(Connections.METAMASK) && (
 				<WalletConnectButton
+					chain={Chains.ETHEREUM}
 					connection={Connections.METAMASK}
 					text="MetaMask"
 					icon={MetaMaskIcon}
@@ -94,6 +97,7 @@ const WalletConnect: React.FC<Props> = ({
 			)}
 			{!hide.includes(Connections.WALLETCONNECT) && (
 				<WalletConnectButton
+					chain={Chains.ETHEREUM}
 					connection={Connections.WALLETCONNECT}
 					text="WalletConnect"
 					icon={WalletConnectIcon}
@@ -107,6 +111,7 @@ const WalletConnect: React.FC<Props> = ({
 			)}
 			{!hide.includes(Connections.COINBASEWALLET) && (
 				<WalletConnectButton
+					chain={Chains.ETHEREUM}
 					connection={Connections.COINBASEWALLET}
 					text="CoinbaseWallet"
 					icon={CoinbaseWalletIcon}
@@ -120,6 +125,7 @@ const WalletConnect: React.FC<Props> = ({
 			)}
 			{!hide.includes(Connections.MAGIC) && (
 				<WalletConnectButton
+					chain={Chains.ETHEREUM}
 					connection={Connections.MAGIC}
 					text="Email, SMS, and more"
 					icon={<UilLockOpenAlt size="28" />}

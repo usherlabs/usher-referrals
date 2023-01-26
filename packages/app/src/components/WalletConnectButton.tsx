@@ -21,6 +21,7 @@ import { browserName } from "react-device-detect";
 import * as uint8arrays from "uint8arrays";
 
 type Props = {
+	chain: Chains;
 	connection: Connections;
 	text: string;
 	icon: JSX.Element | any;
@@ -28,13 +29,15 @@ type Props = {
 	signingMessage: string;
 	isConnecting?: boolean;
 	onConnect: (
-		connection: Connections,
+		chain: Chains,
 		address: string,
+		connection: Connections,
 		signature: string
 	) => Promise<void>;
 };
 
 export const WalletConnectButton = ({
+	chain,
 	connection,
 	text,
 	icon,
@@ -220,7 +223,7 @@ export const WalletConnectButton = ({
 			if (!signedMessage) {
 				signMessage();
 			} else {
-				onConnect(connection, arweaveWallet, signedMessage);
+				onConnect(chain, arweaveWallet, connection, signedMessage);
 			}
 		} else {
 			if (!connectedEthChain || !ethWallet) {
@@ -237,7 +240,12 @@ export const WalletConnectButton = ({
 			} else {
 				// TODO: Investigate if `toLowerCase()` is really needed here
 				const [account] = ethWallet.accounts;
-				onConnect(connection, account.address.toLowerCase(), signedMessage);
+				onConnect(
+					chain,
+					account.address.toLowerCase(),
+					connection,
+					signedMessage
+				);
 			}
 		}
 	}, [isLoading, connectedEthChain, ethWallet, signedMessage, signMessage]);

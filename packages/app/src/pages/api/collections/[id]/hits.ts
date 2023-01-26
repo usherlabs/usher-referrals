@@ -1,7 +1,6 @@
 import cors from "cors";
-import cuid from "cuid";
 
-import { dummyData, LinkHit } from "@/programs/collections/types";
+import { incrementLinkHits } from "@/server/link";
 import { expressMiddleware, useRouteHandler } from "@/server/middleware";
 
 const handler = useRouteHandler();
@@ -21,17 +20,10 @@ handler.router
 				throw new Error("id is not a string");
 			}
 
-			const hit: LinkHit = {
-				id: cuid(),
-				linkId,
-				hitAt: new Date().getTime()
-			};
-
-			dummyData.hits.push(hit);
+			await incrementLinkHits(linkId);
 
 			return res.json({
-				success: true,
-				data: hit
+				success: true
 			});
 		} catch (e) {
 			req.log.error(e);
