@@ -1,5 +1,13 @@
 import { css } from "@linaria/core";
-import { Button, Pane, SideSheet, Text, TextInput } from "evergreen-ui";
+import {
+	Button,
+	Heading,
+	Pane,
+	SideSheet,
+	Spinner,
+	Text,
+	TextInput
+} from "evergreen-ui";
 import pluralize from "pluralize";
 import { ChangeEvent, useCallback, useState } from "react";
 
@@ -61,7 +69,20 @@ const Collections: React.FC<Props> = () => {
 	}, []);
 
 	if (isLoading) {
-		return <Text>Is Loading</Text>;
+		return (
+			<Pane
+				height="100%"
+				display="flex"
+				alignItems="center"
+				justifyContent="center"
+				overflow="hidden"
+			>
+				<Spinner size={24} marginRight={10} />
+				<Heading is="h4" size={600} fontWeight={900}>
+					Loading Links...
+				</Heading>
+			</Pane>
+		);
 	}
 
 	return (
