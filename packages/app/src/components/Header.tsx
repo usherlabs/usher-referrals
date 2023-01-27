@@ -334,6 +334,7 @@ const Header: React.FC<Props> = ({
 									width: 48px;
 									padding: 0px;
 									margin-bottom: 8px;
+									box-shadow: none !important;
 								}
 							`}
 						>
