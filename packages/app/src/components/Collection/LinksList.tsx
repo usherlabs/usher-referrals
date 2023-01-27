@@ -2,6 +2,7 @@ import { css } from "@linaria/core";
 import date from "date-and-time";
 import { Pane, Text } from "evergreen-ui";
 
+import { FitText } from "@/components/TextFit";
 import { useCollections } from "@/hooks/use-collections";
 import { Link } from "@/programs/collections/types";
 import { getCollectionLink } from "@/utils/get-collection-link";
@@ -56,18 +57,9 @@ const LinksList: React.FC<Props> = ({ onSelect }) => {
 						alignItems="flex-end"
 						justifyContent="space-between"
 					>
-						<Text
-							marginRight="12px"
-							fontSize="16px"
-							color="#2C9CF2"
-							overflow="hidden"
-							className={css`
-								overflow-wrap: break-word;
-								word-wrap: break-word;
-							`}
-						>
-							{getCollectionLink(link.id)}
-						</Text>
+						<FitText marginRight="12px" fontSize="16px" color="#2C9CF2">
+							{getCollectionLink(link.id, { removeProto: true })}
+						</FitText>
 						<LinkChart link={link} isActive={link.id === currentLink?.id} />
 					</Pane>
 				</Pane>
