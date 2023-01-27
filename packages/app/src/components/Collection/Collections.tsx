@@ -134,17 +134,18 @@ const Collections: React.FC<Props> = () => {
 							<LinksList onSelect={handleSelect} />
 						</Pane>
 					)}
-					{mode === Mode.Details && currentLink && (
-						<Pane
-							flex="70%"
-							display="flex"
-							flexDirection="column"
-							overflow="hidden"
-						>
-							<LinkDetails onEditorClose={() => handleLinkEditorClose()} />
-							<LinkVisitorsList />
-						</Pane>
-					)}
+					{(windowWidth > Breakpoints.xLarge || mode === Mode.Details) &&
+						currentLink && (
+							<Pane
+								flex="70%"
+								display="flex"
+								flexDirection="column"
+								overflow="hidden"
+							>
+								<LinkDetails onEditorClose={() => handleLinkEditorClose()} />
+								<LinkVisitorsList />
+							</Pane>
+						)}
 				</Pane>
 			)}
 			<SideSheet
