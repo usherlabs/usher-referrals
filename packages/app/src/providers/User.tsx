@@ -392,9 +392,9 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 						fetchedWallets.push(wallet);
 					}
 				});
-				if (wallets.length > 0) {
-					break;
-				}
+				// if (wallets.length > 0) {
+				// 	break;
+				// }
 			}
 
 			console.log("Wallets loaded. Fetching verifications ...", fetchedWallets);
