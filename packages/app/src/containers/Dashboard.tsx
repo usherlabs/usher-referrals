@@ -44,7 +44,7 @@ const loadingMessages = [
 let loadingMessageIndex = 0;
 
 const HEADER_HEIGHT = 70 as const;
-const SIDEMENU_WIDTH = 356 as const;
+const SIDEMENU_WIDTH = 280 as const;
 
 const DashboardContainer: React.FC<Props> = ({ children }) => {
 	const { colors } = useTheme();
