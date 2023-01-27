@@ -87,7 +87,7 @@ const Collections: React.FC<Props> = () => {
 
 	return (
 		<>
-			<Pane display="flex" alignItems="center" marginY="20px">
+			<Pane display="flex" alignItems="center" marginY="20px" gap="15px">
 				{(windowWidth > Breakpoints.xLarge || mode === Mode.List) && (
 					<>
 						{links && links.length > 0 && (
@@ -104,12 +104,7 @@ const Collections: React.FC<Props> = () => {
 								setNewLinkDestinationUrl(e.target.value)
 							}
 						/>
-						<Button
-							appearance="primary"
-							size="large"
-							marginLeft="15px"
-							onClick={createNewLink}
-						>
+						<Button appearance="primary" size="large" onClick={createNewLink}>
 							Create Link
 						</Button>
 					</>
