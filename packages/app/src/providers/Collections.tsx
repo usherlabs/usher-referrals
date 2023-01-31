@@ -94,7 +94,7 @@ export const CollectionsContextProvider: React.FC<Props> = ({ children }) => {
 			const model = new DataModel({ ceramic, aliases: modelAliases });
 			const store = new DIDDataStore({ ceramic, model });
 
-			const { ids } = (await store.get(model.aliases.definitions.LinksDef)) || {
+			const { ids } = (await store.get(model.aliases.definitions.linkdef)) || {
 				ids: []
 			};
 
@@ -174,7 +174,7 @@ export const CollectionsContextProvider: React.FC<Props> = ({ children }) => {
 			const model = new DataModel({ ceramic, aliases: modelAliases });
 			const store = new DIDDataStore({ ceramic, model });
 
-			const linkIds = (await store.get(model.aliases.definitions.LinksDef)) || {
+			const linkIds = (await store.get(model.aliases.definitions.linkdef)) || {
 				ids: []
 			};
 
@@ -196,7 +196,7 @@ export const CollectionsContextProvider: React.FC<Props> = ({ children }) => {
 			);
 
 			linkIds.ids.push(createdLink.id.toString());
-			await store.set(model.aliases.definitions.LinksDef, linkIds);
+			await store.set(model.aliases.definitions.linkdef, linkIds);
 
 			await api
 				.collections(await auth.getAuthToken())
