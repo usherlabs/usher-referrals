@@ -1,5 +1,13 @@
 import { css } from "@linaria/core";
-import { Button, Pane, SideSheet, Text, TextInput } from "evergreen-ui";
+import {
+	Button,
+	Heading,
+	Pane,
+	SideSheet,
+	Spinner,
+	Text,
+	TextInput
+} from "evergreen-ui";
 import pluralize from "pluralize";
 import { ChangeEvent, useCallback, useState } from "react";
 
@@ -61,12 +69,25 @@ const Collections: React.FC<Props> = () => {
 	}, []);
 
 	if (isLoading) {
-		return <Text>Is Loading</Text>;
+		return (
+			<Pane
+				height="100%"
+				display="flex"
+				alignItems="center"
+				justifyContent="center"
+				overflow="hidden"
+			>
+				<Spinner size={24} marginRight={10} />
+				<Heading is="h4" size={600} fontWeight={900}>
+					Loading Links...
+				</Heading>
+			</Pane>
+		);
 	}
 
 	return (
 		<>
-			<Pane display="flex" alignItems="center" marginY="20px">
+			<Pane display="flex" alignItems="center" marginY="20px" gap="15px">
 				{(windowWidth > Breakpoints.xLarge || mode === Mode.List) && (
 					<>
 						{links && links.length > 0 && (
@@ -83,12 +104,7 @@ const Collections: React.FC<Props> = () => {
 								setNewLinkDestinationUrl(e.target.value)
 							}
 						/>
-						<Button
-							appearance="primary"
-							size="large"
-							marginLeft="15px"
-							onClick={createNewLink}
-						>
+						<Button appearance="primary" size="large" onClick={createNewLink}>
 							Create Link
 						</Button>
 					</>
