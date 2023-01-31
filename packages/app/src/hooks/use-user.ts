@@ -7,6 +7,7 @@ function useUser() {
 		auth,
 		user,
 		loading,
+		isAuthenticated,
 		connect,
 		disconnect,
 		setCaptcha,
@@ -19,6 +20,7 @@ function useUser() {
 		auth,
 		user,
 		isLoading: loading,
+		isAuthenticated,
 		actions: {
 			connect,
 			disconnect,

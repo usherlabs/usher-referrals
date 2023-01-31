@@ -1,0 +1,31 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"title": "Link",
+	"type": "object",
+	"properties": {
+		"destination_url": {
+			"type": "string",
+			"description": "Destination URL"
+		},
+		"title": {
+			"type": "string",
+			"description": "Title"
+		},
+		"connections": {
+			"type": "string",
+			"description": "List of connection types available to connect on the Collection Invite Link page"
+		},
+		"mask": {
+			"type": "string",
+			"description": "References to a Partnership or Collection Ceramic Tile ID"
+		},
+		"isSkippable": {
+			"type": "boolean",
+			"description": " Whether or not the Connections can be skipped"
+		},
+		"isArchived": {
+			"type": "boolean",
+			"description": " Whether or not the Link is archived"
+		}
+	}
+}

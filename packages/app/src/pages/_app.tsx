@@ -3,7 +3,7 @@ import "es6-shim";
 import React, { useEffect } from "react";
 import { AppProps } from "next/app";
 import { DefaultSeo, NextSeoProps } from "next-seo";
-import { ThemeProvider, mergeTheme, defaultTheme } from "evergreen-ui";
+import { ThemeProvider } from "evergreen-ui";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { useRouter } from "next/router";
 import Script from "next/script";
@@ -19,6 +19,7 @@ import { isProd, mauticOrigin } from "@/env-config";
 import { AppEvents, events } from "@/utils/events";
 
 import { initOnboard } from "@/utils/onboard";
+import { theme } from "@/themes/theme";
 
 type Props = AppProps & {
 	pageProps: {
@@ -36,30 +37,10 @@ if (!isProd) {
 
 const queryClient = new QueryClient();
 
-const dynamicStaticPathnames = ["/inv/[id]"];
+const dynamicStaticPathnames = ["/inv/[id]", "/link/[id]"];
 
 const App = ({ Component, pageProps }: Props) => {
 	const router = useRouter();
-
-	const theme = mergeTheme(defaultTheme, {
-		// See https://github.com/segmentio/evergreen/blob/master/src/themes/deprecated/foundational-styles/fontFamilies.js
-		fontFamilies: {
-			/**
-			 * @property {string} display - Used for headings larger than 20px.
-			 */
-			display: `"DM Sans", "SF UI Display", -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"`,
-
-			/**
-			 * @property {string} ui - Used for text and UI (which includes almost anything).
-			 */
-			ui: `"DM Sans", "SF UI Text", -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"`,
-
-			/**
-			 * @property {string} mono - Used for code and sometimes numbers in tables.
-			 */
-			mono: `"DM Sans", "SF Mono", "Monaco", "Inconsolata", "Fira Mono", "Droid Sans Mono", "Source Code Pro", monospace`
-		}
-	});
 
 	useEffect(() => {
 		events.emit("app"); // an event to indicate the app has loaded.

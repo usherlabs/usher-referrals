@@ -1,31 +1,35 @@
-import React, { useEffect, useState, useCallback } from "react";
 import Image from "next/image";
-import {
-	Pane,
-	Heading,
-	Button,
-	useTheme,
-	Label,
-	Spinner,
-	Popover,
-	Menu,
-	Position,
-	LogOutIcon,
-	CogIcon,
-	MenuIcon,
-	Badge
-} from "evergreen-ui";
+import React, { useCallback, useEffect, useState } from "react";
+
 import { UilUserCircle, UilWallet } from "@iconscout/react-unicons";
 import { css, cx } from "@linaria/core";
+import {
+	Badge,
+	Button,
+	CogIcon,
+	Heading,
+	CrossIcon,
+	Label,
+	LogOutIcon,
+	Menu,
+	MenuIcon,
+	Pane,
+	Popover,
+	Position,
+	SideSheet,
+	Spinner,
+	useTheme
+} from "evergreen-ui";
 import { useRouter } from "next/router";
 
-import Anchor from "@/components/Anchor";
-import { useUser } from "@/hooks";
-import useRedir from "@/hooks/use-redir";
-import * as mediaQueries from "@/utils/media-queries";
-import SideSheet from "@/components/SideSheet";
-
 import LogoImage from "@/assets/logo/Logo-Icon.svg";
+import BackgroundImage from "@/assets/side-menu-background.jpg";
+import Anchor from "@/components/Anchor";
+import { useUser, useWindowSize } from "@/hooks";
+import useRedir from "@/hooks/use-redir";
+import { menu, MenuItem } from "@/menu";
+import { Breakpoints } from "@/types";
+import * as mediaQueries from "@/utils/media-queries";
 
 type Props = {
 	height: number;
@@ -35,22 +39,6 @@ type Props = {
 	onLogoutClick: () => void;
 };
 
-const menu = [
-	{
-		href: "/",
-		text: "My Partnerships"
-	},
-	{
-		href: "/explore",
-		text: "Explore"
-	},
-	{
-		href: "https://go.usher.so/register",
-		text: "Start a Campaign",
-		external: true
-	}
-];
-
 const Header: React.FC<Props> = ({
 	height,
 	walletCount,
@@ -59,6 +47,7 @@ const Header: React.FC<Props> = ({
 	onLogoutClick,
 	...props
 }) => {
+	const windowSize = useWindowSize();
 	const { colors } = useTheme();
 	const {
 		user: { wallets },
@@ -68,6 +57,59 @@ const Header: React.FC<Props> = ({
 	const [showMobileMenu, setShowMobileMenu] = useState(false);
 	const loginUrl = useRedir("/login");
 	const router = useRouter();
+	const { isAuthenticated } = useUser();
+
+	const buildMenu = useCallback(
+		(items: MenuItem[], isSmall = false) => {
+			return items
+				.filter((item) => !item.isSecured || isAuthenticated)
+				.map((item) => (
+					<Anchor
+						key={item.text}
+						href={item.href}
+						external={item.isExternal || false}
+					>
+						<Button
+							appearance="minimal"
+							borderRadius="10px"
+							boxShadow="none !important"
+							width="100%"
+							height={isSmall ? 42 : 52}
+							display="flex"
+							justifyContent="start"
+							className={cx(
+								css`
+									:hover label {
+										color: #000 !important;
+									}
+								`,
+								currentPathname === item.href
+									? css`
+											 {
+												background-color: #ffffff;
+											}
+									  `
+									: ""
+							)}
+							iconBefore={item.icon}
+						>
+							<Label
+								fontSize="22px"
+								fontWeight={400}
+								color="#7F92A4"
+								pointerEvents="none"
+							>
+								{item.text}
+							</Label>
+						</Button>
+					</Anchor>
+				));
+		},
+		[currentPathname, isAuthenticated]
+	);
+
+	const mainMenu = buildMenu(menu.mainItems);
+	const footerMenu = buildMenu(menu.footerItems, true);
 
 	// Listen for route change and update the new url pathname
 	const onRouteChangeComplete = useCallback(
@@ -90,6 +132,12 @@ const Header: React.FC<Props> = ({
 			router.events.off("routeChangeComplete", onRouteChangeComplete);
 		};
 	}, []);
+
+	useEffect(() => {
+		if (showMobileMenu && windowSize.width > Breakpoints.large) {
+			setShowMobileMenu(false);
+		}
+	}, [windowSize]);
 
 	const menuButtonProps = {
 		appearance: "minimal",
@@ -115,50 +163,22 @@ const Header: React.FC<Props> = ({
 		</Button>
 	);
 
-	const MenuItems = menu.map((item) => (
-		<Anchor key={item.text} href={item.href} external={item.external || false}>
-			<Button
-				appearance="minimal"
-				height={height}
-				boxShadow="none !important"
-				position="relative"
-				className={cx(
-					css`
-						:hover label {
-							color: #000 !important;
-						}
-					`,
-					currentPathname === item.href
-						? css`
-							&:after {
-								content: "";
-								position: absolute;
-								background-color: #3366FF
-								left: 0;
-								right: 0;
-								bottom: 0;
-								height: 3px;
-							}
-						`
-						: ""
-				)}
-			>
-				<Label size={500} color={colors.gray800} pointerEvents="none">
-					{item.text}
-				</Label>
-			</Button>
-		</Anchor>
-	));
-
 	return (
-		<Pane width="100%" background="tint2" height={height} {...props}>
+		<Pane width="100%" height={height} {...props}>
 			<Pane
 				marginX="auto"
 				display="flex"
 				alignItems="center"
 				justifyContent="space-between"
 			>
-				<Anchor href="/">
+				<Anchor
+					href="/"
+					className={css`
+						${mediaQueries.gtLarge} {
+							display: none !important;
+						}
+					`}
+				>
 					<Pane
 						alignItems="center"
 						display="flex"
@@ -185,7 +205,7 @@ const Header: React.FC<Props> = ({
 								}
 							`}
 						>
-							Usher
+							usher
 						</Heading>
 						<Badge color="yellow" marginX={8}>
 							ALPHA
@@ -193,6 +213,7 @@ const Header: React.FC<Props> = ({
 					</Pane>
 				</Anchor>
 				<Pane
+					display="flex"
 					paddingX={16}
 					className={css`
 						${mediaQueries.isXSmall} {
@@ -200,16 +221,6 @@ const Header: React.FC<Props> = ({
 						}
 					`}
 				>
-					<Pane
-						className={css`
-							display: inline-block;
-							${mediaQueries.isLarge} {
-								display: none !important;
-							}
-						`}
-					>
-						{MenuItems}
-					</Pane>
 					{wallets.length === 0 ? (
 						<Anchor href={loginUrl}>{ProfileButton}</Anchor>
 					) : (
@@ -274,14 +285,33 @@ const Header: React.FC<Props> = ({
 				</Pane>
 			</Pane>
 			<SideSheet
+				width="100%"
 				isShown={showMobileMenu}
 				onCloseComplete={() => setShowMobileMenu(false)}
 				preventBodyScrolling
 			>
 				<Pane
+					width="100%"
+					height="100%"
+					position="absolute"
+					style={{
+						opacity: 0.3,
+						mixBlendMode: "color-burn",
+						backgroundSize: "614px",
+						backgroundPositionX: "530px",
+						backgroundPositionY: "-5px",
+						backgroundImage: `url(${BackgroundImage.src}`
+					}}
+				/>
+				<Pane
+					background="#0A1B30"
 					display="flex"
 					flexDirection="column"
+					justifyContent="space-between"
 					width="100%"
+					height="100%"
+					paddingY="1em"
+					paddingX="2em"
 					className={css`
 						button {
 							width: 100%;
@@ -291,7 +321,33 @@ const Header: React.FC<Props> = ({
 						}
 					`}
 				>
-					{MenuItems}
+					<Pane>
+						<Pane
+							display="flex"
+							justifyContent="flex-end"
+							className={css`
+								button {
+									display: flex;
+									justify-content: center;
+									aling-items: center;
+									height: 48px;
+									width: 48px;
+									padding: 0px;
+									margin-bottom: 8px;
+									box-shadow: none !important;
+								}
+							`}
+						>
+							<Button
+								appearance="minimal"
+								onClick={() => setShowMobileMenu(false)}
+							>
+								<CrossIcon size={36} color={colors.gray700} />
+							</Button>
+						</Pane>
+						{mainMenu}
+					</Pane>
+					<Pane>{footerMenu}</Pane>
 				</Pane>
 			</SideSheet>
 		</Pane>

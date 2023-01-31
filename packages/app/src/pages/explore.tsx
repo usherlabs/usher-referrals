@@ -1,14 +1,13 @@
-import { Pane, Heading } from "evergreen-ui";
+import { Pane } from "evergreen-ui";
 import camelcaseKeys from "camelcase-keys";
 import { aql } from "arangojs";
 import isEmpty from "lodash/isEmpty";
-import { css } from "@linaria/core";
 
 import CampaignCard from "@/components/CampaignCard";
 import { Campaign } from "@usher.so/campaigns";
 import { useSeedData } from "@/env-config";
 import { getArangoClient } from "@/utils/arango-client";
-import * as mediaQueries from "@/utils/media-queries";
+import PageHeader from "@/components/PageHeader";
 
 /**
  * TODO:
@@ -21,30 +20,11 @@ type ExploreProps = {
 
 const Explore: React.FC<ExploreProps> = ({ campaigns }) => {
 	return (
-		<Pane
-			display="flex"
-			alignItems="center"
-			flexDirection="column"
-			marginX="auto"
-			padding={48}
-			width="100%"
-			className={css`
-				${mediaQueries.isLarge} {
-					padding: 20px 10px !important;
-				}
-			`}
-		>
-			<Heading
-				is="h1"
-				size={900}
-				width="100%"
-				padding={16}
-				textAlign="left"
-				fontSize="2.5em"
-				marginBottom={24}
-			>
-				Explore Campaigns
-			</Heading>
+		<Pane display="flex" flexDirection="column" height="100vh" padding="40px">
+			<PageHeader
+				title="Explore Campaigns"
+				description="Explore and engage with Partnership Programs launched by Web3 Projects"
+			/>
 			<Pane width="100%" display="flex" flexWrap="wrap">
 				{campaigns.map((campaign) => {
 					return <CampaignCard campaign={campaign} key={campaign.id} />;
