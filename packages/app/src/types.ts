@@ -130,4 +130,5 @@ export interface IUserContext extends IUserActions {
 	user: User;
 	partnerships: Partnerships;
 	loading: boolean;
+	isAuthenticated: boolean;
 }

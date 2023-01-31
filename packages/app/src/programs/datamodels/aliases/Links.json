@@ -1,0 +1,10 @@
+{
+  "definitions": {
+    "LinksDef": "kjzl6cwe1jw146ex5e13mqltdbqyrr7evziiudvezaiiywob5uc5742zr64sj5b"
+  },
+  "schemas": {
+    "Link": "ceramic://k3y52l7qbv1frxx355nsy6km5tkcrrgtpmc6cm4ahyd2dtnx65glk6pemy6ch5xxc",
+    "Links": "ceramic://k3y52l7qbv1frxlghnnuf1hry5q8nq34d24o3einmm8bzav03x1vp9obztbf0dpfk"
+  },
+  "tiles": {}
+}

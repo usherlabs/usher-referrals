@@ -34,5 +34,6 @@ export const ethereumProviderUrl =
 
 /* ========== SECURITY ========== */
 export const inviteOrigin = process.env.NEXT_PUBLIC_INVITE_ORIGIN;
+export const collectionOrigin = process.env.NEXT_PUBLIC_COLLECTION_ORIGIN;
 
 export const botdPublicKey = process.env.NEXT_PUBLIC_BOTD_PUBLIC_KEY;

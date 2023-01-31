@@ -1,23 +1,43 @@
+import { Heading, Pane, Strong, Text } from "evergreen-ui";
+import { useCallback, useMemo } from "react";
+
 import ArConnectIcon from "@/assets/icon/arconnect.svg";
 import CoinbaseWalletIcon from "@/assets/icon/coinbasewallet.svg";
 import MetaMaskIcon from "@/assets/icon/metamask.svg";
 import WalletConnectIcon from "@/assets/icon/walletconnect.svg";
-import { Chains } from "@usher.so/shared";
 import { ProviderLabel } from "@/utils/onboard";
-import { Heading, Pane, Strong, Text } from "evergreen-ui";
-import { useMemo } from "react";
+import { Chains, Connections } from "@usher.so/shared";
 import { WalletConnectButton } from "./WalletConnectButton";
 
 type Props = {
 	domain: string;
-	chain: Chains;
-	onConnect: (address: string, signature: string) => Promise<void>;
+	chain?: Chains;
+	connections?: Connections[];
+	onConnect: (
+		chian: Chains,
+		address: string,
+		connection: Connections,
+		signature: string
+	) => Promise<void>;
 };
 
-const WalletInvite = ({ domain, chain, onConnect }: Props) => {
+/**
+ * Shows list of buttons to connect a wallet
+ * @param domain destination domain to show in the prompt
+ * @param chain if specified, shows all the wallets applicable to the Chain
+ * @param connections if specified, shows the list of the wallets no mattar the Chain
+ * @callback onConnect fires when a button clicked
+ */
+const WalletInvite = ({ domain, chain, connections, onConnect }: Props) => {
 	const signingMessage = useMemo(
 		() => `Please connect your wallet to continue to ${domain}`,
 		[domain]
+	);
+
+	const isApplicable = useCallback(
+		(buttonChain: Chains, buttonConnection: Connections) =>
+			chain === buttonChain || connections?.includes(buttonConnection),
+		[chain, connections]
 	);
 
 	return (
@@ -40,40 +60,52 @@ const WalletInvite = ({ domain, chain, onConnect }: Props) => {
 				Please connect your wallet to continue to <Strong>{domain}</Strong>
 			</Text>
 			<Pane background="tint2" padding={16} margin={12} borderRadius={8}>
-				{chain === Chains.ARWEAVE && (
-					<WalletConnectButton
-						text="ArConnect"
-						icon={ArConnectIcon}
-						providerLabel={ProviderLabel.ArConnect}
-						signingMessage={signingMessage}
-						onConnect={onConnect}
-					/>
-				)}
-				{chain === Chains.ETHEREUM && (
-					<Pane display="flex" flexDirection="column">
+				<Pane display="flex" flexDirection="column">
+					{isApplicable(Chains.ARWEAVE, Connections.ARCONNECT) && (
 						<WalletConnectButton
+							chain={Chains.ARWEAVE}
+							connection={Connections.ARCONNECT}
+							text="ArConnect"
+							icon={ArConnectIcon}
+							providerLabel={ProviderLabel.ArConnect}
+							signingMessage={signingMessage}
+							onConnect={onConnect}
+						/>
+					)}
+					{isApplicable(Chains.ETHEREUM, Connections.METAMASK) && (
+						<WalletConnectButton
+							chain={Chains.ETHEREUM}
+							connection={Connections.METAMASK}
 							text="MetaMask"
 							icon={MetaMaskIcon}
 							providerLabel={ProviderLabel.MetaMask}
 							signingMessage={signingMessage}
 							onConnect={onConnect}
 						/>
+					)}
+					{isApplicable(Chains.ETHEREUM, Connections.WALLETCONNECT) && (
 						<WalletConnectButton
+							chain={Chains.ETHEREUM}
+							connection={Connections.WALLETCONNECT}
 							text="WalletConnect"
 							icon={WalletConnectIcon}
 							providerLabel={ProviderLabel.WalletConnect}
 							signingMessage={signingMessage}
 							onConnect={onConnect}
 						/>
+					)}
+					{isApplicable(Chains.ETHEREUM, Connections.COINBASEWALLET) && (
 						<WalletConnectButton
+							chain={Chains.ETHEREUM}
+							connection={Connections.COINBASEWALLET}
 							text="CoinbaseWallet"
 							icon={CoinbaseWalletIcon}
 							providerLabel={ProviderLabel.CoinbaseWallet}
 							signingMessage={signingMessage}
 							onConnect={onConnect}
 						/>
-					</Pane>
-				)}
+					)}
+				</Pane>
 			</Pane>
 		</Pane>
 	);

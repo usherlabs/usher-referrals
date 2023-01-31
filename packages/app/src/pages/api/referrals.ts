@@ -1,28 +1,37 @@
 import { TileLoader } from "@glazed/tile-loader";
+import { Campaign } from "@usher.so/campaigns";
 import { WalletAliases } from "@usher.so/datamodels";
+import { CampaignReference } from "@usher.so/partnerships";
+import { Connections } from "@usher.so/shared";
 import { aql } from "arangojs";
+import camelcaseKeys from "camelcase-keys";
+import cuid from "cuid";
 import { Base64 } from "js-base64";
 import { parseCookies, setCookie } from "nookies";
 import * as uint8arrays from "uint8arrays";
 import { z } from "zod";
-import camelcaseKeys from "camelcase-keys";
 
 import { REFERRAL_TOKEN_DELIMITER } from "@/constants";
 import { getAppDID } from "@/server/did";
 import { useRouteHandler } from "@/server/middleware";
 import { indexPartnership } from "@/server/partnership";
-import { CampaignReference } from "@usher.so/partnerships";
+import {
+	createWallet,
+	fetchWallet,
+	isWalletReferred,
+	referWallet,
+	updateWallet
+} from "@/server/wallet";
 import { ApiRequest, ApiResponse } from "@/types";
 import { getArangoClient } from "@/utils/arango-client";
 import { ceramic } from "@/utils/ceramic-client";
-import cuid from "cuid";
-import { Campaign } from "@usher.so/campaigns";
 
 const handler = useRouteHandler();
 
 const schema = z.object({
 	partnership: z.string(),
-	wallet: z.string().optional()
+	wallet: z.string().optional(),
+	connection: z.nativeEnum(Connections)
 });
 
 const loader = new TileLoader({ ceramic });
@@ -59,76 +68,6 @@ function setPartnershipCookie(
 }
 
 /**
- * Fetches a Wallet Id from arangodb database
- * @param chain
- * @param address
- * @returns Wallet Id stored in the database. `undefined` if Wallet not found.
- */
-async function fetchWalletId(chain: string, address: string): Promise<string> {
-	const cursor = await arango.query(aql`
-		RETURN DOCUMENT(Wallets, ${[chain, address].join(":")})._id
-	`);
-
-	const result = await cursor.all();
-	return result[0];
-}
-
-/**
- * Saves a Wallet to the database
- * @param chain Wallet's chain
- * @param address Wallet's address
- * @returns Wallets Id stored in the database
- */
-async function saveWallet(chain: string, address: string): Promise<string> {
-	const cursor = await arango.query(aql`
-		INSERT {
-			_key: ${[chain, address].join(":")},
-			chain: ${chain},
-			address: ${address},
-			created_at: ${Date.now()}
-		} INTO Wallets OPTIONS { waitForSync: true }
-		RETURN NEW._id
-	`);
-
-	const result = await cursor.all();
-	return result[0];
-}
-
-/**
- * Checks if the Wallet is already referred by the Partnership.
- * @param walletId Wallet identifier in the database, i.e. `Wallets/[cahin]:[address]`
- * @param partnership Partnership identifier in the database, i.e. `[key]`
- * @returns `boolean`
- */
-async function isWalletReferred(
-	walletId: string,
-	partnership: string
-): Promise<boolean> {
-	const cursor = await arango.query(aql`
-		FOR referral IN Referrals
-		FILTER
-				referral._from == CONCAT("Partnerships/", ${partnership}) &&
-				referral._to == ${walletId}
-		RETURN referral
-	`);
-	return (await cursor.all()).length !== 0;
-}
-
-/**
- * Refers the Wallet to the Partnership.
- * @param walletId Wallet identifier in the database, i.e. `Wallets/[cahin]:[address]`
- * @param partnership Partnership identifier in the database, i.e. `[key]`
- */
-async function referWallet(walletId: string, partnership: string) {
-	await arango.query(aql`
-		INSERT {
-			_from: CONCAT("Partnerships/", ${partnership}),
-			_to: ${walletId}
-		} INTO Referrals
-	`);
-}
-
-/**
  * Increments number of hits of the Partnership
  * @param partnership Partnership identifier in the database, i.e. `[key]`
  */
@@ -153,7 +92,7 @@ handler.router.post(async (req, res) => {
 			success: false
 		});
 	}
-	const { partnership, wallet } = body;
+	const { partnership, wallet, connection } = body;
 	const [walletChain, walletAddress] = wallet ? wallet.split(":") : [];
 	const did = await getAppDID();
 
@@ -256,14 +195,18 @@ handler.router.post(async (req, res) => {
 
 	// Save user's wallet if any
 	if (wallet) {
-		let walletId = await fetchWalletId(walletChain, walletAddress);
-
-		if (!walletId) {
-			walletId = await saveWallet(walletChain, walletAddress);
+		let walletDoc = await fetchWallet(walletChain, walletAddress);
+		if (!walletDoc) {
+			walletDoc = await createWallet(walletChain, walletAddress, [connection]);
+		} else if (!walletDoc.connections.includes(connection)) {
+			walletDoc = await updateWallet(walletChain, walletAddress, [
+				...walletDoc.connections,
+				connection
+			]);
 		}
 
-		if (!(await isWalletReferred(walletId, partnership))) {
-			await referWallet(walletId, partnership);
+		if (!(await isWalletReferred(walletDoc._id, partnership))) {
+			await referWallet(walletDoc._id, partnership);
 		}
 	}
 

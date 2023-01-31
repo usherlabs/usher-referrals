@@ -21,7 +21,6 @@ import LogoutManager from "@/components/LogoutManager";
 import ProfileSettings from "@/components/ProfileSettings";
 import EmailCapture from "@/components/EmailCapture";
 import SideSheet from "@/components/SideSheet";
-import Footer from "@/components/Footer";
 import { hcaptchaSiteKey } from "@/env-config";
 import useRedir from "@/hooks/use-redir";
 import Captcha from "@/components/Captcha";
@@ -30,6 +29,7 @@ import * as api from "@/api";
 import handleException from "@/utils/handle-exception";
 import { userFetched } from "@/providers/User";
 import * as mediaQueries from "@/utils/media-queries";
+import SideMenu from "@/components/SideMenu";
 
 type Props = {
 	children: React.ReactNode;
@@ -44,6 +44,7 @@ const loadingMessages = [
 let loadingMessageIndex = 0;
 
 const HEADER_HEIGHT = 70 as const;
+const SIDEMENU_WIDTH = 280 as const;
 
 const DashboardContainer: React.FC<Props> = ({ children }) => {
 	const { colors } = useTheme();
@@ -228,20 +229,28 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 
 	return (
 		<>
-			<Pane>
+			<Pane
+				className={css`
+					${mediaQueries.gtLarge} {
+						flex-direction: row !important;
+					}
+				`}
+			>
 				{isPreloading && (
 					<Preloader message={loadingMessage || loadingMessages[0]} />
 				)}
+				<SideMenu width={SIDEMENU_WIDTH} />
 				<Pane
-					position="fixed"
-					left={0}
-					right={0}
 					top={0}
+					right={0}
 					height={HEADER_HEIGHT}
-					borderBottomWidth={2}
-					borderBottomColor={colors.gray300}
-					borderBottomStyle="solid"
-					zIndex={10}
+					className={css`
+						${mediaQueries.gtLarge} {
+							position: absolute !important;
+							margin-left: 0px !important;
+							padding: 20px !important;
+						}
+					`}
 				>
 					<Header
 						height={HEADER_HEIGHT}
@@ -252,16 +261,16 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 					/>
 				</Pane>
 				<Pane
-					display="flex"
-					flexDirection="column"
-					marginY="0"
-					marginX="auto"
-					minHeight="100vh"
-					position="relative"
-					paddingTop={HEADER_HEIGHT}
+					flex="1"
+					marginLeft={SIDEMENU_WIDTH}
+					className={css`
+						${mediaQueries.isLarge} {
+							margin-left: 0px !important;
+							padding: 10px !important;
+						}
+					`}
 				>
-					<Pane flex="1">{children}</Pane>
-					<Footer />
+					{children}
 				</Pane>
 			</Pane>
 			<SideSheet
