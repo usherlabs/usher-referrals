@@ -1,0 +1,5 @@
+{
+	"name": "Usher Collection Link Definition",
+	"description": "A Collection Link associated to a DID used by Usher.so",
+	"schema": "ceramic://"
+}
