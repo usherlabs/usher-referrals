@@ -2,6 +2,11 @@ type: graph
 action: modify
 name: Interactions
 edgedefinitions:
+  - collection: Connections
+    from:
+      - Links
+    to:
+      - Wallets
   - collection: Engagements
     from:
       - Dids
@@ -17,9 +22,4 @@ edgedefinitions:
       - Partnerships
     to:
       - Conversions
-      - Wallets
-  - collection: Connections
-    from:
-      - Links
-    to:
       - Wallets
