@@ -5275,10 +5275,10 @@
   resolved "https://registry.yarnpkg.com/@usher.so/auth/-/auth-0.0.3.tgz#ac074df261791bf0db636216171794cf2352b094"
   integrity sha512-tlPi6/rh9bW9QYKhc90Y3UxjHMnTOI9vSndK2q7yBB89TZtAKBQq4EqbPaX0bvmMOYbvH/QsddsDXVAUoDLBpQ==
 
-"@usher.so/campaigns@^0.0.1":
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/@usher.so/campaigns/-/campaigns-0.0.1.tgz#03df691ec829e3c293caad2fc97b4a3f2f40efb8"
-  integrity sha512-OyUMoTWSS1M2Fcfh3FISw8QifKe0bKOhgM/dAfMjVP2T/yQsHzdblu71PuGFvnZd9ISyq2QkbsZ0CFCE0K8ZXw==
+"@usher.so/campaigns@^0.0.3":
+  version "0.0.3"
+  resolved "https://registry.yarnpkg.com/@usher.so/campaigns/-/campaigns-0.0.3.tgz#8188c256a3a72c086b316f2450d4444b06d1c90a"
+  integrity sha512-SmiFK2dQRfaX+UouBarNYxGa9PhG9ylQM1P9wS5t5k9uQ/0Pv+I2lqzq+kutzboFZmML/xqlzL8KrpOrW23vGA==
 
 "@usher.so/datamodels@^0.0.2":
   version "0.0.2"
