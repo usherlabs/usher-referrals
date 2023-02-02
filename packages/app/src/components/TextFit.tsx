@@ -18,18 +18,27 @@ export const FitText: React.FC<Props> = ({ children: text, ...props }) => {
 
 	const result = useMemo(() => {
 		return visibleLength < text.length
-			? `${text.slice(0, visibleLength - 7)}...${text.slice(-4)}`
+			? `${text.slice(0, visibleLength - 6)}…${text.slice(-4)}`
 			: text;
 	}, [visibleLength]);
 
 	return (
-		<Pane display="flex" flexDirection="column" overflow="hidden">
-			<Text ref={ref} {...props} visibility="hidden" whiteSpace="nowrap">
+		<Pane
+			display="flex"
+			flexDirection="column"
+			overflow="hidden"
+			justifyContent="center"
+		>
+			<Text
+				ref={ref}
+				{...props}
+				visibility="hidden"
+				height="0"
+				whiteSpace="nowrap"
+			>
 				{text}
 			</Text>
-			<Text {...props} position="fixed">
-				{result}
-			</Text>
+			<Text {...props}>{result}</Text>
 		</Pane>
 	);
 };
