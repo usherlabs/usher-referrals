@@ -5,7 +5,7 @@ interface Props extends TextProps {
 	children: string;
 }
 
-export const FitText: React.FC<Props> = ({ children: text, ...props }) => {
+export const TextFit: React.FC<Props> = ({ children: text, ...props }) => {
 	const ref = useRef(null);
 	const [visibleLength, setVisibleLength] = useState(text.length);
 
@@ -18,7 +18,7 @@ export const FitText: React.FC<Props> = ({ children: text, ...props }) => {
 
 	const result = useMemo(() => {
 		return visibleLength < text.length
-			? `${text.slice(0, visibleLength - 6)}…${text.slice(-4)}`
+			? `${text.slice(0, visibleLength - 7)}…${text.slice(-4)}`
 			: text;
 	}, [visibleLength]);
 

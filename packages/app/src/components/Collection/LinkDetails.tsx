@@ -10,7 +10,7 @@ import { useCallback, useState } from "react";
 import CopyToClipboard from "react-copy-to-clipboard";
 
 import SideSheet from "@/components/SideSheet";
-import { FitText } from "@/components/TextFit";
+import { TextFit } from "@/components/TextFit";
 import { useCollections } from "@/hooks/use-collections";
 import { getCollectionLink } from "@/utils/get-collection-link";
 import LinkEditor from "./LinkEditor";
@@ -104,9 +104,9 @@ const LinkDetails: React.FC<Props> = ({ onEditorClose }) => {
 						borderRadius="8px"
 					>
 						<Pane display="flex" justifyContent="space-between" gap="1em">
-							<FitText fontSize="20px" fontWeight="500" color="#2C9CF2">
+							<TextFit fontSize="20px" fontWeight="500" color="#2C9CF2">
 								{getCollectionLink(currentLink.id, { removeProto: true })}
-							</FitText>
+							</TextFit>
 							<CopyToClipboard
 								text={getCollectionLink(currentLink.id)}
 								onCopy={onCopy}
@@ -128,9 +128,9 @@ const LinkDetails: React.FC<Props> = ({ onEditorClose }) => {
 							borderRadius="10px"
 						>
 							<UilCornerDownRight size="32px" color="#575D72" />
-							<FitText marginLeft="10px" fontSize="16px">
+							<TextFit marginLeft="10px" fontSize="16px">
 								{currentLink.destinationUrl}
-							</FitText>
+							</TextFit>
 						</Pane>
 					</Pane>
 					<SideSheet
