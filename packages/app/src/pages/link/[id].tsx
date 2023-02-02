@@ -44,7 +44,10 @@ const LinkPage: React.FC = () => {
 			const result = await api.redirects().post(id, chain, address, conection);
 
 			if (link && result.success) {
-				window.location.replace(link.destination_url);
+				const url = new URL(link.destination_url);
+				url.searchParams.append("_ushwa", address);
+				url.searchParams.append("_ushwc", conection);
+				window.location.replace(url);
 			}
 		},
 		[link]
