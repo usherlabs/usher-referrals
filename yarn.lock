@@ -5270,20 +5270,20 @@
     crypto-js "^4.1.1"
     elliptic "^6.5.4"
 
-"@usher.so/auth@^0.0.3":
-  version "0.0.3"
-  resolved "https://registry.yarnpkg.com/@usher.so/auth/-/auth-0.0.3.tgz#ac074df261791bf0db636216171794cf2352b094"
-  integrity sha512-tlPi6/rh9bW9QYKhc90Y3UxjHMnTOI9vSndK2q7yBB89TZtAKBQq4EqbPaX0bvmMOYbvH/QsddsDXVAUoDLBpQ==
+"@usher.so/auth@^0.0.5":
+  version "0.0.5"
+  resolved "https://registry.yarnpkg.com/@usher.so/auth/-/auth-0.0.5.tgz#dbe461767012816a413fde654d7ff8de441108bc"
+  integrity sha512-eULX/SSrcVmm7YaXe7lPWjKv2Eofj9hyvbLwjqBVVrDExg/DGwZk/0mN3cn7C0BnEdiHj/DFdNbyoGIRu0zIWQ==
 
-"@usher.so/campaigns@^0.0.3":
-  version "0.0.3"
-  resolved "https://registry.yarnpkg.com/@usher.so/campaigns/-/campaigns-0.0.3.tgz#8188c256a3a72c086b316f2450d4444b06d1c90a"
-  integrity sha512-SmiFK2dQRfaX+UouBarNYxGa9PhG9ylQM1P9wS5t5k9uQ/0Pv+I2lqzq+kutzboFZmML/xqlzL8KrpOrW23vGA==
+"@usher.so/campaigns@^0.0.5":
+  version "0.0.5"
+  resolved "https://registry.yarnpkg.com/@usher.so/campaigns/-/campaigns-0.0.5.tgz#005e8c9a0a1962d7205755edc313509335cd0a04"
+  integrity sha512-WwOg+XL3qxlCCgkqDtQ7AZolCf7Tpvt5w8jkTgjcX1YycAQZnOM5ndMQAuDGr1o+chkh3/Sf4t80g4IU6EFbbA==
 
-"@usher.so/datamodels@^0.0.2":
-  version "0.0.2"
-  resolved "https://registry.yarnpkg.com/@usher.so/datamodels/-/datamodels-0.0.2.tgz#3789850439e1c97e8b4d7c7856a7804795df1aac"
-  integrity sha512-bIjPuS55RKvKmOo8BVf3S+NB7mCGZjCRhAZNH0ARTzUmSiO9YaJv2PPQMbwCbnDWgvs1X4oRVwqNWYrKjMn1Eg==
+"@usher.so/datamodels@^0.0.8":
+  version "0.0.8"
+  resolved "https://registry.yarnpkg.com/@usher.so/datamodels/-/datamodels-0.0.8.tgz#2f10c6edf945fe6f92bf5b9942b43e5aa6c1ad98"
+  integrity sha512-KKdVjiVX9ZR5wroS8XXeUvJhrLKbiR9Ggti7Wu8jPWZ60T0iy3j0FhOktXgthN+MV5S1TeuoLA4TCAMUJwsnVg==
 
 "@usher.so/partnerships@^0.0.1":
   version "0.0.1"
