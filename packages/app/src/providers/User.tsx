@@ -13,7 +13,7 @@ import delay from "@/utils/delay";
 import { AppEvents, events } from "@/utils/events";
 import handleException from "@/utils/handle-exception";
 import { getMagicClient } from "@/utils/magic-client";
-import { onboard } from "@/utils/onboard";
+import { onboard, ProviderLabel } from "@/utils/onboard";
 import pascalCase from "@/utils/pascal-case";
 import { toaster } from "evergreen-ui";
 import produce from "immer";
@@ -109,7 +109,7 @@ const getWallets = async (type: Connections): Promise<Wallet[]> => {
 	);
 
 	try {
-		const getWalletsWithOnbaord = async (onboardWalletLabel: string) => {
+		const getWalletsWithOnbaord = async (onboardWalletLabel: ProviderLabel) => {
 			const getWallet = () => {
 				const [wallet] = onboard()
 					.state.get()
@@ -174,7 +174,7 @@ const getWallets = async (type: Connections): Promise<Wallet[]> => {
 				break;
 			}
 			case Connections.COINBASEWALLET: {
-				await getWalletsWithOnbaord("Coinbase Wallet");
+				await getWalletsWithOnbaord(ProviderLabel.CoinbaseWallet);
 				break;
 			}
 			case Connections.MAGIC: {
@@ -190,11 +190,11 @@ const getWallets = async (type: Connections): Promise<Wallet[]> => {
 				break;
 			}
 			case Connections.METAMASK: {
-				await getWalletsWithOnbaord("MetaMask");
+				await getWalletsWithOnbaord(ProviderLabel.MetaMask);
 				break;
 			}
 			case Connections.WALLETCONNECT: {
-				await getWalletsWithOnbaord("WalletConnect");
+				await getWalletsWithOnbaord(ProviderLabel.WalletConnect);
 				break;
 			}
 			default: {
@@ -382,20 +382,30 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 			console.log("Loading user ...");
 
 			const fetchedWallets: Wallet[] = [];
-			for (const connection of Object.values(Connections)) {
-				// Load the first wallet to auto-authenticate
-				// eslint-disable-next-line no-await-in-loop
-				const wallets = await getWallets(connection);
-				saveWallets(wallets);
+
+			const promises: Promise<Wallet[]>[] = [];
+			// Load wallet in parallel
+			promises.push(getWallets(Connections.ARCONNECT));
+			promises.push(getWallets(Connections.MAGIC));
+			// Calls to @web3-onboard library does not work properly when called asyncronously,
+			// Therefore calling it sequentially
+			promises.push(
+				(async () => [
+					...(await getWallets(Connections.COINBASEWALLET)),
+					...(await getWallets(Connections.METAMASK)),
+					...(await getWallets(Connections.WALLETCONNECT))
+				])()
+			);
+			const results = await Promise.all(promises);
+
+			results.forEach((wallets) => {
 				wallets.forEach((wallet) => {
 					if (!fetchedWallets.find((fw) => isEqual(fw, wallet))) {
 						fetchedWallets.push(wallet);
 					}
 				});
-				// if (wallets.length > 0) {
-				// 	break;
-				// }
-			}
+			});
+			saveWallets(fetchedWallets);
 
 			console.log("Wallets loaded. Fetching verifications ...", fetchedWallets);
 
