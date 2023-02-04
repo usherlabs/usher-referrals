@@ -34,9 +34,14 @@ const WalletConnect: React.FC<Props> = ({
 		"To create your Usher account, please click the 'Sign' button.";
 
 	const connectWallet = useCallback(
-		async (address: string, signature: string, connection: Connections) => {
+		async (
+			chain: Chains,
+			address: string,
+			connection: Connections,
+			signature: string
+		) => {
 			const wallet: Wallet & { signature: string } = {
-				chain: Chains.ETHEREUM,
+				chain,
 				connection,
 				address,
 				signature
@@ -62,7 +67,7 @@ const WalletConnect: React.FC<Props> = ({
 					setConnecting(false);
 				});
 		},
-		[]
+		[connect]
 	);
 
 	return (
@@ -76,9 +81,7 @@ const WalletConnect: React.FC<Props> = ({
 					providerLabel={ProviderLabel.ArConnect}
 					signingMessage={signingMessage}
 					isConnecting={isLoading}
-					onConnect={async (address: string, signature: string) =>
-						connectWallet(address, signature, Connections.ARCONNECT)
-					}
+					onConnect={connectWallet}
 				/>
 			)}
 			{!hide.includes(Connections.METAMASK) && (
@@ -90,9 +93,7 @@ const WalletConnect: React.FC<Props> = ({
 					providerLabel={ProviderLabel.MetaMask}
 					signingMessage={signingMessage}
 					isConnecting={isLoading}
-					onConnect={async (address: string, signature: string) =>
-						connectWallet(address, signature, Connections.METAMASK)
-					}
+					onConnect={connectWallet}
 				/>
 			)}
 			{!hide.includes(Connections.WALLETCONNECT) && (
@@ -104,9 +105,7 @@ const WalletConnect: React.FC<Props> = ({
 					providerLabel={ProviderLabel.WalletConnect}
 					signingMessage={signingMessage}
 					isConnecting={isLoading}
-					onConnect={async (address: string, signature: string) =>
-						connectWallet(address, signature, Connections.WALLETCONNECT)
-					}
+					onConnect={connectWallet}
 				/>
 			)}
 			{!hide.includes(Connections.COINBASEWALLET) && (
@@ -118,9 +117,7 @@ const WalletConnect: React.FC<Props> = ({
 					providerLabel={ProviderLabel.CoinbaseWallet}
 					signingMessage={signingMessage}
 					isConnecting={isLoading}
-					onConnect={async (address: string, signature: string) =>
-						connectWallet(address, signature, Connections.COINBASEWALLET)
-					}
+					onConnect={connectWallet}
 				/>
 			)}
 			{!hide.includes(Connections.MAGIC) && (
@@ -132,9 +129,7 @@ const WalletConnect: React.FC<Props> = ({
 					providerLabel={ProviderLabel.Magic}
 					signingMessage={signingMessage}
 					isConnecting={isLoading}
-					onConnect={async (address: string, signature: string) =>
-						connectWallet(address, signature, Connections.MAGIC)
-					}
+					onConnect={connectWallet}
 				/>
 			)}
 		</Pane>

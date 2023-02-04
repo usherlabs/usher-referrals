@@ -211,43 +211,45 @@ export const WalletConnectButton = ({
 	}, [arweaveWallet, ethWallet, arConnect]);
 
 	useEffect(() => {
-		if (isLoading) {
-			return;
-		}
-
-		if (providerLabel === ProviderLabel.ArConnect) {
-			if (!arweaveWallet) {
+		(async () => {
+			if (isLoading) {
 				return;
 			}
 
-			if (!signedMessage) {
-				signMessage();
+			if (providerLabel === ProviderLabel.ArConnect) {
+				if (!arweaveWallet) {
+					return;
+				}
+
+				if (!signedMessage) {
+					await signMessage();
+				} else {
+					await onConnect(chain, arweaveWallet, connection, signedMessage);
+				}
 			} else {
-				onConnect(chain, arweaveWallet, connection, signedMessage);
-			}
-		} else {
-			if (!connectedEthChain || !ethWallet) {
-				return;
-			}
+				if (!connectedEthChain || !ethWallet) {
+					return;
+				}
 
-			if (connectedEthChain.id !== ETHEREUM_CHAIN_ID) {
-				switchChain();
-				return;
-			}
+				if (connectedEthChain.id !== ETHEREUM_CHAIN_ID) {
+					await switchChain();
+					return;
+				}
 
-			if (!signedMessage) {
-				signMessage();
-			} else {
-				// TODO: Investigate if `toLowerCase()` is really needed here
-				const [account] = ethWallet.accounts;
-				onConnect(
-					chain,
-					account.address.toLowerCase(),
-					connection,
-					signedMessage
-				);
+				if (!signedMessage) {
+					await signMessage();
+				} else {
+					// TODO: Investigate if `toLowerCase()` is really needed here
+					const [account] = ethWallet.accounts;
+					await onConnect(
+						chain,
+						account.address.toLowerCase(),
+						connection,
+						signedMessage
+					);
+				}
 			}
-		}
+		})();
 	}, [isLoading, connectedEthChain, ethWallet, signedMessage, signMessage]);
 
 	return (
