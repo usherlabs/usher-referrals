@@ -3,16 +3,11 @@
 	"title": "Link",
 	"type": "object",
 	"properties": {
-		"destination_url": {
-			"type": "string",
-			"description": "Destination URL"
-		},
-		"title": {
-			"type": "string",
-			"description": "Title"
-		},
+		"destination_url": { "type": "string", "description": "Destination URL" },
+		"title": { "type": "string", "description": "Title" },
 		"connections": {
-			"type": "string",
+			"type": "array",
+			"items": { "type": "string" },
 			"description": "List of connection types available to connect on the Collection Invite Link page"
 		},
 		"mask": {

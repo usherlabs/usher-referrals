@@ -1,4 +1,4 @@
-import { ethereumProviderUrl } from "@/env-config";
+import { ethereumProviderUrl, ceramicUrl } from "@/env-config";
 import { AuthOptions } from "@usher.so/auth";
 import { ApiOptions } from "@usher.so/shared";
 
@@ -121,15 +121,19 @@ export const METAMASK_FIREFOX_URL =
 // #endregion
 
 export const AUTH_OPTIONS = byTargetEnv<AuthOptions>({
-	p: new AuthOptions({ environment: "production" }),
-	s: new AuthOptions({ environment: "staging" }),
+	p: new AuthOptions({ environment: "production", ceramicUrl }),
+	s: new AuthOptions({ environment: "staging", ceramicUrl }),
 	d: new AuthOptions({ ceramicUrl: "http://localhost:7007" })
 });
 
 // ? usherUrl can remain '/api' across environments here because the API is apart of this NEXT app.
 export const API_OPTIONS = byTargetEnv<ApiOptions>({
-	p: new ApiOptions({ environment: "production", usherUrl: "/api" }),
-	s: new ApiOptions({ environment: "staging", usherUrl: "/api" }),
+	p: new ApiOptions({
+		environment: "production",
+		usherUrl: "/api",
+		ceramicUrl
+	}),
+	s: new ApiOptions({ environment: "staging", usherUrl: "/api", ceramicUrl }),
 	d: new ApiOptions({
 		ceramicUrl: "http://localhost:7007",
 		usherUrl: "/api"

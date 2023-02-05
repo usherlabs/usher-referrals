@@ -1,10 +1,10 @@
 {
-  "definitions": {
-    "LinksDef": "kjzl6cwe1jw146ex5e13mqltdbqyrr7evziiudvezaiiywob5uc5742zr64sj5b"
-  },
-  "schemas": {
-    "Link": "ceramic://k3y52l7qbv1frxx355nsy6km5tkcrrgtpmc6cm4ahyd2dtnx65glk6pemy6ch5xxc",
-    "Links": "ceramic://k3y52l7qbv1frxlghnnuf1hry5q8nq34d24o3einmm8bzav03x1vp9obztbf0dpfk"
-  },
-  "tiles": {}
+	"definitions": {
+		"linkdef": "kjzl6cwe1jw146r0hj3pnaxtin2drkv7ulyrqqdkm5939ql2z061g9fbbxhx9zu"
+	},
+	"schemas": {
+		"Link": "ceramic://k3y52l7qbv1fryj5a6n9cnvjbtuxi4g5bu30kzp12o035x7c54c0xs9b2uenhttkw",
+		"LinkIds": "ceramic://k3y52l7qbv1frygs4ovze4ixlqwcap1sppkadrt34c9apvlxeri7s6lcfwzytss1s"
+	},
+	"tiles": {}
 }

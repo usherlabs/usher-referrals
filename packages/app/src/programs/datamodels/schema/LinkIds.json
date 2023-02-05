@@ -1,0 +1,15 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"title": "Identifiers",
+	"type": "object",
+	"properties": {
+		"ids": {
+			"description": "An Array of arbitrary strings. Usually Identifiers for Streams for Transactions.",
+			"type": "array",
+			"items": {
+				"type": "string"
+			}
+		}
+	},
+	"required": ["ids"]
+}
