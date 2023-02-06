@@ -12220,6 +12220,11 @@ jwt-decode@^2.2.0:
   resolved "https://registry.yarnpkg.com/jwt-decode/-/jwt-decode-2.2.0.tgz#7d86bd56679f58ce6a84704a657dd392bba81a79"
   integrity sha512-86GgN2vzfUu7m9Wcj63iUkuDzFNYFVmjeDm2GzWpUk+opB0pEpMsw6ePCMrhYkumz2C1ihqtZzOMAg7FiXcNoQ==
 
+ka-table@^7.8.4:
+  version "7.8.4"
+  resolved "https://registry.yarnpkg.com/ka-table/-/ka-table-7.8.4.tgz#d339b057de643847585e918f5b7be0e2bc94ea57"
+  integrity sha512-aE0X5Fd0fbUyvTwjkWCgqjxLJZEx9YiVzUvqLP3Z3AOmYEvpPf64uzpxHljA1dfDM8wgclD8Gwj5V/ZXftm91g==
+
 keccak@^3.0.0, keccak@^3.0.1, keccak@^3.0.2:
   version "3.0.3"
   resolved "https://registry.yarnpkg.com/keccak/-/keccak-3.0.3.tgz#4bc35ad917be1ef54ff246f904c2bbbf9ac61276"
