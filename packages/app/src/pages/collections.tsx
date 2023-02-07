@@ -1,16 +1,28 @@
+import { css } from "@linaria/core";
 import { Pane, ThemeProvider } from "evergreen-ui";
 
-import PageHeader from "@/components/PageHeader";
-import { newTheme } from "@/themes/newTheme";
-import { CollectionsContextProvider } from "@/providers/Collections";
 import Collections from "@/components/Collection/Collections";
+import PageHeader from "@/components/PageHeader";
+import { CollectionsContextProvider } from "@/providers/Collections";
+import { newTheme } from "@/themes/newTheme";
+import * as mediaQueries from "@/utils/media-queries";
 
 type Props = {};
 
 const CollectionsPage: React.FC<Props> = () => {
 	return (
 		<ThemeProvider value={newTheme}>
-			<Pane display="flex" flexDirection="column" height="100vh" padding="40px">
+			<Pane
+				display="flex"
+				flexDirection="column"
+				height="100vh"
+				padding="10px"
+				className={css`
+					${mediaQueries.gtLarge} {
+						padding: 40px !important;
+					}
+				`}
+			>
 				<PageHeader
 					title="Collections"
 					description="Collect wallet connections through a shareable invite link."

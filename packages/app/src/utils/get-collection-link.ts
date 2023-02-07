@@ -3,10 +3,20 @@ import urlJoin from "url-join";
 
 import { collectionOrigin } from "@/env-config";
 
-export const getCollectionLink = (id = "") => {
+export const getCollectionLink = (
+	id = "",
+	options?: {
+		removeProto: boolean;
+	}
+) => {
 	let origin = `${window.location.origin}/link`;
 	if (!isEmpty(collectionOrigin)) {
 		origin = collectionOrigin as string;
 	}
-	return urlJoin(origin, id);
+	let url = urlJoin(origin, id);
+
+	if (options?.removeProto) {
+		url = url.replace(/^https?:\/\//, "");
+	}
+	return url;
 };

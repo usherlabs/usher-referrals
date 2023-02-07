@@ -69,6 +69,7 @@
 		"isomorphic-unfetch": "^3.1.0",
 		"js-base64": "^3.7.2",
 		"jwt-decode": "^3.1.2",
+		"ka-table": "^7.8.4",
 		"key-did-provider-ed25519": "^2.0.0",
 		"key-did-resolver": "^2.0.0",
 		"ky": "^0.33.0",

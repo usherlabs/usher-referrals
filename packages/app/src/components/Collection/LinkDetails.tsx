@@ -3,7 +3,6 @@ import {
 	UilClockFive,
 	UilCornerDownRight
 } from "@iconscout/react-unicons";
-import { css } from "@linaria/core";
 import date from "date-and-time";
 import { Button, Pane, Text, toaster } from "evergreen-ui";
 import pluralize from "pluralize";
@@ -11,6 +10,7 @@ import { useCallback, useState } from "react";
 import CopyToClipboard from "react-copy-to-clipboard";
 
 import SideSheet from "@/components/SideSheet";
+import { TextFit } from "@/components/TextFit";
 import { useCollections } from "@/hooks/use-collections";
 import { getCollectionLink } from "@/utils/get-collection-link";
 import LinkEditor from "./LinkEditor";
@@ -104,18 +104,9 @@ const LinkDetails: React.FC<Props> = ({ onEditorClose }) => {
 						borderRadius="8px"
 					>
 						<Pane display="flex" justifyContent="space-between" gap="1em">
-							<Text
-								fontSize="20px"
-								fontWeight="500"
-								color="#2C9CF2"
-								overflow="hidden"
-								className={css`
-									overflow-wrap: break-word;
-									word-wrap: break-word;
-								`}
-							>
-								{getCollectionLink(currentLink.id)}
-							</Text>
+							<TextFit fontSize="20px" fontWeight="500" color="#2C9CF2">
+								{getCollectionLink(currentLink.id, { removeProto: true })}
+							</TextFit>
 							<CopyToClipboard
 								text={getCollectionLink(currentLink.id)}
 								onCopy={onCopy}
@@ -137,17 +128,9 @@ const LinkDetails: React.FC<Props> = ({ onEditorClose }) => {
 							borderRadius="10px"
 						>
 							<UilCornerDownRight size="32px" color="#575D72" />
-							<Text
-								marginLeft="10px"
-								fontSize="16px"
-								overflow="hidden"
-								className={css`
-									overflow-wrap: break-word;
-									word-wrap: break-word;
-								`}
-							>
+							<TextFit marginLeft="10px" fontSize="16px">
 								{currentLink.destinationUrl}
-							</Text>
+							</TextFit>
 						</Pane>
 					</Pane>
 					<SideSheet

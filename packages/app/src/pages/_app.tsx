@@ -1,5 +1,6 @@
 import "es6-shim";
 
+import "ka-table/style.scss";
 import React, { useEffect } from "react";
 import { AppProps } from "next/app";
 import { DefaultSeo, NextSeoProps } from "next-seo";
