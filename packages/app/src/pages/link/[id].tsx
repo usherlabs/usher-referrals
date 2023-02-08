@@ -45,6 +45,7 @@ const LinkPage: React.FC = () => {
 
 			if (link && result.success) {
 				const url = new URL(link.destination_url);
+				url.searchParams.append("_ushid", id);
 				url.searchParams.append("_ushwa", address);
 				url.searchParams.append("_ushwc", conection);
 				window.location.replace(url);
