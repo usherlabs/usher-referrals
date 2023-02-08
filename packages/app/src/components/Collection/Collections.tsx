@@ -2,9 +2,12 @@ import { css } from "@linaria/core";
 import {
 	Button,
 	Heading,
+	majorScale,
 	Pane,
+	Paragraph,
 	SideSheet,
 	Spinner,
+	Strong,
 	Text,
 	TextInput
 } from "evergreen-ui";
@@ -115,6 +118,27 @@ const Collections: React.FC<Props> = () => {
 					</Button>
 				)}
 			</Pane>
+			{(!links || links.length === 0) && (
+				<Pane paddingX={16} marginTop={40}>
+					<Heading size={700} marginBottom={8}>
+						Create your first Collection Link
+					</Heading>
+					<Paragraph size={500} marginBottom={24} fontSize="1.1em">
+						You do not have any active Collection Link. Create a new Link to get
+						started.
+					</Paragraph>
+					<Button
+						appearance="primary"
+						minWidth={300}
+						height={majorScale(7)}
+						onClick={createNewLink}
+					>
+						<Strong color="#fff" size={500} fontSize="1.2em">
+							👉&nbsp;&nbsp;Get started
+						</Strong>
+					</Button>
+				</Pane>
+			)}
 			{links && links.length > 0 && (
 				<Pane
 					flex="1"
