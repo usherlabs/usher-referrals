@@ -216,7 +216,7 @@ const Header: React.FC<Props> = ({
 					display="flex"
 					paddingX={16}
 					className={css`
-						z-index: 9999999;
+						z-index: 9;
 						background-color: #fff;
 						border-radius: 32px;
 						padding: 10px 20px;
