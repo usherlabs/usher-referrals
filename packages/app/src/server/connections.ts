@@ -22,8 +22,17 @@ export async function fetchConnectionsByLink(
 		query: `
 LET link = DOCUMENT(Links, @linkKey)
 
+LET dids = DOCUMENT(Dids, @didKeys)
+LET relatedDids = (
+	FOR did in dids
+		FOR rd IN 1..1 ANY did Related
+			COLLECT _id = rd._id
+				RETURN _id)
+
+LET uniquedDids = UNION_DISTINCT(FOR did IN dids RETURN did._id, relatedDids)
+
 FOR did IN 1..1 ANY link Engagements
-FILTER POSITION(@didKeys, did._key)
+    FILTER POSITION(uniquedDids, did._id)
 		FOR wallet, connection IN 1..1 OUTBOUND link Connections
 			SORT connection.timestamp DESC
 			RETURN {
@@ -35,6 +44,59 @@ FILTER POSITION(@didKeys, did._key)
 `,
 		bindVars: {
 			linkKey,
+			didKeys
+		}
+	});
+
+	const result = await cursor.all();
+	return result;
+}
+
+/**
+ * Fetches the Wallets connected by visiting the Link.
+ * @param linkKey Link document `_key` attribute
+ * @param walletKey Wallet document `_key` attribute
+ * @param didKeys `_key` attributes of the DID documents that owns the Link
+ */
+export async function fetchConnectionsByLinkAndWallet(
+	linkKey: string,
+	walletKey: string,
+	didKeys: string[]
+): Promise<
+	{
+		address: string;
+		timestamp: number;
+		connection: Connections;
+	}[]
+> {
+	const cursor = await arango.query({
+		query: `
+LET link = DOCUMENT(Links, @linkKey)
+
+LET dids = DOCUMENT(Dids, @didKeys)
+LET relatedDids = (
+	FOR did in dids
+		FOR rd IN 1..1 ANY did Related
+			COLLECT _id = rd._id
+				RETURN _id)
+
+LET uniquedDids = UNION_DISTINCT(FOR did IN dids RETURN did._id, relatedDids)
+
+FOR did IN 1..1 ANY link Engagements
+    FILTER POSITION(uniquedDids, did._id)
+		FOR wallet, connection IN 1..1 OUTBOUND link Connections
+		    FILTER wallet._key == @walletKey
+			SORT connection.timestamp DESC
+			RETURN {
+					_id: connection._id,
+					address: wallet.address,
+					timestamp: connection.timestamp,
+					connection: connection.connection
+			}
+`,
+		bindVars: {
+			linkKey,
+			walletKey,
 			didKeys
 		}
 	});
