@@ -35,7 +35,7 @@ import { useSeedData } from "@/env-config";
 import * as mediaQueries from "@/utils/media-queries";
 import { getArangoClient } from "@/utils/arango-client";
 import * as api from "@/api";
-import { getArweaveClient, getWarp } from "@/utils/arweave-client";
+import { getWarp } from "@/utils/arweave-client";
 import { AppEvents, events } from "@/utils/events";
 import { getEthereumClient } from "@/utils/ethereum-client";
 import { ethers } from "ethers";
@@ -47,7 +47,6 @@ type CampaignPageProps = {
 	campaign: Campaign;
 };
 
-const arweave = getArweaveClient();
 const warp = getWarp();
 
 const ethereum = getEthereumClient();
@@ -194,20 +193,16 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 					}
 				}
 			} else {
-				let balance = await arweave.wallets.getBalance(campaign.id);
-				// ----- This doesn't scale.
-				if (
-					["arweave:QOttOj5CmOJnzBHrqaCLImXJ9RwHVbMDY0QPEmcWptQ"]
-						.map((cid) => cid.toLowerCase())
-						.includes([campaign.chain, campaign.id].join(":").toLowerCase())
-				) {
-					balance = arweave.ar.arToWinston(`300`);
-				}
-				// -----
-				const arBalance = arweave.ar.winstonToAr(balance);
-				const f = parseFloat(arBalance) * (1 - FEE_MULTIPLIER);
-				if (f > 0) {
-					setFunds(f);
+				try {
+					const { balance } = await api
+						.balance()
+						.get(campaign.id, campaign.chain);
+					if (balance > 0) {
+						setFunds(balance);
+					}
+				} catch (e) {
+					console.log("Failed to load Arweave Balance");
+					console.error(e);
 				}
 			}
 		} else if (campaign.chain === Chains.ETHEREUM) {

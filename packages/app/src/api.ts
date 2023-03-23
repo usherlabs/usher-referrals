@@ -196,3 +196,14 @@ export const collections = (authToken: string) => {
 		}
 	};
 };
+
+export const balance = () => {
+	return {
+		get: (
+			id: string,
+			chain: string
+		): Promise<{ succss: boolean; balance: number }> => {
+			return request.get(`balance?id=${id}&chain=${chain}`).json();
+		}
+	};
+};
