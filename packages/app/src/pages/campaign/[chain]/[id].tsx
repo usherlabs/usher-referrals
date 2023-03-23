@@ -193,11 +193,16 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 					}
 				}
 			} else {
-				const { balance } = await api
-					.balance()
-					.get(campaign.id, campaign.chain);
-				if (balance > 0) {
-					setFunds(balance);
+				try {
+					const { balance } = await api
+						.balance()
+						.get(campaign.id, campaign.chain);
+					if (balance > 0) {
+						setFunds(balance);
+					}
+				} catch (e) {
+					console.log("Failed to load Arweave Balance");
+					console.error(e);
 				}
 			}
 		} else if (campaign.chain === Chains.ETHEREUM) {

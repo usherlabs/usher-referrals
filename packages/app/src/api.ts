@@ -203,14 +203,7 @@ export const balance = () => {
 			id: string,
 			chain: string
 		): Promise<{ succss: boolean; balance: number }> => {
-			return request
-				.get(`balance`, {
-					json: {
-						id,
-						chain
-					}
-				})
-				.json();
+			return request.get(`balance?id=${id}&chain=${chain}`).json();
 		}
 	};
 };
