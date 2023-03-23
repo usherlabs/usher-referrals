@@ -194,20 +194,11 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 					}
 				}
 			} else {
-				let balance = await arweave.wallets.getBalance(campaign.id);
-				// ----- This doesn't scale.
-				if (
-					["arweave:QOttOj5CmOJnzBHrqaCLImXJ9RwHVbMDY0QPEmcWptQ"]
-						.map((cid) => cid.toLowerCase())
-						.includes([campaign.chain, campaign.id].join(":").toLowerCase())
-				) {
-					balance = arweave.ar.arToWinston(`300`);
-				}
-				// -----
-				const arBalance = arweave.ar.winstonToAr(balance);
-				const f = parseFloat(arBalance) * (1 - FEE_MULTIPLIER);
-				if (f > 0) {
-					setFunds(f);
+				const { balance } = await api
+					.balance()
+					.get(campaign.id, campaign.chain);
+				if (balance > 0) {
+					setFunds(balance);
 				}
 			}
 		} else if (campaign.chain === Chains.ETHEREUM) {
