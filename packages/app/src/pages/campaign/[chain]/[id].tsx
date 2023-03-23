@@ -35,7 +35,7 @@ import { useSeedData } from "@/env-config";
 import * as mediaQueries from "@/utils/media-queries";
 import { getArangoClient } from "@/utils/arango-client";
 import * as api from "@/api";
-import { getArweaveClient, getWarp } from "@/utils/arweave-client";
+import { getWarp } from "@/utils/arweave-client";
 import { AppEvents, events } from "@/utils/events";
 import { getEthereumClient } from "@/utils/ethereum-client";
 import { ethers } from "ethers";
@@ -47,7 +47,6 @@ type CampaignPageProps = {
 	campaign: Campaign;
 };
 
-const arweave = getArweaveClient();
 const warp = getWarp();
 
 const ethereum = getEthereumClient();
