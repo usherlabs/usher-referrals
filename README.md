@@ -120,9 +120,9 @@ git clone https://github.com/usherlabs/usher.git
 cd usher
 ```
 
-2. To install dependencies, run **`yarn install`** in the root directory.
+2. To install dependencies, run `yarn install` in the root directory.
 
-   > Usher Core is a monorepo with multiple packages in the **`packages`** directory. Each package has its own `package.json` and scripts. Learn more about [Yarn Workspaces](https://classic.yarnpkg.com/en/docs/workspaces/).
+   > Usher Core is a monorepo with multiple packages in the `packages` directory. Each package has its own `package.json` and scripts. Learn more about [Yarn Workspaces](https://classic.yarnpkg.com/en/docs/workspaces/).
 
 3. For package overviews and instructions to start services, refer to the respective package documentation.
 
@@ -161,13 +161,13 @@ rathole ./rathole.toml
 - For questions, support, and discussions:[Join the Usher Discord →](https://go.usher.so/discord)
 - For bugs and feature requests:[Create an issue on Github →](https://github.com/usherlabs/core/issues)
 
-## 🤔 **Missing Something Important to You**
+## 🤔 **Missing Something Important to You?**
 
 We know that everyone has different needs, and we want Usher to be as helpful and adaptable as possible. If you think
 we're missing a feature that would make a big difference for you, we're all ears!
 
 To suggest a new feature, just head over to our **[GitHub repository](https://github.com/usherlabs/usher)** and create a
-new issue. Remember to add the **`suggestion`** tag to your issue, so we can find and prioritize your request.
+new issue. Remember to add the `suggestion` tag to your issue, so we can find and prioritize your request.
 
 Our team is always working to enhance and grow Usher, and your input is super valuable in guiding the project's future.
 By sharing your suggestions, you're helping to improve the Usher community and make the product even better for
