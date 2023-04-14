@@ -1,5 +1,6 @@
 {cool badges: license, build status, nodejs version, web3?}
 
+
 <div align="center">
   <h1>Usher Core</h1>
 </div>
@@ -16,7 +17,7 @@
    <a href="https://go.usher.so/twitter">Twitter</a>
 </div>
 
-## **🎬** Introduction
+## 👋 Introduction
 
 **Usher Core** is a monorepo containing the packages that run Usher’s primary decentralized application (dApp). It is
 designed to provide a seamless experience for end users and empower the development of robust communities.
@@ -173,7 +174,7 @@ Our team is always working to enhance and grow Usher, and your input is super va
 By sharing your suggestions, you're helping to improve the Usher community and make the product even better for
 everyone. So, if you have a cool idea, don't hesitate to let us know!
 
-## 🪢 Contributing
+## 💚 Contributing
 
 There are many ways you can contribute to taking Usher’s mission to empower partnerships even further.
 
