@@ -1,42 +1,61 @@
-# Usher App
+# App
 
-- Discord Plugin is a **WIP**
+## Introduction
 
-## Next.js
+This package contains the code to spin up a Next.js app that runs on Usher, providing a user-friendly interface for managing and interacting with Usher functionalities. The app not only serves as a front-end solution for the Usher Core but also spins up endpoints to communicate with this Usher node.
 
----
+## How to run it?
 
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+### Locally
 
-### Getting Started
+1. Make sure you have followed the install instructions provided at the root of this repository.
+2. Navigate to this directory in your terminal.
+3. Execute `yarn dev` to start the development server.
 
-First, run the development server:
+The app should now be accessible at `http://localhost:3000`.
 
-```bash
-npm run dev
-# or
-yarn dev
-```
+### Deploy
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+You can deploy the app using any Next.js deployment method. We recommend using Vercel for a seamless experience. To learn more, visit **[Vercel's deployment documentation](https://nextjs.org/learn/basics/deploying-nextjs-app/deploy).**
 
-You can start editing the page by modifying `pages/index.js`. The page auto-updates as you edit the file.
+## How does this work?
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.js`.
+The app is built using Next.js, offering an engaging and user-friendly interface for managing and interacting with Usher functionalities. It communicates with the Usher Core backend, blockchain, and external APIs using Next.js serverless functions located in the `pages/api` directory.
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+These serverless functions handle API requests and allow us to manage data and perform server-side processing tasks with ease. The app offers a variety of features, including wallet management, user profiles, partnerships, referrals, campaigns, captcha validation, collections, verification processes, bot detection, marketing, and conversions.
 
-### Learn More
+To maintain a clean and organized API structure, we've incorporated `next-connect` as middleware for Next.js API routes, similar to `Express.js`.
 
-To learn more about Next.js, take a look at the following resources:
+## How to read it?
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+We recommend you get comfortable with [NextJS](https://nextjs.org/docs/getting-started) before diving in.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+### `src` File structure
 
-### Deploy on Vercel
+- `assets`: Stores all static assets used within the Partner dApp that are not related to a database entry.
+- `components`: Contains React.js components that primarily render JSX markup. Some components include logic to reduce repeated code.
+- `containers`: Houses React.js components that serve as the foundation for a UI and/or wrap other components.
+- `hooks`: Contains React.js hooks for reusable functional component state/variable management.
+- `modules`:
+	- `auth`: An authentication module for DID creation based on wallet connection and multi-wallet functionality management.
+- `pages`: Required folder for Next.js, serving as the entry point to the Next.js file/page routing mechanism. [Learn more →](https://nextjs.org/docs/basic-features/pages)
+	- `api`: API endpoints leveraging the Next.js file/page routing system. Endpoint handlers in these files use the next-connect NPM package to deliver an API management experience similar to express.js. [Learn more →](https://github.com/hoangvvo/next-connect)
+- `providers`: Contains React.js Context Providers that manage global states.
+- `seed`: Holds seed data to be used in place of actual API requests for streamlined local development.
+- `server`: Contains configuration and handlers relevant only to server-side logic, such as middleware for API endpoints.
+- `styles`: Includes basic SCSS files for styling components that cannot be reached via the standard Component UI Library.
+- `utils`: Stores small reusable utility functions.
+- `admin.ts`: Loaded only in development. Exposes functions that can be called from the Browser Console to simplify Client → Data Network interactions.
+- `api.ts`: Contains a boilerplate for creating API requests to the backend, including type management for parameters and responses.
+- `constants.ts`: Hosts all constant variables.
+- `env-config.ts`: Contains all NEXT_PUBLIC environment variables exposed to the front end.
+- `integrations.ts`: A single file for integrations with third-party tracking libraries or event management libraries.
+- `types.ts`: Houses all TypeScript Types.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## What’s next?
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+[View other packages →](../)
+
+[Go to Usher main documentation →](https://docs.usher.so/)
+
+[Go to NextJS documentation →](https://nextjs.org/docs/getting-started)
