@@ -116,7 +116,7 @@ You may find it helpful to:
 
 1. Ensure your system meets the requirements:
 
-- Node.js (v16 or higher)
+- Node.js (v14 or higher)
 - Yarn (v1)
 
 1. Clone the repository:
