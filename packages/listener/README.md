@@ -12,8 +12,7 @@ Get a quick glance at what steps the listener takes to register conversions:
 
 ### Gathering campaigns with smart contract objectives
 
-[//]: # (TODO)
-![Listener guide #1](TODO ADD IMAGE)
+![Listener guide #1](../../images/docs/listener/ListenerStep1.png)
 
 1. We must first query our ArangoDB data for `Campaigns` that have at least one conversion based on smart contracts defined. It’s easy to distinguish between the two types as smart-contract ones have a  `contractAddress` attribute defined.
 2. This associated smart contract may emit several kinds of events, depending on user action. However, not all actions are considered **conversions** for this campaign.
@@ -21,16 +20,14 @@ Get a quick glance at what steps the listener takes to register conversions:
 
 ### Listening for new blocks propagated by blockchains
 
-[//]: # (TODO)
-![Listener guide #2](TODO ADD IMAGE)
+![Listener guide #2](../../images/docs/listener/ListenerStep2.png)
 
 1. We employ Ethers to connect to the blockchain and listen for new blocks.
 2. As new blocks are mined and propagated, Listener polls and receives block data, ready to be processed.
 
 ### Scan this new block for events of interest
 
-[//]: # (TODO)
-![Listener guide #3](TODO ADD IMAGE)
+![Listener guide #3](../../images/docs/listener/ListenerStep3.png)
 
 1. With this new block data, we scan for events emitted by the target smart contracts.
 2. For the event to be important for us, it also needs to be a conversion event. So we also filter by matching the `contractEvent` metadata.
@@ -41,13 +38,11 @@ A referred user is someone who came from a Partner link. To properly compensate 
 
 **Checking for Maria’s engagement:**
 
-[//]: # (TODO)
-![Listener guide #4](TODO ADD IMAGE)
+![Listener guide #4](../../images/docs/listener/ListenerStep4.png)
 
 **Checking for Joseph’s engagement:**
 
-[//]: # (TODO)
-![Listener guide #5](TODO ADD IMAGE)
+![Listener guide #5](../../images/docs/listener/ListenerStep5.png)
 
 1. For a new conversion event registered, we extract what is the user wallet address associated with this event.
 2. We query our data on ArangoDB for `Partnership`s that may have an `Engagement` registered with this wallet address. This `Partnership` also needs to be associated with one of the campaigns we have filtered previously.
@@ -55,8 +50,7 @@ A referred user is someone who came from a Partner link. To properly compensate 
 
 ### Registering results
 
-[//]: # (TODO)
-![Listener guide #6](TODO ADD IMAGE)
+![Listener guide #6](../../images/docs/listener/ListenerStep6.png)
 
 1. We register this conversion by updating our data on ArangoDB, creating a `Conversion`.
 

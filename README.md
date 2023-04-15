@@ -68,8 +68,7 @@ Usher Core encompasses the necessary code to run:
 
 ## **📐** Core architecture
 
-[//]: # (TODO ADD IMAGE HERE)
-![Usher core architecture](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/3b7da49a-c82f-494a-b287-245e6d3a78fd/Untitled.png)
+![Usher core architecture](images/docs/CoreArchitecture.png)
 
 - **Core dApp**: Usher Core's central component is a NextJS-based dApp that provides an accessible and user-friendly
   interface for managing campaigns. It also ensures smooth interaction with other services by employing deployed
