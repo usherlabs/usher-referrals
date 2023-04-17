@@ -34,7 +34,7 @@ our [documentation page](https://docs.usher.so/).
 Want to know more about Usher before diving into this repository? Find more on [our page](https://www.usher.so/)
 or [Usher’s main documentation](https://docs.usher.so/).
 
-> ⚠ If you want to learn how to interact with the Usher server from your own dApp, and not deploy an Usher for yourself,
+> ⚠ If you want to learn how to interact with the Usher server from your own dApp, and not deploy an Usher instance,
 > please proceed to the [Usher Programs repository](https://github.com/usherlabs/programs).
 
 > ⚠ If you want to learn how to interact with an Usher instance, sending tracking conversions from your own web based application to an Usher instance, please proceed to the [Usher.js documentation](https://docs.usher.so/integrating-with-usherjs/what-is-usherjs).
