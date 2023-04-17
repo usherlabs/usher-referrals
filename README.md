@@ -37,6 +37,8 @@ or [Usher’s main documentation](https://docs.usher.so/).
 > ⚠ If you want to learn how to interact with the Usher server from your own dApp, and not deploy an Usher for yourself,
 > please proceed to the [Usher Programs repository](https://github.com/usherlabs/programs).
 
+> ⚠ If you want to learn how to interact with an Usher instance, sending tracking conversions from your own web based application to an Usher instance, please proceed to the [Usher.js documentation](https://docs.usher.so/integrating-with-usherjs/what-is-usherjs).
+
 ## **🧭** Navigation
 
 [→ Homepage](https://usher.so/)
@@ -81,6 +83,26 @@ Usher Core encompasses the necessary code to run:
   security and trustworthiness of user accounts.
 - **Graph Database**: Centralized storage using ArangoDB, a multi-mode graph database. It holds data about user
   interactions, partnerships, campaigns, and more.
+
+## 🛰️ Usher Ecossystem
+
+### Usher Core (you are here)
+
+Usher Core is the central component of the Usher ecosystem, responsible for operating the primary decentralized application (dApp) driving the Usher experience. Deploying an Usher Core node sets up the fundamental infrastructure, which includes a user-friendly frontend interface and an essential database, allowing you to manage your own partnerships and campaigns with ease and efficiency.
+
+### Usher Programs
+
+Usher Programs streamline integration between your application and an Usher Core instance, focusing on campaign and partnership management. It supports authentication and wallet connections, ensuring smooth integration and seamless user interactions with your application.
+
+[Learn more at Usher Programs' repository →](https://github.com/usherlabs/programs)
+
+### Usher.js
+
+Usher.js is a JavaScript library enabling brands to manage and track referrals and conversions within JavaScript-enabled web applications or browser extensions. You may set it up to track conversions in various scenarios, such as user registration, staking cryptocurrency, or depositing funds into a crypto wallet.
+
+Designed to connect seamlessly to any Usher node, Usher.js references the node's URL when instantiating the UsherJS object, simplifying conversion tracking across web apps and dApps.
+
+[Learn more at Usher.js' repository →](https://github.com/usherlabs/usher.js)
 
 ## 📦 Packages Overview
 
