@@ -109,7 +109,7 @@ After executing migrations for the first time, an `usher` database will be creat
 3. Navigate to the "USERS" tab and click on the "Add User" button.
 4. Fill in the new user's details. Choose a username and password for the new user, and make sure to enable the "Active" checkbox.
 5. Click on the "Create" button to create the new user.
-6. To grant administrative permissions to the new user for the **`usher`** database, click on the user's name in the "USERS" tab, then scroll down to the "Database Access" section. Find the **`usher`** database in the list and set the "Access Level" dropdown to "Admin". Click "Save" to apply the changes.
+6. To grant administrative permissions to the new user for the **`usher`** database, click on the user's name in the "USERS" section, then go to the "Permissions" tab. Find the **`usher`** database in the list and set the "Access Level" dropdown to "Administrate".
 7. Update your Usher Core configuration to use the new user by setting the **`ARANGO_USERNAME`** and **`ARANGO_PASSWORD`** environment variables to the new user's credentials.
 
 Now, your Usher Core implementation will use the dedicated user to interact with the ArangoDB instance, providing better security.
