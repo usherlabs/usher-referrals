@@ -97,11 +97,6 @@ The Graph package is structured as follows:
 	functions.
 - `tests`: Holds test files.
 
-## Unit Testing
-
-The package, including unit tests, avoid importing `@glaze` or `ceramic`-related packages as they're built
-with `{ "module": "esnext" }`, and this causes a great deal of pain to execute in a Node environment.
-
 ## 🚧 Serverless utilities (Work in progress)
 
 > Serverless utilities are not ready to be used yet. You may expect changes and/or unfinished functionalities here.
