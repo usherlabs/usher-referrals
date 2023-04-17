@@ -169,6 +169,7 @@ By following it, you will be able to:
 
 By following it, you will be able to:
 
+- Install Golang and necessary dependencies to run ArangoMiGO
 - Install ArangoMiGO
 - Run the migration files to create and update the database structure required by Usher Core
 
