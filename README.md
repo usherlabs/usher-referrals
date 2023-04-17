@@ -88,7 +88,7 @@ Usher Core encompasses the necessary code to run:
 
 ### Usher Core (you are here)
 
-Usher Core is the central component of the Usher ecosystem, responsible for operating the primary decentralized application (dApp) driving the Usher experience. Deploying an Usher Core node sets up the fundamental infrastructure, which includes a user-friendly frontend interface and an essential database, allowing you to manage your own partnerships and campaigns with ease and efficiency.
+Usher Core is the central component of the Usher ecosystem, responsible for operating the primary decentralized application (dApp) driving the Usher experience. Deploying an Usher Core node sets up the fundamental infrastructure, which includes a user-friendly frontend interface and communication with essential databases, allowing you to manage your own partnerships and campaigns with ease and efficiency.
 
 ### Usher Programs
 
