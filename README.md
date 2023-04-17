@@ -105,9 +105,8 @@ learn how to deploy each component, please refer to the corresponding package do
 You may find it helpful to:
 
 - **[Create a Vercel account](https://vercel.com/signup)** to support the deployment of the `app` package.
-- **[Set up an AWS account](https://aws.amazon.com/console/)** for database data backup on S3. Refer to the `graph`
-  package to learn more.
-- **[Set up ArangoDB Cloud or On-Premise](https://www.arangodb.com/)** to handle Usher's data.
+- **[Set up ArangoDB Cloud or On-Premise](https://www.arangodb.com/)** to handle Usher's data. Refer to the `graph`
+	package to learn more.
 - **[Create a Sentry account](https://sentry.io/signup/)** to enable error tracking and monitoring for your Usher Core
   deployment. This will help you identify and resolve issues more efficiently, ensuring a smoother user experience.
 
