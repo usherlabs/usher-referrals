@@ -113,23 +113,34 @@ Designed to connect seamlessly to any Usher node, Usher.js references the node's
 | [packages/graph](./packages/graph)       | Manages ArangoDB structure (migration files) and provides serverless utilities for scalability.         |
 | [packages/listener](./packages/listener) | Monitors and processes smart-contract-based conversion events in blockchain ecosystems.                 |
 
-## **🚀** Deployment
+## 🏁 Getting started
+
+1. Ensure your system meets the requirements:
+
+- Node.js (v14 or higher)
+- Yarn (v1)
+
+1. Clone the repository:
+
+```bash
+git clone https://github.com/usherlabs/usher.git
+cd usher
+```
+
+2. To install dependencies, run `yarn install` in the root directory.
+
+	 > Usher Core is a monorepo with multiple packages in the `packages` directory. Each package has its own `package.json` and scripts. Learn more about [Yarn Workspaces](https://classic.yarnpkg.com/en/docs/workspaces/).
+
+3. For package overviews and instructions to start services, refer to the respective package documentation.
+
+
+## **🚀** Usage and Deployment
 
 Users can interact with your deployed Usher Core node in two ways:
 
 - By using the frontend interface deployed by the same node
 - By integrating directly with your servers, utilizing [User Programs](https://github.com/usherlabs/programs) to achieve
   seamless integration.
-
-### You may find it helpful to:
-
-- **[Create a Vercel account](https://vercel.com/signup)** to support the deployment of the `app` package.
-- **[Set up ArangoDB Cloud or On-Premise](https://www.arangodb.com/)** to handle Usher's data. Refer to the `graph`
-	package to learn more.
-- **[Create a Sentry account](https://sentry.io/signup/)** to enable error tracking and monitoring for your Usher Core
-	deployment. This will help you identify and resolve issues more efficiently, ensuring a smoother user experience.
-
-But bear in mind that these are not mandatory steps. You may choose to deploy Usher Core using other preferred services as well.
 
 Deploying each of the packages is a straightforward process. You may find more information about each of them in their respective README files. But here we'll get an overview of the process.
 
@@ -141,7 +152,7 @@ Deploying each of the packages is a straightforward process. You may find more i
 By following it, you will be able to:
 
 - Run the Next.js application locally
-- Deploy the Next.js application to Vercel
+- Deploy this application to Vercel
 
 ### Setting up ArangoDB
 
@@ -173,25 +184,16 @@ It will help you to either:
 
 You may want to deploy the Listener Node if you want to track conversions on blockchain ecosystems or other smart contracts.
 
-## 🏁 Getting started
+### During these steps you may find it helpful to:
 
-1. Ensure your system meets the requirements:
+- **[Create a Vercel account](https://vercel.com/signup)** to support the deployment of the `app` package.
+- **[Set up ArangoDB Cloud or On-Premise](https://www.arangodb.com/)** to handle Usher's data. Refer to the `graph`
+	package to learn more.
+- **[Create a Sentry account](https://sentry.io/signup/)** to enable error tracking and monitoring for your Usher Core
+	deployment. This will help you identify and resolve issues more efficiently, ensuring a smoother user experience.
 
-- Node.js (v14 or higher)
-- Yarn (v1)
+But bear in mind that these are not mandatory steps. You may choose to deploy Usher Core using other preferred services as well.
 
-1. Clone the repository:
-
-```bash
-git clone https://github.com/usherlabs/usher.git
-cd usher
-```
-
-2. To install dependencies, run `yarn install` in the root directory.
-
-   > Usher Core is a monorepo with multiple packages in the `packages` directory. Each package has its own `package.json` and scripts. Learn more about [Yarn Workspaces](https://classic.yarnpkg.com/en/docs/workspaces/).
-
-3. For package overviews and instructions to start services, refer to the respective package documentation.
 
 ## 😵‍💫 Troubleshooting
 
