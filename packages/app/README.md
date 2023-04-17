@@ -14,9 +14,27 @@ This package contains the code to spin up a Next.js app that runs on Usher, prov
 
 The app should now be accessible at `http://localhost:3000`.
 
+For more information on how to get started with Next.js, please refer to the **[official Next.js documentation](https://nextjs.org/docs/getting-started)**.
+
 ### Deploy
 
-You can deploy the app using any Next.js deployment method. We recommend using Vercel for a seamless experience. To learn more, visit **[Vercel's deployment documentation](https://nextjs.org/learn/basics/deploying-nextjs-app/deploy).**
+You may use any method you prefer to deploy the app. We will guide you through deploying with Vercel. Any other deployment method compatible with NextJS structure may be utilized. Please file an issue on this repository if you would like to see a different kind of deployment method that creates friction for you.
+
+**Deploy on Vercel**
+
+1. If you haven't already, sign up for a **[Vercel account](https://vercel.com/signup)**.
+2. Go to the **[Vercel dashboard](https://vercel.com/dashboard)**.
+3. Click on the "Import Project" button.
+4. Choose "Import Git Repository" and provide the URL of your Usher Core Git repository.
+5. During the import process, click on "Advanced Settings" and set the "Root Directory" to **`packages/app`**. This tells Vercel to only deploy the **`packages/app`** directory.
+6. It is required for you to set in the "Environment Variables" section during the import process or later in the project settings.
+7. Click "Deploy" to start the deployment process.
+
+Vercel will automatically build and deploy your app. Once the deployment is complete, you'll receive a unique URL where your app is accessible.
+
+To set up continuous deployment with Vercel and GitHub, follow the **[official Vercel documentation](https://vercel.com/docs/git)**. This will automatically deploy your app whenever you push changes to your GitHub repository.
+
+For more advanced deployment configurations, consult the **[Vercel documentation](https://vercel.com/docs/configuration)**.
 
 ## How does this work?
 
