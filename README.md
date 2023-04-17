@@ -130,35 +130,6 @@ cd usher
 
 3. For package overviews and instructions to start services, refer to the respective package documentation.
 
-### Exposing the local environment with Rathole
-
-To make your local environment accessible for testing and development purposes, you can
-use [Rathole, a lightweight tunneling service](https://github.com/rapiz1/rathole). Follow these steps to set up Rathole:
-
-1. Download the latest Rathole release:
-
-```bash
-wget https://github.com/rapiz1/rathole/releases/download/v0.4.2/rathole-x86_64-apple-darwin.zip
-```
-
-2. Unzip the downloaded file:
-
-```bash
-unzip rathole-x86_64-apple-darwin.zip
-```
-
-3. Move the Rathole executable to your system's binary folder:
-
-```bash
-sudo mv ./rathole /usr/local/bin/
-```
-
-4. Run Rathole with the provided configuration file:
-
-```bash
-rathole ./rathole.toml
-```
-
 ## 😵‍💫 Troubleshooting
 
 - Don’t forget to check if our [Documentation](https://docs.usher.so/) already covers you
