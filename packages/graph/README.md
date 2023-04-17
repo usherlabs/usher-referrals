@@ -30,7 +30,7 @@ collections, indexes, and graphs, while maintaining the integrity of the data.
 
 Learn more about ArangoMiGO in their [**official documentation →**](https://github.com/deusdat/arangomigo)
 
-## ****Getting Started****
+## **Getting Started**
 
 ### **Prerequisites**
 
