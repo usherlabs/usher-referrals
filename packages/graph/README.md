@@ -7,15 +7,6 @@ efficient and scalable blockchain ecosystem.
 
 ## About technologies used
 
-### Ceramic
-
-Ceramic is a decentralized data network that functions like a decentralized MongoDB. It allows users to create and
-manage their JSON documents, which can only be modified by the user and are publicly readable. The documents can adhere
-to the schemas that we produce. Ceramic is used to enable wallets to create partnerships both via our UI and
-programmatically.
-
-Learn more about Ceramic in their [official documentation →](https://developers.ceramic.network/learn/welcome/)
-
 ### ArangoDB
 
 ArangoDB is a multi-model centralized database that offers NoSQL document storage, a graphing system to streamline the
