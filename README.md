@@ -119,6 +119,7 @@ Designed to connect seamlessly to any Usher node, Usher.js references the node's
 
 - Node.js (v14 or higher)
 - Yarn (v1)
+- docker-compose (v1.25.5 or higher)
 
 1. Clone the repository:
 
