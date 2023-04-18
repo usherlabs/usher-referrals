@@ -55,7 +55,7 @@ With these steps, you will have an ArangoDB instance up and running.
 **Using a cloud ArangoDB instance**
 
 1. Sign up for an account on the [ArangoGraph Insights Platform](https://www.arangodb.com/docs/stable/arangograph/), a fully managed ArangoDB service.
-2. Follow the platform's documentation to set up a managed ArangoDB instance. Make sure to note down the connection details, such as the instance URL, port number, database name, username, and password.
+2. Follow the platform's documentation to set up a managed ArangoDB instance. Make sure to note down the connection details, such as the instance URL and port number.
 3. Update your Usher Core configuration to use the cloud ArangoDB instance by setting the appropriate environment variables, such as `ARANGO_URL` and `ARANGO_PORT`.
 
 By following these steps, you will have a cloud ArangoDB instance connected to your Usher Core implementation through the ArangoGraph Insights Platform.
@@ -100,19 +100,6 @@ This command will execute the migration scripts located in the **`migrations`** 
 ArangoMiGO keeps track of executed migrations in a dedicated collection. When running migrations, it applies only new or unexecuted ones in order, ensuring consistency and smooth operation as you update your Usher Core implementation.
 
 [Learn more about ArangoMiGO migrations →](https://github.com/deusdat/arangomigo)
-
-### Creating a dedicated database user
-After executing migrations for the first time, an `usher` database will be created using the root user. However, for security reasons, it is recommended to create a dedicated user for the Usher Core service to interact with the ArangoDB instance. To create a new user using the ArangoDB Web UI, follow these steps, as [described on this page](https://www.arangodb.com/docs/stable/programs-web-interface-users.html):
-
-1. Access the ArangoDB Web UI by navigating to **`http://localhost:8529`** for a local instance, or use the appropriate URL for a cloud instance. Log in using the **`root`** username and the password you set in the **`.env`** file or provided by your cloud provider.
-2. Once logged in, click on the "_System" database in the top-right corner.
-3. Navigate to the "USERS" tab and click on the "Add User" button.
-4. Fill in the new user's details. Choose a username and password for the new user, and make sure to enable the "Active" checkbox.
-5. Click on the "Create" button to create the new user.
-6. To grant administrative permissions to the new user for the **`usher`** database, click on the user's name in the "USERS" section, then go to the "Permissions" tab. Find the **`usher`** database in the list and set the "Access Level" dropdown to "Administrate".
-7. Update your Usher Core configuration to use the new user by setting the **`ARANGO_USERNAME`** and **`ARANGO_PASSWORD`** environment variables to the new user's credentials.
-
-Now, your Usher Core implementation will use the dedicated user to interact with the ArangoDB instance, providing better security.
 
 ## Environment variables overview
 
