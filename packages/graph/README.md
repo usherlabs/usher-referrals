@@ -67,18 +67,10 @@ By following these steps, you will have a cloud ArangoDB instance connected to y
 To set up ArangoMiGO, you'll need to install Golang and build the binary. Follow these steps:
 
 1. Install Golang by following the [official installation guide](https://golang.org/doc/install).
-2. Navigate to the directory you wish to clone and build arangomigo.
-2. Clone the ArangoMiGO repository by running the following command:
+2. Install the ArangoMiGO binaries by running the following command:
 
 ```
-git clone https://github.com/deusdat/arangomigo.git
-```
-
-Navigate to the cloned repository directory and install the ArangoMiGO binary:
-
-```
-cd arangomigo
-go install
+go install github.com/deusdat/arangomigo/cmd/arangomigo@latest
 ```
 
 This command will build an arangomigo executable and then make it available to your environment.
