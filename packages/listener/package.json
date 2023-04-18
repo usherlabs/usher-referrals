@@ -4,7 +4,7 @@
 	"description": "Usher Listener Node",
 	"repository": "git@gitlab.com:usherlabs/core.git",
 	"author": "Ryan Soury <ryan@usher.so>",
-	"license": "UNLICENSED",
+	"license": "AGPL-3.0",
 	"bin": {
 		"listener": "./bin/listener"
 	},
