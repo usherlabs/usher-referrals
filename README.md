@@ -130,10 +130,9 @@ cd usher
 
 2. To install dependencies, run `yarn install` in the root directory.
 
-	 > Usher Core is a monorepo with multiple packages in the `packages` directory. Each package has its own `package.json` and scripts. Learn more about [Yarn Workspaces](https://classic.yarnpkg.com/en/docs/workspaces/).
+   > Usher Core is a monorepo with multiple packages in the `packages` directory. Each package has its own `package.json` and scripts. Learn more about [Yarn Workspaces](https://classic.yarnpkg.com/en/docs/workspaces/).
 
 3. For package overviews and instructions to start services, refer to the respective package documentation.
-
 
 ## **🚀** Usage and Deployment
 
@@ -144,7 +143,6 @@ Users can interact with your deployed Usher Core node in two ways:
   seamless integration.
 
 Deploying each of the packages is a straightforward process. You may find more information about each of them in their respective README files. But here we'll get an overview of the process.
-
 
 ### Setting up our Core Next.js application
 
@@ -190,12 +188,11 @@ You may want to deploy the Listener Node if you want to track conversions on blo
 
 - **[Create a Vercel account](https://vercel.com/signup)** to support the deployment of the `app` package.
 - **[Set up ArangoDB Cloud or On-Premise](https://www.arangodb.com/)** to handle Usher's data. Refer to the `graph`
-	package to learn more.
+  package to learn more.
 - **[Create a Sentry account](https://sentry.io/signup/)** to enable error tracking and monitoring for your Usher Core
-	deployment. This will help you identify and resolve issues more efficiently, ensuring a smoother user experience.
+  deployment. This will help you identify and resolve issues more efficiently, ensuring a smoother user experience.
 
 But bear in mind that these are not mandatory steps. You may choose to deploy Usher Core using other preferred services as well.
-
 
 ## 😵‍💫 Troubleshooting
 
@@ -226,7 +223,9 @@ There are many ways you can contribute to taking Usher’s mission to empower pa
 - What about writing an article and exposing it somewhere? How great would be to help people know there is Usher out
   there desiring to help them build strong communities? Spread the word!
 
-## 🛣️ **Roadmap**
+## 🛣️ **Roadmap to Decentralisation**
+
+Usher, in it's current state, is considered semi-decentralised. While user-data associated to partners/users are managed by the Ceramic data network, cryptocurrency & event-data management are centralised. In time, the following technologies will be integrated to deliver a version of Usher whereby Operators, like yourself, will only need to manage the deployment of the Next.js App, leaving all data and cryptocurrency to be managed by autonomous protocols operated on decentralised systems.
 
 ### **ComposeDB**
 
@@ -240,27 +239,16 @@ various entities.
 
 ### Log Store
 
-We are working on incorporating
-a [decentralized time series database for event management](https://www.usher.so/network/). By transforming real-time
-data streams into queryable datasets and utilizing Arweave's permanent storage, Log Store ensures data reliability and
-easy access.
-
-Log Store will empower users to customize storage preferences and stake cryptocurrency to cover storage costs. This
-decentralized approach enhances event management in Web3 applications, analytics, and business intelligence. Ultimately,
-our aim is to simplify data handling while unlocking its full potential in the constantly evolving Web3 landscape.
+Rather than requiring your partner & brands network to trust that you're managing critical data correctly, Usher will neverage a [decentralized time series database for event management](https://www.usher.so/network/). By collecting referrals, conversions and other events into the Log Store Network, powered by Arweave's permanent storage, we enable a tamper-proof data store so that on-chain remittance cannot be manipulated, keeping all participants of the Usher partner network secure.
 
 ### Remittance Protocol
 
-Usher is working on integrating a Remittance Protocol for decentralized funds management.
+Usher is participating in the development and integration of a Remittance Protocol for decentralized funds management.
 
 This protocol leverages the power of EVM smart contracts and the security of the Internet Computer platform to handle
-crypto incentives deposited by Partner Program Operators and distribute rewards to users participating in marketing
-campaigns.
+the distribution of crypto deposited by Brands adopting performance-based marketing.
 
-Our ultimate goal is to create a secure, transparent, and user-friendly way for operators to deposit incentives and for
-users to claim their rewards. We believe that by using EVM smart contracts and the Internet Computer's decentralized
-infrastructure, we can create a trustless and automatic system that genuinely rewards Partners for their marketing
-efforts.
+Our ultimate goal is to create a secure, transparent, and user-friendly way for Operators to manage an Usher instance, and Partner Network, leaving all security requirements involed in funds management to a secure autonomous decentralised system.
 
 ## 🗎 License
 
@@ -273,4 +261,3 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 You should have received a copy of the GNU Affero General Public License along with this program. If not, see https://www.gnu.org/licenses/agpl-3.0.
 
 Usher is a collaborative effort, and we want to extend our gratitude to all contributors who have helped shape and improve the software.
-
