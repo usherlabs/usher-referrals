@@ -110,11 +110,12 @@ Usher Core encompasses the necessary code to run:
 ## 📦 Packages Overview
 
 | Package Name                             | Description                                                                                             |
-| ---------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| ---------------------------------------- |---------------------------------------------------------------------------------------------------------|
 | [packages/admin](./packages/admin)       | CLI for executing administrative functions on the Usher node.                                           |
 | [packages/app](./packages/app)           | Next.js app provides a user-friendly interface for managing and interacting with Usher functionalities. |
 | [packages/graph](./packages/graph)       | Manages ArangoDB structure (migration files) and provides serverless utilities for scalability.         |
 | [packages/listener](./packages/listener) | Monitors and processes smart-contract-based conversion events in blockchain ecosystems.                 |
+| [packages/ceramic](./packages/ceramic)   | Comprehensive guide for setting up a Ceramic node on a Linux server, including config files and Docker Compose files for both dev and prod environments. (Optional)                                                                                                        |
 
 ## 🏁 Getting started
 
@@ -185,6 +186,12 @@ It will help you to either:
 - Manually deploy the Listener Node to a VPS (e.g. Ubuntu)
 
 You may want to deploy the Listener Node if you want to track conversions on blockchain ecosystems or other smart contracts.
+
+### Setting up a Ceramic Node _(Optional)_
+
+[This guide provided at `packages/ceramic`](./packages/ceramic/README.md#ceramic) will help you set up a Ceramic node for Usher Core.
+
+The **`ceramic`** package provides a comprehensive guide for setting up a Ceramic node for both development and production environments on a Linux server. The guide includes the necessary configuration files, Docker Compose files, and Nginx server configuration for both environments.
 
 ### During these steps you may find it helpful to:
 
