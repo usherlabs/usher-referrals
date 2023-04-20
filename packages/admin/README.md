@@ -4,21 +4,17 @@
 
 This package builds into a CLI that enables you to execute some administrative functions on your Usher node.
 
-## How to run it?
-
-### Environment variables
+## Environment variables
 
 You may need to set up the following environment variables to be able to run this CLI:
 
-| Environment Variable | Description                                                                  |
-| -------------------- | ---------------------------------------------------------------------------- |
-| ARWEAVE_LOCAL_PORT   | Set this if you need to run on a local instance of Arweave.                  |
-| CERAMIC_URL          | Set this to use a Ceramic URL other than https://ceramic-clay.3boxlabs.com/. |
-| DID_KEY              | A secret key for managing the network streams.                               |
+| Environment Variable | Description                                                                                                                                                |
+| -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ARWEAVE_LOCAL_PORT   | Set this if you need to run on a local instance of Arweave - ie. [ArLocal](https://github.com/textury/arlocal).                                            |
+| CERAMIC_URL          | Set this to use a Ceramic URL. https://ceramic.usher.so/ for Production and https://ceramic-clay.3boxlabs.com/ development.                                |
+| DID_KEY              | A secret key for managing the Ceramic Streams. Use [`@glaze/cli`](https://github.com/ceramicstudio/js-glaze/tree/main/packages/cli) to create your own DID |
 
-## How to use it?
-
-### Available commands
+## Available commands
 
 ```
 Usage: uadmin [options] [command]

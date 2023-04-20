@@ -15,7 +15,7 @@
 <div align="center">
    <a href="https://www.usher.so">Website</a>
    <span> | </span>
-   <a href="https://docs.usher.so">Full Docs</a>
+   <a href="https://docs.usher.so">Documentation</a>
    <span> | </span>
    <a href="https://go.usher.so/discord">Discord</a>
    <span> | </span>
@@ -24,85 +24,69 @@
 
 ## 👋 Introduction
 
-**Usher Core** is a monorepo containing the packages that run Usher’s primary decentralized application (dApp). It is
-designed to provide a seamless experience for end users and empower the development of robust communities.
+Usher is an Open Source Partnerships Platform that enables Brands to grow through performance-based marketing.
 
-In this repository, you will find comprehensive documentation to understand how the **Usher Core** functions, how to
-understand our implementation approach and other technical details. For additional concepts around **Usher Core** on
-our [documentation page](https://docs.usher.so/).
+Start a Partner, Affiliate, Ambassador, or Reseller Program by deploying Usher, or engaging a managed Usher network.
 
-Want to know more about Usher before diving into this repository? Find more on [our page](https://www.usher.so/)
-or [Usher’s main documentation](https://docs.usher.so/).
+### For Brands
 
-> ⚠ If you want to learn how to interact with the Usher server from your own dApp, and not deploy an Usher instance,
-> please proceed to the [Usher Programs repository](https://github.com/usherlabs/programs).
+1. Create a Partnership Campaign that defines conversion events and their associated incentives.
+   These events are triggered within your Web App, infrastructure, and even [Smart Contracts](https://www.investopedia.com/terms/s/smart-contracts.asp).
+2. Fund the Campaign to ensure partners are aware of available funds and therefore remaining incentives.
+3. When a conversion event is triggered off the back of a referral, the referrer _(aka. Partner)_ accrues rewards accordingly.
 
-> ⚠ If you want to learn how to interact with an Usher instance, sending tracking conversions from your own web based application to an Usher instance, please proceed to the [Usher.js documentation](https://docs.usher.so/integrating-with-usherjs/what-is-usherjs).
+#### Note on Decentralisation
 
-## **🧭** Navigation
+Usher is being designed to interopate with decentralised systems to enable orchestration of human interactions that yields the fairest outcomes.
+Nonetheless, the user experience will remain familiar and inspired by traditional web applications we know and love - as to minimise user complexity.
+The goal is to ensure **any Brand can leverage Usher** whether they're a [DeFi](https://www.investopedia.com/decentralized-finance-defi-5113835) Protocol, an [eCommerce](https://sell.amazon.com/learn/what-is-ecommerce) store, or even a Content Creator!
 
-[→ Homepage](https://usher.so/)
+### For Partners
 
-[→ Main documentation](https://docs.usher.so/)
+_Partners can be affiliates, ambassadors, influencers, publishers, etc._
 
-→ Core documentation [WIP]
+1. Learn and understand a Campaign to know if it's suitable for your audience, community, or clients.
+2. Engage the Campaign and get a shareable invite link.
+3. Share your link to refer people to the Brand's service.
+4. Earn rewards when referred people trigger conversion events within the Brand's service.
+5. Claim your rewards
 
-## **🌟** Features
+### For Operators
+
+_An Operator is an entity or individual responsible for deploying and managing an Usher instance._
+_This can be the Brand looking to offer a white-labelled partner/affiliate experience, or a third-party, such as a Marketing Agency, Marketplace, or [DAO](https://www.investopedia.com/tech/what-dao/), seeking to elevate its community into evangelists._
+
+1. Deploy the Usher Stack.
+2. Invite your community to your Usher instance to seed the partner network.
+3. _(Optionally)_ Yield a commission when partners claim their rewards.
+
+## 🚏 Navigation
+
+[Homepage →](https://usher.so/)
+
+[Documentation →](https://docs.usher.so/)
+
+[Create Campaigns & Embed Usher in your Application →](https://github.com/usherlabs/programs)
+
+[Track Conversion Events in Web Apps with Usher.js →](https://docs.usher.so/integrating-with-usherjs/what-is-usherjs)
+
+## 🌟 Features
 
 Usher Core encompasses the necessary code to run:
 
-- A user-friendly front-end interface for end users
-- Database migrations to ensure smooth updates
-- Database utilities for backup, indexing, and other essential tasks
+- An application to deliver a user-friendly front-end interface, and server-side operations
+- Database migrations to ensure smooth deployment and updates
 - Command-line tools for administrative support
-- A listener that facilitates conversions based on smart contract events. [Learn more →](https://docs.usher.so/getting-started/how-smart-contracts-are-used)
+- A Listener service that facilitates conversions based on Smart Contract events.
 
-## **📡** Technology stack
-
-- **[Turborepo](https://turbo.build/repo):** powers a blazing-fast build step
-- **[Yarn workspaces](https://classic.yarnpkg.com/lang/en/docs/workspaces/):** package manager with monorepo support
-- **[NextJS](https://nextjs.org/):** React framework for web applications
-- **[Ceramic network](https://ceramic.network/)**: Decentralized data network. Public NoSQL document storage where a
-  user owns his data
-- **[Humanode](https://humanode.io/)**: OAuth and [Sybil Resistance](https://blog.humanode.io/attack-on-sybil/)
-  technology
-- **[ArangoDB](https://arangodb.com/)**: Multi-mode centralized graph database. NoSQL document storage.
-
-## **📐** Core architecture
+## 📐 Core architecture
 
 ![Usher core architecture](images/docs/CoreArchitecture.png)
 
-- **Core dApp**: Usher Core's central component is a NextJS-based dApp that provides an accessible and user-friendly
-  interface for managing campaigns. It also ensures smooth interaction with other services by employing deployed
-  serverless functions.
-- **User-owned Database**: By leveraging Ceramic's decentralized data storage network, Usher Core provides a secure and
-  user-centric data management solution. Ceramic schemas ensure organized and consistent data storage for elements like
-  partnerships, campaign details, and advertiser profiles while allowing users to maintain control over their data.
-- **Sybil Resistance**: Employs Humanode's Sybil Resistance and OAuth systems to maintain the integrity of user
-  interactions within the platform, ensuring that only genuine users can participate in the ecosystem and preserving the
-  security and trustworthiness of user accounts.
-- **Graph Database**: Centralized storage using ArangoDB, a multi-mode graph database. It holds data about user
-  interactions, partnerships, campaigns, and more.
-
-## 🛰️ Usher Ecossystem
-
-### Usher Core (you are here)
-
-Usher Core is the central component of the Usher ecosystem, responsible for operating the primary decentralized application (dApp) driving the Usher experience. Deploying an Usher Core node sets up the fundamental infrastructure, which includes a user-friendly frontend interface and communication with essential databases, allowing you to manage your own partnerships and campaigns with ease and efficiency.
-
-### Usher Programs
-
-Usher Programs streamline integration between your application and an Usher Core instance, focusing on campaign and partnership management. It supports authentication and wallet connections, ensuring smooth integration and seamless user interactions with your application.
-
-[Learn more at Usher Programs' repository →](https://github.com/usherlabs/programs)
-
-### Usher.js
-
-Usher.js is a JavaScript library enabling brands to manage and track referrals and conversions within JavaScript-enabled web applications or browser extensions. You may set it up to track conversions in various scenarios, such as user registration, staking cryptocurrency, or depositing funds into a crypto wallet.
-
-Designed to connect seamlessly to any Usher node, Usher.js references the node's URL when instantiating the UsherJS object, simplifying conversion tracking across web apps and dApps.
-
-[Learn more at Usher.js' repository →](https://github.com/usherlabs/usher.js)
+- **Core Web App**: Usher Core's central component is a **[NextJS](https://nextjs.org/)**-based Application that provides an accessible and user-friendly interface for managing campaigns. It also ensures smooth interaction with other services by employing deployed serverless functions.
+- **User-owned Database**: By leveraging **[Ceramic](https://ceramic.network/)**'s decentralized data storage network, Usher Core provides a secure and user-centric data management solution. Ceramic schemas ensure organized and consistent data storage for elements like partnerships, campaign details, and advertiser profiles while allowing users to maintain control over their data.
+- **Sybil Resistance**: Employs **[Humanode](https://humanode.io/)**'s [Sybil Resistance](https://blog.humanode.io/attack-on-sybil/) and OAuth systems to maintain the integrity of user interactions within the platform, ensuring that only genuine users can participate in the ecosystem and preserving the security and trustworthiness of user accounts.
+- **Graph Database**: Centralized storage using **[ArangoDB](https://arangodb.com/)**, a multi-mode graph database. It holds data about user interactions, partnerships, campaigns, and more.
 
 ## 📦 Packages Overview
 
@@ -250,7 +234,7 @@ the distribution of crypto deposited by Brands adopting performance-based market
 
 Our ultimate goal is to create a secure, transparent, and user-friendly way for Operators to manage an Usher instance, and Partner Network, leaving all security requirements involed in funds management to a secure autonomous decentralised system.
 
-## 🗎 License
+## 📜 License
 
 Copyright (c) 2022 Usher Labs Pty Ltd & Ryan Soury
 

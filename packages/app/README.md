@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This package contains the code to spin up a Next.js app that runs on Usher, providing a user-friendly interface for managing and interacting with Usher functionalities. The app not only serves as a front-end solution for the Usher Core but also spins up endpoints to communicate with this Usher node.
+Spin up the Usher Next.js app to deliver a user-friendly interface for your Partner Network participants.
 
 ## How to run it?
 
@@ -10,7 +10,9 @@ This package contains the code to spin up a Next.js app that runs on Usher, prov
 
 1. Make sure you have followed the install instructions provided at the root of this repository.
 2. Navigate to this directory in your terminal.
-3. Execute `yarn dev` to start the development server.
+3. Read the `.env.example` to learn which services to incorporate.
+4. Copy the `.env.example` to a `.env` file within the `packages/app`
+5. Execute `yarn dev` to start the development server.
 
 The app should now be accessible at `http://localhost:3000`.
 
@@ -55,9 +57,9 @@ We recommend you get comfortable with [NextJS](https://nextjs.org/docs/getting-s
 - `containers`: Houses React.js components that serve as the foundation for a UI and/or wrap other components.
 - `hooks`: Contains React.js hooks for reusable functional component state/variable management.
 - `modules`:
-	- `auth`: An authentication module for DID creation based on wallet connection and multi-wallet functionality management.
+  - `auth`: An authentication module for DID creation based on wallet connection and multi-wallet functionality management.
 - `pages`: Required folder for Next.js, serving as the entry point to the Next.js file/page routing mechanism. [Learn more →](https://nextjs.org/docs/basic-features/pages)
-	- `api`: API endpoints leveraging the Next.js file/page routing system. Endpoint handlers in these files use the next-connect NPM package to deliver an API management experience similar to express.js. [Learn more →](https://github.com/hoangvvo/next-connect)
+  - `api`: API endpoints leveraging the Next.js file/page routing system. Endpoint handlers in these files use the next-connect NPM package to deliver an API management experience similar to express.js. [Learn more →](https://github.com/hoangvvo/next-connect)
 - `providers`: Contains React.js Context Providers that manage global states.
 - `seed`: Holds seed data to be used in place of actual API requests for streamlined local development.
 - `server`: Contains configuration and handlers relevant only to server-side logic, such as middleware for API endpoints.
