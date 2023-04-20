@@ -37,7 +37,7 @@ Start a Partner, Affiliate, Ambassador, or Reseller Program by deploying Usher, 
 
 #### Note on Decentralisation
 
-Usher is being designed to interopate with decentralised systems to enable orchestration of human interactions that yields the fairest outcomes.
+Usher is being designed to interoperate with decentralised systems to enable the orchestration of human interactions that yield the fairest outcomes.
 Nonetheless, the user experience will remain familiar and inspired by traditional web applications we know and love - as to minimise user complexity.
 The goal is to ensure **any Brand can leverage Usher** whether they're a [DeFi](https://www.investopedia.com/decentralized-finance-defi-5113835) Protocol, an [eCommerce](https://sell.amazon.com/learn/what-is-ecommerce) store, or even a Content Creator!
 
@@ -54,7 +54,7 @@ _Partners can be affiliates, ambassadors, influencers, publishers, etc._
 ### For Operators
 
 _An Operator is an entity or individual responsible for deploying and managing an Usher instance._
-_This can be the Brand looking to offer a white-labelled partner/affiliate experience, or a third-party, such as a Marketing Agency, Marketplace, or [DAO](https://www.investopedia.com/tech/what-dao/), seeking to elevate its community into evangelists._
+_This can be the Brand looking to offer a white-labelled partner/affiliate experience, or a third party, such as a Marketing Agency, Marketplace, or [DAO](https://www.investopedia.com/tech/what-dao/), seeking to elevate its community into evangelists._
 
 1. Deploy the Usher Stack.
 2. Invite your community to your Usher instance to seed the partner network.
