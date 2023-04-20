@@ -37,7 +37,7 @@ Start a Partner, Affiliate, Ambassador, or Reseller Program by deploying Usher, 
 
 #### Note on Decentralisation
 
-Usher is being designed to interoperate with decentralised systems to enable the orchestration of human interactions that yield the fairest outcomes.
+Usher is being designed to interoperate with decentralised systems to yield the fairest outcomes for all participants.
 Nonetheless, the user experience will remain familiar and inspired by traditional web applications we know and love - as to minimise user complexity.
 The goal is to ensure **any Brand can leverage Usher** whether they're a [DeFi](https://www.investopedia.com/decentralized-finance-defi-5113835) Protocol, an [eCommerce](https://sell.amazon.com/learn/what-is-ecommerce) store, or even a Content Creator!
 
@@ -59,6 +59,19 @@ _This can be the Brand looking to offer a white-labelled partner/affiliate exper
 1. Deploy the Usher Stack.
 2. Invite your community to your Usher instance to seed the partner network.
 3. _(Optionally)_ Yield a commission when partners claim their rewards.
+
+#### Note on Rewards
+
+Rewards are handled using cryptocurrency, ensuring that any pariticpant across the globe can access it.
+Currently, the Operator is responsible for storing **encrypted** Wallet Private Keys within their Database.
+Each Campaign has a corresponding wallet that is funded by the Brand responsible for the Campaign.
+_Decentralisation of funds management coming soon..._
+
+These rewards can be:
+
+1. ERC20 tokens such as [USDC](https://www.coingecko.com/en/coins/usd-coin), or [ETH](https://www.coingecko.com/en/coins/ethereum)
+2. ERC721 or ERC1155 NFTs
+3. There's also logic to support [AR](https://www.coingecko.com/en/coins/arweave) tokens
 
 ## 🚏 Navigation
 
@@ -87,6 +100,8 @@ Usher Core encompasses the necessary code to run:
 - **User-owned Database**: By leveraging **[Ceramic](https://ceramic.network/)**'s decentralized data storage network, Usher Core provides a secure and user-centric data management solution. Ceramic schemas ensure organized and consistent data storage for elements like partnerships, campaign details, and advertiser profiles while allowing users to maintain control over their data.
 - **Sybil Resistance**: Employs **[Humanode](https://humanode.io/)**'s [Sybil Resistance](https://blog.humanode.io/attack-on-sybil/) and OAuth systems to maintain the integrity of user interactions within the platform, ensuring that only genuine users can participate in the ecosystem and preserving the security and trustworthiness of user accounts.
 - **Graph Database**: Centralized storage using **[ArangoDB](https://arangodb.com/)**, a multi-mode graph database. It holds data about user interactions, partnerships, campaigns, and more.
+- _(Optional)_ **Listener Service**: An service for listening to an EVM Blockchain and creating conversions off the back of Smart Contract events.
+  - Where a Campaign is configured to include events that reference Smart Contracts, the Shareable Invite Links will request a Wallet Connection from referred users to capture their wallets and attribute them to a Partner's referrals
 
 ## 📦 Packages Overview
 
@@ -123,10 +138,9 @@ cd usher
 Users can interact with your deployed Usher Core node in two ways:
 
 - By using the frontend interface deployed by the same node
-- By integrating directly with your servers, utilizing [User Programs](https://github.com/usherlabs/programs) to achieve
-  seamless integration.
+- By integrating directly with your servers, utilizing [User Programs](https://github.com/usherlabs/programs)
 
-Deploying each of the packages is a straightforward process. You may find more information about each of them in their respective README files. But here we'll get an overview of the process.
+Deploying each of the packages requires a review of information in each of their README files.
 
 ### Setting up our Core Next.js application
 
@@ -156,7 +170,7 @@ By following it, you will be able to:
 - Install ArangoMiGO
 - Run the migration files to create and update the database structure required by Usher Core
 
-### Setting up the Listener Node (Optional)
+### Setting up the Listener Node _(Optional)_
 
 [This guide provided at `packages/listener`](./packages/listener/README.md#deploy) will help you set up the Listener Node for Usher Core.
 
@@ -233,6 +247,120 @@ This protocol leverages the power of EVM smart contracts and the security of the
 the distribution of crypto deposited by Brands adopting performance-based marketing.
 
 Our ultimate goal is to create a secure, transparent, and user-friendly way for Operators to manage an Usher instance, and Partner Network, leaving all security requirements involed in funds management to a secure autonomous decentralised system.
+
+## Example Campaigns
+
+[See Documentation](https://docs.usher.so/grow-your-brand/the-campaign-object) to learn more about the meaning of the following objects/properties.
+
+### Default Conversion Tracking
+
+```json
+{
+	// Refers to the Campaign's wallet holding funds
+	"id": "QOttOj5CmOJnzBHrqaCLImXJ9RwHVbMDY0QPEmcWptQ",
+	"chain": "arweave",
+	"owner": "ksFTLgrwQGtNrhRz6MWyd3a4lvK1Oh-QF1HYcEeeFVk",
+	"events": [
+		{
+			"strategy": "percentage",
+			// Rewards a 50% commission per conversion.
+			"rate": 0.5,
+			"description": "brands submit their partnership program setup via the Usher Campaign Onboarding Form"
+		},
+		{
+			"strategy": "flat",
+			// Rewards 0.05 AR tokens per conversion
+			"rate": 0.05,
+			"description": "brands submit their interest for a partnership program on the Usher website"
+		}
+	],
+	"reward": {
+		"name": "Arweave",
+		"ticker": "AR",
+		"type": "token"
+	},
+	"details": {
+		"destination_url": "https://go.usher.so/start-a-campaign?ref=usher_dapp",
+		"name": "Usher ❤️ Arweave Reseller Program",
+		"description": "Refer Web3 Brands building & growing on the Arweave Blockchain to Usher and earn up to 50% commission when Rewards are claimed from their Campaigns.",
+		"image": "https://usher-pub.s3.amazonaws.com/onlyarweave-posh.png"
+	},
+	"advertiser": {
+		"name": "Usher",
+		"icon": "https://pages.usher.so/wp-content/uploads/2022/03/usher-logo-medium.png",
+		"description": "Partnerships for Web3",
+		"external_link": "https://usher.so",
+		"twitter": "https://twitter.com/usher_web3"
+	},
+	// Disable Proof-of-Personhood Verification (powered by Humanode)
+	"disable_verification": true,
+	"whitelist": {
+		// Here you can modify the campaignt to whitelist partners using their Parntership Stream ID -- ie. Invite Link ID
+		"partners": [
+			"kjzl6cwe1jw146p6jys6zlxhflmztj4dl7atshqglrl0k7ezbbnpmvzmsb02091"
+		],
+		// Set an external link that will show to partners, so that they're aware of where to be whitelisted.
+		"external_link": "https://discord.gg/mDUMfhqUcH"
+	},
+	// The _internal property is created automatically using the @usher.so/programs Campaigns CLI.
+	// The CLI tool will create a new wallet, encrypt it's private key using your Admin DID, and then store it here.
+	// At partner reward claim, the
+	"_internal": {
+		"address": "QOttOj5CmOJnzBHrqaCLImXJ9RwHVbMDY0QPEmcWptQ",
+		"key": "........"
+	}
+}
+```
+
+### Smart Contract Conversion Tracking
+
+```json
+{
+	"id": "0x7982bEDc1D35CDc08Dd3572c0a4cc225D55a4447",
+	"chain": "ethereum",
+	"events": [
+		{
+			"strategy": "flat",
+			"rate": 0.1,
+			"description": "Task Created",
+			"contract_address": "0xabBA944b417D1E1310a673eC410d03B02B7557F6",
+			"contract_event": "TaskCreated(uint256,string,bool)"
+		},
+		{
+			"strategy": "flat",
+			"rate": 0.2,
+			"description": "Task Toggled",
+			"contract_address": "0xabBA944b417D1E1310a673eC410d03B02B7557F6",
+			"contract_event": "TaskToggled(uint256,bool)"
+		}
+	],
+	"reward": {
+		"name": "ChainLink",
+		"ticker": "LINK",
+		"type": "erc20",
+		"limit": 10,
+		"address": "0x326C977E6efc84E512bB9C30f76E30c160eD06FB"
+	},
+	"conflict_strategy": "PASSTHROUGH",
+	"disable_verification": true,
+	"details": {
+		"destination_url": "https://victorshevtsov.github.io/brand-app/",
+		"name": "Usher ❤️ Ethereum Reseller Program",
+		"description": "Refer Web3 Brands building & growing on the Ethereum Blockchain to Usher and earn up to 50% commission when Rewards are claimed from their Campaigns."
+	},
+	"advertiser": {
+		"name": "Usher",
+		"icon": "https://pages.usher.so/wp-content/uploads/2022/03/usher-logo-medium.png",
+		"description": "Partnerships for Web3",
+		"external_link": "https://usher.so",
+		"twitter": "https://twitter.com/usher_web3"
+	},
+	"_internal": {
+		"address": "0x7982bEDc1D35CDc08Dd3572c0a4cc225D55a4447",
+		"key": "........"
+	}
+}
+```
 
 ## 📜 License
 
