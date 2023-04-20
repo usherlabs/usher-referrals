@@ -62,7 +62,7 @@ _This can be the Brand looking to offer a white-labelled partner/affiliate exper
 
 #### Note on Rewards
 
-Rewards are handled using cryptocurrency, ensuring that any pariticpant across the globe can access it.
+Rewards are handled using cryptocurrency, ensuring accessibility for participants across the world.
 Currently, the Operator is responsible for storing **encrypted** Wallet Private Keys within their Database.
 Each Campaign has a corresponding wallet that is funded by the Brand responsible for the Campaign.
 _Decentralisation of funds management coming soon..._
