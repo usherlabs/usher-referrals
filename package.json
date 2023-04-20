@@ -5,7 +5,7 @@
 	"repository": "git@gitlab.com:usherlabs/core.git",
 	"homepage": "https://usher.so/",
 	"author": "Ryan Soury <ryan@usher.so>",
-	"license": "UNLICENSED",
+	"license": "AGPL-3.0",
 	"private": true,
 	"scripts": {
 		"clean": "del packages/*/node_modules node_modules",
