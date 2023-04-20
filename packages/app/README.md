@@ -22,13 +22,16 @@ For more information on how to get started with Next.js, please refer to the **[
 
 You may use any method you prefer to deploy the app. We will guide you through deploying with Vercel. Any other deployment method compatible with NextJS structure may be utilized. Please file an issue on this repository if you would like to see a different kind of deployment method that creates friction for you.
 
-**Deploy on Vercel**
+#### Deploy on Vercel
 
 1. If you haven't already, sign up for a **[Vercel account](https://vercel.com/signup)**.
 2. Go to the **[Vercel dashboard](https://vercel.com/dashboard)**.
 3. Click on the "Import Project" button.
 4. Choose "Import Git Repository" and provide the URL of your Usher Core Git repository.
-5. During the import process, click on "Advanced Settings" and set the "Root Directory" to **`packages/app`**. This tells Vercel to only deploy the **`packages/app`** directory.
+5. Configure your Project Settings
+   1. **Build & Development Settings** should include a **Build Command**: `cd ../.. && yarn turbo run build --filter=...@usher/app`
+   2. **Root Directory** is `packages/app`.
+   3. Enable "Include source files outside of the Root Directory in the Build Step."
 6. It is required for you to set in the "Environment Variables" section during the import process or later in the project settings.
 7. Click "Deploy" to start the deployment process.
 
