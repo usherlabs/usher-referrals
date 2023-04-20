@@ -1,0 +1,14 @@
+version: "3"
+
+services:
+  ceramic:
+    image: ceramicnetwork/js-ceramic:latest
+    volumes:
+      - ./volumes/ceramic:/root/.ceramic
+    environment:
+      NODE_ENV: development
+    ports:
+      - 7007:7007
+    restart: unless-stopped
+
+
