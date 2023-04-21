@@ -229,11 +229,11 @@ There are many ways you can contribute to taking Usher’s mission to empower pa
 
 - [x] Partner Dashboard where Campaigns can be engaged, invite links created, and rewards can be claimed.
 - [x] General Link Sharing for Wallet Connections - to simplify Community wallet collection.
-- [] Simplify authentication to allow Operators to toggle on **Magic Auth** and/or **Sign in with Ethereum**.
-- [] Brand Dashboard for Analytics, Partner Management and Manual Remittance.
-- [] System Console to enable UI driven platform management.
-- [] Enable Plugins where Operators can simply enhance their Usher instance with integrations.
-- [] Decentralise data and funds management to simplify Operator deployments and management.
+- [ ] Simplify authentication to allow Operators to toggle on **Magic Auth** and/or **Sign in with Ethereum**.
+- [ ] Brand Dashboard for Analytics, Partner Management and Manual Remittance.
+- [ ] System Console to enable UI driven platform management.
+- [ ] Enable Plugins where Operators can simply enhance their Usher instance with integrations.
+- [ ] Decentralise data and funds management to simplify Operator deployments and management.
 
 ## Example Campaigns
 
