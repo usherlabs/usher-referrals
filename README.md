@@ -232,7 +232,7 @@ There are many ways you can contribute to taking Usher’s mission to empower pa
 [] Simplify authentication to allow Operators to toggle on **Magic Auth** and/or **Sign in with Ethereum**.
 [] Brand Dashboard for Analytics, Partner Management and Manual Remittance.
 [] System Console to enable UI driven platform management.
-[] Enable Plugins where can Operators simply enhance their Usher instance with integrations.
+[] Enable Plugins where Operators can simply enhance their Usher instance with integrations.
 [] Decentralise data and funds management to simplify Operator deployments and management.
 
 ## Example Campaigns
