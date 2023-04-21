@@ -225,32 +225,15 @@ There are many ways you can contribute to taking Usher’s mission to empower pa
 - What about writing an article and exposing it somewhere? How great would be to help people know there is Usher out
   there desiring to help them build strong communities? Spread the word!
 
-## 🛣️ **Roadmap to Decentralisation**
+## 🛣️ Roadmap
 
-Usher, in it's current state, is considered semi-decentralised. While user-data associated to partners/users are managed by the Ceramic data network, cryptocurrency & event-data management are centralised. In time, the following technologies will be integrated to deliver a version of Usher whereby Operators, like yourself, will only need to manage the deployment of the Next.js App, leaving all data and cryptocurrency to be managed by autonomous protocols operated on decentralised systems.
-
-### **ComposeDB**
-
-As part of our future roadmap, we're evaluating the possibility of migrating
-to [ComposeDB](https://composedb.js.org/docs/0.4.x/graph-structure), a graph structure built for managing data on
-Ceramic. This transition aims to streamline our data handling processes by utilizing a decentralized graph structure
-that supports accounts and documents.
-
-ComposeDB would enable us to manage Ceramic's Decentralized Identifiers (DIDs) and provide secure authentication for
-various entities.
-
-### Log Store
-
-Rather than requiring your partner & brands network to trust that you're managing critical data correctly, Usher will neverage a [decentralized time series database for event management](https://www.usher.so/network/). By collecting referrals, conversions and other events into the Log Store Network, powered by Arweave's permanent storage, we enable a tamper-proof data store so that on-chain remittance cannot be manipulated, keeping all participants of the Usher partner network secure.
-
-### Remittance Protocol
-
-Usher is participating in the development and integration of a Remittance Protocol for decentralized funds management.
-
-This protocol leverages the power of EVM smart contracts and the security of the Internet Computer platform to handle
-the distribution of crypto deposited by Brands adopting performance-based marketing.
-
-Our ultimate goal is to create a secure, transparent, and user-friendly way for Operators to manage an Usher instance, and Partner Network, leaving all security requirements involed in funds management to a secure autonomous decentralised system.
+[x] Partner Dashboard where Campaigns can be engaged, invite links created, and rewards can be claimed.
+[x] General Link Sharing for Wallet Connections - to simplify Community wallet collection.
+[] Simplify authentication to allow Operators to toggle on **Magic Auth** and/or **Sign in with Ethereum**.
+[] Brand Dashboard for Analytics, Partner Management and Manual Remittance.
+[] System Console to enable UI driven platform management.
+[] Enable Plugins where can Operators simply enhance their Usher instance with integrations.
+[] Decentralise data and funds management to simplify Operator deployments and management.
 
 ## Example Campaigns
 
