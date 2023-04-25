@@ -1,0 +1,26 @@
+{
+	"anchor": {
+		"ethereum-rpc-url": "https://eth-mainnet.alchemyapi.io/v2/30XZ8ij93MdyR6wSM56lsBx1v2nfAwl1"
+	},
+	"http-api": {
+		"cors-allowed-origins": [
+			".*"
+		]
+	},
+	"ipfs": {
+		"mode": "remote",
+		"host": "http://ipfs:5001"
+	},
+	"logger": {
+		"log-level": 2,
+		"log-to-files": true
+	},
+	"network": {
+		"name": "elp"
+	},
+	"node": {},
+	"state-store": {
+		"mode": "s3",
+		"s3-bucket": "usher-ceramic"
+	}
+}
