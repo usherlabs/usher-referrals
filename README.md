@@ -110,12 +110,12 @@ Usher Core encompasses the necessary code to run:
 ## 📦 Packages Overview
 
 | Package Name                             | Description                                                                                             |
-| ---------------------------------------- |---------------------------------------------------------------------------------------------------------|
+| ---------------------------------------- | ------------------------------------------------------------------------------------------------------- |
 | [packages/admin](./packages/admin)       | CLI for executing administrative functions on the Usher node.                                           |
 | [packages/app](./packages/app)           | Next.js app provides a user-friendly interface for managing and interacting with Usher functionalities. |
 | [packages/graph](./packages/graph)       | Manages ArangoDB structure (migration files) and provides serverless utilities for scalability.         |
-| [packages/listener](./packages/listener) | Monitors and processes smart-contract-based conversion events in blockchain ecosystems.                 |
-| [packages/ceramic](./packages/ceramic)   | Comprehensive guide for setting up a Ceramic node on a Linux server, including config files and Docker Compose files for both dev and prod environments. (Optional)                                                                                                        |
+| [packages/listener](./packages/listener) | _Optionally_ set up a Blockchain listener to create conversions off the back of Smart Contract events.  |
+| [packages/ceramic](./packages/ceramic)   | _Optionally_ set up your own Ceramic node on a Linux server.                                            |
 
 ## 🏁 Getting started
 
@@ -189,9 +189,9 @@ You may want to deploy the Listener Node if you want to track conversions on blo
 
 ### Setting up a Ceramic Node _(Optional)_
 
-[This guide provided at `packages/ceramic`](./packages/ceramic/README.md#ceramic) will help you set up a Ceramic node for Usher Core.
+By default, you can use Usher's Public Ceramic Node for Production purposes - **hosted at [https://ceramic.usher.so](https://ceramic.usher.so)**.
 
-The **`ceramic`** package provides a comprehensive guide for setting up a Ceramic node for both development and production environments on a Linux server. The guide includes the necessary configuration files, Docker Compose files, and Nginx server configuration for both environments.
+If you prefer to manage your own Cermaic Node for administative purposes, [the guide outlined in `packages/ceramic`](./packages/ceramic/README.md#ceramic) will help you set up a Ceramic node for Usher Core.
 
 ### During these steps you may find it helpful to:
 
