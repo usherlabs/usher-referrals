@@ -1,11 +1,9 @@
 {
 	"anchor": {
-		"ethereum-rpc-url": "https://eth-mainnet.alchemyapi.io/v2/30XZ8ij93MdyR6wSM56lsBx1v2nfAwl1"
+		"ethereum-rpc-url": "https://eth-mainnet.alchemyapi.io/v2/"
 	},
 	"http-api": {
-		"cors-allowed-origins": [
-			".*"
-		]
+		"cors-allowed-origins": [".*"]
 	},
 	"ipfs": {
 		"mode": "remote",
