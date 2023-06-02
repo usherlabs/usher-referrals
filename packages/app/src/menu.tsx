@@ -1,15 +1,6 @@
-import {
-	UilArrowGrowth,
-	UilBookAlt,
-	// Temporary hidden
-	// UilComments,
-	UilDiscord,
-	UilGithub,
-	UilLink,
-	UilStar,
-	UilUsersAlt
-} from "@iconscout/react-unicons";
-import { ReactElement } from "react";
+import {UilArrowGrowth, UilLink, UilUsersAlt} from "@iconscout/react-unicons";
+import {ReactElement} from "react";
+import {footerItems} from "@/brand/footer-links";
 
 export type MenuItem = {
 	href: string;
@@ -43,33 +34,6 @@ const mainItems: MenuItem[] = [
 		href: "/explore",
 		text: "Campaigns",
 		icon: <UilArrowGrowth size={28} />
-	}
-];
-
-const footerItems: MenuItem[] = [
-	{
-		href: "https://usher.so/?ref=app",
-		text: "About",
-		icon: <UilStar size={28} />,
-		isExternal: true
-	},
-	{
-		href: "https://docs.usher.so/?ref=app",
-		text: "Docs",
-		icon: <UilBookAlt size={28} />,
-		isExternal: true
-	},
-	{
-		href: "https://go.usher.so/discord",
-		text: "Discord",
-		icon: <UilDiscord size={28} />,
-		isExternal: true
-	},
-	{
-		href: "https://github.com/usherlabs",
-		text: "GitHub",
-		icon: <UilGithub size={28} />,
-		isExternal: true
 	}
 ];
 
