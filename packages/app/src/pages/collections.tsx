@@ -4,7 +4,7 @@ import { Pane, ThemeProvider } from "evergreen-ui";
 import Collections from "@/components/Collection/Collections";
 import PageHeader from "@/components/PageHeader";
 import { CollectionsContextProvider } from "@/providers/Collections";
-import { newTheme } from "@/themes/newTheme";
+import { newTheme } from "@/brand/themes/newTheme";
 import * as mediaQueries from "@/utils/media-queries";
 
 type Props = {};

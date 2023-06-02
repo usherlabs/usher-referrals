@@ -20,7 +20,7 @@ import { isProd, mauticOrigin } from "@/env-config";
 import { AppEvents, events } from "@/utils/events";
 
 import { initOnboard } from "@/utils/onboard";
-import { theme } from "@/themes/theme";
+import { theme } from "@/brand/themes/theme";
 
 type Props = AppProps & {
 	pageProps: {

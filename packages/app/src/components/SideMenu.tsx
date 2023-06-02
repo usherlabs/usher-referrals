@@ -6,7 +6,7 @@ import Anchor from "@/components/Anchor";
 import { menu } from "@/menu";
 import * as mediaQueries from "@/utils/media-queries";
 import { MenuItems } from "@/components/MenuItems";
-import { SidePanelLogo } from "@/brand-components/Logo/SidePanelLogo";
+import { SidePanelLogo } from "@/brand/logo/SidePanelLogo";
 
 type Props = {
 	width: number;
