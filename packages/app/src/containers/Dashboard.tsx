@@ -258,6 +258,7 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 						onWalletClick={onWalletToggle}
 						onSettingsClick={onSettings}
 						onLogoutClick={onLogout}
+
 					/>
 				</Pane>
 				<Pane
