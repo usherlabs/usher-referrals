@@ -7,8 +7,8 @@ import { useRouter } from "next/router";
 import { useCallback, useEffect, useState } from "react";
 
 import * as api from "@/api";
-import LogoImage from "@/assets/logo/Logo.png";
 import WalletInvite from "@/components/WalletInvite";
+import { BrandLogoImageDark } from "@/brand/logo/BrandLogo";
 
 type Link = {
 	id: string;
@@ -80,7 +80,7 @@ const LinkPage: React.FC = () => {
 				alignItems="center"
 				justifyContent="center"
 			>
-				<Image src={LogoImage} width={120} objectFit="contain" />
+				<Image src={BrandLogoImageDark} width={120} objectFit="contain" />
 			</Pane>
 		</Pane>
 	);

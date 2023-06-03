@@ -15,9 +15,9 @@ import {
 import { ChangeEvent, useCallback, useState } from "react";
 
 import { useCollections } from "@/hooks/use-collections";
+import { useCustomTheme } from "@/brand/themes/theme";
 import { Link } from "../../programs/collections/types";
 import Anchor from "../Anchor";
-import { useCustomTheme } from "@/brand/themes/theme";
 
 type Props = {
 	link: Link;

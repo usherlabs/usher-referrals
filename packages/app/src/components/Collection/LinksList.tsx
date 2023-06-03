@@ -6,8 +6,8 @@ import { TextFit } from "@/components/TextFit";
 import { useCollections } from "@/hooks/use-collections";
 import { Link } from "@/programs/collections/types";
 import { getCollectionLink } from "@/utils/get-collection-link";
-import LinkChart from "./LinkChart";
 import { useCustomTheme } from "@/brand/themes/theme";
+import LinkChart from "./LinkChart";
 
 type Props = {
 	onSelect: (link: Link) => void;

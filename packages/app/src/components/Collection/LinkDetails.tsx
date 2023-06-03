@@ -13,8 +13,8 @@ import SideSheet from "@/components/SideSheet";
 import { TextFit } from "@/components/TextFit";
 import { useCollections } from "@/hooks/use-collections";
 import { getCollectionLink } from "@/utils/get-collection-link";
-import LinkEditor from "./LinkEditor";
 import { useCustomTheme } from "@/brand/themes/theme";
+import LinkEditor from "./LinkEditor";
 
 type Props = {
 	onEditorClose: () => void;

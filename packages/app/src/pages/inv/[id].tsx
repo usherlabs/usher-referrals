@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-shadow */
 import * as api from "@/api";
-import LogoImage from "@/assets/logo/Logo.png";
 import Captcha from "@/components/Captcha";
 import Preloader from "@/components/Preloader";
 import WalletInvite from "@/components/WalletInvite";
@@ -20,6 +19,7 @@ import { useRouter } from "next/router";
 import { useCallback, useEffect, useState } from "react";
 import { Campaigns } from "@usher.so/campaigns";
 import { API_OPTIONS } from "@/constants";
+import { BrandLogoImageDark } from "@/brand/logo/BrandLogo";
 
 const onError = () => {
 	window.location.replace(`/link-error`);
@@ -231,7 +231,7 @@ const Invite: React.FC<Props> = () => {
 				alignItems="center"
 				justifyContent="center"
 			>
-				<Image src={LogoImage} width={120} objectFit="contain" />
+				<Image src={BrandLogoImageDark} width={120} objectFit="contain" />
 			</Pane>
 		</Pane>
 	);

@@ -1,6 +1,6 @@
-import {UilArrowGrowth, UilLink, UilUsersAlt} from "@iconscout/react-unicons";
-import {ReactElement} from "react";
-import {footerItems} from "@/brand/footer-links";
+import { UilArrowGrowth, UilLink, UilUsersAlt } from "@iconscout/react-unicons";
+import { ReactElement } from "react";
+import { footerItems } from "@/brand/footer-links";
 
 export type MenuItem = {
 	href: string;

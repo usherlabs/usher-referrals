@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Breakpoints } from "@/types";
 import { useWindowSize } from "@/hooks";
-import {useRouteChange} from "@/hooks/use-route-change";
+import { useRouteChange } from "@/hooks/use-route-change";
 
 /**
  * Hook to handle the mobile menu state.

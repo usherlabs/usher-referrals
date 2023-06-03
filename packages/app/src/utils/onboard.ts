@@ -4,7 +4,7 @@ import { init } from "@web3-onboard/react";
 import injectedModule from "@web3-onboard/injected-wallets";
 import walletconnectModule from "@web3-onboard/walletconnect";
 import { OnboardAPI } from "@web3-onboard/core";
-// import UsherIcon from "@/assets/logo/Logo-Icon";
+// import UsherIcon from "@/assets/logo/Usher-Logo-Icon";
 
 const coinbase = coinbaseModule();
 const injected = injectedModule();
