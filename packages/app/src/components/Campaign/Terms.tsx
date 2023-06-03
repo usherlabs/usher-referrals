@@ -6,14 +6,13 @@
 import React from "react";
 import {
 	Alert,
-	UnorderedList,
-	ListItem,
-	Strong,
-	Paragraph,
 	Button,
+	ListItem,
 	majorScale,
-	useTheme,
-	Pane
+	Pane,
+	Paragraph,
+	Strong,
+	UnorderedList
 } from "evergreen-ui";
 import startCase from "lodash/startCase";
 import { css } from "@linaria/core";
@@ -21,13 +20,14 @@ import { css } from "@linaria/core";
 import { Campaign, CampaignStrategies, RewardTypes } from "@usher.so/campaigns";
 import Anchor from "@/components/Anchor";
 import { UilExternalLinkAlt } from "@iconscout/react-unicons";
+import { useCustomTheme } from "@/brand/themes/theme";
 
 export type Props = {
 	campaign: Campaign;
 };
 
 const Terms: React.FC<Props> = ({ campaign }) => {
-	const { colors } = useTheme();
+	const { colors } = useCustomTheme();
 	const ticker = campaign.reward.ticker.toUpperCase();
 	const name = startCase(campaign.reward.name);
 
@@ -41,10 +41,12 @@ const Terms: React.FC<Props> = ({ campaign }) => {
 					margin: 1px 0 10px 0;
 					font-weight: 900;
 				}
+
 				li,
 				strong {
 					font-size: inherit;
 				}
+
 				svg {
 					height: 20px;
 					width: 20px;

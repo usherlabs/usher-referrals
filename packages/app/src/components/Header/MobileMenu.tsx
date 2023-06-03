@@ -1,9 +1,10 @@
 import React from "react";
-import { Button, CrossIcon, Pane, SideSheet, useTheme } from "evergreen-ui";
+import { Button, CrossIcon, Pane, SideSheet } from "evergreen-ui";
 import BackgroundImage from "@/assets/side-menu-background.jpg";
 import { css } from "@linaria/core";
 import { menu } from "@/menu";
 import { MenuItems } from "@/components/MenuItems";
+import { useCustomTheme } from "@/brand/themes/theme";
 
 interface MobileMenuProps {
 	showMobileMenu: boolean;
@@ -16,7 +17,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
 	toggleMobileMenu,
 	setShowMobileMenu
 }) => {
-	const { colors } = useTheme();
+	const { colors } = useCustomTheme();
 
 	return (
 		<SideSheet
@@ -39,7 +40,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
 				}}
 			/>
 			<Pane
-				background="#0A1B30"
+				background={colors.primary.dark}
 				display="flex"
 				flexDirection="column"
 				justifyContent="space-between"

@@ -10,14 +10,14 @@ import {
 	Pane,
 	Paragraph,
 	Textarea,
-	TextInput,
-	useTheme
+	TextInput
 } from "evergreen-ui";
 import { ChangeEvent, useCallback, useState } from "react";
 
 import { useCollections } from "@/hooks/use-collections";
 import { Link } from "../../programs/collections/types";
 import Anchor from "../Anchor";
+import { useCustomTheme } from "@/brand/themes/theme";
 
 type Props = {
 	link: Link;
@@ -69,7 +69,7 @@ const LinkEditor: React.FC<Props> = ({ link, onClose }) => {
 		onClose();
 	}, []);
 
-	const { colors } = useTheme();
+	const { colors } = useCustomTheme();
 
 	return (
 		<Pane display="flex" flexDirection="column" height="100%">

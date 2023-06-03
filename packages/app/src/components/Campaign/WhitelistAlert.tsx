@@ -1,20 +1,20 @@
 import React from "react";
 import {
 	Alert,
-	UnorderedList,
-	ListItem,
-	Strong,
 	Button,
+	ListItem,
 	majorScale,
-	useTheme,
+	NewPersonIcon,
 	Pane,
-	NewPersonIcon
+	Strong,
+	UnorderedList
 } from "evergreen-ui";
 import { css, cx } from "@linaria/core";
 
 import { Partnership } from "@usher.so/partnerships";
 import Anchor from "@/components/Anchor";
 import { useUser } from "@/hooks";
+import { useCustomTheme } from "@/brand/themes/theme";
 // import { UilExternalLinkAlt } from "@iconscout/react-unicons";
 
 export type Props = {
@@ -26,7 +26,7 @@ export type Props = {
 };
 
 const WhitelistAlert: React.FC<Props> = ({ partnership, whitelist }) => {
-	const { colors } = useTheme();
+	const { colors } = useCustomTheme();
 	const {
 		user: { partnerships, profile }
 	} = useUser();
@@ -65,10 +65,12 @@ const WhitelistAlert: React.FC<Props> = ({ partnership, whitelist }) => {
 						margin: 1px 0 10px 0;
 						font-weight: 900;
 					}
+
 					li,
 					strong {
 						font-size: inherit;
 					}
+
 					svg {
 						height: 20px;
 						width: 20px;

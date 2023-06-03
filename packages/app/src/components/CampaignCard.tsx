@@ -1,19 +1,20 @@
 import React from "react";
 import { css } from "@linaria/core";
-import { Pane, Paragraph, Strong, useTheme } from "evergreen-ui";
+import { Pane, Paragraph, Strong } from "evergreen-ui";
 
 import { Campaign } from "@usher.so/campaigns";
 import Anchor from "@/components/Anchor";
 import truncate from "@/utils/truncate";
 import { useDerivedColor } from "@/hooks";
 import * as mediaQueries from "@/utils/media-queries";
+import { useCustomTheme } from "@/brand/themes/theme";
 
 export type Props = {
 	campaign: Campaign;
 };
 
 const CampaignCard: React.FC<Props> = ({ campaign }) => {
-	const { colors } = useTheme();
+	const { colors } = useCustomTheme();
 	const rColor = useDerivedColor(campaign.id);
 
 	return (
@@ -37,10 +38,12 @@ const CampaignCard: React.FC<Props> = ({ campaign }) => {
 						transition: all 0.25s;
 						box-shadow: none;
 						transform: translateY(0);
+
 						&:hover {
 							box-shadow: 0 10px 13px rgba(0, 0, 0, 0.1);
 							transform: translateY(-5px);
 						}
+
 						&:active {
 							box-shadow: 0 2.5px 3.5px rgba(0, 0, 0, 0.1) !important;
 							transform: translateY(-1px) !important;

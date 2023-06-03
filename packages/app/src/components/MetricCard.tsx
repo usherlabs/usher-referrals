@@ -4,15 +4,15 @@
 
 import React from "react";
 import {
-	Text,
-	Pane,
 	Card,
-	useTheme,
-	Label,
 	Heading,
+	Label,
+	Pane,
+	PaneProps,
 	Spinner,
-	PaneProps
+	Text
 } from "evergreen-ui";
+import { useCustomTheme } from "@/brand/themes/theme";
 
 type Props = PaneProps & {
 	value: string | number | React.ReactNode;
@@ -40,7 +40,7 @@ const MetricCard: React.FC<Props> = ({
 	isLoading = false,
 	...props
 }) => {
-	const { colors } = useTheme();
+	const { colors } = useCustomTheme();
 
 	return (
 		<Card

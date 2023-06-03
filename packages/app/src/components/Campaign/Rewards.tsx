@@ -1,8 +1,9 @@
 import React from "react";
-import { useTheme, Tooltip, Text } from "evergreen-ui";
+import { Text, Tooltip } from "evergreen-ui";
 import { UilAwardAlt } from "@iconscout/react-unicons";
 
 import MetricCard from "@/components/MetricCard";
+import { useCustomTheme } from "@/brand/themes/theme";
 
 export type Props = {
 	value: number;
@@ -17,7 +18,7 @@ const CampaignRewards: React.FC<Props> = ({
 	excess = 0,
 	loading = false
 }) => {
-	const { colors } = useTheme();
+	const { colors } = useCustomTheme();
 
 	return (
 		<MetricCard

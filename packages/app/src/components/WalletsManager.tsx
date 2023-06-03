@@ -1,20 +1,19 @@
 import React, { useCallback, useEffect, useState } from "react";
 import {
-	Button,
-	Tooltip,
-	Strong,
-	toaster,
-	useTheme,
-	Label,
-	Heading,
-	Pane,
-	majorScale,
 	ArrowLeftIcon,
-	Spinner,
+	Button,
+	Heading,
+	Label,
+	majorScale,
+	Pane,
+	Paragraph,
 	SendMessageIcon,
-	TextInput,
+	Spinner,
+	Strong,
 	Text,
-	Paragraph
+	TextInput,
+	toaster,
+	Tooltip
 } from "evergreen-ui";
 import { css } from "@linaria/core";
 import CopyToClipboard from "react-copy-to-clipboard";
@@ -38,6 +37,7 @@ import { connectionImages } from "@/utils/images-map";
 import handleException from "@/utils/handle-exception";
 import { getEthereumClient } from "@/utils/ethereum-client";
 import { ethers } from "ethers";
+import { useCustomTheme } from "@/brand/themes/theme";
 
 const arweave = getArweaveClient();
 const ethereum = getEthereumClient();
@@ -87,7 +87,7 @@ const WalletsManager: React.FC<Props> = ({ onClose }) => {
 		user: { wallets },
 		isLoading: isUserLoading
 	} = useUser();
-	const { colors } = useTheme();
+	const { colors } = useCustomTheme();
 	const [showWalletConnect, setShowWalletConnect] = useState(false);
 	const [showSendFunds, setShowSendFunds] = useState<{
 		wallet: Wallet;
@@ -454,6 +454,7 @@ const WalletsManager: React.FC<Props> = ({ onClose }) => {
 																		color={colors.gray800}
 																		className={css`
 																			cursor: pointer;
+
 																			&:active {
 																				opacity: 0.8;
 																			}

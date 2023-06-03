@@ -1,17 +1,11 @@
 import React from "react";
 import { UilUserCircle } from "@iconscout/react-unicons";
-import {
-	CogIcon,
-	LogOutIcon,
-	Menu,
-	Popover,
-	Position,
-	useTheme
-} from "evergreen-ui";
+import { CogIcon, LogOutIcon, Menu, Popover, Position } from "evergreen-ui";
 import Anchor from "@/components/Anchor";
 import { useRedir, useUser } from "@/hooks";
 
-import { MenuButton } from "@/components/Header/MenuButton"; // Import useUser hook
+import { MenuButton } from "@/components/Header/MenuButton";
+import { useCustomTheme } from "@/brand/themes/theme"; // Import useUser hook
 
 export const UserButton = ({
 	height,
@@ -22,7 +16,7 @@ export const UserButton = ({
 	onSettingsClick: () => void;
 	onLogoutClick: () => void;
 }) => {
-	const { colors } = useTheme();
+	const { colors } = useCustomTheme();
 	const { isAuthenticated } = useUser(); // Call useUser to get isAuthenticated
 	const loginUrl = useRedir("/login");
 

@@ -1,8 +1,9 @@
 import React from "react";
-import { Label, Pane, Spinner, useTheme } from "evergreen-ui";
+import { Label, Pane, Spinner } from "evergreen-ui";
 import { UilWallet } from "@iconscout/react-unicons";
 
 import { MenuButton } from "@/components/Header/MenuButton";
+import { useCustomTheme } from "@/brand/themes/theme";
 
 interface WalletButtonProps {
 	height: number;
@@ -17,7 +18,7 @@ export const WalletButton: React.FC<WalletButtonProps> = ({
 	isWalletLoading,
 	onWalletClick
 }) => {
-	const { colors } = useTheme();
+	const { colors } = useCustomTheme();
 
 	return (
 		<MenuButton height={height} onClick={onWalletClick}>

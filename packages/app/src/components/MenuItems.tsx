@@ -1,10 +1,11 @@
 import { MenuItem } from "@/menu";
 import { useUser } from "@/hooks";
-import { useRouteChange} from "@/hooks/use-route-change";
+import { useRouteChange } from "@/hooks/use-route-change";
 import Anchor from "@/components/Anchor";
 import { Button, Label } from "evergreen-ui";
 import { css, cx } from "@linaria/core";
 import React from "react";
+import { useCustomTheme } from "@/brand/themes/theme";
 
 export const MenuItems = ({
 	items,
@@ -17,6 +18,7 @@ export const MenuItems = ({
 }) => {
 	const { isAuthenticated } = useUser();
 	const { currentPathname } = useRouteChange();
+	const { colors } = useCustomTheme();
 	return (
 		<>
 			{items
@@ -55,7 +57,7 @@ export const MenuItems = ({
 							<Label
 								fontSize={fontSize || (isSmall ? 16 : 20)}
 								fontWeight={400}
-								color="#7F92A4"
+								color={colors.gray600}
 								pointerEvents="none"
 							>
 								{item.text}

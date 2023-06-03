@@ -7,6 +7,7 @@ import { menu } from "@/menu";
 import * as mediaQueries from "@/utils/media-queries";
 import { MenuItems } from "@/components/MenuItems";
 import { SidePanelLogo } from "@/brand/logo/SidePanelLogo";
+import { useCustomTheme } from "@/brand/themes/theme";
 
 type Props = {
 	width: number;
@@ -14,6 +15,7 @@ type Props = {
 
 const SideMenu: React.FC<Props> = ({ width, ...props }) => {
 	// Listen for route change and update the new url pathname
+	const { colors } = useCustomTheme();
 
 	return (
 		<Pane
@@ -22,7 +24,7 @@ const SideMenu: React.FC<Props> = ({ width, ...props }) => {
 			left={0}
 			width={width}
 			height="100vh"
-			background="#0A1B30"
+			background={colors.primary.dark}
 			{...props}
 			className={css`
 				${mediaQueries.isLarge} {

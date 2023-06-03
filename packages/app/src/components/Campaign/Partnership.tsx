@@ -1,12 +1,5 @@
 import React, { useCallback } from "react";
-import {
-	Heading,
-	Pane,
-	Paragraph,
-	useTheme,
-	Tooltip,
-	HelpIcon
-} from "evergreen-ui";
+import { Heading, HelpIcon, Pane, Paragraph, Tooltip } from "evergreen-ui";
 import { css } from "@linaria/core";
 
 import { Partnership } from "@usher.so/partnerships";
@@ -15,6 +8,7 @@ import InviteLink from "@/components/InviteLink";
 import Metric from "@/components/Metric";
 import getInviteLink from "@/utils/get-invite-link";
 import * as mediaQueries from "@/utils/media-queries";
+import { useCustomTheme } from "@/brand/themes/theme";
 
 export type Props = {
 	partnership: Partnership;
@@ -25,7 +19,7 @@ export type Props = {
 };
 
 const CampaignPartnership: React.FC<Props> = ({ partnership, metrics }) => {
-	const { colors } = useTheme();
+	const { colors } = useCustomTheme();
 
 	// "Users converted by the Advertiser that are pending for processing."
 	const ConvHelpIcon = (content: string) =>

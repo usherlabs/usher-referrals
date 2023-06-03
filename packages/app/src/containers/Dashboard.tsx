@@ -1,12 +1,11 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
-	Pane,
-	useTheme,
-	Dialog,
 	CornerDialog,
-	toaster,
+	Dialog,
 	Heading,
-	Spinner
+	Pane,
+	Spinner,
+	toaster
 } from "evergreen-ui";
 import isEmpty from "lodash/isEmpty";
 import useLocalStorage from "use-local-storage";
@@ -30,6 +29,7 @@ import handleException from "@/utils/handle-exception";
 import { userFetched } from "@/providers/User";
 import * as mediaQueries from "@/utils/media-queries";
 import SideMenu from "@/components/SideMenu";
+import { useCustomTheme } from "@/brand/themes/theme";
 
 type Props = {
 	children: React.ReactNode;
@@ -47,7 +47,7 @@ const HEADER_HEIGHT = 70 as const;
 const SIDEMENU_WIDTH = 280 as const;
 
 const DashboardContainer: React.FC<Props> = ({ children }) => {
-	const { colors } = useTheme();
+	const { colors } = useCustomTheme();
 	const {
 		auth,
 		user: {
@@ -258,7 +258,6 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 						onWalletClick={onWalletToggle}
 						onSettingsClick={onSettings}
 						onLogoutClick={onLogout}
-
 					/>
 				</Pane>
 				<Pane

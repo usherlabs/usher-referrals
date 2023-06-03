@@ -1,21 +1,21 @@
 import {
-	Pane,
-	Heading,
-	Text,
-	useTheme,
 	Button,
+	Heading,
+	ListItem,
 	majorScale,
-	Strong,
+	Pane,
 	Paragraph,
-	UnorderedList,
-	ListItem
+	Strong,
+	Text,
+	UnorderedList
 } from "evergreen-ui";
 import { UilExclamationOctagon } from "@iconscout/react-unicons";
 import { useRouter } from "next/router";
 import Anchor from "@/components/Anchor";
+import { useCustomTheme } from "@/brand/themes/theme";
 
 const VerifyComplete = () => {
-	const { colors } = useTheme();
+	const { colors } = useCustomTheme();
 	const router = useRouter();
 	const { redir } = router.query;
 

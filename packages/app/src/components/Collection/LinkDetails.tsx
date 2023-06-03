@@ -14,6 +14,7 @@ import { TextFit } from "@/components/TextFit";
 import { useCollections } from "@/hooks/use-collections";
 import { getCollectionLink } from "@/utils/get-collection-link";
 import LinkEditor from "./LinkEditor";
+import { useCustomTheme } from "@/brand/themes/theme";
 
 type Props = {
 	onEditorClose: () => void;
@@ -21,6 +22,7 @@ type Props = {
 
 const LinkDetails: React.FC<Props> = ({ onEditorClose }) => {
 	const { currentLink } = useCollections();
+	const { colors } = useCustomTheme();
 
 	const [isEditing, setIsEditing] = useState<boolean>(false);
 
@@ -46,7 +48,7 @@ const LinkDetails: React.FC<Props> = ({ onEditorClose }) => {
 						display="flex"
 						flexDirection="column"
 						backgroundColor="#FFFFFF"
-						border="1px solid #E1E2EB"
+						border={`1px solid ${colors.gray300}`}
 						borderRadius="8px"
 					>
 						<Pane display="flex" justifyContent="space-between" gap="1em">
@@ -64,7 +66,7 @@ const LinkDetails: React.FC<Props> = ({ onEditorClose }) => {
 						<Pane
 							display="flex"
 							alignItems="center"
-							color="#575D72"
+							color={colors.gray700}
 							marginTop="12px"
 							marginBottom="15px"
 						>
@@ -100,11 +102,11 @@ const LinkDetails: React.FC<Props> = ({ onEditorClose }) => {
 						display="flex"
 						flexDirection="column"
 						backgroundColor="#FFFFFF"
-						border="1px solid #E1E2EB"
+						border={`1px solid ${colors.gray300}`}
 						borderRadius="8px"
 					>
 						<Pane display="flex" justifyContent="space-between" gap="1em">
-							<TextFit fontSize="20px" fontWeight="500" color="#2C9CF2">
+							<TextFit fontSize="20px" fontWeight="500" color={colors.link}>
 								{getCollectionLink(currentLink.id, { removeProto: true })}
 							</TextFit>
 							<CopyToClipboard
@@ -124,10 +126,10 @@ const LinkDetails: React.FC<Props> = ({ onEditorClose }) => {
 							paddingY="10px"
 							display="flex"
 							alignItems="center"
-							backgroundColor="#F9FAFC"
+							backgroundColor={colors.gray75}
 							borderRadius="10px"
 						>
-							<UilCornerDownRight size="32px" color="#575D72" />
+							<UilCornerDownRight size="32px" color={colors.gray700} />
 							<TextFit marginLeft="10px" fontSize="16px">
 								{currentLink.destinationUrl}
 							</TextFit>

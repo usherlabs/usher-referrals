@@ -1,17 +1,17 @@
 import React from "react";
-import {Badge, Heading, Pane, useTheme} from "evergreen-ui";
+import { Badge, Heading, Pane } from "evergreen-ui";
 import { css } from "@linaria/core";
 import LogoImage from "@/assets/logo/Logo-Icon.svg";
 import Image from "next/image";
 import * as mediaQueries from "@/utils/media-queries";
-
+import { useCustomTheme } from "@/brand/themes/theme";
 
 interface MainLogoProps {
 	height: number;
 }
 
 export const MainLogo: React.FC<MainLogoProps> = ({ height }) => {
-	const { colors } = useTheme();
+	const { colors } = useCustomTheme();
 
 	return (
 		<Pane

@@ -1,16 +1,17 @@
 import React from "react";
-import { Heading, Strong, useTheme, Text, Paragraph } from "evergreen-ui";
+import { Heading, Paragraph, Strong, Text } from "evergreen-ui";
 
 import { Campaign } from "@usher.so/campaigns";
 import Anchor from "@/components/Anchor";
 import truncate from "@/utils/truncate";
+import { useCustomTheme } from "@/brand/themes/theme";
 
 export type Props = {
 	campaign: Campaign;
 };
 
 const CampaignTitle: React.FC<Props> = ({ campaign }) => {
-	const { colors } = useTheme();
+	const { colors } = useCustomTheme();
 
 	const advertiserName = campaign.advertiser.name
 		? campaign.advertiser.name

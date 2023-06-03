@@ -1,18 +1,11 @@
-import {
-	Pane,
-	Heading,
-	Text,
-	useTheme,
-	Button,
-	majorScale,
-	Strong
-} from "evergreen-ui";
+import { Button, Heading, majorScale, Pane, Strong, Text } from "evergreen-ui";
 import { UilDna } from "@iconscout/react-unicons";
 import { useRouter } from "next/router";
 import Anchor from "@/components/Anchor";
+import { useCustomTheme } from "@/brand/themes/theme";
 
 const VerifyComplete = () => {
-	const { colors } = useTheme();
+	const { colors } = useCustomTheme();
 	const router = useRouter();
 	const { redir } = router.query;
 
