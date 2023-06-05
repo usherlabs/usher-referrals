@@ -15,7 +15,7 @@
 # production
 /build
 
-/public/static/favicon
+/public/static/generated
 
 # misc
 .DS_Store
