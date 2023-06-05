@@ -19,6 +19,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { browserName } from "react-device-detect";
 import * as uint8arrays from "uint8arrays";
 import {BrandLogoIconDark} from "@/brand/logo/BrandLogo";
+import {brandName} from "@/brand/names";
 
 type Props = {
 	chain: Chains;
@@ -117,7 +118,7 @@ export const WalletConnectButton = ({
 			if (providerLabel === ProviderLabel.ArConnect && arConnect) {
 				const permissions: PermissionType[] = ["ACCESS_ADDRESS", "SIGNATURE"];
 				await arConnect.connect(permissions, {
-					name: "Usher",
+					name: brandName.titleCase,
 					logo: BrandLogoIconDark
 				});
 				// await delay(1000);

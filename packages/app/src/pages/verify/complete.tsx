@@ -42,13 +42,13 @@ const VerifyComplete = () => {
 						marginTop={24}
 					>
 						<Strong color="#fff" fontSize="1.1em">
-							👉&nbsp;&nbsp;Back to Usher
+							👉&nbsp;&nbsp;Back to main page
 						</Strong>
 					</Button>
 				</Anchor>
 			) : (
 				<Text size={600}>
-					Revist and refresh Usher on your original device to continue.
+					Revist and refresh our page on your original device to continue.
 				</Text>
 			)}
 		</Pane>

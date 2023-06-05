@@ -21,6 +21,7 @@ import { AppEvents, events } from "@/utils/events";
 
 import { initOnboard } from "@/utils/onboard";
 import { theme } from "@/brand/themes/theme";
+import { brandName } from "@/brand/names";
 
 type Props = AppProps & {
 	pageProps: {
@@ -62,8 +63,12 @@ const App = ({ Component, pageProps }: Props) => {
 	const { seo = {}, noUser = false } = pageProps;
 
 	const AppMain = (
-		<main id="usher-app">
-			<DefaultSeo defaultTitle="Usher" titleTemplate="%s | Usher" {...seo} />
+		<main id={`${brandName.snakeCase}-main`}>
+			<DefaultSeo
+				defaultTitle={brandName.titleCase}
+				titleTemplate={`%s | ${brandName.titleCase}`}
+				{...seo}
+			/>
 			<Component {...pageProps} />
 			{mauticOrigin && (
 				<Script

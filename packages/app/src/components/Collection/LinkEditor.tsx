@@ -168,9 +168,9 @@ const LinkEditor: React.FC<Props> = ({ link, onClose }) => {
 				confirmLabel="Archive Link"
 			>
 				<Paragraph>
-					Archiving this link will redirect anyone who clicks on it to the&nbsp;
+					Archiving this link will redirect anyone who clicks on it to&nbsp;
 					<Anchor href="/410" target="blank">
-						Usher error page
+						our error page
 					</Anchor>
 					.
 				</Paragraph>
