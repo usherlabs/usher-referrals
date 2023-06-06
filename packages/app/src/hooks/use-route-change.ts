@@ -5,7 +5,9 @@ import { useRouter } from "next/router";
  * Hook to detect route changes. Also calls a callback function when the route changes.
  * @param routeChangeCompleteCallback
  */
-export const useRouteChange = (routeChangeCompleteCallback?: () => void) => {
+export const useRouteChange = (
+	routeChangeCompleteCallback?: (url: string) => void
+) => {
 	const [currentPathname, setCurrentPathname] = useState("");
 	const router = useRouter();
 
@@ -14,7 +16,7 @@ export const useRouteChange = (routeChangeCompleteCallback?: () => void) => {
 			if (url !== currentPathname) {
 				setCurrentPathname(url);
 			}
-			routeChangeCompleteCallback?.();
+			routeChangeCompleteCallback?.(url);
 		},
 		[currentPathname]
 	);
