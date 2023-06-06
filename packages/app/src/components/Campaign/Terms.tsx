@@ -132,10 +132,15 @@ const Terms: React.FC<Props> = ({ campaign }) => {
 					</Anchor>
 				</Pane>
 			)}
-			<Paragraph size={300} color={colors.gray700} marginTop={12}>
-				<Strong>
-					<i>Usher software is in ALPHA. Please refer responsibly.</i>
-				</Strong>
+			<Paragraph
+				marginX={"auto"}
+				display={"flex"}
+				justifyContent={"center"}
+				size={300}
+				color={colors.gray700}
+				marginTop={12}
+			>
+				Powered by Usher — alpha release. Please refer responsibly.
 			</Paragraph>
 		</Alert>
 	);

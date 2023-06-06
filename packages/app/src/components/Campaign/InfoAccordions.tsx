@@ -1,13 +1,5 @@
 import React from "react";
-import {
-	Heading,
-	Label,
-	ListItem,
-	Pane,
-	Paragraph,
-	Strong,
-	UnorderedList
-} from "evergreen-ui";
+import {Heading, Label, ListItem, Pane, Strong, Text, UnorderedList} from "evergreen-ui";
 import {
 	Accordion,
 	AccordionItem,
@@ -15,25 +7,18 @@ import {
 	AccordionItemHeading,
 	AccordionItemPanel
 } from "react-accessible-accordion";
-import {
-	UilExternalLinkAlt,
-	UilFileContract,
-	UilNotes
-} from "@iconscout/react-unicons";
+import {UilExternalLinkAlt, UilFileContract, UilNotes} from "@iconscout/react-unicons";
 import startCase from "lodash/startCase";
-import { css, cx } from "@linaria/core";
+import {css, cx} from "@linaria/core";
 
-import { Chains } from "@usher.so/shared";
-import { Campaign, CampaignStrategies, RewardTypes } from "@usher.so/campaigns";
+import {Chains} from "@usher.so/shared";
+import {Campaign, CampaignStrategies, RewardTypes} from "@usher.so/campaigns";
 import Anchor from "@/components/Anchor";
 import "react-accessible-accordion/dist/fancy-example.css";
 import pascalCase from "@/utils/pascal-case";
 import truncate from "@/utils/truncate";
-import {
-	ARWEAVE_EXPLORER_ADDRESS_URL,
-	ETHEREUM_EXPLORER_ADDRESS_URL
-} from "@/constants";
-import { useCustomTheme } from "@/brand/themes/theme";
+import {ARWEAVE_EXPLORER_ADDRESS_URL, ETHEREUM_EXPLORER_ADDRESS_URL} from "@/constants";
+import {useCustomTheme} from "@/brand/themes/theme";
 
 export type Props = {
 	campaign: Campaign;
@@ -331,11 +316,16 @@ const CampaignInfoAccordions: React.FC<Props> = ({ campaign }) => {
 					</AccordionItemPanel>
 				</AccordionItem>
 			</Accordion>
-			<Paragraph size={300} color={colors.gray700} marginTop={12}>
-				<Strong>
-					<i>Usher software is in ALPHA. Please refer responsibly.</i>
-				</Strong>
-			</Paragraph>
+			<Text
+				marginX={"auto"}
+				display={"flex"}
+				justifyContent={"center"}
+				size={300}
+				color={colors.gray700}
+				marginTop={12}
+			>
+				Powered by Usher — alpha release. Please refer responsibly.
+			</Text>
 		</Pane>
 	);
 };
