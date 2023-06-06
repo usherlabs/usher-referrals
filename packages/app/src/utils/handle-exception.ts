@@ -1,7 +1,7 @@
 import * as Sentry from "@sentry/nextjs";
 import { NextjsOptions } from "@sentry/nextjs/types/utils/nextjsOptions";
 import { isProd, sentry } from "@/env-config";
-import { User, Exception, ExceptionContext } from "@/types";
+import { Exception, ExceptionContext, User } from "@/types";
 
 const sentryOptions: NextjsOptions = {
 	dsn: sentry.dsn,

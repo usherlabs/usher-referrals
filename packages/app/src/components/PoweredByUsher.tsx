@@ -1,6 +1,6 @@
 import { Pane, Text } from "evergreen-ui";
 import Image from "next/future/image";
-import { BrandLogoDark } from "@/brand/logo/BrandLogos";
+import { BrandLogoDark } from "@/brand/logo-components/BrandLogos";
 import React from "react";
 import Anchor from "@/components/Anchor";
 
@@ -28,7 +28,7 @@ export const PoweredByUsher = () => {
 				</Anchor>
 				— alpha release.
 			</Text>
-			{/*<Text fontSize={"0.8em"}>Please refer responsibly.</Text>*/}
+			{/* <Text fontSize={"0.8em"}>Please refer responsibly.</Text> */}
 		</Pane>
 	);
 };

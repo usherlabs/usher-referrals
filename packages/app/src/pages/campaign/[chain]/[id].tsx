@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/router";
 import { Pane, toaster } from "evergreen-ui";
 import camelcaseKeys from "camelcase-keys";
@@ -17,8 +17,8 @@ import InfoAccordions from "@/components/Campaign/InfoAccordions";
 import WhitelistAlert from "@/components/Campaign/WhitelistAlert";
 import Progress from "@/components/Progress";
 import { Chains, Wallet } from "@usher.so/shared";
-import { Campaign, RewardTypes, CampaignReward } from "@usher.so/campaigns";
-import { PartnershipMetrics, Claim } from "@/types";
+import { Campaign, CampaignReward, RewardTypes } from "@usher.so/campaigns";
+import { Claim, PartnershipMetrics } from "@/types";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import useRedir from "@/hooks/use-redir";

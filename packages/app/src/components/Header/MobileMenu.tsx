@@ -40,7 +40,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
 				}}
 			/>
 			<Pane
-				background={colors.primary.dark}
+				background={colors.sidePanel}
 				display="flex"
 				flexDirection="column"
 				justifyContent="space-between"

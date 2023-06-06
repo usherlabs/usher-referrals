@@ -1,8 +1,8 @@
 import React from "react";
 import { Badge, Pane } from "evergreen-ui";
 import Image from "next/future/image";
-import { BrandLogoDark, BrandLogoLight } from "@/brand/logo/BrandLogos";
-import { brandConfig } from "@/brand/config-reader";
+import { BrandLogoDark } from "@/brand/logo-components/BrandLogos";
+import { brandConfig } from "@/brand";
 
 interface MainLogoProps {
 	height: number;

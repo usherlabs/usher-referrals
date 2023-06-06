@@ -21,7 +21,6 @@ import { Campaigns } from "@usher.so/campaigns";
 import { API_OPTIONS } from "@/constants";
 import PageHeader from "@/components/PageHeader";
 import React from "react";
-import { PoweredByUsher } from "@/components/PoweredByUsher";
 
 // TODO: Consider what to do wiht the seed logic
 // const getCampaigns = async (refs: CampaignReference[]): Promise<Campaign[]> => {

@@ -1,12 +1,12 @@
 import React from "react";
 import {
-	SideSheet,
-	SideSheetProps,
 	Button,
 	CrossIcon,
 	majorScale,
-	Strong,
-	Pane
+	Pane,
+	SideSheet,
+	SideSheetProps,
+	Strong
 } from "evergreen-ui";
 import { css } from "@linaria/core";
 import * as mediaQueries from "@/utils/media-queries";

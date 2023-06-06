@@ -1,5 +1,5 @@
-import React, { useState, useCallback } from "react";
-import { Pane, Heading, Text, Spinner, toaster } from "evergreen-ui";
+import React, { useCallback, useState } from "react";
+import { Heading, Pane, Spinner, Text, toaster } from "evergreen-ui";
 import HCaptcha from "@hcaptcha/react-hcaptcha";
 import { css } from "@linaria/core";
 

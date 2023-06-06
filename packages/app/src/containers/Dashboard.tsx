@@ -31,7 +31,7 @@ import * as mediaQueries from "@/utils/media-queries";
 import SideMenu from "@/components/SideMenu";
 import { useCustomTheme } from "@/brand/themes/theme";
 import { PoweredByUsher } from "@/components/PoweredByUsher";
-import { brandConfig } from "@/brand/config-reader";
+import { brandConfig } from "@/brand";
 
 type Props = {
 	children: React.ReactNode;

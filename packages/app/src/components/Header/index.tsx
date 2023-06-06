@@ -4,7 +4,7 @@ import { useUserWallet } from "@/hooks";
 import { useMobileMenu } from "@/components/Header/hooks/use-mobile-menu";
 import { WalletButton } from "@/components/Header/WalletButton";
 import { MobileMenu } from "@/components/Header/MobileMenu";
-import { MobileHeaderLogo } from "@/brand/logo/MobileHeaderLogo";
+import { MobileHeaderLogo } from "@/brand/logo-components/MobileHeaderLogo";
 import { UserButton } from "@/components/Header/UserButton";
 import { css } from "@linaria/core";
 import * as mediaQueries from "@/utils/media-queries";

@@ -1,5 +1,5 @@
 import React from "react";
-import { Pane, Strong, Paragraph, Spinner, PaneProps } from "evergreen-ui";
+import { Pane, PaneProps, Paragraph, Spinner, Strong } from "evergreen-ui";
 
 import ErrorText from "./ErrorText";
 

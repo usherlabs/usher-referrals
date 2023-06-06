@@ -18,8 +18,8 @@ import Image from "next/image";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { browserName } from "react-device-detect";
 import * as uint8arrays from "uint8arrays";
-import {BrandLogomarkDark} from "@/brand/logo/BrandLogos";
-import {brandName} from "@/brand/names";
+import { BrandLogomarkDark } from "@/brand/logo-components/BrandLogos";
+import { brandName } from "@/brand/utils/names";
 
 type Props = {
 	chain: Chains;

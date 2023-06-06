@@ -1,10 +1,10 @@
 import openid from "openid-client";
 
 import {
-	publicUrl,
 	humanodeClientId,
 	humanodeClientSecret,
-	isProd
+	isProd,
+	publicUrl
 } from "@/server/env-config";
 import { ngrokUrl } from "@/env-config";
 

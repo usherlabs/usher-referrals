@@ -1,11 +1,11 @@
 import React from "react";
 import {
-	Pane,
-	Heading,
-	Text,
 	Button,
+	Heading,
 	majorScale,
-	PaneProps
+	Pane,
+	PaneProps,
+	Text
 } from "evergreen-ui";
 
 import EmailSubmit from "@/components/EmailSubmit";

@@ -56,8 +56,7 @@ const CampaignPartnership: React.FC<Props> = ({ partnership, metrics }) => {
 							justifyContent="space-between"
 						>
 							<Paragraph width="100%">
-								👆&nbsp;&nbsp;Click and Copy to share the Invite link and
-								earn
+								👆&nbsp;&nbsp;Click and Copy to share the Invite link and earn
 							</Paragraph>
 						</Pane>
 					</Pane>

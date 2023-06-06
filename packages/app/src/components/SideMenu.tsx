@@ -6,7 +6,7 @@ import Anchor from "@/components/Anchor";
 import { menu } from "@/menu";
 import * as mediaQueries from "@/utils/media-queries";
 import { MenuItems } from "@/components/MenuItems";
-import { SidePanelLogo } from "@/brand/logo/SidePanelLogo";
+import { SidePanelLogo } from "@/brand/logo-components/SidePanelLogo";
 import { useCustomTheme } from "@/brand/themes/theme";
 
 type Props = {
@@ -24,7 +24,7 @@ const SideMenu: React.FC<Props> = ({ width, ...props }) => {
 			left={0}
 			width={width}
 			height="100vh"
-			background={colors.primary.dark}
+			background={colors.sidePanel}
 			{...props}
 			className={css`
 				${mediaQueries.isLarge} {

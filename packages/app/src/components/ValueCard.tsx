@@ -3,7 +3,7 @@
  */
 
 import React from "react";
-import { Text, Pane } from "evergreen-ui";
+import { Pane, Text } from "evergreen-ui";
 
 import InputField, { Props as InputFieldProps } from "@/components/InputField";
 

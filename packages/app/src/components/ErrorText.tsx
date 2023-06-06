@@ -1,5 +1,5 @@
 import React from "react";
-import { Pane, ErrorIcon, Text } from "evergreen-ui";
+import { ErrorIcon, Pane, Text } from "evergreen-ui";
 
 export type Props = {
 	text: string;

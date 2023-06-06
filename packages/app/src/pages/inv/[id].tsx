@@ -19,7 +19,7 @@ import { useRouter } from "next/router";
 import { useCallback, useEffect, useState } from "react";
 import { Campaigns } from "@usher.so/campaigns";
 import { API_OPTIONS } from "@/constants";
-import { BrandLogoDark } from "@/brand/logo/BrandLogos";
+import { BrandLogoDark } from "@/brand/logo-components/BrandLogos";
 
 const onError = () => {
 	window.location.replace(`/link-error`);

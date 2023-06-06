@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Pane, Heading, Text } from "evergreen-ui";
+import { Heading, Pane, Text } from "evergreen-ui";
 import { useRouter } from "next/router";
 
 import { useUser } from "@/hooks";

@@ -3,10 +3,10 @@ import Router from "next/router";
 
 import {
 	gaTrackingId,
+	juneApiKey,
 	logrocketAppId,
-	mixpanelAppId,
 	mauticOrigin,
-	juneApiKey
+	mixpanelAppId
 } from "@/env-config";
 import { Sentry } from "@/utils/handle-exception";
 import { AppEvents, events } from "@/utils/events";

@@ -21,10 +21,9 @@ import { AppEvents, events } from "@/utils/events";
 
 import { initOnboard } from "@/utils/onboard";
 import { theme } from "@/brand/themes/theme";
-import { brandName } from "@/brand/names";
+import { brandName } from "@/brand/utils/names";
 import { useRouteChange } from "@/hooks";
 import { css } from "@linaria/core";
-import * as mediaQueries from "@/utils/media-queries";
 
 type Props = AppProps & {
 	pageProps: {

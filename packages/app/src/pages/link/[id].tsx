@@ -8,9 +8,9 @@ import React, { useCallback, useEffect, useState } from "react";
 
 import * as api from "@/api";
 import WalletInvite from "@/components/WalletInvite";
-import { BrandLogoDark } from "@/brand/logo/BrandLogos";
+import { BrandLogoDark } from "@/brand/logo-components/BrandLogos";
 import { PoweredByUsher } from "@/components/PoweredByUsher";
-import { brandConfig } from "@/brand/config-reader";
+import { brandConfig } from "@/brand";
 
 type Link = {
 	id: string;

@@ -1,8 +1,8 @@
 import { Badge, Pane } from "evergreen-ui";
 import Image from "next/future/image";
 import React from "react";
-import { BrandLogoLight } from "@/brand/logo/BrandLogos";
-import { brandConfig } from "@/brand/config-reader";
+import { BrandLogoLight } from "@/brand/logo-components/BrandLogos";
+import { brandConfig } from "@/brand";
 
 export const SidePanelLogo = () => {
 	return (

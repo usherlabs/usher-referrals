@@ -1,4 +1,4 @@
-import { Magic, Extension } from "magic-sdk";
+import { Extension, Magic } from "magic-sdk";
 import { OAuthExtension } from "@magic-ext/oauth";
 import { ethers } from "ethers";
 

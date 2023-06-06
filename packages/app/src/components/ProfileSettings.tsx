@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from "react";
-import { Pane, Heading, Badge, Text, toaster } from "evergreen-ui";
+import { Badge, Heading, Pane, Text, toaster } from "evergreen-ui";
 import dnt from "date-and-time";
 
 import { useUser } from "@/hooks/";

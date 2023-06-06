@@ -1,5 +1,13 @@
 import React from "react";
-import {Heading, Label, ListItem, Pane, Strong, Text, UnorderedList} from "evergreen-ui";
+import {
+	Heading,
+	Label,
+	ListItem,
+	Pane,
+	Strong,
+	Text,
+	UnorderedList
+} from "evergreen-ui";
 import {
 	Accordion,
 	AccordionItem,
@@ -7,18 +15,25 @@ import {
 	AccordionItemHeading,
 	AccordionItemPanel
 } from "react-accessible-accordion";
-import {UilExternalLinkAlt, UilFileContract, UilNotes} from "@iconscout/react-unicons";
+import {
+	UilExternalLinkAlt,
+	UilFileContract,
+	UilNotes
+} from "@iconscout/react-unicons";
 import startCase from "lodash/startCase";
-import {css, cx} from "@linaria/core";
+import { css, cx } from "@linaria/core";
 
-import {Chains} from "@usher.so/shared";
-import {Campaign, CampaignStrategies, RewardTypes} from "@usher.so/campaigns";
+import { Chains } from "@usher.so/shared";
+import { Campaign, CampaignStrategies, RewardTypes } from "@usher.so/campaigns";
 import Anchor from "@/components/Anchor";
 import "react-accessible-accordion/dist/fancy-example.css";
 import pascalCase from "@/utils/pascal-case";
 import truncate from "@/utils/truncate";
-import {ARWEAVE_EXPLORER_ADDRESS_URL, ETHEREUM_EXPLORER_ADDRESS_URL} from "@/constants";
-import {useCustomTheme} from "@/brand/themes/theme";
+import {
+	ARWEAVE_EXPLORER_ADDRESS_URL,
+	ETHEREUM_EXPLORER_ADDRESS_URL
+} from "@/constants";
+import { useCustomTheme } from "@/brand/themes/theme";
 
 export type Props = {
 	campaign: Campaign;

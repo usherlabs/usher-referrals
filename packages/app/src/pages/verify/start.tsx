@@ -10,7 +10,7 @@ import { useRouter } from "next/router";
 import { Pane, toaster } from "evergreen-ui";
 import Preloader from "@/components/Preloader";
 import { getAuthRequest } from "@/api";
-import { BrandLogoDark } from "@/brand/logo/BrandLogos";
+import { BrandLogoDark } from "@/brand/logo-components/BrandLogos";
 
 const VerifyStart = () => {
 	const router = useRouter();

@@ -1,6 +1,6 @@
 import { UilArrowGrowth, UilLink, UilUsersAlt } from "@iconscout/react-unicons";
 import { ReactElement } from "react";
-import { footerItems } from "@/brand/footer-links";
+import brandConfig from "@/brand/brand.config";
 
 export type MenuItem = {
 	href: string;
@@ -39,5 +39,5 @@ const mainItems: MenuItem[] = [
 
 export const menu = {
 	mainItems,
-	footerItems
+	footerItems: brandConfig.menuItems
 };

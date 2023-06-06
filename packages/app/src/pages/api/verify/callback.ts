@@ -2,7 +2,7 @@
  * Reserved callback URL for use with Humanode OAuth2
  */
 import { aql } from "arangojs";
-import { setCookie, parseCookies } from "nookies";
+import { parseCookies, setCookie } from "nookies";
 import { Base64 } from "js-base64";
 import jwtDecode, { JwtPayload } from "jwt-decode";
 

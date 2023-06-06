@@ -3,7 +3,7 @@
  */
 
 import React from "react";
-import { Text, Pane, Label, Spinner } from "evergreen-ui";
+import { Label, Pane, Spinner, Text } from "evergreen-ui";
 
 import { css } from "@linaria/core";
 import * as mediaQueries from "@/utils/media-queries";
