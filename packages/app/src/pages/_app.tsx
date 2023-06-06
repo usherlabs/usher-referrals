@@ -23,6 +23,8 @@ import { initOnboard } from "@/utils/onboard";
 import { theme } from "@/brand/themes/theme";
 import { brandName } from "@/brand/names";
 import { useRouteChange } from "@/hooks";
+import { css } from "@linaria/core";
+import * as mediaQueries from "@/utils/media-queries";
 
 type Props = AppProps & {
 	pageProps: {
@@ -61,7 +63,14 @@ const App = ({ Component, pageProps }: Props) => {
 	const { seo = {}, noUser = false } = pageProps;
 
 	const AppMain = (
-		<main id={`${brandName.snakeCase}-main`}>
+		<main
+			className={css`
+				display: flex;
+				flex-direction: column;
+				flex: 1;
+			`}
+			id={`${brandName.snakeCase}-main`}
+		>
 			<DefaultSeo
 				defaultTitle={brandName.titleCase}
 				titleTemplate={`%s | ${brandName.titleCase}`}

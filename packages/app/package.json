@@ -5,7 +5,7 @@
 	"scripts": {
 		"dev": "next dev",
 		"dev:https": "cross-env NODE_ENV=development node -r esbuild-register ./tools/https-dev.ts",
-		"build": "next build",
+		"build": "yarn generate-favicon && next build",
 		"start": "next start",
 		"lint": "next lint",
 		"lint:fix": "next lint --fix",

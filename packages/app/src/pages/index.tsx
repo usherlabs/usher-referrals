@@ -1,11 +1,11 @@
 // Partnerships is the Index page because we want them to login and get their link as fast as possible.
 
 import {
-	Pane,
-	Heading,
-	Paragraph,
 	Button,
+	Heading,
 	majorScale,
+	Pane,
+	Paragraph,
 	Strong
 } from "evergreen-ui";
 import { useQuery } from "react-query";
@@ -20,6 +20,8 @@ import Anchor from "@/components/Anchor";
 import { Campaigns } from "@usher.so/campaigns";
 import { API_OPTIONS } from "@/constants";
 import PageHeader from "@/components/PageHeader";
+import React from "react";
+import { PoweredByUsher } from "@/components/PoweredByUsher";
 
 // TODO: Consider what to do wiht the seed logic
 // const getCampaigns = async (refs: CampaignReference[]): Promise<Campaign[]> => {
@@ -52,7 +54,7 @@ const Partnerships = () => {
 	const isLoading = isUserLoading || campaigns.isLoading;
 
 	return (
-		<Pane display="flex" flexDirection="column" height="100vh" padding="40px">
+		<Pane display="flex" flexDirection="column" flex={1} padding="40px">
 			<PageHeader
 				title="My Partnerships"
 				description="View Campaigns you are in partnerships with."

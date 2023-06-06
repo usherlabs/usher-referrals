@@ -10,7 +10,7 @@ import { useRouter } from "next/router";
 import { Pane, toaster } from "evergreen-ui";
 import Preloader from "@/components/Preloader";
 import { getAuthRequest } from "@/api";
-import { BrandLogoImageDark } from "@/brand/logo/BrandLogo";
+import { BrandLogomarkDark } from "@/brand/logo/BrandLogo";
 
 const VerifyStart = () => {
 	const router = useRouter();
@@ -62,7 +62,7 @@ const VerifyStart = () => {
 				alignItems="center"
 				justifyContent="center"
 			>
-				<Image src={BrandLogoImageDark} width={120} objectFit="contain" />
+				<Image src={BrandLogomarkDark} width={120} objectFit="contain" />
 			</Pane>
 		</Pane>
 	);

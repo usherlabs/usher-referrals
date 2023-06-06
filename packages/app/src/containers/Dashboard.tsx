@@ -30,6 +30,8 @@ import { userFetched } from "@/providers/User";
 import * as mediaQueries from "@/utils/media-queries";
 import SideMenu from "@/components/SideMenu";
 import { useCustomTheme } from "@/brand/themes/theme";
+import { PoweredByUsher } from "@/components/PoweredByUsher";
+import { brandConfig } from "@/brand/config-reader";
 
 type Props = {
 	children: React.ReactNode;
@@ -231,6 +233,10 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 		<>
 			<Pane
 				className={css`
+					min-height: 100vh;
+					display: flex;
+					flex-direction: column;
+
 					${mediaQueries.gtLarge} {
 						flex-direction: row !important;
 					}
@@ -262,6 +268,7 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 				</Pane>
 				<Pane
 					flex="1"
+					display="grid"
 					marginLeft={SIDEMENU_WIDTH}
 					className={css`
 						${mediaQueries.isLarge} {
@@ -271,6 +278,11 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 					`}
 				>
 					{children}
+					{brandConfig.rebranded && (
+						<Pane marginTop={"auto"} marginBottom={8} marginX={"auto"}>
+							<PoweredByUsher />
+						</Pane>
+					)}
 				</Pane>
 			</Pane>
 			<SideSheet

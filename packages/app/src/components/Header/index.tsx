@@ -4,7 +4,7 @@ import { useUserWallet } from "@/hooks";
 import { useMobileMenu } from "@/components/Header/hooks/use-mobile-menu";
 import { WalletButton } from "@/components/Header/WalletButton";
 import { MobileMenu } from "@/components/Header/MobileMenu";
-import { MainLogo } from "@/brand/logo/MainLogo";
+import { MobileHeaderLogo } from "@/brand/logo/MobileHeaderLogo";
 import { UserButton } from "@/components/Header/UserButton";
 import { css } from "@linaria/core";
 import * as mediaQueries from "@/utils/media-queries";
@@ -46,7 +46,7 @@ const Header: React.FC<Props> = ({
 						}
 					`}
 				>
-					<MainLogo height={height} />
+					<MobileHeaderLogo height={height} />
 				</Anchor>
 				<Pane
 					display="flex"

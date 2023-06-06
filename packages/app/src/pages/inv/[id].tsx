@@ -19,7 +19,7 @@ import { useRouter } from "next/router";
 import { useCallback, useEffect, useState } from "react";
 import { Campaigns } from "@usher.so/campaigns";
 import { API_OPTIONS } from "@/constants";
-import { BrandLogoImageDark } from "@/brand/logo/BrandLogo";
+import { BrandLogomarkDark } from "@/brand/logo/BrandLogo";
 
 const onError = () => {
 	window.location.replace(`/link-error`);
@@ -206,7 +206,7 @@ const Invite: React.FC<Props> = () => {
 			flexDirection="column"
 			marginY="0"
 			marginX="auto"
-			minHeight="100vh"
+			flex={1}
 			position="relative"
 		>
 			{step === Step.Init && <Preloader message={`You've been invited...`} />}
@@ -231,7 +231,7 @@ const Invite: React.FC<Props> = () => {
 				alignItems="center"
 				justifyContent="center"
 			>
-				<Image src={BrandLogoImageDark} width={120} objectFit="contain" />
+				<Image src={BrandLogomarkDark} width={120} objectFit="contain" />
 			</Pane>
 		</Pane>
 	);

@@ -4,11 +4,13 @@ import { Chains, Connections } from "@usher.so/shared";
 import { Pane } from "evergreen-ui";
 import Image from "next/image";
 import { useRouter } from "next/router";
-import { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
 import * as api from "@/api";
 import WalletInvite from "@/components/WalletInvite";
-import { BrandLogoImageDark } from "@/brand/logo/BrandLogo";
+import { BrandLogomarkDark } from "@/brand/logo/BrandLogo";
+import { PoweredByUsher } from "@/components/PoweredByUsher";
+import { brandConfig } from "@/brand/config-reader";
 
 type Link = {
 	id: string;
@@ -76,12 +78,18 @@ const LinkPage: React.FC = () => {
 				bottom={20}
 				left={0}
 				right={0}
+				pointerEvents={"none"}
 				display="flex"
 				alignItems="center"
 				justifyContent="center"
 			>
-				<Image src={BrandLogoImageDark} width={120} objectFit="contain" />
+				<Image src={BrandLogomarkDark} width={120} objectFit="contain" />
 			</Pane>
+			{brandConfig.rebranded && (
+				<Pane marginBottom={8} marginX={"auto"}>
+					<PoweredByUsher />
+				</Pane>
+			)}
 		</Pane>
 	);
 };
