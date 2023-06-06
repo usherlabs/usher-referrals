@@ -1,7 +1,7 @@
 import { Badge, Pane } from "evergreen-ui";
 import Image from "next/future/image";
 import React from "react";
-import { BrandLogomarkLight } from "@/brand/logo/BrandLogo";
+import { BrandLogoLight } from "@/brand/logo/BrandLogos";
 import { brandConfig } from "@/brand/config-reader";
 
 export const SidePanelLogo = () => {
@@ -11,7 +11,7 @@ export const SidePanelLogo = () => {
 				<Image
 					alt="logo"
 					height={54}
-					src={BrandLogomarkLight}
+					src={BrandLogoLight}
 					style={{ padding: "2px 0px" }}
 				/>
 			) : (
@@ -19,7 +19,7 @@ export const SidePanelLogo = () => {
 					<Image
 						alt="logo"
 						height={54}
-						src={BrandLogomarkLight}
+						src={BrandLogoLight}
 						style={{ padding: "2px 0px" }}
 					/>
 					<Badge color="yellow" marginX={8}>

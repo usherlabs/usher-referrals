@@ -1,7 +1,7 @@
 import React from "react";
 import { Badge, Pane } from "evergreen-ui";
 import Image from "next/future/image";
-import { BrandLogomarkDark, BrandLogomarkLight } from "@/brand/logo/BrandLogo";
+import { BrandLogoDark, BrandLogoLight } from "@/brand/logo/BrandLogos";
 import { brandConfig } from "@/brand/config-reader";
 
 interface MainLogoProps {
@@ -19,10 +19,10 @@ export const MobileHeaderLogo: React.FC<MainLogoProps> = ({ height }) => {
 			paddingY={8}
 		>
 			{brandConfig.rebranded ? (
-				<Image alt="logo" height={height - 32} src={BrandLogomarkDark} />
+				<Image alt="logo" height={height - 32} src={BrandLogoDark} />
 			) : (
 				<>
-					<Image alt="logo" height={height - 32} src={BrandLogomarkDark} />
+					<Image alt="logo" height={height - 32} src={BrandLogoDark} />
 					<Badge color="yellow" marginX={8}>
 						ALPHA
 					</Badge>

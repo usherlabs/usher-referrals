@@ -8,7 +8,7 @@ import React, { useCallback, useEffect, useState } from "react";
 
 import * as api from "@/api";
 import WalletInvite from "@/components/WalletInvite";
-import { BrandLogomarkDark } from "@/brand/logo/BrandLogo";
+import { BrandLogoDark } from "@/brand/logo/BrandLogos";
 import { PoweredByUsher } from "@/components/PoweredByUsher";
 import { brandConfig } from "@/brand/config-reader";
 
@@ -83,7 +83,7 @@ const LinkPage: React.FC = () => {
 				alignItems="center"
 				justifyContent="center"
 			>
-				<Image src={BrandLogomarkDark} width={120} objectFit="contain" />
+				<Image src={BrandLogoDark} width={120} objectFit="contain" />
 			</Pane>
 			{brandConfig.rebranded && (
 				<Pane marginBottom={8} marginX={"auto"}>

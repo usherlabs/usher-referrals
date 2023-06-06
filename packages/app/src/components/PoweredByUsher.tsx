@@ -1,6 +1,6 @@
 import { Pane, Text } from "evergreen-ui";
 import Image from "next/future/image";
-import { BrandLogomarkDark } from "@/brand/logo/BrandLogo";
+import { BrandLogoDark } from "@/brand/logo/BrandLogos";
 import React from "react";
 import Anchor from "@/components/Anchor";
 
@@ -22,7 +22,7 @@ export const PoweredByUsher = () => {
 					<Image
 						alt="logo"
 						height={16}
-						src={BrandLogomarkDark}
+						src={BrandLogoDark}
 						style={{ margin: 4, opacity: 0.85 }}
 					/>
 				</Anchor>

@@ -19,7 +19,7 @@ import { useRouter } from "next/router";
 import { useCallback, useEffect, useState } from "react";
 import { Campaigns } from "@usher.so/campaigns";
 import { API_OPTIONS } from "@/constants";
-import { BrandLogomarkDark } from "@/brand/logo/BrandLogo";
+import { BrandLogoDark } from "@/brand/logo/BrandLogos";
 
 const onError = () => {
 	window.location.replace(`/link-error`);
@@ -231,7 +231,7 @@ const Invite: React.FC<Props> = () => {
 				alignItems="center"
 				justifyContent="center"
 			>
-				<Image src={BrandLogomarkDark} width={120} objectFit="contain" />
+				<Image src={BrandLogoDark} width={120} objectFit="contain" />
 			</Pane>
 		</Pane>
 	);

@@ -18,7 +18,7 @@ import Image from "next/image";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { browserName } from "react-device-detect";
 import * as uint8arrays from "uint8arrays";
-import {BrandLogoIconDark} from "@/brand/logo/BrandLogo";
+import {BrandLogomarkDark} from "@/brand/logo/BrandLogos";
 import {brandName} from "@/brand/names";
 
 type Props = {
@@ -119,7 +119,7 @@ export const WalletConnectButton = ({
 				const permissions: PermissionType[] = ["ACCESS_ADDRESS", "SIGNATURE"];
 				await arConnect.connect(permissions, {
 					name: brandName.titleCase,
-					logo: BrandLogoIconDark
+					logo: BrandLogomarkDark
 				});
 				// await delay(1000);
 				const arweaveAddress = await arConnect.getActiveAddress();
