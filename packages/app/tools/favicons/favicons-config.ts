@@ -1,6 +1,8 @@
-import {FaviconOptions} from "favicons";
+import { FaviconOptions } from "favicons";
+import path from "path";
 
-const config: FaviconOptions = {
+const config: FaviconOptions & { sourceIconPath: string } = {
+	sourceIconPath: path.join(__dirname, "source-icon.svg"),
 	appName: "Usher", // Your application's name. `string`
 	appShortName: "Usher", // Your application's short_name. `string`. Optional. If not set, appName will be used
 	manifestRelativePaths: true,

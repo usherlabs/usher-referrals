@@ -13,7 +13,7 @@
 		"test:watch": "jest --watch",
 		"test:ci": "jest --ci",
 		"clean": "del .turbo .next out",
-		"generate-favicon": "node -r esbuild-register ./tools/favicons/generate-favicons.ts"
+		"generate-favicon": "node -r esbuild-register tools/favicons/generator/generate-favicons.ts"
 	},
 	"dependencies": {
 		"@aws-crypto/sha256-js": "^2.0.1",

@@ -1,15 +1,15 @@
 import favicons from "favicons";
 import fs from "fs/promises";
 import path from "path";
-import configuration from "./favicons-config";
+import configuration from "../favicons-config";
 
 /*
  * This script generates a React component to import favicons into your project.
  * and also generates all necessary files for the favicons based on the configuration.
  */
 
-const sourceImagePath = path.join(__dirname, "./source-icon.svg"); // Icon source file path.
-const publicDir = path.resolve(__dirname, "../../public"); // Public directory path.
+const {sourceIconPath} = configuration; // Icon source file path.
+const publicDir = path.resolve(__dirname, "../../../public"); // Public directory path.
 const generatedDirOnPublic = path.join(publicDir, "static/generated"); // Output directory path.
 const filesDir = path.join(generatedDirOnPublic, "files");
 
@@ -60,7 +60,7 @@ const deleteOldFilesIfExists = async () => {
 
 const generateFavicons = async () => {
 	console.log("Generating favicons...");
-	const response = await favicons(sourceImagePath, {
+	const response = await favicons(sourceIconPath, {
 		...configuration,
 		path: filesRelativeToPublic
 	});
