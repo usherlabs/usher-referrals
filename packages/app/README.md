@@ -56,6 +56,7 @@ We recommend you get comfortable with [NextJS](https://nextjs.org/docs/getting-s
 ### `src` File structure
 
 - `assets`: Stores all static assets used within the Partner dApp that are not related to a database entry.
+- `brand`: All brand-related components are centralized in this directory to ease the customization of the application UI. We can change the most relevant aspects of branding by tweaking `brand.config.tsx`.
 - `components`: Contains React.js components that primarily render JSX markup. Some components include logic to reduce repeated code.
 - `containers`: Houses React.js components that serve as the foundation for a UI and/or wrap other components.
 - `hooks`: Contains React.js hooks for reusable functional component state/variable management.
@@ -74,6 +75,16 @@ We recommend you get comfortable with [NextJS](https://nextjs.org/docs/getting-s
 - `env-config.ts`: Contains all NEXT_PUBLIC environment variables exposed to the front end.
 - `integrations.ts`: A single file for integrations with third-party tracking libraries or event management libraries.
 - `types.ts`: Houses all TypeScript Types.
+
+## Re-branding
+
+To incorporate our pages into your application, we’ve facilitated the process of re-branding. You can find all critical components related to branding UI at `src/brand`, so you can quickly adapt to your organization's needs.
+
+Besides updating `src/brand/brand.config.tsx`, you will need to generate your favicons for your application by using our tool:
+
+- Update `app/tools/favicons/favicons-config.ts` accordingly. [Learn more →](https://github.com/itgalaxy/favicons)
+- Update `app/tools/source-icon.svg` to the desired icon.
+- run `yarn generate-favicon`. It’ll also automatically run at the build step.
 
 ## What’s next?
 
