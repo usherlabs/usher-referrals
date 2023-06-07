@@ -11,11 +11,14 @@ import {
 import type { BrandConfig } from "./utils/type";
 
 const config = {
+	// use title case here. E.g.: Usher
 	companyName: "Usher",
+	// import SVG files and use them here
 	logo: {
 		light: UsherLogoLight,
 		dark: UsherLogoDark
 	},
+	// Logomark is the icon that also represents the brand
 	logomark: {
 		light: BrandLogomarkLight,
 		dark: BrandLogomarkDark
@@ -33,6 +36,7 @@ const config = {
 		ui: ["DM Sans"],
 		mono: ["DM Sans"]
 	},
+	// these items will be displayed at the side panel
 	menuItems: [
 		{
 			href: "https://usher.so/?ref=app",
