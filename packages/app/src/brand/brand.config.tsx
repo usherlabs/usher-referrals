@@ -14,7 +14,7 @@ import type { BrandConfig } from "./utils/type";
 
 const config = {
 	// use title case here. E.g.: Usher
-	companyName: "Usher",
+	companyName: "Revault",
 	// import SVG files and use them here
 	logo: {
 		light: BrandLogoLight,
@@ -26,7 +26,7 @@ const config = {
 		dark: BrandLogomarkDark
 	},
 	colors: {
-		sidePanel: "#0A1B30",
+		sidePanel: "#1C0C48",
 		links: "#2C9CF2"
 	},
 	/**
