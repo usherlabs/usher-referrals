@@ -34,9 +34,9 @@ const config = {
 	 * @see packages/app/src/pages/_document.tsx
 	 */
 	font: {
-		display: ["DM Sans"],
-		ui: ["DM Sans"],
-		mono: ["DM Sans"]
+		display: ["Poppins", "sans-serif"],
+		ui: ["Poppins", "sans-serif"],
+		mono: []
 	},
 	// these items will be displayed at the side panel
 	menuItems: [
