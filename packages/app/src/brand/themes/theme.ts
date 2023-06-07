@@ -38,6 +38,26 @@ const backupFonts = {
 const joinFonts = (...fonts: string[]) => fonts.join(", ");
 export const theme = mergeTheme(defaultTheme, {
 	colors: {
+		aWhite: {
+			"0": "hsla(0, 0%, 100%, 0.95)",
+			"1": "hsla(0, 0%, 100%, 0.85)",
+			"2": "hsla(0, 0%, 100%, 0.75)",
+			"3": "hsla(0, 0%, 100%, 0.65)",
+			"4": "hsla(0, 0%, 100%, 0.45)",
+			"5": "hsla(0, 0%, 100%, 0.35)",
+			"6": "hsla(0, 0%, 100%, 0.30)",
+			"7": "hsla(0, 0%, 100%, 0.10)"
+		},
+		aBlack: {
+			"0": "hsla(0, 0%, 0%, 0.85)",
+			"1": "hsla(0, 0%, 0%, 0.80)",
+			"2": "hsla(0, 0%, 0%, 0.70)",
+			"3": "hsla(0, 0%, 0%, 0.60)",
+			"4": "hsla(0, 0%, 0%, 0.50)",
+			"5": "hsla(0, 0%, 0%, 0.45)",
+			"6": "hsla(0, 0%, 0%, 0.35)",
+			"7": "hsla(0, 0%, 0%, 0.15)"
+		},
 		sidePanel: brandConfig.colors.sidePanel ?? "#0A1B30",
 		link: brandConfig.colors.links ?? "#2C9CF2"
 	},

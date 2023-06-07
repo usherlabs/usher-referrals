@@ -1,13 +1,15 @@
-import UsherLogoDark from "@/assets/usher-logos/usher-logo-dark.svg";
-import UsherLogoLight from "@/assets/usher-logos/usher-logo-light.svg";
-import BrandLogomarkDark from "@/assets/usher-logos/Usher-Logomark-Dark.svg";
-import BrandLogomarkLight from "@/assets/usher-logos/Usher-Logomark-Light.svg";
 import {
 	UilBookAlt,
 	UilDiscord,
 	UilGithub,
 	UilStar
 } from "@iconscout/react-unicons";
+import {
+	BrandLogoDark,
+	BrandLogoLight,
+	BrandLogomarkDark,
+	BrandLogomarkLight
+} from "@/brand/logo-components/BrandLogos";
 import type { BrandConfig } from "./utils/type";
 
 const config = {
@@ -15,8 +17,8 @@ const config = {
 	companyName: "Usher",
 	// import SVG files and use them here
 	logo: {
-		light: UsherLogoLight,
-		dark: UsherLogoDark
+		light: BrandLogoLight,
+		dark: BrandLogoDark
 	},
 	// Logomark is the icon that also represents the brand
 	logomark: {

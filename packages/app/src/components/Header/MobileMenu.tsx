@@ -78,7 +78,7 @@ export const MobileMenu: React.FC<MobileMenuProps> = ({
 							appearance="minimal"
 							onClick={() => setShowMobileMenu(false)}
 						>
-							<CrossIcon size={36} color={colors.gray700} />
+							<CrossIcon size={36} color={colors.aWhite["3"]} />
 						</Button>
 					</Pane>
 					<MenuItems fontSize={22} items={menu.mainItems} />

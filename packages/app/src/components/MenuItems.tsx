@@ -37,17 +37,31 @@ export const MenuItems = ({
 							height={isSmall ? 42 : 52}
 							display="flex"
 							justifyContent="start"
+							color={colors.aWhite[5]}
 							className={cx(
 								css`
-									:hover label {
-										color: #000 !important;
+									// FIXME
+									// we should replace with theme colors, but it does not work with linaria
+									:hover {
+										label {
+											color: hsla(0, 0%, 0%, 0.85) !important;
+										}
+										svg {
+											color: hsla(0, 0%, 0%, 0.75) !important;
+										}
 									}
 								`,
 								currentPathname === item.href
 									? css`
-											 {
-												background-color: #ffffff;
+											svg {
+												color: hsla(0, 0%, 0%, 0.85) !important;
 											}
+
+											label {
+												color: hsla(0, 0%, 0%, 0.95) !important;
+											}
+
+											background-color: hsla(0, 0%, 100%, 0.9) !important;
 									  `
 									: ""
 							)}
@@ -57,7 +71,7 @@ export const MenuItems = ({
 							<Label
 								fontSize={fontSize || (isSmall ? 16 : 20)}
 								fontWeight={400}
-								color={colors.gray600}
+								color={colors.aWhite[3]}
 								pointerEvents="none"
 							>
 								{item.text}
