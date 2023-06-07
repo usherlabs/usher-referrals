@@ -1,4 +1,7 @@
+// eslint-disable-next-line import/no-extraneous-dependencies
 import favicons from "favicons";
+// eslint-disable-next-line import/no-extraneous-dependencies
+import prettier from "prettier";
 import fs from "fs/promises";
 import path from "path";
 import configuration from "../favicons-config";
@@ -7,16 +10,16 @@ import configuration from "../favicons-config";
  * This script generates a React component to import favicons into your project.
  * and also generates all necessary files for the favicons based on the configuration.
  */
-
+const projectRootPath = path.resolve(__dirname, "../../../");
 const { sourceIconPath } = configuration; // Icon source file path.
-const publicDir = path.resolve(__dirname, "../../../../public"); // Public directory path.
+const publicDir = path.resolve(projectRootPath, "public"); // Public directory path.
 const generatedDirOnPublic = path.join(publicDir, "static/generated"); // Output directory path.
 const filesDir = path.join(generatedDirOnPublic, "files");
 
 // this one will go to src/ folder
 const generatedDirOnSrc = path.resolve(
-	__dirname,
-	"../../src/utils/generated-favicons/"
+	projectRootPath,
+	"src/utils/generated-favicons/"
 );
 const generatedTagsComponentPath = path.join(
 	generatedDirOnSrc,
@@ -80,15 +83,23 @@ const generateFavicons = async () => {
 		)
 	);
 
-	const faviconsContent = await fillFaviconsTemplate(
-		await response.html.map(fixUnclosedAutoclosedTags).join("\n")
-	);
+	const faviconsTags = response.html.map(fixUnclosedAutoclosedTags).join("\n");
+	const faviconsContent = await fillFaviconsTemplate(faviconsTags).then(format);
+
 	await fs.writeFile(generatedTagsComponentPath, faviconsContent);
 };
 
 // Replace $DIR$ in the source file
 
 const scriptPath = path.relative(process.cwd(), __filename);
+
+/**
+ * Better to reformat our code with prettier so it will keep consistent
+ */
+const format = async (contents: string) => {
+	const options = await prettier.resolveConfig(scriptPath);
+	return prettier.format(contents, options ?? undefined);
+};
 
 const main = async () => {
 	await deleteOldFilesIfExists();
