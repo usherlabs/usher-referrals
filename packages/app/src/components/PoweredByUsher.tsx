@@ -1,6 +1,6 @@
 import { Pane, Text } from "evergreen-ui";
 import Image from "next/future/image";
-import { BrandLogoDark } from "@/brand/logo-components/BrandLogos";
+import UsherLogoDark from "@/assets/usher-logos/usher-logo-dark.svg";
 import React from "react";
 import Anchor from "@/components/Anchor";
 
@@ -22,7 +22,7 @@ export const PoweredByUsher = () => {
 					<Image
 						alt="logo"
 						height={16}
-						src={BrandLogoDark}
+						src={UsherLogoDark}
 						style={{ margin: 4, opacity: 0.85 }}
 					/>
 				</Anchor>

@@ -1,8 +1,7 @@
-import BrandLogomarkDark from "@/assets/usher-logos/Usher-Logomark-Dark.svg";
-import BrandLogomarkLight from "@/assets/usher-logos/Usher-Logomark-Light.svg";
-import BrandLogoDark from "@/assets/usher-logos/usher-logo-dark.svg";
-import BrandLogoLight from "@/assets/usher-logos/usher-logo-light.svg";
-// import BrandLogoLight from "@/assets/logo/Usher-Logo-White.svg";
+import BrandLogomarkDark from "@/brand/brand-assets/Usher-Logomark-Dark.svg";
+import BrandLogomarkLight from "@/brand/brand-assets/Usher-Logomark-Light.svg";
+import BrandLogoDark from "@/brand/brand-assets/usher-logo-dark.svg";
+import BrandLogoLight from "@/brand/brand-assets/usher-logo-light.svg";
 
 /**
  * Why exporting it like this?
