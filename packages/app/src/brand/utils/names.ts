@@ -1,6 +1,7 @@
 import _ from "lodash";
+import { brandConfig } from "@/brand";
 
-const titleCase = "Usher";
+const titleCase = brandConfig.companyName;
 export const brandName = {
 	titleCase,
 	snakeCase: _.snakeCase(titleCase),
