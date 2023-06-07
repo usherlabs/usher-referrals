@@ -8,8 +8,8 @@ import configuration from "../favicons-config";
  * and also generates all necessary files for the favicons based on the configuration.
  */
 
-const {sourceIconPath} = configuration; // Icon source file path.
-const publicDir = path.resolve(__dirname, "../../../public"); // Public directory path.
+const { sourceIconPath } = configuration; // Icon source file path.
+const publicDir = path.resolve(__dirname, "../../../../public"); // Public directory path.
 const generatedDirOnPublic = path.join(publicDir, "static/generated"); // Output directory path.
 const filesDir = path.join(generatedDirOnPublic, "files");
 
