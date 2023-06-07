@@ -3,18 +3,18 @@ import path from "path";
 
 const config: FaviconOptions & { sourceIconPath: string } = {
 	sourceIconPath: path.join(__dirname, "source-icon.svg"),
-	appName: "Usher", // Your application's name. `string`
-	appShortName: "Usher", // Your application's short_name. `string`. Optional. If not set, appName will be used
+	appName: "Revault", // Your application's name. `string`
+	appShortName: "Revault", // Your application's short_name. `string`. Optional. If not set, appName will be used
 	manifestRelativePaths: true,
 	appDescription:
-		"Usher is the open partnerships platform enabling partner networks with crypto remittances", // Your application's description. `string`
+		"Find and deposit funds in the best performing vaults in the market at any given time", // Your application's description. `string`
 	// developerName: null, // Your (or your developer's) name. `string`
 	// developerURL: null, // Your (or your developer's) URL. `string`
 	cacheBustingQueryParam: null, // Query parameter added to all URLs that acts as a cache busting system. `string | null`
 	dir: "auto", // Primary text direction for name, short_name, and description
 	lang: "en-US", // Primary language for name and short_name
-	background: "#fff", // Background colour for flattened icons. `string`
-	theme_color: "#fff", // Theme color user for example in Android's task switcher. `string`
+	background: "#1C0C48", // Background colour for flattened icons. `string`
+	theme_color: "#5F2EEA", // Theme color user for example in Android's task switcher. `string`
 	appleStatusBarStyle: "black-translucent", // Style for Apple status bar: "black-translucent", "default", "black". `string`
 	display: "minimal-ui", // Preferred display mode: "fullscreen", "standalone", "minimal-ui" or "browser". `string`
 	orientation: "portrait", // Default orientation: "any", "natural", "portrait" or "landscape". `string`
