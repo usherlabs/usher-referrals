@@ -83,11 +83,10 @@ Once you've set up ArangoMiGO, you can use it to manage database migrations. Fol
 2. Run migrations using the following command:
 
 ```
-yarn run migrate
+pnpm migrate
 ```
 
 This command will execute the migration scripts located in the **`migrations`** folder, setting up the Usher database structure in the specified ArangoDB instance.
-
 
 ArangoMiGO keeps track of executed migrations in a dedicated collection. When running migrations, it applies only new or unexecuted ones in order, ensuring consistency and smooth operation as you update your Usher Core implementation.
 
@@ -111,7 +110,6 @@ ArangoMiGO keeps track of executed migrations in a dedicated collection. When ru
 
 For local development, there's a convenient `.env.example` file at the root of this package. Copy it to `.env` and fill in the values as needed.
 
-
 ## How to read it?
 
 The Graph package is structured as follows:
@@ -119,7 +117,7 @@ The Graph package is structured as follows:
 - `aql`: Contains AQL scripts for database operations, such as `create-campaign.aql`.
 - `migrations`: Includes migration scripts that alter the ArangoDB structure, like creating collections and graphs.
 - `src`: Contains the main source code, including constants, environment configuration, lambda handlers, and utility
-	functions.
+  functions.
 - `tests`: Holds test files.
 
 ## 🚧 Serverless utilities (Work in progress)
@@ -140,7 +138,7 @@ To configure recurring database indexing, follow these steps:
 1. Open the `serverless.yml` file located at the root of the `graph` package.
 2. Locate the `ingest` function under the `functions` section.
 3. Configure the desired interval for indexing by modifying the `schedule` attribute, e.g., `rate(5 minutes)` for
-	 indexing every 5 minutes.
+   indexing every 5 minutes.
 
 ### Configuring AWS for Database Backups
 
@@ -149,7 +147,7 @@ To set up AWS for database backups, follow these steps:
 1. Open the `serverless.yml` file located at the root of the `graph` package.
 2. Locate the `backup` function under the `functions` section.
 3. Configure the desired interval for backups by modifying the `schedule` attribute, eg., rate(1 day) for daily
-		 backups.
+   backups.
 
 ### Deploying utilities
 
@@ -158,7 +156,7 @@ the utilities:
 
 1. Open the terminal and navigate to the `graph` package directory.
 2. Use the `serverless` command to deploy the utilities: Replace `<stage>` with the desired stage, e.g., `prod`
-	 or `dev`.
+   or `dev`.
 
 ```bash
 serverless deploy --stage <stage>

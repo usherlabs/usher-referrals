@@ -3,15 +3,15 @@ FROM node:16 AS build
 WORKDIR /app
 
 COPY package.json .
-COPY yarn.lock .
+COPY pnpm-lock.yaml .
 COPY packages/listener/package.json ./packages/listener/
-RUN yarn install
+RUN pnpm install
 
 COPY . .
 
 WORKDIR /app/packages/listener
-RUN yarn install
-RUN yarn build
+RUN pnpm install
+RUN pnpm build
 
 FROM node:16-alpine
 ENV NODE_ENV=production

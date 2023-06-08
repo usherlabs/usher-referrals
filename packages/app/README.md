@@ -12,7 +12,7 @@ Spin up the Usher Next.js app to deliver a user-friendly interface for your Part
 2. Navigate to this directory in your terminal.
 3. Read the `.env.example` to learn which services to incorporate.
 4. Copy the `.env.example` to a `.env` file within the `packages/app`
-5. Execute `yarn dev` to start the development server.
+5. Execute `pnpm dev` to start the development server.
 
 The app should now be accessible at `http://localhost:3000`.
 
@@ -29,7 +29,7 @@ You may use any method you prefer to deploy the app. We will guide you through d
 3. Click on the "Import Project" button.
 4. Choose "Import Git Repository" and provide the URL of your Usher Core Git repository.
 5. Configure your Project Settings
-   1. **Build & Development Settings** should include a **Build Command**: `cd ../.. && yarn turbo run build --filter=...@usher/app`
+   1. **Build & Development Settings** should include a **Build Command**: `cd ../.. && turbo run build --filter=...@usher/app`
    2. **Root Directory** is `packages/app`.
    3. Enable "Include source files outside of the Root Directory in the Build Step."
 6. It is required for you to set in the "Environment Variables" section during the import process or later in the project settings.
@@ -84,7 +84,7 @@ Besides updating `src/brand/brand.config.tsx`, you will need to generate your fa
 
 - Update `app/tools/favicons/favicons-config.ts` accordingly. [Learn more →](https://github.com/itgalaxy/favicons)
 - Update `app/tools/source-icon.svg` to the desired icon.
-- run `yarn generate-favicon`. It’ll also automatically run at the build step.
+- run `pnpm generate-favicon`. It’ll also automatically run at the build step.
 
 ## What’s next?
 

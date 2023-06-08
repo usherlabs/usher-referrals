@@ -14,7 +14,7 @@ Get a quick glance at what steps the listener takes to register conversions:
 
 ![Listener guide #1](../../images/docs/listener/ListenerStep1.png)
 
-1. We must first query our ArangoDB data for `Campaigns` that have at least one conversion based on smart contracts defined. It’s easy to distinguish between the two types as smart-contract ones have a  `contractAddress` attribute defined.
+1. We must first query our ArangoDB data for `Campaigns` that have at least one conversion based on smart contracts defined. It’s easy to distinguish between the two types as smart-contract ones have a `contractAddress` attribute defined.
 2. This associated smart contract may emit several kinds of events, depending on user action. However, not all actions are considered **conversions** for this campaign.
 3. So, we can say that a campaign may have many **objectives** (a.k.a. conversions). The listener, after querying our data, knows what are the objectives of the campaigns.
 
@@ -59,38 +59,38 @@ A referred user is someone who came from a Partner link. To properly compensate 
 ### File structure
 
 - `core`: The core logic for event handling and block polling.
-	- `EventFetcher.ts`: Handles fetching contract events.
-	- `Objective.ts`: Represents a contract and its associated events.
-	- `EventListener.ts`: Listens for contract events and manages the event queue.
-	- `ContractEvent.ts`: Defines the structure of a contract event.
-	- `BlockPolling.ts`: Handles block polling and event notifications.
+  - `EventFetcher.ts`: Handles fetching contract events.
+  - `Objective.ts`: Represents a contract and its associated events.
+  - `EventListener.ts`: Listens for contract events and manages the event queue.
+  - `ContractEvent.ts`: Defines the structure of a contract event.
+  - `BlockPolling.ts`: Handles block polling and event notifications.
 - `utils`: Utility modules for various functionalities.
-	- `Options.ts`: Defines options for block polling.
-	- `json-rpc-provider.ts`: Provides an Ethers JSON RPC provider.
-	- `logger.ts`: Handles logging using the Pino library.
-	- `arango-client.ts`: Provides a connection to the ArangoDB database.
+  - `Options.ts`: Defines options for block polling.
+  - `json-rpc-provider.ts`: Provides an Ethers JSON RPC provider.
+  - `logger.ts`: Handles logging using the Pino library.
+  - `arango-client.ts`: Provides a connection to the ArangoDB database.
 - `conversion.ts`: Handles conversion-related operations for a campaign.
 - `config`: Configuration settings for the application.
-	- `index.ts`: Exports configuration settings from environment variables.
+  - `index.ts`: Exports configuration settings from environment variables.
 - `types.ts`: Defines various enums and types related to the application.
 - `main.ts`: The main logic to start the application and handle events.
 - `errors`: Custom error classes.
-	- `CustomError.ts`: A base class for custom errors.
-	- `BlockNotFoundError.ts`: An error class for block not found errors.
+  - `CustomError.ts`: A base class for custom errors.
+  - `BlockNotFoundError.ts`: An error class for block not found errors.
 
 ## How to run it?
 
 ### Environment setup
 
-| Environment Variable | Description | Default Value |
-| --- | --- | --- |
-| ARANGO_URL | URL of the ArangoDB instance |  |
-| ARANGO_DATABASE | Name of the ArangoDB database |  |
-| ARANGO_USERNAME | Username for connecting to the ArangoDB instance |  |
-| ARANGO_PASSWORD | Password for connecting to the ArangoDB instance |  |
-| PROVIDER_URL | Ethereum JSON-RPC provider URL |  |
-| START_BLOCK | Starting block number for the Listener to process |  |
-| LOG_LEVEL | https://github.com/pinojs/pino/blob/master/docs/api.md#loggerlevel-string-gettersetter | debug |
+| Environment Variable | Description                                                                            | Default Value |
+| -------------------- | -------------------------------------------------------------------------------------- | ------------- |
+| ARANGO_URL           | URL of the ArangoDB instance                                                           |               |
+| ARANGO_DATABASE      | Name of the ArangoDB database                                                          |               |
+| ARANGO_USERNAME      | Username for connecting to the ArangoDB instance                                       |               |
+| ARANGO_PASSWORD      | Password for connecting to the ArangoDB instance                                       |               |
+| PROVIDER_URL         | Ethereum JSON-RPC provider URL                                                         |               |
+| START_BLOCK          | Starting block number for the Listener to process                                      |               |
+| LOG_LEVEL            | https://github.com/pinojs/pino/blob/master/docs/api.md#loggerlevel-string-gettersetter | debug         |
 
 These variables should be set before running the application in order to configure the connection to ArangoDB, Ethereum, and logging preferences.
 
@@ -99,7 +99,7 @@ These variables should be set before running the application in order to configu
 To run Listener locally, follow these steps:
 
 1. Ensure you have followed this monorepo root’s installation guide.
-2. Navigate to this package folder and execute `yarn run dev` to start the Listener.
+2. Navigate to this package folder and execute `pnpm dev` to start the Listener.
 
 ### Deploy
 
@@ -122,7 +122,7 @@ To deploy Listener on a VPS, follow these steps:
 3. Clone this repository onto the VPS.
 4. Set the necessary environment variables, as specified in the `docker-compose.yml` file.
 5. Run the instructions provided at the root of this repository to install dependencies.
-6. Navigate to this package folder and run `yarn build` to create an optimized package of source files using ESBuild.
+6. Navigate to this package folder and run `pnpm build` to create an optimized package of source files using ESBuild.
 7. Start the Listener by running `node ./build/main.js`.
 
 Once the Listener is up and running, you can monitor and manage the deployment as needed.

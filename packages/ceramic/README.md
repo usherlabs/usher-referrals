@@ -32,13 +32,13 @@ sudo apt update
 
 ```
 nvm install node
-npm install -g yarn
+npm install -g pnpm
 ```
 
 4. **Install Ceramic CLI** by running:
 
 ```
-yarn global add @ceramicnetwork/cli
+pnpm i -g @ceramicnetwork/cli
 ```
 
 5. **Install Golang** by following the instructions on the **[official Golang website](https://golang.org/doc/install)**.
