@@ -189,7 +189,10 @@ export const collections = (authToken: string) => {
 				success: boolean;
 				data: LinkConnection[];
 			}>();
-			return camelcaseKeys(json, { deep: true });
+			return camelcaseKeys(json, { deep: true }) as {
+				success: boolean;
+				data: LinkConnection[];
+			};
 		},
 		post: async (id: string): Promise<{ success: boolean }> => {
 			return req.post(`collections`, { json: { linkId: id } }).json();

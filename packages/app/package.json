@@ -5,7 +5,7 @@
 	"scripts": {
 		"dev": "next dev",
 		"dev:https": "cross-env NODE_ENV=development node -r esbuild-register ./tools/https-dev.ts",
-		"build": "run-s generate-favicon",
+		"build": "run-s generate-favicon build:next",
 		"build:next": "next build",
 		"start": "next start",
 		"lint": "next lint",
