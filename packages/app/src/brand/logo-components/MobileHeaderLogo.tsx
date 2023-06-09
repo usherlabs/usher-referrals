@@ -19,10 +19,20 @@ export const MobileHeaderLogo: React.FC<MainLogoProps> = ({ height }) => {
 			paddingY={8}
 		>
 			{brandConfig.rebranded ? (
-				<Image alt="logo" height={height - 32} src={BrandLogoDark} />
+				<Image
+					alt="logo"
+					height={height - 32}
+					style={{ width: "auto" }}
+					src={BrandLogoDark}
+				/>
 			) : (
 				<>
-					<Image alt="logo" height={height - 32} src={BrandLogoDark} />
+					<Image
+						alt="logo"
+						height={height - 32}
+						style={{ width: "auto" }}
+						src={BrandLogoDark}
+					/>
 					<Badge color="yellow" marginX={8}>
 						ALPHA
 					</Badge>

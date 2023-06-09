@@ -1,5 +1,5 @@
 import * as Sentry from "@sentry/nextjs";
-import { NextjsOptions } from "@sentry/nextjs/types/utils/nextjsOptions";
+import type { NextjsOptions } from "@sentry/nextjs/types/utils/nextjsOptions";
 import { isProd, sentry } from "@/env-config";
 import { Exception, ExceptionContext, User } from "@/types";
 

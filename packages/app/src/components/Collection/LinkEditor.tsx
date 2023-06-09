@@ -169,7 +169,7 @@ const LinkEditor: React.FC<Props> = ({ link, onClose }) => {
 			>
 				<Paragraph>
 					Archiving this link will redirect anyone who clicks on it to&nbsp;
-					<Anchor href="/410" target="blank">
+					<Anchor href="/410" target="_blank">
 						our error page
 					</Anchor>
 					.
