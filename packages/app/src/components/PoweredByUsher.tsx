@@ -1,4 +1,4 @@
-import {Pane, Text} from "evergreen-ui";
+import { Pane, Text } from "evergreen-ui";
 import Image from "next/future/image";
 import UsherLogoDark from "@/assets/usher-logos/usher-logo-dark.svg";
 import React from "react";
