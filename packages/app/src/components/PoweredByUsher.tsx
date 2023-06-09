@@ -1,4 +1,4 @@
-import { Pane, Text } from "evergreen-ui";
+import {Pane, Text} from "evergreen-ui";
 import Image from "next/future/image";
 import UsherLogoDark from "@/assets/usher-logos/usher-logo-dark.svg";
 import React from "react";
@@ -23,7 +23,7 @@ export const PoweredByUsher = () => {
 						alt="logo"
 						height={16}
 						src={UsherLogoDark}
-						style={{ margin: 4, opacity: 0.85 }}
+						style={{ margin: 4, opacity: 0.85, width: "auto" }}
 					/>
 				</Anchor>
 				— alpha release.
