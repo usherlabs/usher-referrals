@@ -138,9 +138,9 @@ git clone https://github.com/usherlabs/usher.git
 cd usher
 ```
 
-2. To install dependencies, run `yarn install` in the root directory.
+2. To install dependencies, run `pnpm install` in the root directory.
 
-   > Usher Core is a monorepo with multiple packages in the `packages` directory. Each package has its own `package.json` and scripts. Learn more about [Yarn Workspaces](https://classic.yarnpkg.com/en/docs/workspaces/).
+   > Usher Core is a monorepo with multiple packages in the `packages` directory. Each package has its own `package.json` and scripts. Learn more about [PNPM Workspaces](https://pnpm.io/workspaces).
 
 3. For package overviews and instructions to start services, refer to the respective package documentation.
 
