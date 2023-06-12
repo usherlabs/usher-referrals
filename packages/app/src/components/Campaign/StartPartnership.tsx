@@ -1,15 +1,9 @@
 import React from "react";
-import {
-	Button,
-	majorScale,
-	Strong,
-	Pane,
-	Paragraph,
-	useTheme
-} from "evergreen-ui";
+import { Button, majorScale, Pane, Paragraph, Strong } from "evergreen-ui";
 import startCase from "lodash/startCase";
 
 import { Chains } from "@usher.so/shared";
+import { useCustomTheme } from "@/brand/themes/theme";
 
 export type Props = {
 	chain: Chains;
@@ -24,7 +18,7 @@ const CampaignStartPartnership: React.FC<Props> = ({
 	hasWallets = true,
 	isLoading = false
 }) => {
-	const { colors } = useTheme();
+	const { colors } = useCustomTheme();
 
 	const buttonProps = {
 		height: majorScale(7),

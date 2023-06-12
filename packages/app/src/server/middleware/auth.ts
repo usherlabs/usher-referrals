@@ -6,9 +6,8 @@ import { aql } from "arangojs";
 import { ArangoError } from "arangojs/error";
 import type { NextHandler } from "next-connect";
 // import util from "util";
-
 import { getArangoClient } from "@/utils/arango-client";
-import { AuthApiRequest, ApiResponse } from "@/types";
+import { ApiResponse, AuthApiRequest } from "@/types";
 
 const arango = getArangoClient();
 

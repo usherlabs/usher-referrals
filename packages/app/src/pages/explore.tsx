@@ -20,7 +20,7 @@ type ExploreProps = {
 
 const Explore: React.FC<ExploreProps> = ({ campaigns }) => {
 	return (
-		<Pane display="flex" flexDirection="column" height="100vh" padding="40px">
+		<Pane display="flex" flexDirection="column" flex={1} padding="40px">
 			<PageHeader
 				title="Explore Campaigns"
 				description="Explore and engage with Partnership Programs launched by Web3 Projects"

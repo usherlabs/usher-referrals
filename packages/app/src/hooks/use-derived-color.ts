@@ -1,9 +1,9 @@
 /* eslint-disable no-plusplus */
 /* eslint-disable no-bitwise */
-import { useTheme } from "evergreen-ui";
+import { useCustomTheme } from "@/brand/themes/theme";
 
 function useDerivedColor(str: string) {
-	const { colors } = useTheme();
+	const { colors } = useCustomTheme();
 	const rColors = [
 		colors.gray500,
 		colors.red500,

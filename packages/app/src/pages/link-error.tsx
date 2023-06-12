@@ -1,4 +1,4 @@
-import { Pane, Heading, Text } from "evergreen-ui";
+import { Heading, Pane, Text } from "evergreen-ui";
 import Link from "next/link";
 
 const LinkError = () => {

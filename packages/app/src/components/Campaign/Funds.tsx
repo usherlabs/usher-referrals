@@ -1,8 +1,8 @@
 import React from "react";
 import { UilCoins } from "@iconscout/react-unicons";
-import { useTheme } from "evergreen-ui";
 
 import MetricCard from "@/components/MetricCard";
+import { useCustomTheme } from "@/brand/themes/theme";
 // import { CampaignReward, RewardTypes, Chains } from "@/types";
 // import Anchor from "../Anchor";
 
@@ -21,7 +21,7 @@ const CampaignFunds: React.FC<Props> = ({
 	ticker,
 	loading = false
 }) => {
-	const { colors } = useTheme();
+	const { colors } = useCustomTheme();
 
 	return (
 		<MetricCard

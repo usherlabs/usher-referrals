@@ -1,14 +1,13 @@
-import React, { useState, useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import {
-	Pane,
-	TextInput,
-	Button,
-	Spinner,
 	ArrowRightIcon,
+	Button,
+	Pane,
+	Spinner,
+	TextInput,
 	toaster
 } from "evergreen-ui";
 // import PropTypes from "prop-types";
-
 import { isEmail } from "@/utils/is-email";
 
 export type Props = {

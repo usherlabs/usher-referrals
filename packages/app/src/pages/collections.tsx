@@ -4,7 +4,7 @@ import { Pane, ThemeProvider } from "evergreen-ui";
 import Collections from "@/components/Collection/Collections";
 import PageHeader from "@/components/PageHeader";
 import { CollectionsContextProvider } from "@/providers/Collections";
-import { newTheme } from "@/themes/newTheme";
+import { newTheme } from "@/brand/themes/newTheme";
 import * as mediaQueries from "@/utils/media-queries";
 
 type Props = {};
@@ -13,9 +13,8 @@ const CollectionsPage: React.FC<Props> = () => {
 	return (
 		<ThemeProvider value={newTheme}>
 			<Pane
-				display="flex"
-				flexDirection="column"
-				height="100vh"
+				display="grid"
+				// flex={1}
 				padding="10px"
 				className={css`
 					${mediaQueries.gtLarge} {

@@ -22,6 +22,7 @@ import { useWindowSize } from "@/hooks";
 import { useCollections } from "@/hooks/use-collections";
 import { Link } from "@/programs/collections/types";
 import { Breakpoints } from "@/types";
+import { useCustomTheme } from "@/brand/themes/theme";
 
 enum Mode {
 	List,
@@ -49,6 +50,7 @@ const Collections: React.FC<Props> = () => {
 	const [isCreating, setIsCreating] = useState<boolean>(false);
 	const [newLink, setNewLink] = useState<Link>(newLinkDefaultState);
 	const [mode, setMode] = useState<Mode>(Mode.List);
+	const { colors } = useCustomTheme();
 
 	const createNewLink = useCallback(() => {
 		setNewLink({
@@ -145,7 +147,7 @@ const Collections: React.FC<Props> = () => {
 					display="flex"
 					gap="20px"
 					padding="20px"
-					backgroundColor="#F9FAFC"
+					backgroundColor={colors.gray75}
 					borderRadius="12px"
 					overflow="hidden"
 				>
@@ -158,13 +160,16 @@ const Collections: React.FC<Props> = () => {
 							className={css`
 								scrollbar-width: thin;
 								scrollbar-color: #ddd #fff;
+
 								::-webkit-scrollbar {
 									width: 8px;
 								}
+
 								::-webkit-scrollbar-track {
 									background: #fff;
 									border-radius: 4px;
 								}
+
 								::-webkit-scrollbar-thumb {
 									background: #ddd;
 									border-radius: 4px;

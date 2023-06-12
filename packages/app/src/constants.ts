@@ -1,4 +1,4 @@
-import { ethereumProviderUrl, ceramicUrl } from "@/env-config";
+import { ceramicUrl, ethereumProviderUrl } from "@/env-config";
 import { AuthOptions } from "@usher.so/auth";
 import { ApiOptions } from "@usher.so/shared";
 

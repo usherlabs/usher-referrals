@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-shadow */
 import * as api from "@/api";
-import LogoImage from "@/assets/logo/Logo.png";
 import Captcha from "@/components/Captcha";
 import Preloader from "@/components/Preloader";
 import WalletInvite from "@/components/WalletInvite";
@@ -20,6 +19,7 @@ import { useRouter } from "next/router";
 import { useCallback, useEffect, useState } from "react";
 import { Campaigns } from "@usher.so/campaigns";
 import { API_OPTIONS } from "@/constants";
+import { BrandLogoDark } from "@/brand/logo-components/BrandLogos";
 
 const onError = () => {
 	window.location.replace(`/link-error`);
@@ -206,7 +206,7 @@ const Invite: React.FC<Props> = () => {
 			flexDirection="column"
 			marginY="0"
 			marginX="auto"
-			minHeight="100vh"
+			flex={1}
 			position="relative"
 		>
 			{step === Step.Init && <Preloader message={`You've been invited...`} />}
@@ -231,7 +231,7 @@ const Invite: React.FC<Props> = () => {
 				alignItems="center"
 				justifyContent="center"
 			>
-				<Image src={LogoImage} width={120} objectFit="contain" />
+				<Image src={BrandLogoDark} width={120} objectFit="contain" />
 			</Pane>
 		</Pane>
 	);

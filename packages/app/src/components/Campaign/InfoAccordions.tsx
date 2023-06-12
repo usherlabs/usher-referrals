@@ -1,28 +1,27 @@
 import React from "react";
 import {
 	Heading,
-	Strong,
-	useTheme,
-	Paragraph,
+	Label,
 	ListItem,
-	UnorderedList,
 	Pane,
-	Label
+	Strong,
+	Text,
+	UnorderedList
 } from "evergreen-ui";
 import {
 	Accordion,
 	AccordionItem,
-	AccordionItemHeading,
 	AccordionItemButton,
+	AccordionItemHeading,
 	AccordionItemPanel
 } from "react-accessible-accordion";
 import {
+	UilExternalLinkAlt,
 	UilFileContract,
-	UilNotes,
-	UilExternalLinkAlt
+	UilNotes
 } from "@iconscout/react-unicons";
 import startCase from "lodash/startCase";
-import { cx, css } from "@linaria/core";
+import { css, cx } from "@linaria/core";
 
 import { Chains } from "@usher.so/shared";
 import { Campaign, CampaignStrategies, RewardTypes } from "@usher.so/campaigns";
@@ -34,13 +33,14 @@ import {
 	ARWEAVE_EXPLORER_ADDRESS_URL,
 	ETHEREUM_EXPLORER_ADDRESS_URL
 } from "@/constants";
+import { useCustomTheme } from "@/brand/themes/theme";
 
 export type Props = {
 	campaign: Campaign;
 };
 
 const CampaignInfoAccordions: React.FC<Props> = ({ campaign }) => {
-	const { colors } = useTheme();
+	const { colors } = useCustomTheme();
 	const ticker = campaign.reward.ticker.toUpperCase();
 	const name = startCase(campaign.reward.name);
 
@@ -70,11 +70,15 @@ const CampaignInfoAccordions: React.FC<Props> = ({ campaign }) => {
 						position: relative;
 						display: flex;
 						align-items: center;
+						// FIXME: This is a bug in linaria. Once solved let's use the commented out line below instead
+						// for all these cases
+						//background-color: \${colors.gray75};
 						background-color: #f9fafc;
 						transition: background-color 0.1s;
 
 						:hover {
 							background-color: #edeff5;
+							//background-color: \${colors.gray200};
 						}
 
 						:before {
@@ -82,8 +86,11 @@ const CampaignInfoAccordions: React.FC<Props> = ({ campaign }) => {
 							right: 10px;
 						}
 					}
+
 					.accordion__panel {
 						padding: 20px;
+						//background-color: \${colors.gray75};
+						//border-top: 1px solid \${colors.gray500};
 						background-color: #f9fafc;
 						border-top: 1px solid #c1c4d6;
 
@@ -91,8 +98,10 @@ const CampaignInfoAccordions: React.FC<Props> = ({ campaign }) => {
 							border-top: none !important;
 						}
 					}
+
 					.accordion__item {
 						border: 1px solid #c1c4d6;
+						// border: 1px solid \${colors.gray500};
 						margin-bottom: 6px;
 						border-radius: 8px;
 						overflow: hidden;
@@ -105,6 +114,7 @@ const CampaignInfoAccordions: React.FC<Props> = ({ campaign }) => {
 						"accordion__item",
 						css`
 							border: 1px solid #3366ff !important;
+							// border: 1px solid \${colors.blue500} !important;
 						`
 					)}
 				>
@@ -114,13 +124,16 @@ const CampaignInfoAccordions: React.FC<Props> = ({ campaign }) => {
 								`accordion__button`,
 								css`
 									background-color: #ebf0ff !important;
+									// background-color: \${colors.blue50} !important;
 
 									:before {
 										color: #3366ff !important;
+										//color: \${colors.blue500} !important;
 									}
 
 									:hover {
 										background-color: #d6e0ff !important;
+										//background-color: \${colors.blue100} !important;
 									}
 								`
 							)}
@@ -145,6 +158,7 @@ const CampaignInfoAccordions: React.FC<Props> = ({ campaign }) => {
 							css`
 								border-radius: 0 0 8px 8px;
 								border-top: 1px solid #3366ff !important;
+								//border-top: 1px solid \${colors.blue500} !important;
 
 								[hidden] {
 									border-top: none !important;
@@ -317,11 +331,16 @@ const CampaignInfoAccordions: React.FC<Props> = ({ campaign }) => {
 					</AccordionItemPanel>
 				</AccordionItem>
 			</Accordion>
-			<Paragraph size={300} color={colors.gray700} marginTop={12}>
-				<Strong>
-					<i>Usher software is in ALPHA. Please refer responsibly.</i>
-				</Strong>
-			</Paragraph>
+			<Text
+				marginX={"auto"}
+				display={"flex"}
+				justifyContent={"center"}
+				size={300}
+				color={colors.gray700}
+				marginTop={12}
+			>
+				Powered by Usher — alpha release. Please refer responsibly.
+			</Text>
 		</Pane>
 	);
 };

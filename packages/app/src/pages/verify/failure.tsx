@@ -1,21 +1,21 @@
 import {
-	Pane,
-	Heading,
-	Text,
-	useTheme,
 	Button,
+	Heading,
+	ListItem,
 	majorScale,
-	Strong,
+	Pane,
 	Paragraph,
-	UnorderedList,
-	ListItem
+	Strong,
+	Text,
+	UnorderedList
 } from "evergreen-ui";
 import { UilExclamationOctagon } from "@iconscout/react-unicons";
 import { useRouter } from "next/router";
 import Anchor from "@/components/Anchor";
+import { useCustomTheme } from "@/brand/themes/theme";
 
 const VerifyComplete = () => {
-	const { colors } = useTheme();
+	const { colors } = useCustomTheme();
 	const router = useRouter();
 	const { redir } = router.query;
 
@@ -70,7 +70,7 @@ const VerifyComplete = () => {
 				</ListItem>
 			</UnorderedList>
 			<Paragraph size={600} textAlign="center">
-				If you think something is wrong, please contact Usher Support
+				If you think something is wrong, please contact the Support
 			</Paragraph>
 			<br />
 			{redir ? (
@@ -82,13 +82,13 @@ const VerifyComplete = () => {
 						marginTop={24}
 					>
 						<Strong color="#fff" fontSize="1.1em">
-							👉&nbsp;&nbsp;Back to Usher
+							👉&nbsp;&nbsp;Back to main page
 						</Strong>
 					</Button>
 				</Anchor>
 			) : (
 				<Text size={600} textAlign="center">
-					Revist and refresh Usher on your original device to continue.
+					Revist and refresh our page on your original device to continue.
 				</Text>
 			)}
 		</Pane>

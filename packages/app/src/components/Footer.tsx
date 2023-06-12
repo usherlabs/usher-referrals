@@ -1,9 +1,10 @@
 import React from "react";
-import { Pane, Label, Paragraph } from "evergreen-ui";
+import { Label, Pane, Paragraph } from "evergreen-ui";
 import { css } from "@linaria/core";
 
 import Anchor from "@/components/Anchor";
 import * as mediaQueries from "@/utils/media-queries";
+import { useCustomTheme } from "@/brand/themes/theme";
 
 const menu = [
 	{
@@ -24,6 +25,7 @@ const menu = [
 ];
 
 const Footer: React.FC = ({ ...props }) => {
+	const { colors } = useCustomTheme();
 	return (
 		<Pane width="100%" {...props}>
 			<Pane
@@ -38,6 +40,7 @@ const Footer: React.FC = ({ ...props }) => {
 					<Pane
 						className={css`
 							flex-direction: row;
+
 							${mediaQueries.isLarge} {
 								flex-direction: column !important;
 							}
@@ -48,7 +51,7 @@ const Footer: React.FC = ({ ...props }) => {
 								key={item.text}
 								href={item.href}
 								external={item.external || false}
-								color="#000000"
+								color={colors.gray900}
 								opacity={0.7}
 								className={css`
 									:hover {

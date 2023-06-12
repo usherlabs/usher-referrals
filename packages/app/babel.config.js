@@ -4,8 +4,8 @@ const enableConsoleLogs = process.env.ENABLE_CONSOLE_LOGS === "true";
 module.exports = {
 	presets: [
 		"next/babel",
-		"@linaria",
-		["@babel/preset-typescript", { allowDeclareFields: true }]
+		["@babel/preset-typescript", { allowDeclareFields: true }],
+		"@linaria/babel-preset",
 	],
 	plugins: ["add-react-displayname"].concat(
 		isProd && !enableConsoleLogs

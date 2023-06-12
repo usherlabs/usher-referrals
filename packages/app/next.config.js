@@ -51,6 +51,11 @@ const nextConfig = {
 	images: {
 		domains: ["gateway.pinata.cloud", "usher.so", "pages.usher.so"]
 	},
+	experimental: {
+		images: {
+			allowFutureImage: true
+		}
+	},
 	webpack: (config) => {
 		// eslint-disable-next-line no-param-reassign
 		config.resolve.symlinks = false;

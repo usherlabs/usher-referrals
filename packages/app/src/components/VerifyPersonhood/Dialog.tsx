@@ -1,12 +1,11 @@
 import React, { useCallback, useState } from "react";
 import {
-	Paragraph,
 	Button,
-	Strong,
+	Dialog,
 	majorScale,
 	Pane,
-	Dialog,
-	useTheme,
+	Paragraph,
+	Strong,
 	toaster
 } from "evergreen-ui";
 import { isMobile } from "react-device-detect";
@@ -16,6 +15,7 @@ import { QRCodeSVG } from "qrcode.react";
 import { isProd, ngrokUrl } from "@/env-config";
 
 import { useUser } from "@/hooks";
+import { useCustomTheme } from "@/brand/themes/theme";
 
 type Props = {
 	isShown: boolean;
@@ -23,7 +23,7 @@ type Props = {
 };
 
 const VerifyPersonhoodDialog: React.FC<Props> = ({ isShown, onClose }) => {
-	const { colors } = useTheme();
+	const { colors } = useCustomTheme();
 	const { auth } = useUser();
 	const [isLoading, setLoading] = useState(false);
 	const [verifyUrl, setVerifyUrl] = useState("");

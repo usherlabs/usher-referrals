@@ -1,4 +1,3 @@
-import LogoImage from "@/assets/logo/Logo-Icon.svg";
 import {
 	ARCONNECT_CHROME_URL,
 	ARCONNECT_FIREFOX_URL,
@@ -19,6 +18,8 @@ import Image from "next/image";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { browserName } from "react-device-detect";
 import * as uint8arrays from "uint8arrays";
+import { BrandLogomarkDark } from "@/brand/logo-components/BrandLogos";
+import { brandName } from "@/brand/utils/names";
 
 type Props = {
 	chain: Chains;
@@ -117,8 +118,8 @@ export const WalletConnectButton = ({
 			if (providerLabel === ProviderLabel.ArConnect && arConnect) {
 				const permissions: PermissionType[] = ["ACCESS_ADDRESS", "SIGNATURE"];
 				await arConnect.connect(permissions, {
-					name: "Usher",
-					logo: LogoImage
+					name: brandName.titleCase,
+					logo: BrandLogomarkDark
 				});
 				// await delay(1000);
 				const arweaveAddress = await arConnect.getActiveAddress();

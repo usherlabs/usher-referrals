@@ -1,7 +1,7 @@
 import Arweave from "arweave";
 import {
-	Warp,
 	LoggerFactory,
+	Warp,
 	WarpNodeFactory,
 	WarpWebFactory
 } from "warp-contracts";

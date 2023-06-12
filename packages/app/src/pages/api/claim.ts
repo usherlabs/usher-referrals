@@ -20,11 +20,11 @@ import { getArangoClient } from "@/utils/arango-client";
 import withAuth from "@/server/middleware/auth";
 import { getArweaveClient, getWarp } from "@/utils/arweave-client";
 import {
-	FEE_MULTIPLIER,
+	ARWEAVE_EXPLORER_TX_URL,
+	ETHEREUM_EXPLORER_TX_URL,
 	FEE_ARWEAVE_WALLET,
 	FEE_ETHEREUM_WALLET,
-	ARWEAVE_EXPLORER_TX_URL,
-	ETHEREUM_EXPLORER_TX_URL
+	FEE_MULTIPLIER
 } from "@/constants";
 import handleException from "@/utils/handle-exception";
 import { appPackageName, appVersion } from "@/env-config";

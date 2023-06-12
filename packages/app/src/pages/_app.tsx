@@ -20,7 +20,10 @@ import { isProd, mauticOrigin } from "@/env-config";
 import { AppEvents, events } from "@/utils/events";
 
 import { initOnboard } from "@/utils/onboard";
-import { theme } from "@/themes/theme";
+import { theme } from "@/brand/themes/theme";
+import { brandName } from "@/brand/utils/names";
+import { useRouteChange } from "@/hooks";
+import { css } from "@linaria/core";
 
 type Props = AppProps & {
 	pageProps: {
@@ -40,30 +43,38 @@ const queryClient = new QueryClient();
 
 const dynamicStaticPathnames = ["/inv/[id]", "/link/[id]"];
 
+const routeChangeComplete = (url: string) => {
+	events.emit(AppEvents.PAGE_CHANGE, { url });
+};
+
 const App = ({ Component, pageProps }: Props) => {
 	const router = useRouter();
 
 	useEffect(() => {
-		events.emit("app"); // an event to indicate the app has loaded.
-
 		if (typeof window !== "undefined") {
 			setupSignals();
 			events.emit(AppEvents.PAGE_LOAD, { url: window.location.href });
 		}
-		const routeChangeComplete = (url: string) => {
-			events.emit(AppEvents.PAGE_CHANGE, { url });
-		};
-		router.events.on("routeChangeComplete", routeChangeComplete);
-		return () => {
-			router.events.off("routeChangeComplete", routeChangeComplete);
-		};
 	}, []);
+
+	useRouteChange(routeChangeComplete);
 
 	const { seo = {}, noUser = false } = pageProps;
 
 	const AppMain = (
-		<main id="usher-app">
-			<DefaultSeo defaultTitle="Usher" titleTemplate="%s | Usher" {...seo} />
+		<main
+			className={css`
+				display: flex;
+				flex-direction: column;
+				flex: 1;
+			`}
+			id={`${brandName.snakeCase}-main`}
+		>
+			<DefaultSeo
+				defaultTitle={brandName.titleCase}
+				titleTemplate={`%s | ${brandName.titleCase}`}
+				{...seo}
+			/>
 			<Component {...pageProps} />
 			{mauticOrigin && (
 				<Script

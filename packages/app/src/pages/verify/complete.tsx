@@ -1,18 +1,11 @@
-import {
-	Pane,
-	Heading,
-	Text,
-	useTheme,
-	Button,
-	majorScale,
-	Strong
-} from "evergreen-ui";
+import { Button, Heading, majorScale, Pane, Strong, Text } from "evergreen-ui";
 import { UilDna } from "@iconscout/react-unicons";
 import { useRouter } from "next/router";
 import Anchor from "@/components/Anchor";
+import { useCustomTheme } from "@/brand/themes/theme";
 
 const VerifyComplete = () => {
-	const { colors } = useTheme();
+	const { colors } = useCustomTheme();
 	const router = useRouter();
 	const { redir } = router.query;
 
@@ -49,13 +42,13 @@ const VerifyComplete = () => {
 						marginTop={24}
 					>
 						<Strong color="#fff" fontSize="1.1em">
-							👉&nbsp;&nbsp;Back to Usher
+							👉&nbsp;&nbsp;Back to main page
 						</Strong>
 					</Button>
 				</Anchor>
 			) : (
 				<Text size={600}>
-					Revist and refresh Usher on your original device to continue.
+					Revist and refresh our page on your original device to continue.
 				</Text>
 			)}
 		</Pane>

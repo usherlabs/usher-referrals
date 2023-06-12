@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Alert, UnorderedList, ListItem } from "evergreen-ui";
+import { Alert, ListItem, UnorderedList } from "evergreen-ui";
 import { css } from "@linaria/core";
 
 import Dialog from "./Dialog";

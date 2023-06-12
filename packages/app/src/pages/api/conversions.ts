@@ -10,7 +10,7 @@ import cors from "cors";
 
 import { CampaignReference } from "@usher.so/partnerships";
 import { Campaign, CampaignStrategies } from "@usher.so/campaigns";
-import { useRouteHandler, expressMiddleware } from "@/server/middleware";
+import { expressMiddleware, useRouteHandler } from "@/server/middleware";
 import { getAppDID } from "@/server/did";
 import { getArangoClient } from "@/utils/arango-client";
 import { ceramic } from "@/utils/ceramic-client";

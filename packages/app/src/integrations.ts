@@ -2,7 +2,7 @@
  * Here is where we integrate all third-party (non-integral) services.
  */
 
-import { events, AppEvents } from "@/utils/events";
+import { AppEvents, events } from "@/utils/events";
 import { Profile, User } from "@/types";
 import { request } from "@/api";
 

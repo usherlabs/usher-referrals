@@ -1,6 +1,7 @@
 import * as mediaQueries from "@/utils/media-queries";
 import { css } from "@linaria/core";
-import { Heading, Pane, Paragraph, useTheme } from "evergreen-ui";
+import { Heading, Pane, Paragraph } from "evergreen-ui";
+import { useCustomTheme } from "@/brand/themes/theme";
 
 type Props = {
 	title: string;
@@ -8,7 +9,7 @@ type Props = {
 };
 
 const PageHeader: React.FC<Props> = ({ title, description }) => {
-	const { colors } = useTheme();
+	const { colors } = useCustomTheme();
 
 	return (
 		<Pane

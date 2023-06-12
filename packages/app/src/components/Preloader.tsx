@@ -1,5 +1,5 @@
 import React from "react";
-import { Pane, Label, Spinner } from "evergreen-ui";
+import { Label, Pane, Spinner } from "evergreen-ui";
 
 export type Props = {
 	message?: string;
