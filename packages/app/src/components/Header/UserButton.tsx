@@ -1,11 +1,11 @@
 import React from "react";
-import {UilUserCircle} from "@iconscout/react-unicons";
-import {CogIcon, LogOutIcon, Menu, Popover, Position} from "evergreen-ui";
+import { UilUserCircle } from "@iconscout/react-unicons";
+import { CogIcon, LogOutIcon, Menu, Popover, Position } from "evergreen-ui";
 import Anchor from "@/components/Anchor";
-import {useRedir, useUser} from "@/hooks";
+import { useRedir, useUser } from "@/hooks";
 
-import {MenuButton} from "@/components/Header/MenuButton";
-import {useCustomTheme} from "@/brand/themes/theme"; // Import useUser hook
+import { MenuButton } from "@/components/Header/MenuButton";
+import { useCustomTheme } from "@/brand/themes/theme"; // Import useUser hook
 
 export const UserButton = ({
 	height,
