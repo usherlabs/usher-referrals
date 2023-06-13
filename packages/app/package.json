@@ -13,6 +13,7 @@
 		"test": "jest",
 		"test:watch": "jest --watch",
 		"test:ci": "jest --ci",
+		"postinstall": "pnpm generate-favicon",
 		"clean": "del .turbo .next out node_modules packages/*/node_modules",
 		"generate-favicon": "node -r esbuild-register tools/favicons/generator/generate-favicons.ts"
 	},
