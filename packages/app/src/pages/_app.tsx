@@ -67,6 +67,7 @@ const App = ({ Component, pageProps }: Props) => {
 				display: flex;
 				flex-direction: column;
 				flex: 1;
+				min-width: 0;
 			`}
 			id={`${brandName.snakeCase}-main`}
 		>

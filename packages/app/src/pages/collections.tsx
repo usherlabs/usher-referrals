@@ -13,8 +13,9 @@ const CollectionsPage: React.FC<Props> = () => {
 	return (
 		<ThemeProvider value={newTheme}>
 			<Pane
-				display="grid"
-				// flex={1}
+				display="flex"
+				flexDirection={"column"}
+				flex={1}
 				padding="10px"
 				className={css`
 					${mediaQueries.gtLarge} {
