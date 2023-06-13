@@ -36,6 +36,7 @@ export const UserButton = ({
 				</Menu>
 			}
 		>
+			{/*This wrapper div is important for the popover to work correctly */}
 			<div>
 				<MenuButton height={height}>
 					<UilUserCircle size="32" color={colors.gray700} />
