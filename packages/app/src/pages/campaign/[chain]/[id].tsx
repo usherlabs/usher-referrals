@@ -1,45 +1,48 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import { useRouter } from "next/router";
-import { Pane, toaster } from "evergreen-ui";
+import { Button, majorScale, Pane } from "evergreen-ui";
 import camelcaseKeys from "camelcase-keys";
 import { css } from "@linaria/core";
 import { aql } from "arangojs";
-import { useQuery } from "react-query";
 import isEmpty from "lodash/isEmpty";
-import ono from "@jsdevtools/ono";
 
 import { useUser } from "@/hooks/";
-import { FEE_MULTIPLIER, MAX_SCREEN_WIDTH } from "@/constants";
+import { MAX_SCREEN_WIDTH } from "@/constants";
 import ClaimButton from "@/components/Campaign/ClaimButton";
 import Funds from "@/components/Campaign/Funds";
 import Rewards from "@/components/Campaign/Rewards";
 import InfoAccordions from "@/components/Campaign/InfoAccordions";
 import WhitelistAlert from "@/components/Campaign/WhitelistAlert";
 import Progress from "@/components/Progress";
-import { Chains, Wallet } from "@usher.so/shared";
-import { Campaign, CampaignReward, RewardTypes } from "@usher.so/campaigns";
-import { Claim, PartnershipMetrics } from "@/types";
+import { Chains } from "@usher.so/shared";
+import { Campaign, CampaignReward } from "@usher.so/campaigns";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
-import useRedir from "@/hooks/use-redir";
 import Serve404 from "@/components/Serve404";
-import handleException from "@/utils/handle-exception";
 import Banner from "@/components/Campaign/Banner";
 import Title from "@/components/Campaign/Title";
 import Actions from "@/components/Campaign/Actions";
 import PartnershipUI from "@/components/Campaign/Partnership";
 import StartPartnership from "@/components/Campaign/StartPartnership";
-import Anchor from "@/components/Anchor";
 import VerifyPersonhoodAlert from "@/components/VerifyPersonhood/Alert";
 import { useSeedData } from "@/env-config";
 import * as mediaQueries from "@/utils/media-queries";
 import { getArangoClient } from "@/utils/arango-client";
-import * as api from "@/api";
-import { getWarp } from "@/utils/arweave-client";
-import { AppEvents, events } from "@/utils/events";
-import { getEthereumClient } from "@/utils/ethereum-client";
-import { ethers } from "ethers";
-import { erc20 } from "@/abi/erc20";
+import { useAtomValue } from "jotai";
+import {
+	useHandleClaim,
+	useRewards
+} from "@/pages/campaign/[chain]/_utils/claims-and-rewards";
+import {
+	useCampaignPartnershipsMetrics,
+	usePartnershipsForCampaign
+} from "@/pages/campaign/[chain]/_utils/partnership-hooks";
+
+import {
+	fundsAtom,
+	useRecalculateFundsForCampaign
+} from "@/pages/campaign/[chain]/_utils/funds";
+import { useSetToCampaignChain } from "@/components/Campaign/use-set-to-campaign-chain";
 
 type CampaignPageProps = {
 	id: string;
@@ -47,57 +50,29 @@ type CampaignPageProps = {
 	campaign: Campaign;
 };
 
-const warp = getWarp();
-
-const ethereum = getEthereumClient();
-
-const getPartnershipMetrics = async (
-	ids: string[]
-): Promise<PartnershipMetrics | null> => {
-	if (ids.length === 0) {
-		return null;
-	}
-
-	const response = await api.partnerships().get(ids);
-
-	if (!response.success) {
-		return null;
-	}
-
-	return response.data as PartnershipMetrics;
-};
-
 const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 	const {
-		auth,
-		user: { wallets, partnerships, verifications },
-		isLoading: isUserLoading,
-		actions: { addPartnership }
+		user: { verifications, wallets },
+		isLoading: isUserLoading
 	} = useUser();
 	const router = useRouter();
-	const loginUrl = useRedir("/login");
-	const isLoggedIn = wallets.length > 0;
 	const isLoading = router.isFallback;
 
-	const [isPartnering, setPartnering] = useState(false);
-	const [isClaiming, setClaiming] = useState(false);
-	const [claims, setClaims] = useState<Claim[]>([]);
-	const [isFundsLoading, setFundsLoading] = useState(true);
-	const [funds, setFunds] = useState(0);
+	const funds = useAtomValue(fundsAtom);
+
+	const metrics = useCampaignPartnershipsMetrics({ chain, id });
 
 	const walletsForChain = wallets.filter((w) => w.chain === chain);
-	const viewingPartnerships = partnerships.filter(
-		(p) => p.campaign.address === id && p.campaign.chain === chain
-	);
-	const partnership =
-		viewingPartnerships.length > 0 ? viewingPartnerships[0] : null; // get the first partnership for link usage.
-
-	const metrics = useQuery(
-		["partnership-metrics", viewingPartnerships, claims],
-		() => getPartnershipMetrics(viewingPartnerships.map((p) => p.id))
-	);
+	const viewingPartnerships = usePartnershipsForCampaign({
+		id,
+		chain
+	});
+	const fistParnershipFoundForThisCampaign = viewingPartnerships[0] ?? null;
+	const isConnectedToSameChain = chain === wallets[0]?.chain;
 
 	const canClaimThisMonth = useMemo(() => {
+		// Ethereum campaigns can claim only once per month
+		// if it isn't ethereum campaign or there's actually no data, we can claim this month already
 		if (chain !== Chains.ETHEREUM || !metrics.data) {
 			return true;
 		}
@@ -111,26 +86,16 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 	}, [metrics]);
 
 	// Ensure that the user knows what they're being rewarded regardless of their internal rewards calculation.
-	let claimableRewards = metrics.data ? metrics.data.rewards : 0;
-	let excessRewards = 0;
-	const rewardsClaimed = metrics.data ? metrics.data.campaign.claimed : 0;
-	if (campaign) {
-		if (typeof campaign.reward.limit === "number" && !!campaign.reward.limit) {
-			let remainingRewards = campaign.reward.limit - rewardsClaimed;
-			if (remainingRewards < 0) {
-				remainingRewards = 0;
-			}
-			if (claimableRewards > remainingRewards) {
-				excessRewards = parseFloat(
-					(claimableRewards - remainingRewards).toFixed(2)
-				);
-				if (excessRewards <= 0) {
-					excessRewards = 0;
-				}
-				claimableRewards = remainingRewards;
-			}
-		}
-	}
+	const { claimableRewards, excessRewards, rewardsClaimed } = useRewards({
+		campaign,
+		chain,
+		id
+	});
+
+	const { settingChain, setToCampaignChain } = useSetToCampaignChain({
+		campaignChain: chain
+	});
+
 	// No need for the below as the campaign with re-request on new claim
 	// claims.forEach((claim) => {
 	// 	claimableRewards -= claim.amount;
@@ -140,163 +105,11 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 	// 	rewardsClaimed += claim.amount;
 	// });
 
-	const onStartPartnership = useCallback(async () => {
-		if (!isLoggedIn) {
-			router.push(loginUrl);
-			return;
-		}
-		const errorMessage = () =>
-			toaster.danger(
-				"Oops! Something has gone wrong partnering with this campaign.",
-				{
-					id: "start-partnership"
-				}
-			);
-		if (!campaign) {
-			errorMessage();
-			return;
-		}
-		setPartnering(true);
-		const campaignRef = {
-			chain,
-			address: id
-		};
-		try {
-			await addPartnership(campaignRef);
-			toaster.success(`🎉  You have engaged this partnership!`, {
-				id: "start-partnership",
-				description: `Complete any remaining verifications and reviews to start earning rewards when you share your invite link!.`
-			});
-		} catch (e) {
-			handleException(e);
-			errorMessage();
-		} finally {
-			setPartnering(false);
-		}
-	}, [loginUrl, isLoggedIn, campaign, addPartnership]);
-
 	// Get the funds staked into the campaign
-	const getCampaignFunds = useCallback(async () => {
-		setFundsLoading(true);
-		if (campaign.chain === Chains.ARWEAVE) {
-			if (campaign.reward.address) {
-				const contract = warp.contract(campaign.reward.address);
-				const contractState = await contract.readState();
-				if (campaign.reward.type === RewardTypes.PST) {
-					const state = contractState.state as {
-						balances: Record<string, number>;
-					};
-					const balance = state.balances[campaign.id] || 0;
-					// No fee multiplier for custom PSTs for now
-					if (balance > 0) {
-						setFunds(balance);
-					}
-				}
-			} else {
-				try {
-					const { balance } = await api
-						.balance()
-						.get(campaign.id, campaign.chain);
-					if (balance > 0) {
-						setFunds(balance);
-					}
-				} catch (e) {
-					console.log("Failed to load Arweave Balance");
-					console.error(e);
-				}
-			}
-		} else if (campaign.chain === Chains.ETHEREUM) {
-			if (campaign.reward.address) {
-				if (campaign.reward.type === RewardTypes.ERC20) {
-					const contract = new ethers.Contract(
-						campaign.reward.address,
-						erc20,
-						ethereum
-					);
-					const decimals = await contract.decimals();
-					const balanceBN = await contract.balanceOf(campaign.id);
-					const balanceStr = ethers.utils.formatUnits(balanceBN, decimals);
-					const f = parseFloat(balanceStr);
-					if (f > 0) {
-						setFunds(f);
-					}
-				}
-			} else {
-				const balanceBN = await ethereum.getBalance(campaign.id);
-				const balanceStr = ethers.utils.formatEther(balanceBN);
-				const balance = parseFloat(balanceStr);
-				const f = balance * (1 - FEE_MULTIPLIER);
-				if (f > 0) {
-					setFunds(f);
-				}
-			}
-		}
-		setFundsLoading(false);
-	}, []);
 
 	// Reward Claim callback -- receives the selected wallet as a parameter
-	const onClaim = useCallback(
-		async (wallet: Wallet) => {
-			setClaiming(true);
-			try {
-				const authToken = await auth.getAuthToken();
-				const response = await api.claim(authToken).post(
-					viewingPartnerships.map((p) => p.id),
-					wallet.address
-				);
-				if (response.success && response.data) {
-					const claim = response.data;
-					if (claim.tx) {
-						toaster.success(`Rewards claimed successfully!`, {
-							id: "reward-claim",
-							duration: 30,
-							description: claim.tx?.url ? (
-								<Anchor href={claim.tx.url} external>
-									{claim.tx.url}
-								</Anchor>
-							) : null
-						});
-						const newFunds = funds - claim.amount;
-						setClaims([...claims, claim]);
-						getCampaignFunds();
-
-						events.emit(AppEvents.REWARDS_CLAIM, {
-							claim,
-							newFunds
-						});
-
-						return claim;
-					}
-					toaster.notify(`No reward amount left to be paid!`, {
-						id: "reward-claim",
-						duration: 30
-					});
-				} else {
-					throw ono("Failed to process claim", response);
-				}
-			} catch (e) {
-				toaster.danger(
-					`Rewards claim failed to be processed. Please refresh and try again.`,
-					{ id: "reward-claim", duration: 30 }
-				);
-				handleException(e);
-			} finally {
-				setClaiming(false);
-			}
-			return null;
-		},
-		[viewingPartnerships, funds, claims]
-	);
-
-	useEffect(() => {
-		if (!campaign) {
-			return () => {};
-		}
-
-		getCampaignFunds();
-
-		return () => {};
-	}, [campaign]);
+	const handleClaim = useHandleClaim({ id, chain, campaign });
+	useRecalculateFundsForCampaign(campaign);
 
 	if (!campaign) {
 		return <Serve404 />;
@@ -417,14 +230,14 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 							{typeof campaign.whitelist !== "undefined" && (
 								<Pane marginBottom={12}>
 									<WhitelistAlert
-										partnership={partnership}
+										partnership={fistParnershipFoundForThisCampaign}
 										whitelist={campaign.whitelist}
 									/>
 								</Pane>
 							)}
-							{partnership ? (
+							{fistParnershipFoundForThisCampaign ? (
 								<PartnershipUI
-									partnership={partnership}
+									partnership={fistParnershipFoundForThisCampaign}
 									metrics={{
 										isLoading: metrics.isLoading,
 										data: metrics.data || null
@@ -432,9 +245,8 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 								/>
 							) : (
 								<StartPartnership
-									onStart={onStartPartnership}
-									chain={chain}
-									isLoading={isPartnering}
+									campaignChain={chain}
+									campaignId={id}
 									hasWallets={walletsForChain.length > 0}
 								/>
 							)}
@@ -488,11 +300,7 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 					{!isLoading && campaign ? (
 						<>
 							<Pane marginBottom={12}>
-								<Funds
-									balance={funds}
-									loading={isFundsLoading}
-									ticker={campaign.reward.ticker}
-								/>
+								<Funds balance={funds} ticker={campaign.reward.ticker} />
 							</Pane>
 						</>
 					) : (
@@ -504,7 +312,7 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 							}}
 						/>
 					)}
-					{partnership && (
+					{fistParnershipFoundForThisCampaign && (
 						<>
 							<Pane marginBottom={20}>
 								<Pane display="flex" marginBottom={-6}>
@@ -526,28 +334,42 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 								</Pane>
 								<Pane display="flex">
 									{!isLoading && campaign ? (
-										<ClaimButton
-											onClaim={onClaim}
-											isClaiming={isClaiming}
-											isComplete={
-												typeof campaign.reward.limit === "number" &&
-												campaign.reward.limit > 0
-													? rewardsClaimed >= campaign.reward.limit
-													: false
-											}
-											wallets={walletsForChain}
-											amount={
-												claimableRewards > funds ? funds : claimableRewards
-											}
-											canClaimThisMonth={canClaimThisMonth}
-											reward={campaign.reward as CampaignReward}
-											active={
-												!!verifications.captcha &&
-												(campaign.disableVerification !== true
-													? !!verifications.personhood
-													: true)
-											}
-										/>
+										isConnectedToSameChain ? (
+											<ClaimButton
+												onClaim={handleClaim}
+												isComplete={
+													typeof campaign.reward.limit === "number" &&
+													campaign.reward.limit > 0
+														? rewardsClaimed >= campaign.reward.limit
+														: false
+												}
+												wallets={walletsForChain}
+												amount={
+													claimableRewards > funds ? funds : claimableRewards
+												}
+												canClaimThisMonth={canClaimThisMonth}
+												reward={campaign.reward as CampaignReward}
+												active={
+													true ||
+													(!!verifications.captcha &&
+														(campaign.disableVerification !== true
+															? !!verifications.personhood
+															: true))
+												}
+											/>
+										) : (
+											<Button
+												isLoading={settingChain}
+												height={majorScale(7)}
+												intent="success"
+												appearance="primary"
+												minWidth={260}
+												width="100%"
+												onClick={setToCampaignChain}
+											>
+												Switch Network to Claim Reward
+											</Button>
+										)
 									) : (
 										<Skeleton
 											style={{
@@ -620,7 +442,10 @@ export async function getStaticPaths() {
 export const getStaticProps = async ({
 	params
 }: {
-	params: { id: string; chain: string };
+	params: {
+		id: string;
+		chain: string;
+	};
 }) => {
 	if (useSeedData) {
 		const campaignsData = (await import("@/seed/campaigns.json")).default;
