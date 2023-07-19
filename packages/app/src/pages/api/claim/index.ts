@@ -7,7 +7,7 @@ import { WalletAliases } from "@usher.so/datamodels";
 import { TileDocument } from "@ceramicnetwork/stream-tile";
 // import ono from "@jsdevtools/ono";
 import uniq from "lodash/uniq";
-import { BigNumber, ethers, Wallet } from "ethers";
+import { ethers, Wallet } from "ethers";
 
 import { AuthApiRequest, Claim, PartnershipMetrics } from "@/types";
 import { Campaign, RewardTypes } from "@usher.so/campaigns";
@@ -20,17 +20,19 @@ import { getArangoClient } from "@/utils/arango-client";
 import withAuth from "@/server/middleware/auth";
 import { getArweaveClient, getWarp } from "@/utils/arweave-client";
 import {
-	ARWEAVE_EXPLORER_TX_URL,
-	ETHEREUM_EXPLORER_TX_URL,
 	FEE_ARWEAVE_WALLET,
 	FEE_ETHEREUM_WALLET,
 	FEE_MULTIPLIER
 } from "@/constants";
 import handleException from "@/utils/handle-exception";
 import { appPackageName, appVersion } from "@/env-config";
-import { getEthereumClient } from "@/utils/ethereum-client";
 import { indexClaim } from "@/server/claim";
 import { erc20 } from "@/abi/erc20";
+import { getExplorerUrl } from "@/utils/chains/getExplorerUrl";
+import { getEVMBasedProvider } from "@/utils/chains/getEVMBasedProvider";
+import { isEthereumBasedNetwork } from "@/utils/isEthereumBasedNetwork";
+import Decimal from "decimal.js";
+import { Warp } from "warp-contracts";
 
 const handler = useRouteHandler<AuthApiRequest>();
 
@@ -50,6 +52,34 @@ const isPartnershipStreamValid = (stream: TileDocument<CampaignReference>) => {
 		stream.controllers.length > 0 &&
 		stream.metadata.schema === WalletAliases.schemas.Partnership
 	);
+};
+
+async function getPrivateKeyFromCampaignKey(key: string) {
+	const did = await getAppDID();
+	const jwe = JSON.parse(Base64.decode(key));
+	const dec = await did.decryptJWE(jwe, { did: did.id });
+	const privateKey = uint8arrays.toString(dec);
+	return privateKey;
+}
+
+async function getContractStateForAddress(
+	warp: Warp,
+	rewardAddress: string,
+	jwk: any
+) {
+	const contract = warp.contract(rewardAddress).connect(jwk);
+	const contractState = await contract.readState();
+	const state = contractState.state as {
+		balances: Record<string, number>;
+	};
+	return { contract, state };
+}
+
+export type CampaignData = Campaign & {
+	_internal?: {
+		address: string;
+		key: string;
+	};
 };
 
 /**
@@ -136,12 +166,7 @@ handler.router.use(withAuth).post(async (req, res) => {
 
 	const campaignData = checkResults.find(
 		(result) => result._key === campaignKey
-	) as Campaign & {
-		_internal?: {
-			address: string;
-			key: string;
-		};
-	};
+	) as CampaignData;
 
 	if (partnershipsData.length === 0 || !campaignData) {
 		req.log.warn(
@@ -237,28 +262,29 @@ handler.router.use(withAuth).post(async (req, res) => {
 
 	let fee = 0;
 
+	// Ensure that Campaign has a signing key
+	if (!campaignData._internal || !campaignData._internal.key) {
+		req.log.error("Campaign's rewards signing key is not set");
+
+		return res.json({
+			success: false,
+			data: {
+				to,
+				fee: 0,
+				amount: 0
+			}
+		});
+	}
+
+	let rewardTxId = "";
+	let feeTxId = "";
+	const internalAddress = campaignData._internal.address;
+
 	// Ensure that amount to be paid is greater than amount in internal wallet -- otherwise send whatevers in the wallet and update partnership amount
 	if (campaignData.chain === Chains.ARWEAVE) {
 		const arweave = getArweaveClient();
-		const warp = getWarp();
+		const warp = getWarp(arweave);
 
-		// Ensure that Campaign has a signing key
-		if (!campaignData._internal || !campaignData._internal.key) {
-			req.log.error("Campaign's rewards signing key is not set");
-
-			return res.json({
-				success: false,
-				data: {
-					to,
-					fee: 0,
-					amount: 0
-				}
-			});
-		}
-
-		let rewardTxId = "";
-		let feeTxId = "";
-		const internalAddress = campaignData._internal.address;
 		const txTags = [
 			["Application", "Usher"],
 			["UsherCampaign", campaignRef.address],
@@ -270,21 +296,18 @@ handler.router.use(withAuth).post(async (req, res) => {
 
 		// Transfer fee amount minus gas x2 from previous transaction to platform wallet
 		try {
-			const did = await getAppDID();
-			const jwe = JSON.parse(Base64.decode(campaignData._internal.key));
-			const dec = await did.decryptJWE(jwe, { did: did.id });
-			const raw = uint8arrays.toString(dec);
+			const raw = await getPrivateKeyFromCampaignKey(
+				campaignData._internal.key
+			);
 			const jwk = JSON.parse(raw);
 
 			if (campaignData.reward.address) {
-				const contract = warp
-					.contract(campaignData.reward.address)
-					.connect(jwk);
-				const contractState = await contract.readState();
 				if (campaignData.reward.type === RewardTypes.PST) {
-					const state = contractState.state as {
-						balances: Record<string, number>;
-					};
+					const { contract, state } = await getContractStateForAddress(
+						warp,
+						campaignData.reward.address,
+						jwk
+					);
 					const balance = state.balances[internalAddress] || 0;
 					if (balance === 0) {
 						req.log.error("Insufficient funding for Campaign");
@@ -472,7 +495,7 @@ handler.router.use(withAuth).post(async (req, res) => {
 				amount: rewardsToPay,
 				tx: {
 					id: rewardTxId,
-					url: `${ARWEAVE_EXPLORER_TX_URL}${rewardTxId}`
+					url: getExplorerUrl({ txId: rewardTxId, chain: campaignData.chain })
 				}
 			};
 			return res.json({
@@ -494,36 +517,17 @@ handler.router.use(withAuth).post(async (req, res) => {
 		}
 	}
 
-	if (campaignData.chain === Chains.ETHEREUM) {
-		const ethereum = getEthereumClient();
-
-		// Ensure that Campaign has a signing key
-		if (!campaignData._internal || !campaignData._internal.key) {
-			req.log.error("Campaign's rewards signing key is not set");
-
-			return res.json({
-				success: false,
-				data: {
-					to,
-					fee: 0,
-					amount: 0
-				}
-			});
-		}
-
-		let rewardTxId = "";
-		let feeTxId = "";
-		const internalAddress = campaignData._internal.address;
+	if (isEthereumBasedNetwork(campaignData.chain)) {
+		const evmChainProvider = getEVMBasedProvider(campaignData.chain);
 
 		// Transfer fee amount minus gas x2 from previous transaction to platform wallet
 		try {
-			const did = await getAppDID();
-			const jwe = JSON.parse(Base64.decode(campaignData._internal.key));
-			const dec = await did.decryptJWE(jwe, { did: did.id });
-			const privateKey = uint8arrays.toString(dec);
+			const privateKey = await getPrivateKeyFromCampaignKey(
+				campaignData._internal.key
+			);
 
-			const wallet = new Wallet(privateKey, ethereum);
-			wallet.connect(ethereum);
+			const campaignWallet = new Wallet(privateKey, evmChainProvider);
+			campaignWallet.connect(evmChainProvider);
 
 			if (campaignData.reward.address) {
 				if (campaignData.reward.type === RewardTypes.ERC20) {
@@ -532,16 +536,17 @@ handler.router.use(withAuth).post(async (req, res) => {
 						erc20,
 						// TODO: Figure out which correct variable to pass. Wallet implements Signer, but this constructor requires Signer | Provider | undefined
 						// @ts-ignore
-						wallet
+						campaignWallet
 					);
 					const decimals = await contract.decimals();
-					const balanceBN = (await contract.balanceOf(
-						internalAddress
-					)) as BigNumber;
+					const balanceBN = new Decimal(
+						(await contract.balanceOf(internalAddress)).toString()
+					);
 
-					let rewardsToPayBN = ethers.utils.parseUnits(
-						rewardsToPay.toString(),
-						decimals
+					const initialRewardsToPayBN = new Decimal(
+						ethers.utils
+							.parseUnits(rewardsToPay.toString(), decimals)
+							.toString()
 					);
 
 					if (balanceBN.isZero()) {
@@ -556,18 +561,17 @@ handler.router.use(withAuth).post(async (req, res) => {
 						});
 					}
 
-					if (rewardsToPayBN.gt(balanceBN)) {
-						rewardsToPayBN = balanceBN;
-					}
+					// cap rewards to balance
+					const rewardsToPayBN = Decimal.min(balanceBN, initialRewardsToPayBN);
 
 					// ? No fee for custom TOKENs at the moment
 
 					const rewardTx = await contract.populateTransaction.transfer(
 						to,
-						rewardsToPayBN
+						ethers.BigNumber.from(rewardsToPayBN.toString())
 					);
 					const rewardTxReceipt = await (
-						await wallet.sendTransaction(rewardTx)
+						await campaignWallet.sendTransaction(rewardTx)
 					).wait();
 
 					if (rewardTxReceipt.status === 0) {
@@ -612,11 +616,9 @@ handler.router.use(withAuth).post(async (req, res) => {
 					});
 				}
 			} else {
-				let rewardsToPayBN = ethers.utils.parseEther(rewardsToPay.toString());
-				let feeBN = rewardsToPayBN.mul(FEE_MULTIPLIER * 100).div(100); // x * 0.1
-				const totalToPayBN = rewardsToPayBN.add(feeBN);
-
-				const balanceBN = await ethereum.getBalance(internalAddress);
+				const balanceBN = new Decimal(
+					(await evmChainProvider.getBalance(internalAddress)).toString()
+				);
 
 				if (balanceBN.isZero()) {
 					req.log.error("Insufficient funding for Campaign");
@@ -630,28 +632,38 @@ handler.router.use(withAuth).post(async (req, res) => {
 					});
 				}
 
-				if (totalToPayBN.gt(balanceBN)) {
-					feeBN = balanceBN.mul(FEE_MULTIPLIER * 100).div(100);
-					rewardsToPayBN = balanceBN.sub(feeBN);
-				}
+				const initialRewardsToPayBN = new Decimal(
+					ethers.utils.parseEther(rewardsToPay.toString()).toString()
+				);
+				const rewardsToPayBN = Decimal.min(balanceBN, initialRewardsToPayBN);
 
-				const rewardTx = await wallet.populateTransaction({
+				// it's initial because soon it may be reduced to accomodate fees
+				const initialFeeBN = rewardsToPayBN.mul(FEE_MULTIPLIER);
+				const totalToPayBN = rewardsToPayBN.add(initialFeeBN);
+
+				const rewardTx = await campaignWallet.populateTransaction({
 					to,
-					value: rewardsToPayBN,
-					nonce: await wallet.getTransactionCount()
+					value: rewardsToPayBN.toHex(),
+					nonce: await campaignWallet.getTransactionCount()
 				});
 
-				if (totalToPayBN.gt(balanceBN)) {
-					feeBN = feeBN.sub(BigNumber.from(rewardTx.gasLimit).mul(2)); // ensure there's enough gas for the transfers.
-				}
-				const feeTx = await wallet.populateTransaction({
+				// ensure there's enough gas for the transfers.
+				const feeBN = totalToPayBN.lt(balanceBN)
+					? initialFeeBN
+					: initialFeeBN.sub(
+							new Decimal(rewardTx.gasLimit?.toString() ?? 0).mul(2)
+					  );
+
+				const feeTx = await campaignWallet.populateTransaction({
 					to: FEE_ETHEREUM_WALLET,
-					value: feeBN,
-					nonce: (await wallet.getTransactionCount()) + 1
+					value: feeBN.toHex(),
+					nonce: (await campaignWallet.getTransactionCount()) + 1
 				});
 
-				rewardsToPay = parseFloat(ethers.utils.formatEther(rewardsToPayBN));
-				fee = parseFloat(ethers.utils.formatEther(feeBN));
+				rewardsToPay = parseFloat(
+					ethers.utils.formatEther(rewardsToPayBN.toString())
+				);
+				fee = parseFloat(ethers.utils.formatEther(feeBN.toString()));
 
 				req.log.debug(
 					{
@@ -664,13 +676,13 @@ handler.router.use(withAuth).post(async (req, res) => {
 				);
 
 				await Promise.all([
-					wallet.signTransaction(rewardTx),
-					wallet.signTransaction(feeTx)
+					campaignWallet.signTransaction(rewardTx),
+					campaignWallet.signTransaction(feeTx)
 				]);
 
 				const [rewardTxReceipt, feeTxReceipt] = await Promise.all([
-					(await wallet.sendTransaction(rewardTx)).wait(),
-					(await wallet.sendTransaction(feeTx)).wait()
+					(await campaignWallet.sendTransaction(rewardTx)).wait(),
+					(await campaignWallet.sendTransaction(feeTx)).wait()
 				]);
 
 				if (rewardTxReceipt.status === 0) {
@@ -735,7 +747,7 @@ handler.router.use(withAuth).post(async (req, res) => {
 				amount: rewardsToPay,
 				tx: {
 					id: rewardTxId,
-					url: `${ETHEREUM_EXPLORER_TX_URL}${rewardTxId}`
+					url: getExplorerUrl({ txId: rewardTxId, chain: campaignData.chain })
 				}
 			};
 			return res.json({
