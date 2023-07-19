@@ -24,6 +24,7 @@ import { theme } from "@/brand/themes/theme";
 import { brandName } from "@/brand/utils/names";
 import { useRouteChange } from "@/hooks";
 import { css } from "@linaria/core";
+import { Provider } from "jotai";
 
 type Props = AppProps & {
 	pageProps: {
@@ -108,13 +109,15 @@ const App = ({ Component, pageProps }: Props) => {
 	return (
 		<QueryClientProvider client={queryClient}>
 			<ThemeProvider value={theme}>
-				{noUser ? (
-					AppMain
-				) : (
-					<UserProvider>
-						<DashboardContainer>{AppMain}</DashboardContainer>
-					</UserProvider>
-				)}
+				<Provider>
+					{noUser ? (
+						AppMain
+					) : (
+						<UserProvider>
+							<DashboardContainer>{AppMain}</DashboardContainer>
+						</UserProvider>
+					)}
+				</Provider>
 			</ThemeProvider>
 		</QueryClientProvider>
 	);

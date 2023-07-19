@@ -26,12 +26,16 @@ import Captcha from "@/components/Captcha";
 import delay from "@/utils/delay";
 import * as api from "@/api";
 import handleException from "@/utils/handle-exception";
-import { userFetched } from "@/providers/User";
+import { userFetched } from "@/providers/user/User";
 import * as mediaQueries from "@/utils/media-queries";
 import SideMenu from "@/components/SideMenu";
 import { useCustomTheme } from "@/brand/themes/theme";
 import { PoweredByUsher } from "@/components/PoweredByUsher";
 import { brandConfig } from "@/brand";
+import { RequestNetworkSwitch } from "@/utils/user-state-management/components/RequestNetworkSwitch";
+import { RequestSign } from "@/utils/user-state-management/components/RequestSign";
+import { ConnectOnlyToLatestAccount } from "@/utils/user-state-management/components/ConnectOnlyToLatestAccount";
+import { ManageWalletsConnection } from "@/utils/user-state-management/components/ManageWalletsConnection";
 
 type Props = {
 	children: React.ReactNode;
@@ -379,6 +383,7 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 					</Heading>
 				</Pane>
 			</CornerDialog>
+			<ManageWalletsConnection />
 			{/* <Script src="//marketing.usher.so/form/generate.js?id=1" /> */}
 		</>
 	);
