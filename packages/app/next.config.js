@@ -59,6 +59,7 @@ const nextConfig = {
 	webpack: (config) => {
 		// eslint-disable-next-line no-param-reassign
 		config.resolve.symlinks = false;
+		config.resolve.fallback = { fs: false, net: false, tls: false };
 		return config;
 	}
 };
