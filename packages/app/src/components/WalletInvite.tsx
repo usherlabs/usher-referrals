@@ -7,7 +7,7 @@ import MetaMaskIcon from "@/assets/icon/metamask.svg";
 import WalletConnectIcon from "@/assets/icon/walletconnect.svg";
 import { ProviderLabel } from "@/utils/onboard";
 import { Chains, Connections } from "@usher.so/shared";
-import { WalletConnectButton } from "./WalletConnectButton";
+import { WalletConnectButton } from "./connect/buttons/WalletConnectButton";
 
 type Props = {
 	domain: string;
