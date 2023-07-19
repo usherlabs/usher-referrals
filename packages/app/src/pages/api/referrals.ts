@@ -28,11 +28,15 @@ import { ceramic } from "@/utils/ceramic-client";
 
 const handler = useRouteHandler();
 
-const schema = z.object({
-	partnership: z.string(),
-	wallet: z.string().optional(),
-	connection: z.nativeEnum(Connections)
-});
+const schema = z
+	.object({
+		partnership: z.string(),
+		wallet: z.string().optional(),
+		connection: z.nativeEnum(Connections).optional()
+	})
+	.refine((s) => (s.wallet ? s.connection : true), {
+		message: "Connection is required if wallet is provided"
+	});
 
 const loader = new TileLoader({ ceramic });
 
@@ -194,7 +198,7 @@ handler.router.post(async (req, res) => {
 	}
 
 	// Save user's wallet if any
-	if (wallet) {
+	if (wallet && connection) {
 		let walletDoc = await fetchWallet(walletChain, walletAddress);
 		if (!walletDoc) {
 			walletDoc = await createWallet(walletChain, walletAddress, [connection]);
