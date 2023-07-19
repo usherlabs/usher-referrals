@@ -7,7 +7,7 @@ import { useEffect } from "react";
 import { setCookie } from "nookies";
 import { Base64 } from "js-base64";
 
-import UserProvider from "@/providers/User";
+import UserProvider from "@/providers/user/User";
 import Preloader from "@/components/Preloader";
 
 import { getMagicClient } from "@/utils/magic-client";

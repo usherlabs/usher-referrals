@@ -3,7 +3,7 @@ import { Heading, Pane, Text } from "evergreen-ui";
 import { useRouter } from "next/router";
 
 import { useUser } from "@/hooks";
-import WalletConnect from "@/components/WalletConnect";
+import WalletConnect from "@/components/connect/WalletConnect";
 
 const Login = () => {
 	const {

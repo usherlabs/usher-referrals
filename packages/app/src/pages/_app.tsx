@@ -10,7 +10,7 @@ import { useRouter } from "next/router";
 import Script from "next/script";
 import "modern-normalize";
 
-import UserProvider from "@/providers/User";
+import UserProvider from "@/providers/user/User";
 import { setup as setupSignals } from "@/utils/signals";
 import "@/styles/styles.scss";
 import DashboardContainer from "@/containers/Dashboard";
