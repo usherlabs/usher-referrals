@@ -26,6 +26,7 @@ import { UilArrowCircleDown, UilWallet } from "@iconscout/react-unicons";
 import truncate from "@/utils/truncate";
 import InputField from "@/components/InputField";
 import { useCustomTheme } from "@/brand/themes/theme";
+import { atom, useAtom } from "jotai";
 
 export type Props = {
 	onClaim: (wallet: Wallet) => Promise<Claim | null>;
@@ -34,14 +35,17 @@ export type Props = {
 	reward: CampaignReward;
 	canClaimThisMonth: boolean;
 	isComplete: boolean;
-	isClaiming?: boolean;
 	active?: boolean; // Determined by whether the limit has been reached
 	buttonProps?: ButtonProps;
 };
 
+export const claimAtoms = {
+	isClaiming: atom(false),
+	claims: atom<Claim[]>([])
+};
+
 const ClaimButton: React.FC<Props> = ({
 	onClaim,
-	isClaiming = false,
 	wallets,
 	amount,
 	reward,
@@ -54,6 +58,8 @@ const ClaimButton: React.FC<Props> = ({
 	const [showDialog, setShowDialog] = useState(false);
 	const [selectedWallet, setSelectedWallet] = useState<Wallet>(wallets[0]);
 	const [claim, setClaim] = useState<Claim | null>(null);
+
+	const [isClaiming] = useAtom(claimAtoms.isClaiming);
 
 	const closeDialog = useCallback(() => {
 		if (!isClaiming) {
