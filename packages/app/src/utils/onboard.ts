@@ -4,6 +4,7 @@ import { init } from "@web3-onboard/react";
 import injectedModule from "@web3-onboard/injected-wallets";
 import walletconnectModule from "@web3-onboard/walletconnect";
 import { OnboardAPI } from "@web3-onboard/core";
+import { atom } from "jotai";
 // import UsherIcon from "@/assets/logo/Usher-Logo-Icon";
 
 const coinbase = coinbaseModule();
@@ -45,3 +46,4 @@ export const initOnboard = () => {
 };
 
 export const onboard = () => instance;
+export const onboardAtom = atom<typeof instance>(onboard);
