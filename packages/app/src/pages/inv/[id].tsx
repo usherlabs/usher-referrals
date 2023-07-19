@@ -145,7 +145,7 @@ const Invite: React.FC<Props> = () => {
 			return;
 		}
 
-		if (!wallet || !connection) {
+		if (isWalletRequired ? !wallet || !connection : false) {
 			handleException(ono("Invite being processed when there is no wallet"));
 			onError();
 			return;
