@@ -82,10 +82,10 @@ export const CollectionsContextProvider: React.FC<Props> = ({ children }) => {
 			return undefined;
 		}
 		return auth.getAuth(wallet.address).ceramic;
-	}, [user, user.wallets, isUserLoading]);
+	}, [user.wallets, auth]);
 
 	const { isLoading: isLinksLoading, data: links } = useQuery({
-		queryKey: [COLLECTIONS_QUERY_KEY, ceramic === undefined],
+		queryKey: [COLLECTIONS_QUERY_KEY, ceramic === undefined, user.wallets],
 		queryFn: async () => {
 			if (!ceramic) {
 				return [];
