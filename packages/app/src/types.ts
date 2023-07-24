@@ -7,6 +7,7 @@ import {
 	Partnerships
 } from "@usher.so/partnerships";
 import { Connections, Wallet } from "@usher.so/shared";
+import { StoredWallet } from "@/utils/wallets/stored-wallets";
 
 /**
  * ###### ENUMS ######
@@ -117,7 +118,10 @@ export interface AuthApiRequest extends ApiRequest {
 export interface ApiResponse extends NextApiResponse {}
 
 export interface IUserActions {
-	connect: (type: Connections) => Promise<void>;
+	// this was modified to support quickly multi chain setup, and should be revised
+	// when we support multi wallets
+	// connect: (type: Connections) => Promise<void>;
+	connect: (type: StoredWallet) => Promise<void>;
 	disconnect: (type: Connections) => Promise<void>;
 	setCaptcha: (value: boolean) => void;
 	setPersonhood: (value: boolean) => void;

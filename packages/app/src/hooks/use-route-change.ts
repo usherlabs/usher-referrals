@@ -18,7 +18,7 @@ export const useRouteChange = (
 			}
 			routeChangeCompleteCallback?.(url);
 		},
-		[currentPathname]
+		[currentPathname, routeChangeCompleteCallback]
 	);
 
 	useEffect(() => {
@@ -30,7 +30,7 @@ export const useRouteChange = (
 		return () => {
 			router.events.off("routeChangeComplete", onRouteChangeComplete);
 		};
-	}, []);
+	}, [onRouteChangeComplete, router.events]);
 
 	return { currentPathname };
 };

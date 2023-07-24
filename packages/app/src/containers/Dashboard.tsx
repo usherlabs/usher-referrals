@@ -26,12 +26,13 @@ import Captcha from "@/components/Captcha";
 import delay from "@/utils/delay";
 import * as api from "@/api";
 import handleException from "@/utils/handle-exception";
-import { userFetched } from "@/providers/User";
+import { userFetched } from "@/providers/user/User";
 import * as mediaQueries from "@/utils/media-queries";
 import SideMenu from "@/components/SideMenu";
 import { useCustomTheme } from "@/brand/themes/theme";
 import { PoweredByUsher } from "@/components/PoweredByUsher";
 import { brandConfig } from "@/brand";
+import { ManageWalletsConnection } from "@/utils/user-state-management/components/ManageWalletsConnection";
 
 type Props = {
 	children: React.ReactNode;
@@ -126,7 +127,7 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 				});
 			}
 		}
-	}, [isLoading, profile, captureEmail, wallets]);
+	}, [isLoading, profile, captureEmail, wallets, setCaptureEmail]);
 
 	const onEmailCapture = useCallback(
 		async (email: string) => {
@@ -164,7 +165,7 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 				remindIn: Date.now() + 1000 * 60 * 60 * 24 * 3.5 * newDismissCount
 			});
 		}
-	}, [captureEmail]);
+	}, [captureEmail, setCaptureEmail]);
 
 	const onWalletToggle = useCallback(() => {
 		if (wallets.length === 0) {
@@ -178,7 +179,7 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 
 		setShowWallets(true);
 		// Start loading wallet values -- use react-query for caching
-	}, [loginUrl, wallets]);
+	}, [loginUrl, router, showWallets, wallets.length]);
 
 	const onWalletSideSheetClose = useCallback(() => {
 		setShowWallets(false);
@@ -218,7 +219,7 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 			}
 			return false;
 		},
-		[wallets]
+		[auth, setCaptcha]
 	);
 
 	if (!isLoading && wallets.length > 0 && !isCaptchaVerified) {
@@ -379,6 +380,7 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 					</Heading>
 				</Pane>
 			</CornerDialog>
+			<ManageWalletsConnection />
 			{/* <Script src="//marketing.usher.so/form/generate.js?id=1" /> */}
 		</>
 	);
