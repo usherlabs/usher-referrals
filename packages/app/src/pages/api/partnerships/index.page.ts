@@ -4,6 +4,7 @@ import { PartnershipMetrics } from "@/types";
 import { useRouteHandler } from "@/server/middleware";
 import { getArangoClient } from "@/utils/arango-client";
 
+// eslint-disable-next-line react-hooks/rules-of-hooks
 const handler = useRouteHandler();
 const arango = getArangoClient();
 

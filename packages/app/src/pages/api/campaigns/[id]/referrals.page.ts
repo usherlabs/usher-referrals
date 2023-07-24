@@ -5,6 +5,7 @@ import { getArangoClient } from "@/utils/arango-client";
 import { aql } from "arangojs";
 import { isEmpty } from "lodash";
 
+// eslint-disable-next-line react-hooks/rules-of-hooks
 const handler = useRouteHandler<AuthApiRequest>();
 const arango = getArangoClient();
 

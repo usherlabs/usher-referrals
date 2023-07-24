@@ -8,6 +8,7 @@ import FormData from "form-data";
 
 import { useRouteHandler } from "@/server/middleware";
 
+// eslint-disable-next-line react-hooks/rules-of-hooks
 const handler = useRouteHandler();
 
 const schema = z.object({

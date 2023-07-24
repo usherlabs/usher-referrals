@@ -1,13 +1,13 @@
 import { ceramic } from "@/utils/ceramic-client";
 import { TileDocument } from "@ceramicnetwork/stream-tile";
-import { Chains, Connections } from "@usher.so/shared";
+import { Connections } from "@usher.so/shared";
 import { Pane } from "evergreen-ui";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import React, { useCallback, useEffect, useState } from "react";
 
 import * as api from "@/api";
-import WalletInvite from "@/components/WalletInvite";
+import WalletInvite, { WalletInviteProps } from "@/components/WalletInvite";
 import { BrandLogoDark } from "@/brand/logo-components/BrandLogos";
 import { PoweredByUsher } from "@/components/PoweredByUsher";
 import { brandConfig } from "@/brand";
@@ -41,19 +41,21 @@ const LinkPage: React.FC = () => {
 		})();
 	}, [id]);
 
-	const onWalletConnect = useCallback(
-		async (chain: Chains, address: string, conection: Connections) => {
-			const result = await api.redirects().post(id, chain, address, conection);
+	const onWalletConnect: WalletInviteProps["onConnect"] = useCallback(
+		async ({ connectedChain, connectedAddress, connection }) => {
+			const result = await api
+				.redirects()
+				.post(id, connectedChain, connectedAddress, connection);
 
 			if (link && result.success) {
 				const url = new URL(link.destination_url);
 				url.searchParams.append("_ushid", id);
-				url.searchParams.append("_ushwa", address);
-				url.searchParams.append("_ushwc", conection);
+				url.searchParams.append("_ushwa", connectedAddress);
+				url.searchParams.append("_ushwc", connection);
 				window.location.replace(url);
 			}
 		},
-		[link]
+		[id, link]
 	);
 
 	return (

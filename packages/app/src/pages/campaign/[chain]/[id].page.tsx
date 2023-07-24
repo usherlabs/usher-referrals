@@ -43,11 +43,12 @@ import {
 	useRecalculateFundsForCampaign
 } from "@/pages/campaign/[chain]/_utils/funds";
 import { useSetToCampaignChain } from "@/components/Campaign/use-set-to-campaign-chain";
+import { GetStaticPaths, GetStaticProps } from "next";
 
 type CampaignPageProps = {
 	id: string;
-	chain: Chains;
-	campaign: Campaign;
+	chain: Chains | string;
+	campaign?: Campaign | null;
 };
 
 const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
@@ -83,7 +84,7 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 			lastClaimedDate.getUTCFullYear() !== now.getUTCFullYear() ||
 			lastClaimedDate.getUTCMonth() !== now.getUTCMonth()
 		);
-	}, [metrics]);
+	}, [chain, metrics.data]);
 
 	// Ensure that the user knows what they're being rewarded regardless of their internal rewards calculation.
 	const { claimableRewards, excessRewards, rewardsClaimed } = useRewards({
@@ -115,6 +116,39 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 		return <Serve404 />;
 	}
 
+	const claimButtonContentIfCampaignReady = isConnectedToSameChain ? (
+		<ClaimButton
+			onClaim={handleClaim}
+			isComplete={
+				typeof campaign.reward.limit === "number" && campaign.reward.limit > 0
+					? rewardsClaimed >= campaign.reward.limit
+					: false
+			}
+			wallets={walletsForChain}
+			amount={claimableRewards > funds ? funds : claimableRewards}
+			canClaimThisMonth={canClaimThisMonth}
+			reward={campaign.reward as CampaignReward}
+			active={
+				true ||
+				(!!verifications.captcha &&
+					(campaign?.disableVerification !== true
+						? !!verifications.personhood
+						: true))
+			}
+		/>
+	) : (
+		<Button
+			isLoading={settingChain}
+			height={majorScale(7)}
+			intent="success"
+			appearance="primary"
+			minWidth={260}
+			width="100%"
+			onClick={setToCampaignChain}
+		>
+			Switch Network to Claim Reward
+		</Button>
+	);
 	return (
 		<Pane
 			display="flex"
@@ -334,42 +368,7 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 								</Pane>
 								<Pane display="flex">
 									{!isLoading && campaign ? (
-										isConnectedToSameChain ? (
-											<ClaimButton
-												onClaim={handleClaim}
-												isComplete={
-													typeof campaign.reward.limit === "number" &&
-													campaign.reward.limit > 0
-														? rewardsClaimed >= campaign.reward.limit
-														: false
-												}
-												wallets={walletsForChain}
-												amount={
-													claimableRewards > funds ? funds : claimableRewards
-												}
-												canClaimThisMonth={canClaimThisMonth}
-												reward={campaign.reward as CampaignReward}
-												active={
-													true ||
-													(!!verifications.captcha &&
-														(campaign.disableVerification !== true
-															? !!verifications.personhood
-															: true))
-												}
-											/>
-										) : (
-											<Button
-												isLoading={settingChain}
-												height={majorScale(7)}
-												intent="success"
-												appearance="primary"
-												minWidth={260}
-												width="100%"
-												onClick={setToCampaignChain}
-											>
-												Switch Network to Claim Reward
-											</Button>
-										)
+										claimButtonContentIfCampaignReady
 									) : (
 										<Skeleton
 											style={{
@@ -400,8 +399,12 @@ const CampaignPage: React.FC<CampaignPageProps> = ({ id, chain, campaign }) => {
 	);
 };
 
+type CampaignParams = {
+	id: string;
+	chain: string;
+};
 // Executes at build time
-export async function getStaticPaths() {
+export const getStaticPaths: GetStaticPaths<CampaignParams> = async () => {
 	if (useSeedData) {
 		const campaignsData = (await import("@/seed/campaigns.json")).default;
 		const campaigns = camelcaseKeys(campaignsData, { deep: true });
@@ -437,23 +440,26 @@ export async function getStaticPaths() {
 		})),
 		fallback: true
 	};
-}
+};
 
-export const getStaticProps = async ({
-	params
-}: {
-	params: {
-		id: string;
-		chain: string;
-	};
-}) => {
+export const getStaticProps: GetStaticProps<
+	CampaignPageProps,
+	CampaignParams
+> = async ({ params }) => {
+	if (!params) {
+		return {
+			notFound: true
+		};
+	}
 	if (useSeedData) {
 		const campaignsData = (await import("@/seed/campaigns.json")).default;
 		const campaigns = camelcaseKeys(campaignsData, { deep: true });
 
 		return {
 			props: {
-				campaign: campaigns[0] as Campaign
+				campaign: campaigns[0] as Campaign,
+				id: campaigns[0].id,
+				chain: campaigns[0].chain
 			}
 		};
 	}

@@ -6,6 +6,7 @@ import { fetchLinkStats, indexLink } from "@/server/link";
 import withAuth from "@/server/middleware/auth";
 import { AuthApiRequest } from "@/types";
 
+// eslint-disable-next-line react-hooks/rules-of-hooks
 const handler = useRouteHandler<AuthApiRequest>();
 
 const postSchema = z.object({

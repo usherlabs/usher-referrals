@@ -13,6 +13,7 @@ const postSchema = z.object({
 	connection: z.nativeEnum(Connections)
 });
 
+// eslint-disable-next-line react-hooks/rules-of-hooks
 const handler = useRouteHandler();
 
 handler.router

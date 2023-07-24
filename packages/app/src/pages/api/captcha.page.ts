@@ -7,6 +7,7 @@ import { z } from "zod";
 import { useRouteHandler } from "@/server/middleware";
 import captcha from "@/server/captcha";
 
+// eslint-disable-next-line react-hooks/rules-of-hooks
 const handler = useRouteHandler();
 
 const schema = z.object({

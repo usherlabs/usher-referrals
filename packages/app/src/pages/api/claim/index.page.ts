@@ -34,6 +34,7 @@ import { isEthereumBasedNetwork } from "@/utils/isEthereumBasedNetwork";
 import Decimal from "decimal.js";
 import { Warp } from "warp-contracts";
 
+// eslint-disable-next-line react-hooks/rules-of-hooks
 const handler = useRouteHandler<AuthApiRequest>();
 
 const schema = z.object({

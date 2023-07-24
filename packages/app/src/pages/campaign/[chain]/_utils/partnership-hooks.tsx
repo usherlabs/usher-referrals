@@ -3,7 +3,6 @@ import { claimAtoms } from "@/components/Campaign/ClaimButton";
 import { PartnershipMetrics } from "@/types";
 import * as api from "@/api";
 import { useUser } from "@/hooks";
-import { Chains } from "@usher.so/shared";
 import { useQuery } from "react-query";
 
 const getPartnershipMetrics = async (
@@ -27,7 +26,7 @@ export function usePartnershipsForCampaign({
 	chain
 }: {
 	id: string;
-	chain: Chains;
+	chain: string;
 }) {
 	const {
 		user: { partnerships }
@@ -42,7 +41,7 @@ export const useCampaignPartnershipsMetrics = ({
 	chain,
 	id
 }: {
-	chain: Chains;
+	chain: string;
 	id: string;
 }) => {
 	const claims = useAtomValue(claimAtoms.claims);

@@ -6,7 +6,7 @@ import Anchor from "@/components/Anchor";
 import { AppEvents, events } from "@/utils/events";
 import handleException from "@/utils/handle-exception";
 import { Campaign } from "@usher.so/campaigns";
-import { Chains, Wallet } from "@usher.so/shared";
+import { Wallet } from "@usher.so/shared";
 import React from "react";
 import { toaster } from "evergreen-ui";
 import ono from "@jsdevtools/ono";
@@ -25,8 +25,8 @@ export function useHandleClaim({
 	campaign
 }: {
 	id: string;
-	chain: Chains;
-	campaign: Campaign;
+	chain: string;
+	campaign?: Campaign | null;
 }) {
 	const [, setIsClaiming] = useAtom(claimAtoms.isClaiming);
 	const { auth } = useUser();
@@ -85,7 +85,14 @@ export function useHandleClaim({
 			}
 			return null;
 		},
-		[viewingPartnerships, funds]
+		[
+			setIsClaiming,
+			auth,
+			viewingPartnerships,
+			funds,
+			setClaims,
+			getCampaignFunds
+		]
 	);
 }
 
@@ -100,8 +107,8 @@ export function useRewards({
 	chain,
 	id
 }: {
-	campaign: Campaign;
-	chain: Chains;
+	campaign?: Campaign | null;
+	chain: string;
 	id: string;
 }) {
 	const metrics = useCampaignPartnershipsMetrics({ chain, id });
@@ -131,5 +138,5 @@ export function useRewards({
 			}
 		}
 		return { claimableRewards, excessRewards, rewardsClaimed };
-	}, [metrics]);
+	}, [campaign, metrics.data]);
 }

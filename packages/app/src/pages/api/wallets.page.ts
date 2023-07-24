@@ -2,6 +2,7 @@ import { AuthApiRequest } from "@/types";
 import { useRouteHandler } from "@/server/middleware";
 import withAuth from "@/server/middleware/auth";
 
+// eslint-disable-next-line react-hooks/rules-of-hooks
 const handler = useRouteHandler<AuthApiRequest>();
 
 /**

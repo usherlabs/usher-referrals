@@ -10,6 +10,7 @@ import { useRouteHandler } from "@/server/middleware";
 import { getHumanodeOpenIdClient } from "@/utils/humanode-client";
 import withAuth from "@/server/middleware/auth";
 
+// eslint-disable-next-line react-hooks/rules-of-hooks
 const handler = useRouteHandler<AuthApiRequest>();
 
 handler.router.use(withAuth).get(async (req, res) => {

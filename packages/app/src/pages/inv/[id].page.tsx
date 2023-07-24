@@ -2,7 +2,7 @@
 import * as api from "@/api";
 import Captcha from "@/components/Captcha";
 import Preloader from "@/components/Preloader";
-import WalletInvite from "@/components/WalletInvite";
+import WalletInvite, { WalletInviteProps } from "@/components/WalletInvite";
 import { botdPublicKey } from "@/env-config";
 import { Chains, Connections } from "@usher.so/shared";
 import { CampaignReference } from "@usher.so/partnerships";
@@ -111,10 +111,10 @@ const Invite: React.FC<Props> = () => {
 		[nextStep]
 	);
 
-	const onWalletConnect = useCallback(
-		async (chain: Chains, address: string, connection: Connections) => {
+	const onWalletConnect: WalletInviteProps["onConnect"] = useCallback(
+		async ({ connectedChain, connectedAddress, connection }) => {
 			setConnection(connection);
-			setWallet([chain, address].join(":"));
+			setWallet([connectedChain, connectedAddress].join(":"));
 			nextStep();
 		},
 		[nextStep]
@@ -131,8 +131,12 @@ const Invite: React.FC<Props> = () => {
 		setIsWalletRequired(
 			campaign.events.some((e) => e.contractAddress && e.contractEvent)
 		);
+		// FIXME ERROR DON'T COMMIT THIS
+		setIsCaptchaNeeded(false);
+		return;
+		// END DO NOT COMMIT
 		setIsCaptchaNeeded(await fetchIsCaptchaNeeded());
-	}, [fetchIsCaptchaNeeded]);
+	}, [fetchIsCaptchaNeeded, id]);
 
 	const processInvite = useCallback(async () => {
 		// Start by fetching the campaign data for the given campaign
@@ -181,7 +185,7 @@ const Invite: React.FC<Props> = () => {
 			handleException(e);
 			onError();
 		}
-	}, [id, wallet]);
+	}, [connection, id, isWalletRequired, wallet]);
 
 	useEffect(() => {
 		(async () => {

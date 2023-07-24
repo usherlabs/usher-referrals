@@ -16,6 +16,7 @@ import {
 
 const arango = getArangoClient();
 
+// eslint-disable-next-line react-hooks/rules-of-hooks
 const handler = useRouteHandler();
 
 handler.router.get(async (req, res) => {

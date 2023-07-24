@@ -31,6 +31,7 @@ type CampaignWallet = {
 	key: string;
 };
 
+// eslint-disable-next-line react-hooks/rules-of-hooks
 const handler = useRouteHandler();
 const arango = getArangoClient();
 const arweave = getArweaveClient();

@@ -10,6 +10,7 @@ import withAuth from "@/server/middleware/auth";
 import { getArangoClient } from "@/utils/arango-client";
 import { indexPartnership } from "@/server/partnership";
 
+// eslint-disable-next-line react-hooks/rules-of-hooks
 const handler = useRouteHandler<AuthApiRequest>();
 
 const arango = getArangoClient();

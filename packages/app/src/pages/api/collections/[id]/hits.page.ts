@@ -3,6 +3,7 @@ import cors from "cors";
 import { incrementLinkHits } from "@/server/link";
 import { expressMiddleware, useRouteHandler } from "@/server/middleware";
 
+// eslint-disable-next-line react-hooks/rules-of-hooks
 const handler = useRouteHandler();
 
 handler.router

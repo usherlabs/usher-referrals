@@ -13,13 +13,20 @@ import { getEVMBasedProvider } from "@/utils/chains/getEVMBasedProvider";
 
 export const fundsAtom = atom<number>(0);
 
-export function useGetCampaignFunds({ campaign }: { campaign: Campaign }) {
+export function useGetCampaignFunds({
+	campaign
+}: {
+	campaign?: Campaign | null;
+}) {
 	const warp = useAtomValue(providersAtoms.warp);
 
 	const setFundsLoading = useSetAtom(campaignFundsAtoms.loading);
 	const setFunds = useSetAtom(fundsAtom);
 
 	return React.useCallback(async () => {
+		if (!campaign) {
+			return;
+		}
 		setFundsLoading(true);
 		if (campaign.chain === Chains.ARWEAVE) {
 			if (campaign.reward.address) {
@@ -76,18 +83,10 @@ export function useGetCampaignFunds({ campaign }: { campaign: Campaign }) {
 			}
 		}
 		setFundsLoading(false);
-	}, [
-		campaign.chain,
-		campaign.id,
-		campaign.reward.address,
-		campaign.reward.type,
-		setFunds,
-		setFundsLoading,
-		warp
-	]);
+	}, [campaign, setFunds, setFundsLoading, warp]);
 }
 
-export function useRecalculateFundsForCampaign(campaign: Campaign) {
+export function useRecalculateFundsForCampaign(campaign?: Campaign | null) {
 	const getCampaignFunds = useGetCampaignFunds({ campaign });
 	React.useEffect(() => {
 		if (!campaign) {
@@ -96,5 +95,5 @@ export function useRecalculateFundsForCampaign(campaign: Campaign) {
 		getCampaignFunds();
 
 		return () => {};
-	}, [campaign]);
+	}, [campaign, getCampaignFunds]);
 }

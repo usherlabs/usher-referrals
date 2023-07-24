@@ -16,6 +16,7 @@ import { getArangoClient } from "@/utils/arango-client";
 import { ceramic } from "@/utils/ceramic-client";
 import { REFERRAL_TOKEN_DELIMITER } from "@/constants";
 
+// eslint-disable-next-line react-hooks/rules-of-hooks
 const handler = useRouteHandler();
 
 const arango = getArangoClient();

@@ -3,7 +3,7 @@ import { toaster } from "evergreen-ui";
 import { useUser } from "@/hooks";
 import { atom, useSetAtom } from "jotai";
 import React from "react";
-import { Chains } from "@usher.so/shared";
+import { chainIsSupported } from "@/utils/chains/chain-is-supported";
 
 export const partnerAtoms = {
 	partnering: atom(false)
@@ -14,7 +14,7 @@ export function useStartPartnership({
 	campaignChain
 }: {
 	campaignId: string;
-	campaignChain: Chains;
+	campaignChain: string;
 }) {
 	const {
 		actions: { addPartnership }
@@ -34,16 +34,21 @@ export function useStartPartnership({
 			return;
 		}
 		setPartnering(true);
-		const campaignRef = {
-			campaignChain,
-			address: campaignId
-		};
+
 		try {
-			await addPartnership(campaignRef);
-			toaster.success(`🎉  You have engaged this partnership!`, {
-				id: "start-partnership",
-				description: `Complete any remaining verifications and reviews to start earning rewards when you share your invite link!.`
-			});
+			if (chainIsSupported(campaignChain)) {
+				await addPartnership({
+					chain: campaignChain,
+					address: campaignId
+				});
+				toaster.success(`🎉  You have engaged this partnership!`, {
+					id: "start-partnership",
+					description: `Complete any remaining verifications and reviews to start earning rewards when you share your invite link!.`
+				});
+			} else {
+				// TODO: handle this properly
+				errorMessage();
+			}
 		} catch (e) {
 			handleException(e);
 			errorMessage();

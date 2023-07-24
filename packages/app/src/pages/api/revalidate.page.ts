@@ -5,6 +5,7 @@ import { getAppDID } from "@/server/did";
 import { AuthApiRequest } from "@/types";
 import withAuth from "@/server/middleware/auth";
 
+// eslint-disable-next-line react-hooks/rules-of-hooks
 const handler = useRouteHandler<AuthApiRequest>();
 
 const schema = z.object({

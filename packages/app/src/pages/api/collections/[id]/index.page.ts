@@ -1,10 +1,11 @@
 import cors from "cors";
 
-import { fetchConnectionsByLinkAndWallet } from "@/server/connections";
+import { fetchConnectionsByLink } from "@/server/connections";
 import { expressMiddleware, useRouteHandler } from "@/server/middleware";
 import withAuth from "@/server/middleware/auth";
 import { AuthApiRequest } from "@/types";
 
+// eslint-disable-next-line react-hooks/rules-of-hooks
 const handler = useRouteHandler<AuthApiRequest>();
 
 handler.router
@@ -17,9 +18,9 @@ handler.router
 	)
 	.use(withAuth)
 	.get(async (req, res) => {
-		const { id, walletId } = req.query;
+		const { id } = req.query;
 
-		if (typeof id !== "string" || typeof walletId !== "string") {
+		if (typeof id !== "string") {
 			return res.status(400).json({
 				success: false
 			});
@@ -27,7 +28,7 @@ handler.router
 
 		try {
 			const dids = req.user.map(({ did }) => did);
-			const results = await fetchConnectionsByLinkAndWallet(id, walletId, dids);
+			const results = await fetchConnectionsByLink(id, dids);
 
 			return res.json({
 				success: true,

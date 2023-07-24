@@ -4,6 +4,7 @@ import { useRouteHandler } from "@/server/middleware";
 import { getArweaveClient } from "@/utils/arweave-client";
 import { FEE_MULTIPLIER } from "@/constants";
 
+// eslint-disable-next-line react-hooks/rules-of-hooks
 const handler = useRouteHandler();
 
 const schema = z.object({

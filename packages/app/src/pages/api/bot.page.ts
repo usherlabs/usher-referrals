@@ -31,6 +31,7 @@ interface BotdSuccessResponse {
 	vm: DetectNote;
 }
 
+// eslint-disable-next-line react-hooks/rules-of-hooks
 const handler = useRouteHandler();
 
 const schema = z.object({
