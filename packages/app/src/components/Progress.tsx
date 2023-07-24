@@ -1,6 +1,7 @@
 import React from "react";
-import { Pane, useTheme, Label, Text, Strong } from "evergreen-ui";
+import { Label, Pane, Strong, Text } from "evergreen-ui";
 import isEmpty from "lodash/isEmpty";
+import { useCustomTheme } from "@/brand/themes/theme";
 
 export type Props = {
 	label: string;
@@ -26,7 +27,7 @@ const Progress: React.FC<Props> = ({
 	step = 0,
 	totalSteps = 0
 }) => {
-	const { colors } = useTheme();
+	const { colors } = useCustomTheme();
 
 	const barProps = {
 		left: 0,

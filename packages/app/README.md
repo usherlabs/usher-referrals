@@ -12,7 +12,7 @@ Spin up the Usher Next.js app to deliver a user-friendly interface for your Part
 2. Navigate to this directory in your terminal.
 3. Read the `.env.example` to learn which services to incorporate.
 4. Copy the `.env.example` to a `.env` file within the `packages/app`
-5. Execute `yarn dev` to start the development server.
+5. Execute `pnpm dev` to start the development server.
 
 The app should now be accessible at `http://localhost:3000`.
 
@@ -29,7 +29,7 @@ You may use any method you prefer to deploy the app. We will guide you through d
 3. Click on the "Import Project" button.
 4. Choose "Import Git Repository" and provide the URL of your Usher Core Git repository.
 5. Configure your Project Settings
-   1. **Build & Development Settings** should include a **Build Command**: `cd ../.. && yarn turbo run build --filter=...@usher/app`
+   1. **Build & Development Settings** should include a **Build Command**: `cd ../.. && turbo run build --filter=...@usher/app`
    2. **Root Directory** is `packages/app`.
    3. Enable "Include source files outside of the Root Directory in the Build Step."
 6. It is required for you to set in the "Environment Variables" section during the import process or later in the project settings.
@@ -56,6 +56,7 @@ We recommend you get comfortable with [NextJS](https://nextjs.org/docs/getting-s
 ### `src` File structure
 
 - `assets`: Stores all static assets used within the Partner dApp that are not related to a database entry.
+- `brand`: All brand-related components are centralized in this directory to ease the customization of the application UI. We can change the most relevant aspects of branding by tweaking `brand.config.tsx`.
 - `components`: Contains React.js components that primarily render JSX markup. Some components include logic to reduce repeated code.
 - `containers`: Houses React.js components that serve as the foundation for a UI and/or wrap other components.
 - `hooks`: Contains React.js hooks for reusable functional component state/variable management.
@@ -74,6 +75,16 @@ We recommend you get comfortable with [NextJS](https://nextjs.org/docs/getting-s
 - `env-config.ts`: Contains all NEXT_PUBLIC environment variables exposed to the front end.
 - `integrations.ts`: A single file for integrations with third-party tracking libraries or event management libraries.
 - `types.ts`: Houses all TypeScript Types.
+
+## Re-branding
+
+To incorporate our pages into your application, we’ve facilitated the process of re-branding. You can find all critical components related to branding UI at `src/brand`, so you can quickly adapt to your organization's needs.
+
+Besides updating `src/brand/brand.config.tsx`, you will need to generate your favicons for your application by using our tool:
+
+- Update `app/tools/favicons/favicons-config.ts` accordingly. [Learn more →](https://github.com/itgalaxy/favicons)
+- Update `app/tools/source-icon.svg` to the desired icon.
+- run `pnpm generate-favicon`. It’ll also automatically run at the build step.
 
 ## What’s next?
 

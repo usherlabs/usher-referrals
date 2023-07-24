@@ -1,5 +1,5 @@
 import React from "react";
-import { Pane, Button, majorScale } from "evergreen-ui";
+import { Button, majorScale, Pane } from "evergreen-ui";
 import Image from "next/image";
 
 import { Connections } from "@usher.so/shared";

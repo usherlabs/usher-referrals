@@ -10,12 +10,12 @@ import {
 	Pane,
 	Paragraph,
 	Textarea,
-	TextInput,
-	useTheme
+	TextInput
 } from "evergreen-ui";
 import { ChangeEvent, useCallback, useState } from "react";
 
 import { useCollections } from "@/hooks/use-collections";
+import { useCustomTheme } from "@/brand/themes/theme";
 import { Link } from "../../programs/collections/types";
 import Anchor from "../Anchor";
 
@@ -62,14 +62,22 @@ const LinkEditor: React.FC<Props> = ({ link, onClose }) => {
 			await createLink(payload);
 		}
 		onClose();
-	}, [title, destinationUrl, connections]);
+	}, [
+		title,
+		destinationUrl,
+		connections,
+		link.id,
+		onClose,
+		updateLink,
+		createLink
+	]);
 
 	const handleArchive = useCallback(async () => {
 		await archiveLink(link.id);
 		onClose();
-	}, []);
+	}, [archiveLink, link.id, onClose]);
 
-	const { colors } = useTheme();
+	const { colors } = useCustomTheme();
 
 	return (
 		<Pane display="flex" flexDirection="column" height="100%">
@@ -168,9 +176,9 @@ const LinkEditor: React.FC<Props> = ({ link, onClose }) => {
 				confirmLabel="Archive Link"
 			>
 				<Paragraph>
-					Archiving this link will redirect anyone who clicks on it to the&nbsp;
-					<Anchor href="/410" target="blank">
-						Usher error page
+					Archiving this link will redirect anyone who clicks on it to&nbsp;
+					<Anchor href="/410" target="_blank">
+						our error page
 					</Anchor>
 					.
 				</Paragraph>

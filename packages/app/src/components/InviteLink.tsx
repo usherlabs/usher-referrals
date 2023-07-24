@@ -1,22 +1,17 @@
 import React, { useCallback } from "react";
 import { css } from "@linaria/core";
-import {
-	toaster,
-	TextInput,
-	ClipboardIcon,
-	useTheme,
-	PaneProps
-} from "evergreen-ui";
+import { ClipboardIcon, PaneProps, TextInput, toaster } from "evergreen-ui";
 import CopyToClipboard from "react-copy-to-clipboard";
 
 import InputField from "@/components/InputField";
+import { useCustomTheme } from "@/brand/themes/theme";
 
 export type Props = PaneProps & {
 	link?: string;
 };
 
 const InviteLink: React.FC<Props> = ({ link, ...props }) => {
-	const { colors } = useTheme();
+	const { colors } = useCustomTheme();
 
 	const onCopy = useCallback(() => {
 		toaster.notify("Invite link has been copied!", {

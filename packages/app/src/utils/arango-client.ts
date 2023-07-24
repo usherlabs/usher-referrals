@@ -1,10 +1,10 @@
 import { Database } from "arangojs";
 
 import {
-	arangoUrl,
 	arangoDatabase,
-	arangoUsername,
-	arangoPassword
+	arangoPassword,
+	arangoUrl,
+	arangoUsername
 } from "@/server/env-config";
 
 let db: Database | null | undefined;

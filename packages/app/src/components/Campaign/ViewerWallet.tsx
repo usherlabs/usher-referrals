@@ -4,21 +4,21 @@
 
 import React from "react";
 import {
-	Pane,
 	Button,
-	Menu,
 	ButtonProps,
 	ChevronDownIcon,
+	Menu,
+	Pane,
 	Popover,
 	Strong,
-	Tooltip,
-	useTheme
+	Tooltip
 } from "evergreen-ui";
 import Image from "next/image";
 
 import truncate from "@/utils/truncate";
 import { Wallet } from "@usher.so/shared";
 import { connectionImages } from "@/utils/images-map";
+import { useCustomTheme } from "@/brand/themes/theme";
 
 export type Props = {
 	selected: Wallet;
@@ -33,7 +33,7 @@ const ViewerWallet: React.FC<Props> = ({
 	onSelect,
 	buttonProps = {}
 }) => {
-	const { colors } = useTheme();
+	const { colors } = useCustomTheme();
 
 	const SelectedWallet = (
 		<Pane display="flex" alignItems="center">

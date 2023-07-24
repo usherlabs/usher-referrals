@@ -1,18 +1,13 @@
 import React from "react";
-import {
-	Button,
-	Strong,
-	majorScale,
-	useTheme,
-	ButtonProps
-} from "evergreen-ui";
+import { Button, ButtonProps, majorScale, Strong } from "evergreen-ui";
 import { UilDna } from "@iconscout/react-unicons";
 import { css } from "@linaria/core";
+import { useCustomTheme } from "@/brand/themes/theme";
 
 type Props = ButtonProps;
 
 const VerifyPersonhoodButton: React.FC<Props> = ({ ...props }) => {
-	const { colors } = useTheme();
+	const { colors } = useCustomTheme();
 
 	return (
 		<Button

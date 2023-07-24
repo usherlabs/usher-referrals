@@ -1,18 +1,12 @@
 import React from "react";
-import {
-	Pane,
-	Heading,
-	Button,
-	Strong,
-	majorScale,
-	useTheme
-} from "evergreen-ui";
+import { Button, Heading, majorScale, Pane, Strong } from "evergreen-ui";
 
 import Anchor from "@/components/Anchor";
 import { MAX_SCREEN_WIDTH } from "@/constants";
+import { useCustomTheme } from "@/brand/themes/theme";
 
 const Serve404 = () => {
-	const { colors } = useTheme();
+	const { colors } = useCustomTheme();
 
 	return (
 		<Pane

@@ -1,5 +1,5 @@
-import React, { useState, useCallback } from "react";
-import { Pane, Heading, Text, Spinner, toaster } from "evergreen-ui";
+import React, { useCallback, useState } from "react";
+import { Heading, Pane, Spinner, Text, toaster } from "evergreen-ui";
 import HCaptcha from "@hcaptcha/react-hcaptcha";
 import { css } from "@linaria/core";
 
@@ -15,12 +15,15 @@ export type Props = {
 const CaptchaContainer: React.FC<Props> = ({ onSuccess }) => {
 	const [isLoading, setLoading] = useState(true);
 
-	const submit = useCallback(async (token: string) => {
-		setLoading(true);
-		onSuccess(token).finally(() => {
-			setLoading(false);
-		});
-	}, []);
+	const submit = useCallback(
+		async (token: string) => {
+			setLoading(true);
+			onSuccess(token).finally(() => {
+				setLoading(false);
+			});
+		},
+		[onSuccess]
+	);
 
 	const onError = useCallback(() => {
 		toaster.danger(

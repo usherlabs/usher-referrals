@@ -4,7 +4,8 @@
 		// Add specific rules for nextjs
 		"plugin:@next/next/core-web-vitals",
 		// Add specific rules for Jest
-		"plugin:jest/recommended"
+		"plugin:jest/recommended",
+		"plugin:react-hooks/recommended"
 	],
 	"rules": {
 		"no-console": "off"

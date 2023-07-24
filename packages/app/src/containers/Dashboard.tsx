@@ -1,12 +1,11 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
-	Pane,
-	useTheme,
-	Dialog,
 	CornerDialog,
-	toaster,
+	Dialog,
 	Heading,
-	Spinner
+	Pane,
+	Spinner,
+	toaster
 } from "evergreen-ui";
 import isEmpty from "lodash/isEmpty";
 import useLocalStorage from "use-local-storage";
@@ -27,9 +26,13 @@ import Captcha from "@/components/Captcha";
 import delay from "@/utils/delay";
 import * as api from "@/api";
 import handleException from "@/utils/handle-exception";
-import { userFetched } from "@/providers/User";
+import { userFetched } from "@/providers/user/User";
 import * as mediaQueries from "@/utils/media-queries";
 import SideMenu from "@/components/SideMenu";
+import { useCustomTheme } from "@/brand/themes/theme";
+import { PoweredByUsher } from "@/components/PoweredByUsher";
+import { brandConfig } from "@/brand";
+import { ManageWalletsConnection } from "@/utils/user-state-management/components/ManageWalletsConnection";
 
 type Props = {
 	children: React.ReactNode;
@@ -47,7 +50,7 @@ const HEADER_HEIGHT = 70 as const;
 const SIDEMENU_WIDTH = 280 as const;
 
 const DashboardContainer: React.FC<Props> = ({ children }) => {
-	const { colors } = useTheme();
+	const { colors } = useCustomTheme();
 	const {
 		auth,
 		user: {
@@ -124,7 +127,7 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 				});
 			}
 		}
-	}, [isLoading, profile, captureEmail, wallets]);
+	}, [isLoading, profile, captureEmail, wallets, setCaptureEmail]);
 
 	const onEmailCapture = useCallback(
 		async (email: string) => {
@@ -162,7 +165,7 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 				remindIn: Date.now() + 1000 * 60 * 60 * 24 * 3.5 * newDismissCount
 			});
 		}
-	}, [captureEmail]);
+	}, [captureEmail, setCaptureEmail]);
 
 	const onWalletToggle = useCallback(() => {
 		if (wallets.length === 0) {
@@ -176,7 +179,7 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 
 		setShowWallets(true);
 		// Start loading wallet values -- use react-query for caching
-	}, [loginUrl, wallets]);
+	}, [loginUrl, router, showWallets, wallets.length]);
 
 	const onWalletSideSheetClose = useCallback(() => {
 		setShowWallets(false);
@@ -216,7 +219,7 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 			}
 			return false;
 		},
-		[wallets]
+		[auth, setCaptcha]
 	);
 
 	if (!isLoading && wallets.length > 0 && !isCaptchaVerified) {
@@ -231,6 +234,10 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 		<>
 			<Pane
 				className={css`
+					min-height: 100vh;
+					display: flex;
+					flex-direction: column;
+
 					${mediaQueries.gtLarge} {
 						flex-direction: row !important;
 					}
@@ -262,6 +269,7 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 				</Pane>
 				<Pane
 					flex="1"
+					display="grid"
 					marginLeft={SIDEMENU_WIDTH}
 					className={css`
 						${mediaQueries.isLarge} {
@@ -271,6 +279,11 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 					`}
 				>
 					{children}
+					{brandConfig.rebranded && (
+						<Pane marginTop={"auto"} marginBottom={8} marginX={"auto"}>
+							<PoweredByUsher />
+						</Pane>
+					)}
 				</Pane>
 			</Pane>
 			<SideSheet
@@ -367,6 +380,7 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 					</Heading>
 				</Pane>
 			</CornerDialog>
+			<ManageWalletsConnection />
 			{/* <Script src="//marketing.usher.so/form/generate.js?id=1" /> */}
 		</>
 	);

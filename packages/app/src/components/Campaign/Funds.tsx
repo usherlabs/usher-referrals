@@ -1,27 +1,22 @@
 import React from "react";
 import { UilCoins } from "@iconscout/react-unicons";
-import { useTheme } from "evergreen-ui";
 
 import MetricCard from "@/components/MetricCard";
-// import { CampaignReward, RewardTypes, Chains } from "@/types";
-// import Anchor from "../Anchor";
+import { useCustomTheme } from "@/brand/themes/theme";
+import { atom, useAtomValue } from "jotai";
 
 export type Props = {
 	balance: number;
-	// chain: Chains;
-	// reward: CampaignReward;
 	ticker: string;
-	loading?: boolean;
 };
 
-const CampaignFunds: React.FC<Props> = ({
-	balance,
-	// chain,
-	// reward,
-	ticker,
-	loading = false
-}) => {
-	const { colors } = useTheme();
+export const campaignFundsAtoms = {
+	loading: atom(true)
+};
+
+const CampaignFunds: React.FC<Props> = ({ balance, ticker }) => {
+	const { colors } = useCustomTheme();
+	const loading = useAtomValue(campaignFundsAtoms.loading);
 
 	return (
 		<MetricCard

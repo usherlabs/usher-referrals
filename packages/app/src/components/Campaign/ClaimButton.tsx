@@ -1,18 +1,17 @@
 import React, { useCallback, useState } from "react";
 import {
-	Paragraph,
+	Alert,
 	Button,
-	Strong,
+	ButtonProps,
+	ChevronDownIcon,
+	Dialog,
+	Heading,
+	LockIcon,
 	majorScale,
 	Pane,
-	Dialog,
-	useTheme,
-	LockIcon,
-	ButtonProps,
-	Heading,
-	Alert,
-	ChevronDownIcon,
-	SelectMenu
+	Paragraph,
+	SelectMenu,
+	Strong
 } from "evergreen-ui";
 import Image from "next/image";
 import { css } from "@linaria/core";
@@ -23,9 +22,11 @@ import { Claim } from "@/types";
 import ValueCard from "@/components/ValueCard";
 import Anchor from "@/components/Anchor";
 import { chainImages, connectionImages } from "@/utils/images-map";
-import { UilWallet, UilArrowCircleDown } from "@iconscout/react-unicons";
+import { UilArrowCircleDown, UilWallet } from "@iconscout/react-unicons";
 import truncate from "@/utils/truncate";
 import InputField from "@/components/InputField";
+import { useCustomTheme } from "@/brand/themes/theme";
+import { atom, useAtom } from "jotai";
 
 export type Props = {
 	onClaim: (wallet: Wallet) => Promise<Claim | null>;
@@ -34,14 +35,17 @@ export type Props = {
 	reward: CampaignReward;
 	canClaimThisMonth: boolean;
 	isComplete: boolean;
-	isClaiming?: boolean;
 	active?: boolean; // Determined by whether the limit has been reached
 	buttonProps?: ButtonProps;
 };
 
+export const claimAtoms = {
+	isClaiming: atom(false),
+	claims: atom<Claim[]>([])
+};
+
 const ClaimButton: React.FC<Props> = ({
 	onClaim,
-	isClaiming = false,
 	wallets,
 	amount,
 	reward,
@@ -50,10 +54,12 @@ const ClaimButton: React.FC<Props> = ({
 	active: isActive = false,
 	buttonProps
 }) => {
-	const { colors } = useTheme();
+	const { colors } = useCustomTheme();
 	const [showDialog, setShowDialog] = useState(false);
 	const [selectedWallet, setSelectedWallet] = useState<Wallet>(wallets[0]);
 	const [claim, setClaim] = useState<Claim | null>(null);
+
+	const [isClaiming] = useAtom(claimAtoms.isClaiming);
 
 	const closeDialog = useCallback(() => {
 		if (!isClaiming) {
@@ -67,7 +73,7 @@ const ClaimButton: React.FC<Props> = ({
 		if (newClaim) {
 			setClaim(newClaim);
 		}
-	}, [selectedWallet]);
+	}, [onClaim, selectedWallet]);
 
 	const WalletCard = (
 		<ValueCard

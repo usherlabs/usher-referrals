@@ -51,11 +51,18 @@ const nextConfig = {
 	images: {
 		domains: ["gateway.pinata.cloud", "usher.so", "pages.usher.so"]
 	},
+	experimental: {
+		images: {
+			allowFutureImage: true
+		}
+	},
 	webpack: (config) => {
 		// eslint-disable-next-line no-param-reassign
 		config.resolve.symlinks = false;
+		config.resolve.fallback = { fs: false, net: false, tls: false };
 		return config;
-	}
+	},
+	pageExtensions: ["page.tsx", "page.ts", "page.jsx", "page.js"]
 };
 
 module.exports = withLinaria(nextConfig);
