@@ -131,10 +131,6 @@ const Invite: React.FC<Props> = () => {
 		setIsWalletRequired(
 			campaign.events.some((e) => e.contractAddress && e.contractEvent)
 		);
-		// FIXME ERROR DON'T COMMIT THIS
-		setIsCaptchaNeeded(false);
-		return;
-		// END DO NOT COMMIT
 		setIsCaptchaNeeded(await fetchIsCaptchaNeeded());
 	}, [fetchIsCaptchaNeeded, id]);
 

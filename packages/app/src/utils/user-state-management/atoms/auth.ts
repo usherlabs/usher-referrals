@@ -11,8 +11,6 @@ const partnershipsInstanceAtom = atom(
 	(get) => new Partnerships(get(authenticationInstanceAtom), API_OPTIONS)
 );
 
-
-
 export const usherInstancesAtoms = {
 	authentication: authenticationInstanceAtom,
 	partnerships: partnershipsInstanceAtom

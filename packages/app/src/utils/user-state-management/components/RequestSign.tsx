@@ -1,10 +1,17 @@
-import {useAtomValue} from "jotai";
-import {onboardAtoms} from "@/utils/user-state-management/atoms/onboard-state";
-import {Button, CircleArrowRightIcon, CornerDialog, Pane, Text, toaster} from "evergreen-ui";
-import {useSignEthMessageAndConnect} from "@/components/connect/buttons/use-sign-eth-message";
-import {USHER_SIGN_MESSAGE} from "@/components/connect/WalletConnect";
-import {UNSUPPORTED_EVM_CHAIN} from "@/utils/get-chain-by-id";
-import {utilStateAtoms} from "@/utils/user-state-management/atoms/util-states";
+import { useAtomValue } from "jotai";
+import { onboardAtoms } from "@/utils/user-state-management/atoms/onboard-state";
+import {
+	Button,
+	CircleArrowRightIcon,
+	CornerDialog,
+	Pane,
+	Text,
+	toaster
+} from "evergreen-ui";
+import { useSignEthMessageAndConnect } from "@/components/connect/buttons/use-sign-eth-message";
+import { USHER_SIGN_MESSAGE } from "@/components/connect/WalletConnect";
+import { UNSUPPORTED_EVM_CHAIN } from "@/utils/get-chain-by-id";
+import { utilStateAtoms } from "@/utils/user-state-management/atoms/util-states";
 
 export const RequestSign = () => {
 	const connectedToUnsignedAccount = useAtomValue(
@@ -19,7 +26,7 @@ export const RequestSign = () => {
 
 	const handleSign = async () => {
 		if (connectedToUnsignedAccount) {
-			const chain = primaryAccount.chain;
+			const { chain } = primaryAccount;
 			if (chain !== UNSUPPORTED_EVM_CHAIN) {
 				await signAndConnect({
 					provider: primaryAccount.provider,

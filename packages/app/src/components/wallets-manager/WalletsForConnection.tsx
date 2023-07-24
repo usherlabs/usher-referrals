@@ -1,19 +1,30 @@
 import pascalCase from "@/utils/pascal-case";
-import {connectionImages} from "@/utils/images-map";
-import {css} from "@linaria/core";
+import { connectionImages } from "@/utils/images-map";
+import { css } from "@linaria/core";
 import truncate from "@/utils/truncate";
-import {Button, Label, majorScale, Pane, SendMessageIcon, Spinner, Strong, toaster, Tooltip} from "evergreen-ui";
-import {useQuery} from "react-query";
-import {useCustomTheme} from "@/brand/themes/theme";
-import {getBalances} from "@/components/wallets-manager/get-balances-for-wallets";
-import {providerLabelByConnection} from "@/utils/provider-utils";
-import {CopyToClipboard} from "react-copy-to-clipboard";
-import {Chains, Connections, Wallet} from "@usher.so/shared";
-import {useSendFunds} from "@/components/wallets-manager/use-send-funds";
+import {
+	Button,
+	Label,
+	majorScale,
+	Pane,
+	Position,
+	SendMessageIcon,
+	Spinner,
+	Strong,
+	toaster,
+	Tooltip
+} from "evergreen-ui";
+import { useQuery } from "react-query";
+import { useCustomTheme } from "@/brand/themes/theme";
+import { getBalances } from "@/components/wallets-manager/get-balances-for-wallets";
+import { providerLabelByConnection } from "@/utils/provider-utils";
+import { CopyToClipboard } from "react-copy-to-clipboard";
+import { Chains, Connections, Wallet } from "@usher.so/shared";
+import { useSendFunds } from "@/components/wallets-manager/use-send-funds";
 import _ from "lodash";
 import React from "react";
 import Image from "next/image";
-import {EVMChainLabelAndSwitcher} from "@/components/connect/EVMChainSwitch/EVMChainLabelAndSwitcher";
+import { EVMChainLabelAndSwitcher } from "@/components/connect/EVMChainSwitch/EVMChainLabelAndSwitcher";
 
 export const WalletsForConnection = ({
 	wallets,
@@ -42,7 +53,7 @@ export const WalletsForConnection = ({
 				display="flex"
 				marginBottom={4}
 				justifyContent="space-between"
-                alignItems={'center'}
+				alignItems={"center"}
 				size={300}
 				fontWeight={900}
 			>
@@ -59,9 +70,10 @@ export const WalletsForConnection = ({
 						</Tooltip>
 					</Pane>
 					{providerLabelByConnection[connection]}
-                </Pane>
+				</Pane>
 				<EVMChainLabelAndSwitcher
-					position={'bottom-right'}
+					// @ts-ignore — probably upstream type bug
+					position={Position.BOTTOM_RIGHT}
 					providerLabel={providerLabelByConnection[connection]}
 				/>
 			</Label>

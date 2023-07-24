@@ -4,22 +4,13 @@ import MetaMaskIcon from "@/assets/icon/metamask.svg";
 import WalletConnectIcon from "@/assets/icon/walletconnect.svg";
 import CoinbaseWalletIcon from "@/assets/icon/coinbasewallet.svg";
 import { UilLockOpenAlt } from "@iconscout/react-unicons";
-import { Chains, Connections } from "@usher.so/shared";
+import { Connections } from "@usher.so/shared";
 import type { WalletConnectProps } from "@/components/connect/WalletConnect";
 import React from "react";
 import { useUser } from "@/hooks";
 import { WalletConnectButton } from "@/components/connect/buttons/WalletConnectButton";
-import { StoredWallet, storedWallets } from "@/utils/wallets/stored-wallets";
+import { storedWallets } from "@/utils/wallets/stored-wallets";
 import { WalletConnectButtonProps } from "@/components/connect/buttons/types";
-
-const formatWalletFromChainsAndAddresses = (
-	chains: Chains[],
-	addresses: string[]
-) => {
-	return chains.flatMap((chain) =>
-		addresses.map((address) => ({ chain, address }))
-	);
-};
 
 /**
  * Our intention is to show only wallets of a chain at a time.
@@ -47,21 +38,18 @@ export const ConnectToWalletsButtonsList = ({
 	const connectWallet = React.useCallback<
 		NonNullable<WalletConnectButtonProps["onConnect"]>
 	>(
-		async ({ connection, connectedAddresses, signature, connectedChains }) => {
-			const wallets = formatWalletFromChainsAndAddresses(
-				connectedChains,
-				connectedAddresses
-			).map<StoredWallet>((wallet) => ({
-				...wallet,
+		async ({ connection, connectedAddress, signature, connectedChain }) => {
+			const wallet = {
+				connection,
 				signature,
-				connection
-			}));
-
-			storedWallets.add(wallets);
+				address: connectedAddress,
+				chain: connectedChain
+			};
+			storedWallets.add({ ...wallet });
 
 			setConnecting(true);
 			// todo: getting the first one for a quick fix, but should be revised when supporting multi-wallet
-			connect(wallets[0])
+			connect(wallet)
 				.then(() => {
 					onConnect(connection); // used to close the sidesheet.
 				})

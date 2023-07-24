@@ -2,7 +2,6 @@ import React from "react";
 import { Button, majorScale, Pane, Paragraph, Strong } from "evergreen-ui";
 import startCase from "lodash/startCase";
 
-import { Chains } from "@usher.so/shared";
 import { useCustomTheme } from "@/brand/themes/theme";
 import {
 	partnerAtoms,
@@ -11,11 +10,11 @@ import {
 import { useAtomValue } from "jotai";
 import { useUser } from "@/hooks";
 import { useSetToCampaignChain } from "@/components/Campaign/use-set-to-campaign-chain";
-import useRedir from "../../hooks/use-redir";
 import { useRouter } from "next/router";
+import useRedir from "../../hooks/use-redir";
 
 export type Props = {
-	campaignChain: Chains;
+	campaignChain: string;
 	campaignId: string;
 	hasWallets?: boolean;
 };
@@ -67,6 +66,9 @@ const CampaignStartPartnership: React.FC<Props> = ({
 			</Strong>
 		);
 
+	const handleClickIfLoggedIn = isConnectedToSameChain
+		? startPartnership
+		: setToCampaignChain;
 	return (
 		<Pane
 			border
@@ -80,11 +82,7 @@ const CampaignStartPartnership: React.FC<Props> = ({
 		>
 			<Button
 				onClick={() =>
-					isLoggedIn
-						? isConnectedToSameChain
-							? startPartnership()
-							: setToCampaignChain()
-						: redirectToLogin()
+					isLoggedIn ? handleClickIfLoggedIn() : redirectToLogin()
 				}
 				{...buttonProps}
 			>

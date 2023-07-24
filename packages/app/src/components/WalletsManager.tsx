@@ -31,8 +31,7 @@ export type Props = {
 
 const WalletsManager: React.FC<Props> = ({ onClose }) => {
 	const {
-		user: { wallets },
-		isLoading: isUserLoading
+		user: { wallets }
 	} = useUser();
 	const { colors } = useCustomTheme();
 	const [showWalletConnect, setShowWalletConnect] = useState(false);

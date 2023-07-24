@@ -43,7 +43,7 @@ const VerifyPersonhoodDialog: React.FC<Props> = ({ isShown, onClose }) => {
 			setVerifyUrl(vUrl);
 			setLoading(false);
 		}
-	}, [isMobile, verifyUrl]);
+	}, [auth]);
 
 	const onVerifyCopy = useCallback(async () => {
 		toaster.notify("Copied!", {

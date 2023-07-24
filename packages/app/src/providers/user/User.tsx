@@ -99,6 +99,7 @@ const getUserWithWallets = (withWallets: Wallet[]) => async (user: User) => {
 		return constructNewUser(captcha, personhood, profile, withWallets)(user);
 	} catch (e) {
 		handleException(e);
+		return undefined;
 	}
 };
 
@@ -250,82 +251,86 @@ const UserContextProvider: React.FC<Props> = ({ children }) => {
 
 	// Only called once on page load
 	const loadUser = useCallback(
-		_.once(async () => {
-			console.log("Loading user ...");
+		() =>
+			_.once(async () => {
+				console.log("Loading user ...");
 
-			const fetchedWallets: Wallet[] = [];
+				const fetchedWallets: Wallet[] = [];
 
-			const promises: Promise<Wallet[]>[] = [];
-			// TODO - commenting until we support multi wallets and accounts. For now, we know
-			// 		must load only the present on localStorage one
-			// // Load wallet in parallel
-			// promises.push(
-			// 	getAuthenticatedWalletsAndLoadPartnershipsForConnection({
-			// 		connection: Connections.ARCONNECT,
-			// 		partnerships,
-			// 		authInstance: authenticationInstance
-			// 	})
-			// );
-			// promises.push(
-			// 	getAuthenticatedWalletsAndLoadPartnershipsForConnection({
-			// 		connection: Connections.MAGIC,
-			// 		partnerships,
-			// 		authInstance: authenticationInstance
-			// 	})
-			// );
-			// // Calls to @web3-onboard library does not work properly when called asyncronously,
-			// // Therefore calling it sequentially
-			// promises.push(
-			// 	(async () => [
-			// 		...(await getAuthenticatedWalletsAndLoadPartnershipsForConnection({
-			// 			connection: Connections.COINBASEWALLET,
-			// 			partnerships,
-			// 			authInstance: authenticationInstance
-			// 		})),
-			// 		...(await getAuthenticatedWalletsAndLoadPartnershipsForConnection({
-			// 			connection: Connections.METAMASK,
-			// 			partnerships,
-			// 			authInstance: authenticationInstance
-			// 		})),
-			// 		...(await getAuthenticatedWalletsAndLoadPartnershipsForConnection({
-			// 			connection: Connections.WALLETCONNECT,
-			// 			partnerships,
-			// 			authInstance: authenticationInstance
-			// 		}))
-			// 	])()
-			// );
+				const promises: Promise<Wallet[]>[] = [];
+				// TODO - commenting until we support multi wallets and accounts. For now, we know
+				// 		must load only the present on localStorage one
+				// // Load wallet in parallel
+				// promises.push(
+				// 	getAuthenticatedWalletsAndLoadPartnershipsForConnection({
+				// 		connection: Connections.ARCONNECT,
+				// 		partnerships,
+				// 		authInstance: authenticationInstance
+				// 	})
+				// );
+				// promises.push(
+				// 	getAuthenticatedWalletsAndLoadPartnershipsForConnection({
+				// 		connection: Connections.MAGIC,
+				// 		partnerships,
+				// 		authInstance: authenticationInstance
+				// 	})
+				// );
+				// // Calls to @web3-onboard library does not work properly when called asyncronously,
+				// // Therefore calling it sequentially
+				// promises.push(
+				// 	(async () => [
+				// 		...(await getAuthenticatedWalletsAndLoadPartnershipsForConnection({
+				// 			connection: Connections.COINBASEWALLET,
+				// 			partnerships,
+				// 			authInstance: authenticationInstance
+				// 		})),
+				// 		...(await getAuthenticatedWalletsAndLoadPartnershipsForConnection({
+				// 			connection: Connections.METAMASK,
+				// 			partnerships,
+				// 			authInstance: authenticationInstance
+				// 		})),
+				// 		...(await getAuthenticatedWalletsAndLoadPartnershipsForConnection({
+				// 			connection: Connections.WALLETCONNECT,
+				// 			partnerships,
+				// 			authInstance: authenticationInstance
+				// 		}))
+				// 	])()
+				// );
 
-			// TODO remove this once we support multi wallets
-			const unauthenticatedWallets = storedWallets.get();
+				// TODO remove this once we support multi wallets
+				const unauthenticatedWallets = storedWallets.get();
 
-			promises.push(
-				...unauthenticatedWallets.map((wallet) =>
-					authenticateAnyWallet({
-						wallet,
-						partnerships,
-						authInstance: authenticationInstance
-					})
-				)
-			);
+				promises.push(
+					...unauthenticatedWallets.map((wallet) =>
+						authenticateAnyWallet({
+							wallet,
+							partnerships,
+							authInstance: authenticationInstance
+						})
+					)
+				);
 
-			const results = await Promise.all(promises);
+				const results = await Promise.all(promises);
 
-			results.forEach((wallets) => {
-				wallets.forEach((wallet) => {
-					if (!fetchedWallets.find((fw) => _.isEqual(fw, wallet))) {
-						fetchedWallets.push(wallet);
-					}
+				results.forEach((wallets) => {
+					wallets.forEach((wallet) => {
+						if (!fetchedWallets.find((fw) => _.isEqual(fw, wallet))) {
+							fetchedWallets.push(wallet);
+						}
+					});
 				});
-			});
-			saveWallets(fetchedWallets);
+				saveWallets(fetchedWallets);
 
-			console.log("Wallets loaded. Fetching verifications ...", fetchedWallets);
+				console.log(
+					"Wallets loaded. Fetching verifications ...",
+					fetchedWallets
+				);
 
-			if (fetchedWallets.length > 0) {
-				await loadUserWithWallets(fetchedWallets);
-			}
-		}),
-		[]
+				if (fetchedWallets.length > 0) {
+					await loadUserWithWallets(fetchedWallets);
+				}
+			})(),
+		[loadUserWithWallets, saveWallets]
 	);
 
 	const connect = useCallback(

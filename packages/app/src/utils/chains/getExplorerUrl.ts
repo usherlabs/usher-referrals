@@ -1,5 +1,9 @@
 import { Chains } from "@usher.so/shared";
-import {ARWEAVE_EXPLORER_TX_URL, ETHEREUM_EXPLORER_TX_URL, POLYGON_EXPLORER_TX_URL} from "@/constants";
+import {
+	ARWEAVE_EXPLORER_TX_URL,
+	ETHEREUM_EXPLORER_TX_URL,
+	POLYGON_EXPLORER_TX_URL
+} from "@/constants";
 
 export const getExplorerUrl = ({
 	chain,

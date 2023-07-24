@@ -63,7 +63,10 @@ export const ARWalletConnectButton = ({
 }: ARWalletConnectButtonProps) => {
 	const { signMessage, signing } = useSignArweaveMessage();
 	const [arConnect] = useArConnect();
-	const isLoading = useMemo(() => isConnecting || signing, [signing]);
+	const isLoading = useMemo(
+		() => isConnecting || signing,
+		[isConnecting, signing]
+	);
 
 	const internalIcon = useMemo(() => {
 		if (React.isValidElement(icon)) {
@@ -109,10 +112,10 @@ export const ARWalletConnectButton = ({
 					arweaveWallet: arweaveAddress
 				});
 				await onConnect({
-					connectedAddresses: [arweaveAddress],
+					connectedAddress: arweaveAddress,
 					signature: signedMessage,
 					connection,
-					connectedChains: [Chains.ARWEAVE]
+					connectedChain: Chains.ARWEAVE
 				});
 			}
 		} catch {

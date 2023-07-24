@@ -62,12 +62,20 @@ const LinkEditor: React.FC<Props> = ({ link, onClose }) => {
 			await createLink(payload);
 		}
 		onClose();
-	}, [title, destinationUrl, connections]);
+	}, [
+		title,
+		destinationUrl,
+		connections,
+		link.id,
+		onClose,
+		updateLink,
+		createLink
+	]);
 
 	const handleArchive = useCallback(async () => {
 		await archiveLink(link.id);
 		onClose();
-	}, []);
+	}, [archiveLink, link.id, onClose]);
 
 	const { colors } = useCustomTheme();
 

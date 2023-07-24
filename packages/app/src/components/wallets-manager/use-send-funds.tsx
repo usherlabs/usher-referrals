@@ -114,7 +114,7 @@ export const useSendFunds = () => {
 		} finally {
 			setSendingFunds(false);
 		}
-	}, [arweave, colors.blue500, setSendingFunds, showSendFunds]);
+	}, [arweave, auth, colors.blue500, setSendingFunds, showSendFunds, wallets]);
 
 	return {
 		sendFunds,

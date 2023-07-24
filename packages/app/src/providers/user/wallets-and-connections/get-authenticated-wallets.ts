@@ -13,9 +13,9 @@ import {
 	authenticateAndLoadPartnershipsForEVMAddress,
 	authenticateAndLoadPartnershipsForMagic
 } from "@/providers/user/wallets-and-connections/authenticate-and-load-partnerships";
-import { getChainById, UNSUPPORTED_EVM_CHAIN } from "@/utils/get-chain-by-id";
+import { getChainById } from "@/utils/get-chain-by-id";
 import { StoredWallet } from "@/utils/wallets/stored-wallets";
-import {isEthereumBasedNetwork} from "@/utils/isEthereumBasedNetwork";
+import { isEthereumBasedNetwork } from "@/utils/isEthereumBasedNetwork";
 
 export const getAuthenticatedWalletsAndLoadPartnershipsForConnection = async ({
 	connection,

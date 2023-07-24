@@ -1,7 +1,7 @@
-import { toHex } from "viem";
 import { useConnectWallet, useSetChain } from "@web3-onboard/react";
 import _ from "lodash";
-import type { Chain } from "@web3-react/commons";
+import { toHex } from "@/utils/chains/toHex";
+import type { Chain } from "@web3-onboard/common";
 
 const getChainLabel = (chainId: string, availableChains: Chain[]) => {
 	const chain = availableChains.find((c) => c.id === chainId);

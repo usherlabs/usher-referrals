@@ -1,14 +1,8 @@
-import {Connections, Wallet} from "@usher.so/shared";
-import _ from "lodash";
-import {BehaviorSubject} from "rxjs";
-import {atomWithObservable} from "jotai/utils";
+import { Connections, Wallet } from "@usher.so/shared";
+import { BehaviorSubject } from "rxjs";
+import { atomWithObservable } from "jotai/utils";
 
 export type StoredWallet = Wallet & { signature: string };
-
-const deduplicateObjectArray = <T extends object>(arr: T[]) => {
-	const unique = _.uniqWith(arr, _.isEqual);
-	return unique;
-};
 
 const getStoredWallets = () =>
 	typeof window === "undefined"
@@ -46,13 +40,13 @@ const addStoredWallet = (newWallets: StoredWallet | StoredWallet[]) => {
 };
 
 export const storedWalletsAtom = atomWithObservable<StoredWallet[]>(
-	(get) => storedWallets$,
+	() => storedWallets$,
 	{ initialValue: storedWallets$.getValue() }
 );
 
 const removeAllStoredWallets = () => {
 	setStoredWallets([]);
-}
+};
 
 const removeByConnection = (connection: Connections) => {
 	const wallets = getStoredWallets();

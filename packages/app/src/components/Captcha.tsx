@@ -15,12 +15,15 @@ export type Props = {
 const CaptchaContainer: React.FC<Props> = ({ onSuccess }) => {
 	const [isLoading, setLoading] = useState(true);
 
-	const submit = useCallback(async (token: string) => {
-		setLoading(true);
-		onSuccess(token).finally(() => {
-			setLoading(false);
-		});
-	}, []);
+	const submit = useCallback(
+		async (token: string) => {
+			setLoading(true);
+			onSuccess(token).finally(() => {
+				setLoading(false);
+			});
+		},
+		[onSuccess]
+	);
 
 	const onError = useCallback(() => {
 		toaster.danger(

@@ -7,20 +7,7 @@ import CopyToClipboard from "react-copy-to-clipboard";
 import { useCustomTheme } from "@/brand/themes/theme";
 import { useSignEthMessageAndConnect } from "@/components/connect/buttons/use-sign-eth-message";
 import { USHER_SIGN_MESSAGE } from "@/components/connect/WalletConnect";
-
-export const UnsignedWalletsForConnection = ({
-	wallets
-}: {
-	wallets: ExtractAtomValue<typeof onboardAtoms.connectedUnsignedAccounts>;
-}) => {
-	return (
-		<div>
-			{wallets.map((wallet) => (
-				<PendingSignupAddress wallet={wallet} key={wallet.address} />
-			))}
-		</div>
-	);
-};
+import { UNSUPPORTED_EVM_CHAIN } from "@/utils/get-chain-by-id";
 
 const onCopy = () => {
 	toaster.notify("Address copied", {
@@ -36,12 +23,19 @@ export const PendingSignupAddress = ({
 	>[number];
 }) => {
 	return null; // while we don't support multi-account
+
 	const { colors } = useCustomTheme();
 
 	const { signAndConnect, loading: signLoading } =
 		useSignEthMessageAndConnect();
 
 	const handleSign = async () => {
+		if (wallet.chain === UNSUPPORTED_EVM_CHAIN) {
+			toaster.notify("Unsupported chain", {
+				id: "wallet-side-sheet--unsupported-chain"
+			});
+			return;
+		}
 		await signAndConnect({
 			provider: wallet.provider,
 			chain: wallet.chain,
@@ -90,10 +84,24 @@ export const PendingSignupAddress = ({
 				<Pane display="flex" flexDirection="row" alignItems="center"></Pane>
 			</Pane>
 			<Pane>
-				<Button onClick={handleSign} loading={signLoading}>
+				<Button onClick={handleSign} isLoading={signLoading}>
 					Sign up
 				</Button>
 			</Pane>
 		</Pane>
+	);
+};
+
+export const UnsignedWalletsForConnection = ({
+	wallets
+}: {
+	wallets: ExtractAtomValue<typeof onboardAtoms.connectedUnsignedAccounts>;
+}) => {
+	return (
+		<div>
+			{wallets.map((wallet) => (
+				<PendingSignupAddress wallet={wallet} key={wallet.address} />
+			))}
+		</div>
 	);
 };

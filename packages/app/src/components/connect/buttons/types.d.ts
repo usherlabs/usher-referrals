@@ -26,8 +26,8 @@ export type WalletConnectButtonProps<
 	signingMessage: string;
 	isConnecting?: boolean;
 	onConnect: (input: {
-		connectedChains: Chains[];
-		connectedAddresses: string[];
+		connectedChain: Chains;
+		connectedAddress: string;
 		connection: Connection;
 		signature: string;
 	}) => Promise<void>;

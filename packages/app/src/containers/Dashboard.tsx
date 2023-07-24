@@ -32,9 +32,6 @@ import SideMenu from "@/components/SideMenu";
 import { useCustomTheme } from "@/brand/themes/theme";
 import { PoweredByUsher } from "@/components/PoweredByUsher";
 import { brandConfig } from "@/brand";
-import { RequestNetworkSwitch } from "@/utils/user-state-management/components/RequestNetworkSwitch";
-import { RequestSign } from "@/utils/user-state-management/components/RequestSign";
-import { ConnectOnlyToLatestAccount } from "@/utils/user-state-management/components/ConnectOnlyToLatestAccount";
 import { ManageWalletsConnection } from "@/utils/user-state-management/components/ManageWalletsConnection";
 
 type Props = {
@@ -130,7 +127,7 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 				});
 			}
 		}
-	}, [isLoading, profile, captureEmail, wallets]);
+	}, [isLoading, profile, captureEmail, wallets, setCaptureEmail]);
 
 	const onEmailCapture = useCallback(
 		async (email: string) => {
@@ -168,7 +165,7 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 				remindIn: Date.now() + 1000 * 60 * 60 * 24 * 3.5 * newDismissCount
 			});
 		}
-	}, [captureEmail]);
+	}, [captureEmail, setCaptureEmail]);
 
 	const onWalletToggle = useCallback(() => {
 		if (wallets.length === 0) {
@@ -182,7 +179,7 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 
 		setShowWallets(true);
 		// Start loading wallet values -- use react-query for caching
-	}, [loginUrl, wallets]);
+	}, [loginUrl, router, showWallets, wallets.length]);
 
 	const onWalletSideSheetClose = useCallback(() => {
 		setShowWallets(false);
@@ -222,7 +219,7 @@ const DashboardContainer: React.FC<Props> = ({ children }) => {
 			}
 			return false;
 		},
-		[wallets]
+		[auth, setCaptcha]
 	);
 
 	if (!isLoading && wallets.length > 0 && !isCaptchaVerified) {

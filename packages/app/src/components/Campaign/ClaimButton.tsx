@@ -73,7 +73,7 @@ const ClaimButton: React.FC<Props> = ({
 		if (newClaim) {
 			setClaim(newClaim);
 		}
-	}, [selectedWallet]);
+	}, [onClaim, selectedWallet]);
 
 	const WalletCard = (
 		<ValueCard

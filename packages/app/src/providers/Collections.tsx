@@ -205,7 +205,7 @@ export const CollectionsContextProvider: React.FC<Props> = ({ children }) => {
 			setIsSaving(false);
 			queryClient.invalidateQueries(COLLECTIONS_QUERY_KEY);
 		},
-		[ceramic, auth]
+		[ceramic, auth, queryClient]
 	);
 
 	const updateLink = useCallback(
@@ -228,7 +228,7 @@ export const CollectionsContextProvider: React.FC<Props> = ({ children }) => {
 			setIsSaving(false);
 			queryClient.invalidateQueries(COLLECTIONS_QUERY_KEY);
 		},
-		[ceramic]
+		[ceramic, queryClient]
 	);
 
 	const archiveLink = useCallback(
@@ -250,7 +250,7 @@ export const CollectionsContextProvider: React.FC<Props> = ({ children }) => {
 			setIsSaving(false);
 			queryClient.invalidateQueries(COLLECTIONS_QUERY_KEY);
 		},
-		[ceramic]
+		[ceramic, queryClient]
 	);
 
 	const context = useMemo<ICollectionsContext>(

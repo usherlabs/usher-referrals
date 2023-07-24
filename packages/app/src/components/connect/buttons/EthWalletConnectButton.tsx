@@ -9,7 +9,7 @@ import { browserName } from "react-device-detect";
 import { getMagicClient } from "@/utils/magic-client";
 import { getChainById, isSupportedChain } from "@/utils/get-chain-by-id";
 import { useSignEthMessage } from "@/components/connect/buttons/use-sign-eth-message";
-import {WalletConnectButtonProps} from "@/components/connect/buttons/types";
+import { WalletConnectButtonProps } from "@/components/connect/buttons/types";
 
 export type EthWalletConnectButtonProps = WalletConnectButtonProps<
 	Exclude<Connections, Connections.ARCONNECT>
@@ -24,12 +24,12 @@ export const EthWalletConnectButton = ({
 	isConnecting,
 	onConnect
 }: EthWalletConnectButtonProps) => {
-	const [{ connecting }, connect] = useConnectWallet();
+	const [{ connecting, wallet: lastWallet }, connect] = useConnectWallet();
 	const { signMessage, signing } = useSignEthMessage();
 
 	const isLoading = useMemo(
 		() => isConnecting || connecting || signing,
-		[connecting, signing]
+		[connecting, isConnecting, signing]
 	);
 
 	const internalIcon = useMemo(() => {
@@ -73,33 +73,54 @@ export const EthWalletConnectButton = ({
 				}
 				return;
 			}
-			const allWalletStates = await connect({
+			const [newWallet] = await connect({
 				autoSelect: { disableModals: true, label: providerLabel }
 			});
-			const walletStatesOfConnection = allWalletStates.filter(
-				(walletState) => walletState.label === providerLabel
-			);
-			await Promise.all(
-				walletStatesOfConnection.map(async (walletState) => {
-					const signedMessage = await signMessage({
-						ethWallet: walletState,
-						signingMessage
-					});
-					const chains = walletState.chains.map((c) => getChainById(c.id));
-					const addresses = walletState.accounts.map((a) => a.address);
-					await onConnect({
-						connectedAddresses: addresses,
-						connection,
-						connectedChains: chains.filter(isSupportedChain),
-						signature: signedMessage
-					});
-				})
-			);
+
+			if (!newWallet || newWallet === lastWallet) {
+				// nothing changed, probably it was dismissed, we may return
+				return;
+			}
+
+			const {
+				chains: [recentlyConnectedChain],
+				accounts: [account]
+			} = newWallet;
+
+			const chain = getChainById(recentlyConnectedChain.id);
+
+			if (!isSupportedChain(chain)) {
+				return;
+			}
+
+			if (!account) {
+				toaster.danger("Please connect to an account on your wallet");
+			}
+
+			const signedMessage = await signMessage({
+				ethWallet: newWallet,
+				signingMessage
+			});
+			await onConnect({
+				connectedAddress: account.address,
+				connection,
+				connectedChain: chain,
+				signature: signedMessage
+			});
 		} catch (e) {
 			console.error(e);
 			toaster.danger("Connect your wallet to continue");
 		}
-	}, [checkWalletInstalled]);
+	}, [
+		checkWalletInstalled,
+		connect,
+		connection,
+		lastWallet,
+		onConnect,
+		providerLabel,
+		signMessage,
+		signingMessage
+	]);
 
 	return (
 		<Pane marginBottom={8}>

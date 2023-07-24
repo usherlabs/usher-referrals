@@ -1,6 +1,6 @@
-import {atom} from "jotai";
-import {onboardAtoms} from "@/utils/user-state-management/atoms/onboard-state";
-import {UNSUPPORTED_EVM_CHAIN} from "@/utils/get-chain-by-id";
+import { atom } from "jotai";
+import { onboardAtoms } from "@/utils/user-state-management/atoms/onboard-state";
+import { UNSUPPORTED_EVM_CHAIN } from "@/utils/get-chain-by-id";
 
 const connectedToUnsupportedChains = atom((get) => {
 	const accounts = get(onboardAtoms.connectedAccounts);

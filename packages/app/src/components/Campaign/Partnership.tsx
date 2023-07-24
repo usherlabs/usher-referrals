@@ -29,7 +29,7 @@ const CampaignPartnership: React.FC<Props> = ({ partnership, metrics }) => {
 					<HelpIcon {...props} />
 				</Tooltip>
 			),
-			[]
+			[content]
 		);
 
 	return (

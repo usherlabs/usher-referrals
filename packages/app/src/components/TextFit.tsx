@@ -14,13 +14,13 @@ export const TextFit: React.FC<Props> = ({ children: text, ...props }) => {
 			const { scrollWidth, clientWidth } = ref.current;
 			setVisibleLength(Math.floor((text.length * clientWidth) / scrollWidth));
 		}
-	});
+	}, [text.length]);
 
 	const result = useMemo(() => {
 		return visibleLength < text.length
 			? `${text.slice(0, visibleLength - 7)}…${text.slice(-4)}`
 			: text;
-	}, [visibleLength]);
+	}, [text, visibleLength]);
 
 	return (
 		<Pane
