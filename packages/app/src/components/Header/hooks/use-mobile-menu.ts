@@ -22,7 +22,7 @@ export const useMobileMenu = () => {
 		if (showMobileMenu && windowSize.width > Breakpoints.large) {
 			toggleMobileMenu(false);
 		}
-	}, [windowSize]);
+	}, [showMobileMenu, windowSize]);
 
 	useRouteChange(() => setShowMobileMenu(false));
 

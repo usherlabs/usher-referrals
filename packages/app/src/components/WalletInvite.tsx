@@ -7,18 +7,18 @@ import MetaMaskIcon from "@/assets/icon/metamask.svg";
 import WalletConnectIcon from "@/assets/icon/walletconnect.svg";
 import { ProviderLabel } from "@/utils/onboard";
 import { Chains, Connections } from "@usher.so/shared";
-import { WalletConnectButton } from "./WalletConnectButton";
+import { WalletConnectButton } from "./connect/buttons/WalletConnectButton";
 
-type Props = {
+export type WalletInviteProps = {
 	domain: string;
 	chain?: Chains;
 	connections?: Connections[];
-	onConnect: (
-		chian: Chains,
-		address: string,
-		connection: Connections,
-		signature: string
-	) => Promise<void>;
+	onConnect: (input: {
+		connectedChain: Chains;
+		connectedAddress: string;
+		connection: Connections;
+		signature: string;
+	}) => Promise<void>;
 };
 
 /**
@@ -28,7 +28,12 @@ type Props = {
  * @param connections if specified, shows the list of the wallets no mattar the Chain
  * @callback onConnect fires when a button clicked
  */
-const WalletInvite = ({ domain, chain, connections, onConnect }: Props) => {
+const WalletInvite = ({
+	domain,
+	chain,
+	connections,
+	onConnect
+}: WalletInviteProps) => {
 	const signingMessage = useMemo(
 		() => `Please connect your wallet to continue to ${domain}`,
 		[domain]
@@ -63,7 +68,6 @@ const WalletInvite = ({ domain, chain, connections, onConnect }: Props) => {
 				<Pane display="flex" flexDirection="column">
 					{isApplicable(Chains.ARWEAVE, Connections.ARCONNECT) && (
 						<WalletConnectButton
-							chain={Chains.ARWEAVE}
 							connection={Connections.ARCONNECT}
 							text="ArConnect"
 							icon={ArConnectIcon}
@@ -74,7 +78,6 @@ const WalletInvite = ({ domain, chain, connections, onConnect }: Props) => {
 					)}
 					{isApplicable(Chains.ETHEREUM, Connections.METAMASK) && (
 						<WalletConnectButton
-							chain={Chains.ETHEREUM}
 							connection={Connections.METAMASK}
 							text="MetaMask"
 							icon={MetaMaskIcon}
@@ -85,7 +88,6 @@ const WalletInvite = ({ domain, chain, connections, onConnect }: Props) => {
 					)}
 					{isApplicable(Chains.ETHEREUM, Connections.WALLETCONNECT) && (
 						<WalletConnectButton
-							chain={Chains.ETHEREUM}
 							connection={Connections.WALLETCONNECT}
 							text="WalletConnect"
 							icon={WalletConnectIcon}
@@ -96,7 +98,6 @@ const WalletInvite = ({ domain, chain, connections, onConnect }: Props) => {
 					)}
 					{isApplicable(Chains.ETHEREUM, Connections.COINBASEWALLET) && (
 						<WalletConnectButton
-							chain={Chains.ETHEREUM}
 							connection={Connections.COINBASEWALLET}
 							text="CoinbaseWallet"
 							icon={CoinbaseWalletIcon}

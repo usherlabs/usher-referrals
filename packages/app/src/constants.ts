@@ -53,6 +53,12 @@ export const ARWEAVE_EXPLORER_ADDRESS_URL =
 export const ARWEAVE_EXPLORER_TX_URL =
 	"https://viewblock.io/arweave/tx/" as const;
 
+export const POLYGON_EXPLORER_TX_URL = byTargetEnv({
+	p: "https://polygonscan.com/tx/",
+	s: "https://mumbai.polygonscan.com/tx/",
+	d: "https://mumbai.polygonscan.com/tx/"
+});
+
 export const ARCONNECT_CHROME_URL =
 	"https://chrome.google.com/webstore/detail/arconnect/einnioafmpimabjcddiinlhmijaionap" as const;
 export const ARCONNECT_FIREFOX_URL =
@@ -68,11 +74,50 @@ export const ETHEREUM_CHAIN_ID = byTargetEnv({
 	d: "0x539"
 });
 
+export const BSC_CHAIN_ID = byTargetEnv({
+	p: "0x38",
+	s: "0x61",
+	d: "0x61"
+});
+
+export const BSC_RPC_URL = byTargetEnv({
+	p: "https://bsc-dataseed.binance.org/",
+	s: "https://endpoints.omniatech.io/v1/bsc/testnet/public",
+	d: "https://endpoints.omniatech.io/v1/bsc/testnet/public"
+});
+
 export const ETHEREUM_RPC_URL = byTargetEnv({
 	p: ethereumProviderUrl,
 	s: ethereumProviderUrl,
 	d: "http://localhost:8545"
 });
+
+const binanceMainChain = {
+	id: BSC_CHAIN_ID,
+	rpcUrl: BSC_RPC_URL,
+	label: "Binance Smart Chain",
+	token: "BNB"
+};
+
+export const POLYGON_CHAIN_ID = byTargetEnv({
+	p: "0x89",
+	s: "0x13881",
+	d: "0x13881"
+});
+
+const polygonMainChain = {
+	id: POLYGON_CHAIN_ID,
+	rpcUrl: "https://rpc-mainnet.maticvigil.com/",
+	label: "Polygon Mainnet",
+	token: "MATIC"
+};
+
+const polygonMumbaiChain = {
+	id: POLYGON_CHAIN_ID,
+	rpcUrl: "https://rpc-mumbai.maticvigil.com/",
+	label: "Polygon Mumbai",
+	token: "MATIC"
+};
 
 export const ETHEREUM_CHAINS = byTargetEnv({
 	p: [
@@ -81,7 +126,9 @@ export const ETHEREUM_CHAINS = byTargetEnv({
 			rpcUrl: ETHEREUM_RPC_URL,
 			label: "Ethereum Mainnet",
 			token: "ETH"
-		}
+		},
+		binanceMainChain,
+		polygonMainChain
 	],
 	s: [
 		{
@@ -89,7 +136,9 @@ export const ETHEREUM_CHAINS = byTargetEnv({
 			rpcUrl: ETHEREUM_RPC_URL,
 			label: "Goerli",
 			token: "ETH"
-		}
+		},
+		binanceMainChain,
+		polygonMumbaiChain
 	],
 	d: [
 		{
@@ -97,7 +146,9 @@ export const ETHEREUM_CHAINS = byTargetEnv({
 			rpcUrl: ETHEREUM_RPC_URL,
 			label: "Localhost 8545",
 			token: "ETH"
-		}
+		},
+		binanceMainChain,
+		polygonMumbaiChain
 	]
 });
 

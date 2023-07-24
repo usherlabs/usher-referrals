@@ -15,7 +15,9 @@
 # production
 /build
 
+# generated from own tools
 /public/static/generated
+/src/utils/generated-favicons/
 
 # misc
 .DS_Store

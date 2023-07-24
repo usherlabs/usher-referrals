@@ -9,7 +9,7 @@ import {
 } from "ka-table/actionCreators";
 import { ActionType, DataType, SortingMode } from "ka-table/enums";
 import { DispatchFunc } from "ka-table/types";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { format } from "timeago.js";
 
 import { useCollections } from "@/hooks/use-collections";
@@ -57,21 +57,26 @@ const LinkVisitorsList: React.FC<Props> = () => {
 
 	const [tableProps, changeTableProps] = useState(tablePropsInit);
 
-	const dispatch: DispatchFunc = (action) => {
-		changeTableProps((prevState: ITableProps) => kaReducer(prevState, action));
+	const dispatch: DispatchFunc = React.useCallback(
+		(action) => {
+			changeTableProps((prevState: ITableProps) =>
+				kaReducer(prevState, action)
+			);
 
-		if (action.type === ActionType.LoadData) {
-			dispatch(showLoading());
-			dispatch(updateData(connections));
-			dispatch(hideLoading());
-		} else if (action.type === ActionType.UpdatePageIndex) {
-			dispatch(setSingleAction(loadData()));
-		}
-	};
+			if (action.type === ActionType.LoadData) {
+				dispatch(showLoading());
+				dispatch(updateData(connections));
+				dispatch(hideLoading());
+			} else if (action.type === ActionType.UpdatePageIndex) {
+				dispatch(setSingleAction(loadData()));
+			}
+		},
+		[connections]
+	);
 
 	useEffect(() => {
 		dispatch(loadData());
-	}, [connections]);
+	}, [connections, dispatch]);
 
 	useEffect(() => {
 		if (isConnectionsLoading) {
@@ -79,7 +84,7 @@ const LinkVisitorsList: React.FC<Props> = () => {
 		} else {
 			dispatch(hideLoading());
 		}
-	}, [isConnectionsLoading]);
+	}, [dispatch, isConnectionsLoading]);
 
 	return (
 		<Pane flex="1" overflow="hidden">

@@ -29,7 +29,7 @@ const LinkDetails: React.FC<Props> = ({ onEditorClose }) => {
 	const handleLinkEditorClose = useCallback(() => {
 		setIsEditing(false);
 		onEditorClose();
-	}, []);
+	}, [onEditorClose]);
 
 	const onCopy = useCallback(async () => {
 		toaster.notify("Copied!", {

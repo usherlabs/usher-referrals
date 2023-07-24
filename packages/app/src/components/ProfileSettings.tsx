@@ -35,7 +35,7 @@ const ProfileSettings: React.FC = () => {
 				setSubmitting(false);
 			}
 		},
-		[profile]
+		[profile, setProfile]
 	);
 
 	return (

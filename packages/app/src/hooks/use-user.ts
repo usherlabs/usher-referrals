@@ -1,6 +1,6 @@
 import { useContext } from "react";
 
-import { UserContext } from "@/providers/User";
+import { UserContext } from "@/providers/user/User";
 
 function useUser() {
 	const {

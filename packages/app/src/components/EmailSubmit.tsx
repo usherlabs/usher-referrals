@@ -35,7 +35,7 @@ const EmailSubmit: React.FC<Props> = ({
 		setDisabled(true);
 		await onSubmit(value);
 		setDisabled(false);
-	}, [value]);
+	}, [onSubmit, value]);
 
 	return (
 		<Pane display="flex" alignItems="center" border borderRadius={5}>

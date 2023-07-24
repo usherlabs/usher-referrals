@@ -14,7 +14,7 @@ export const request = ky.create({
 	prefixUrl: "/api"
 });
 
-export const getAuthRequest = (authToken: string) =>
+export const getAuthRequest = (authToken: string): typeof request =>
 	request.extend({
 		headers: {
 			Authorization: `Bearer ${authToken}`
@@ -94,8 +94,8 @@ export const partnerships = () => ({
 export const referrals = () => ({
 	post: (
 		partnership: string,
-		wallet: string,
-		connection: Connections
+		wallet?: string,
+		connection?: Connections
 	): Promise<{ success: boolean; data?: Referral }> => {
 		return request
 			.post(`referrals`, {
