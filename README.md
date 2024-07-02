@@ -79,13 +79,13 @@ These rewards can be:
 
 ## 🚏 Navigation
 
-[Homepage →](https://usher.so/)
+[Homepage →](https://usher.so/referrals)
 
-[Documentation →](https://docs.usher.so/)
+[Documentation →](https://usherlabs.github.io/usher-referrals/)
 
 [Create Campaigns & Embed Usher in your Application →](https://github.com/usherlabs/programs)
 
-[Track Conversion Events in Web Apps with Usher.js →](https://docs.usher.so/integrating-with-usherjs/what-is-usherjs)
+[Track Conversion Events in Web Apps with Usher.js →](https://usherlabs.github.io/usher-referrals/integrating-with-usherjs/what-is-usherjs)
 
 ## 🌟 Features
 
@@ -206,8 +206,8 @@ But bear in mind that these are not mandatory steps. You may choose to deploy Us
 ## 😵‍💫 Troubleshooting
 
 - Don’t forget to check if our [Documentation](https://docs.usher.so/) already covers you
-- For questions, support, and discussions:[Join the Usher Discord →](https://go.usher.so/discord)
-- For bugs and feature requests:[Create an issue on Github →](https://github.com/usherlabs/core/issues)
+- For questions, support, and discussions: [Join the Usher Discord →](https://go.usher.so/discord)
+- For bugs and feature requests: [Create an issue on Github →](https://github.com/usherlabs/core/issues)
 
 ## 🤔 **Missing Something Important to You?**
 
