@@ -1,0 +1,13 @@
+{
+	"name": "@usher.so/cli",
+	"version": "0.0.2",
+	"type": "module",
+	"bin": {
+		"usher": "./bin/usher.js"
+	},
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/usherlabs/programs.git"
+	}
+}

@@ -1,0 +1,19 @@
+{
+	"/getting-started/flow-diagrams": "/guide/key-concepts/understanding-usher",
+	"/getting-started/share-to-earn-flow-visualised": "/guide/key-concepts/understanding-usher",
+	"/getting-started/glossary": "/guide/key-concepts/glossary",
+	"/getting-started/how-smart-contracts-are-used": "/guide/key-concepts/understanding-usher",
+	"/getting-started/what-is-usher": "/guide/key-concepts/understanding-usher",
+	"/grow-your-brand/embed-the-usher-platform": "/ecosystem/programs/overview",
+	"/grow-your-brand/exploring-partnerships": "/guide/key-concepts/partner-programs",
+	"/grow-your-brand/start-a-campaign": "/guide/getting-started/campaign-management",
+	"/grow-your-brand/supporting-partners": "/guide/getting-started/supporting-partners",
+	"/grow-your-brand/the-campaign-object": "/guide/getting-started/campaign-management",
+	"/integrating-with-usherjs/installation": "/ecosystem/usherjs/installing",
+	"/integrating-with-usherjs/instantiating-usherjs": "/ecosystem/usherjs/instantiating",
+	"/integrating-with-usherjs/testing-your-integration": "/ecosystem/usherjs/testing-integration",
+	"/integrating-with-usherjs/usherjs-api-and-properties": "/ecosystem/usherjs/api-and-properties",
+	"/integrating-with-usherjs/what-is-usherjs": "/ecosystem/usherjs/overview",
+	"/security/bot-prevention": "/guide/key-concepts/security-measures",
+	"/security/personhood-verification": "/guide/key-concepts/security-measures"
+}

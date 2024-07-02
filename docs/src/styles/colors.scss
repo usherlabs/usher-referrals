@@ -1,0 +1,69 @@
+// You may tweak this configuration for even more specificity
+// However, first it's recommended to change directly at tailwind.config.ts file
+
+// here the main colors are passed to infima, however is not just here that the colors are used in the theme.
+// i.e.: each component has specific needs that may not be really generic
+
+:root {
+  --ifm-color-primary: theme('colors.primary');
+  --ifm-color-primary-dark: theme('colors.primary-dark');
+  --ifm-color-primary-darker: theme('colors.primary-darker');
+  --ifm-color-primary-darkest: theme('colors.primary-darkest');
+  --ifm-color-primary-light: theme('colors.primary-light');
+  --ifm-color-primary-lighter: theme('colors.primary-lighter');
+  --ifm-color-primary-lightest: theme('colors.primary-lightest');
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
+
+  --ifm-color-secondary: theme('colors.secondary');
+  --ifm-color-secondary-dark: theme('colors.secondary-dark');
+  --ifm-color-secondary-darker: theme('colors.secondary-darker');
+  --ifm-color-secondary-darkest: theme('colors.secondary-darkest');
+  --ifm-color-secondary-light: theme('colors.secondary-light');
+  --ifm-color-secondary-lighter: theme('colors.secondary-lighter');
+  --ifm-color-secondary-lightest: theme('colors.secondary-lightest');
+
+  --ifm-color-success: theme('colors.success');
+  --ifm-color-success-dark: theme('colors.success-dark');
+  --ifm-color-success-darker: theme('colors.success-darker');
+  --ifm-color-success-darkest: theme('colors.success-darkest');
+  --ifm-color-success-light: theme('colors.success-light');
+  --ifm-color-success-lighter: theme('colors.success-lighter');
+  --ifm-color-success-lightest: theme('colors.success-lightest');
+
+  --ifm-color-info: theme('colors.info');
+  --ifm-color-info-dark: theme('colors.info-dark');
+  --ifm-color-info-darker: theme('colors.info-darker');
+  --ifm-color-info-darkest: theme('colors.info-darkest');
+  --ifm-color-info-light: theme('colors.info-light');
+  --ifm-color-info-lighter: theme('colors.info-lighter');
+  --ifm-color-info-lightest: theme('colors.info-lightest');
+
+  --ifm-color-warning: theme('colors.warning');
+  --ifm-color-warning-dark: theme('colors.warning-dark');
+  --ifm-color-warning-darker: theme('colors.warning-darker');
+  --ifm-color-warning-darkest: theme('colors.warning-darkest');
+  --ifm-color-warning-light: theme('colors.warning-light');
+  --ifm-color-warning-lighter: theme('colors.warning-lighter');
+  --ifm-color-warning-lightest: theme('colors.warning-lightest');
+
+  --ifm-color-danger: theme('colors.danger');
+  --ifm-color-danger-dark: theme('colors.danger-dark');
+  --ifm-color-danger-darker: theme('colors.danger-darker');
+  --ifm-color-danger-darkest: theme('colors.danger-darkest');
+  --ifm-color-danger-light: theme('colors.danger-light');
+  --ifm-color-danger-lighter: theme('colors.danger-lighter');
+  --ifm-color-danger-lightest: theme('colors.danger-lightest');
+}
+
+
+/* For readability concerns, you should choose a lighter palette in dark mode. */
+[data-theme="dark"] {
+  --ifm-color-primary: theme('colors.primary');
+  --ifm-color-primary-dark: theme('colors.primary-lightest');
+  --ifm-color-primary-darker: theme('colors.primary-lighter');
+  --ifm-color-primary-darkest: theme('colors.primary-light');
+  --ifm-color-primary-light: theme('colors.primary-darkest');
+  --ifm-color-primary-lighter: theme('colors.primary-darker');
+  --ifm-color-primary-lightest: theme('colors.primary-dark');
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+}

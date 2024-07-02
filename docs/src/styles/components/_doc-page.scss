@@ -1,0 +1,22 @@
+//overrides
+#__docusaurus {
+  [class*='docMainContainer_'] {
+    max-width: initial;
+
+    > .container {
+      max-width: initial;
+
+      > .row {
+        flex-wrap: nowrap;
+      }
+    }
+  }
+
+  [class*='docPage_'] {
+    flex-grow: 1;
+    > div {
+      flex-grow: 1;
+      min-width: 0;
+    }
+  }
+}

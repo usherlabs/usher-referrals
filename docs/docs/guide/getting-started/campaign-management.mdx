@@ -1,0 +1,176 @@
+---
+title: "Campaign Management"
+sidebar_position: 2
+---
+
+# Campaign Management on the Usher Platform
+
+## Introduction
+
+Welcome to the Campaign Management section, where we'll guide you through the process of setting up and managing
+campaigns on the Usher platform. Effective campaign management is crucial to maximizing the potential of your partner
+programs. By the end of this guide, you'll be equipped with the know-how to create and manage campaigns effectively on
+Usher.
+
+## Creating and Configuring Campaigns
+
+### Campaign Object Basics
+
+Before diving into campaign creation, it's essential to understand the Campaign Object, which consists of immutable
+campaign terms, mutable campaign details, and the brand/advertiser profile. Immutable terms define the core structure of
+your campaign, while mutable details and profiles allow for customization and flexibility.
+
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+import LoomVideo from "@site/src/components/global/LoomVideo";
+
+<Tabs>
+<TabItem value={"web-object"} default label={"Web Tracking Example"}>
+
+```json title='Campaign object JSON - Web Tracking example'
+{
+  "id": "ida4Pebl2uULdI_rN8waEw65mVH9uIFTY1JyeZt1PBM",
+  "chain": "arweave",
+  "owner": "ksFTLgrwQGtNrhRz6MWyd3a4lvK1Oh-QF1HYcEeeFVk",
+  "events": [
+    {
+      "strategy": "flat",
+      "rate": 0.1,
+      "nativeLimit": 250000,
+      "perCommit": 1,
+      "description": "files are uploaded"
+    }
+  ],
+  "reward": {
+    "name": "Arweave",
+    "ticker": "AR",
+    "type": "token",
+    "limit": 3000
+  },
+  "conflict_strategy": "PASSTHROUGH",
+  "details": {
+    "destination_url": "https://app.ardrive.io/#/sign-in?ref=usher",
+    "name": "ArDrive Referral Program",
+    "description": "Refer users to ArDrive and earn when files are uploaded.",
+    "image": "https://ardrive.io/wp-content/uploads/2021/07/Gallery-Angle-PS3000-scaled.jpg",
+    "external_link": "https://ardrive.io/"
+  },
+  "advertiser": {
+    "name": "ArDrive",
+    "icon": "https://ardrive.io/wp-content/uploads/2021/06/AD-LOGO-PS1600-210x79.png",
+    "description": "Upload files forever!",
+    "external_link": "https://ardrive.io/",
+    "twitter": "https://twitter.com/ardriveapp"
+  },
+  "disable_verification": false,
+  "unlisted": false,
+  "whitelist": null
+}
+```
+
+</TabItem>
+<TabItem value={"sc-object"} default label={"Smart Contract Tracking Example"}>
+
+```json title='Campaign object JSON - Smart Contract Example'
+{
+  "id": "0x7982bEDc1D35CDc08Dd3572c0a4cc225D55a4447",
+  "chain": "ethereum",
+  "events": [
+    {
+      "strategy": "flat",
+      "rate": 0.1,
+      "description": "Task Created",
+      "contract_address": "0xabBA944b417D1E1310a673eC410d03B02B7557F6",
+      "contract_event": "TaskCreated(uint256,string,bool)"
+    },
+    {
+      "strategy": "flat",
+      "rate": 0.2,
+      "description": "Task Toggled",
+      "contract_address": "0xabBA944b417D1E1310a673eC410d03B02B7557F6",
+      "contract_event": "TaskToggled(uint256,bool)"
+    }
+  ],
+  "reward": {
+    "name": "ChainLink",
+    "ticker": "LINK",
+    "type": "erc20",
+    "limit": 10,
+    "address": "0x326C977E6efc84E512bB9C30f76E30c160eD06FB"
+  },
+  "conflict_strategy": "PASSTHROUGH",
+  "disable_verification": true,
+  "details": {
+    "destination_url": "https://victorshevtsov.github.io/brand-app/",
+    "name": "Usher ❤️ Ethereum Reseller Program",
+    "description": "Refer Web3 Brands building & growing on the Ethereum Blockchain to Usher and earn up to 50% commission when Rewards are claimed from their Campaigns."
+  },
+  "advertiser": {
+    "name": "Usher",
+    "icon": "https://pages.usher.so/wp-content/uploads/2022/03/usher-logo-medium.png",
+    "description": "Partnerships for Web3",
+    "external_link": "https://usher.so",
+    "twitter": "https://twitter.com/usher_web3"
+  },
+  "_internal": {
+    "address": "0x7982bEDc1D35CDc08Dd3572c0a4cc225D55a4447",
+    "key": "........"
+  }
+}
+```
+</TabItem>
+</Tabs>
+
+To understand all the properties that can be configured within a campaign, please refer to our dedicated page on [The Campaign Properties](./campaign-properties).
+
+### Campaign Creation Options
+
+If you're comfortable working with the Terminal and NPM, you can use
+the [Usher Programs CLI](https://github.com/usherlabs/programs/tree/main/packages/cli) to create campaigns.
+
+However, if you prefer a more guided approach, the Usher team can provide you with a personalized demo and campaign
+configuration proposal. Fill out the Usher Onboarding Form to express your interest and get started. We're here to help
+you every step of the way!
+
+Check out this video tutorial demonstrating how to start a campaign and providing additional insights.
+
+<LoomVideo
+	src={"https://www.loom.com/embed/3fd1d1add1124a70abb0c97299a2ed42"}
+	hideOwner
+/>
+
+### Campaign Settings
+
+When setting up a campaign, consider the following:
+
+- Choose the right reward structure: Determine your campaign's most suitable reward type, rate, and limit based on your
+  objectives.
+- Set up conversion events: Define the events that trigger rewards, such as registrations or staking, leveraging Smart Contract or Web-based events.
+- Define campaign limits: Establish limits for rewards and conversions to manage your budget effectively.
+- Customize campaign details and brand/advertiser profile: Provide information like names, descriptions, images, and
+  external links to make your campaign stand out.
+
+## Managing Campaigns Effectively
+
+### Monitoring Campaign Performance — _Coming soon_
+
+Keep track of your campaign's progress using the Usher platform's built-in metrics. Assess conversions, rewards, and the
+effectiveness of referral channels to make data-driven decisions for your campaign.
+
+### Modifying Campaigns
+
+Update mutable campaign details and adjust settings based on performance. This flexibility enables you to optimize your
+campaign for better results.
+
+### Support & Troubleshooting
+
+Address common issues using our troubleshooting guide and seek help from
+the [Usher Discord Server](https://go.usher.so/discord) for support and community engagement. Otherwise, create a new
+issue directly within the relevant GitHub repository.
+
+## Conclusion
+
+Now you have a solid understanding of the campaign management process on the Usher platform. Don't hesitate to explore
+and experiment with different campaign settings to find the perfect fit for your objectives. Remember, the Usher
+community is always here to help and support you in your journey.

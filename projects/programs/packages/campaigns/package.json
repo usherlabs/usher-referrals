@@ -1,0 +1,16 @@
+{
+	"name": "@usher.so/campaigns",
+	"version": "0.0.5",
+	"type": "module",
+	"typedoc": {
+		"entryPoint": "./src/index.ts",
+		"readmeFile": "./README.md",
+		"displayName": "Usher Campaigns",
+		"tsconfig": "./tsconfig.lib.json"
+	},
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/usherlabs/programs.git"
+	}
+}

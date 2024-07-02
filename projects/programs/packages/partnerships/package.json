@@ -1,0 +1,16 @@
+{
+	"name": "@usher.so/partnerships",
+	"version": "0.0.2",
+	"type": "module",
+	"typedoc": {
+		"entryPoint": "./src/index.ts",
+		"readmeFile": "./README.md",
+		"displayName": "Usher Partnerships",
+		"tsconfig": "./tsconfig.lib.json"
+	},
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/usherlabs/programs.git"
+	}
+}

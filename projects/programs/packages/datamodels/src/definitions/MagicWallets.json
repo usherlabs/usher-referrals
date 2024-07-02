@@ -1,0 +1,5 @@
+{
+	"name": "A magic wallet index",
+	"description": "A magic wallet associated to a DID used by Usher.so",
+	"schema": "ceramic://"
+}

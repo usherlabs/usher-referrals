@@ -1,0 +1,39 @@
+---
+title: "Campaign Properties"
+sidebar_position: 3
+---
+
+# Campaign Properties
+
+This table lists all of the properties that can be configured within a Campaign.
+
+| Object Property Name/Key | Type | Description | Required |
+|---|---|---|---|
+| id | string | The identifier of the Campaign. This could be an ID within a Smart Contract or a Blockchain Transaction Address, depending on the `chain`. | true |
+| chain | string | The blockchain identifier. i.e., `arweave`, `ethereum`, `polygon`. | true |
+| owner | string | The Wallet Address associated with the Brand/Advertiser. | false |
+| events | array | An array of Conversion Events. These events represent different stages in the Referred User's journey where Conversions are tracked. | false |
+| events[].strategy | string | Specifies the reward strategy for the event, which can be either `flat` or `percentage`. | false |
+| events[].rate | float | The reward rate for the event. For the `flat` strategy, this rate is a flat amount of tokens rewarded to partners. For the `percentage` strategy, this rate is a multiplier, applied to the `metadata.amount` submitted in the Conversion Parameter. | false |
+| events[].nativeLimit | integer | An arbitrary value that restricts the conversions processed for a given event for the referred/native user. Where a `Conversion.nativeId` is provided, the Referred User can continue triggering conversions until the sum of all `Conversion.commit` values meets this `nativeLimit`. | false |
+| events[].perCommit | integer | Defines the reward amount in relation to the `conversion.commit` value, such that `reward = rate * (commit / perCommit)`, if no reward perCommit is defined. | false |
+| events[].description | string | A description for the event trigger. The phrase "when" is added before this description in the Usher Partner App UI. | false |
+| reward.name | string | The name of the rewarded token, e.g., "Ether", "Arweave", "My Cool NFT". | false |
+| reward.ticker | string | The ticker for the rewarded token, e.g., "ETH", "AR", "MYCNFT". | false |
+| reward.type | string | The type of token rewarded to Partners. This is an enumerator with possible values: `token`, `nft`, or `pst`. | false |
+| reward.limit | integer | A limit on the total rewards for the campaign. Once this limit is reached in claimed rewards, the Campaign is considered complete. | false |
+| conflict_strategy | string | Determines the referral behavior when two Partners refer the same user prior to a tracked conversion. `PASSTHROUGH` is default, and ensures the first Invite Link used takes precedence. `OVERWRITE` is optional and ensures the last Invite Link used takes precedence. | false |
+| details.destination_url | string | The URL that Campaign Partners will redirect users to. | false |
+| details.name | string | Name for the Campaign for easy recognition by Partners. | false |
+| details.description | string | A detailed description of the Campaign, explaining when and how users are converted once they reach the `destination_url`. | false |
+| details.image | string | A hosted image URL to enhance the recognizability of the Campaign. | false |
+| details.external_link | string | A URL for Partners to visit for more information about the Campaign. This can be a landing page promoting the partnership program. | false |
+| advertiser.name | string | Name of the Advertiser. | false |
+| advertiser.icon | string | A hosted image URL of the Advertiser's Brand Icon. | false |
+| advertiser.description | string | A description of the Advertiser and their related services or propositions. | false |
+| advertiser.external_link | string | A URL for Partners to visit to learn more about the Advertiser. | false |
+| advertiser.twitter | string | A Twitter URL for Partners to visit to learn more and get updates from the Advertiser. | false |
+| disable_verification | boolean | If set to `true`, Personhood Verification will **NOT** be required for Partners to start referring users and earning rewards. Personhood Verification is generally recommended to be active for Campaigns. [Learn more](../key-concepts/security-measures ) | false |
+| unlisted | boolean | Determines whether the Campaign will be displayed on the Usher Explore Page. Partnership Programs that wish to remain private, and/or include a Whitelist of Partners can opt to set this to `true`. | false |
+| whitelist.partners | string[] | An array of Partner identifiers. By default, Campaigns will not include the Whitelist feature. | false |
+| whitelist.external_link | string | A URL hosting a Form or other data collection method. Partners can use this URL to submit their application to participate in the Partner program. | false |

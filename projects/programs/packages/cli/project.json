@@ -1,0 +1,57 @@
+{
+	"name": "cli",
+	"$schema": "../../node_modules/nx/schemas/project-schema.json",
+	"sourceRoot": "packages/cli/src",
+	"projectType": "application",
+	"targets": {
+		"build": {
+			"executor": "@nrwl/js:tsc",
+			"outputs": ["{options.outputPath}"],
+			"options": {
+				"clean": false,
+				"target": "node",
+				"compiler": "tsc",
+				"outputPath": "dist/packages/cli",
+				"main": "packages/cli/src/main.ts",
+				"tsConfig": "packages/cli/tsconfig.app.json",
+				"buildableProjectDepsInPackageJsonType": "dependencies",
+				"assets": ["packages/cli/bin/usher.js"]
+			},
+			"configurations": {
+				"production": {
+					"optimization": true,
+					"extractLicenses": true,
+					"inspect": false,
+					"fileReplacements": [
+						{
+							"replace": "packages/cli/src/environments/environment.ts",
+							"with": "packages/cli/src/environments/environment.prod.ts"
+						}
+					]
+				}
+			}
+		},
+		"lint": {
+			"executor": "@nrwl/linter:eslint",
+			"outputs": ["{options.outputFile}"],
+			"options": {
+				"lintFilePatterns": ["packages/cli/**/*.ts"]
+			}
+		},
+		"test": {
+			"executor": "@nrwl/jest:jest",
+			"outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+			"options": {
+				"jestConfig": "packages/cli/jest.config.ts",
+				"passWithNoTests": true
+			}
+		},
+		"deploy": {
+			"executor": "ngx-deploy-npm:deploy",
+			"options": {
+				"access": "public"
+			}
+		}
+	},
+	"tags": []
+}

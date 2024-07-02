@@ -1,0 +1,22 @@
+{
+	"plugins": ["prettier-plugin-organize-imports"],
+	"tabWidth": 2,
+	"useTabs": true,
+	"semi": true,
+	"singleQuote": false,
+	"endOfLine": "lf",
+	"overrides": [
+		{
+			"files": "*.yml",
+			"options": {
+				"useTabs": false
+			}
+		},
+		{
+			"files": ["*.ts", "*.tsx"],
+			"options": {
+				"parser": "typescript"
+			}
+		}
+	]
+}

@@ -5,21 +5,15 @@
 			<a href="https://www.npmjs.com/package/prisma"><img src="https://img.shields.io/badge/-web3-blue" /></a>
 		</span>
 		<span>
-			<a href="https://www.gnu.org/licenses/agpl-3.0"><img src="https://img.shields.io/badge/License-AGPL_v3-blue.svg" /></a>
+			<a href="https://www.gnu.org/licenses/gpl-3.0"><img src="https://img.shields.io/badge/License-GPL_v3-blue.svg" /></a>
 		</span>
 	</div>
 </div>
 
-![Usher Banner](https://camo.githubusercontent.com/4a4439986d28507dd8b0e89e1855eaf5d362ce08c2de16223c0af6f5917f1313/68747470733a2f2f75736865722d7075622e73332e616d617a6f6e6177732e636f6d2f6d6973632f62616e6e6572732f42616e6e65722e6a7067)
-
 <div align="center">
-   <a href="https://app.usher.so/?ref=github">Join the Official Node</a>
+   <a href="https://www.usher.so/referrals?ref=github">Website</a>
    <span> | </span>
-   <a href="https://app.staging.usher.so?ref=github">Demo</a>
-   <span> | </span>
-   <a href="https://www.usher.so?ref=github">Website</a>
-   <span> | </span>
-   <a href="https://docs.usher.so?ref=github">Documentation</a>
+   <a href="https://usherlabs.github.io/usher-referrals/?ref=github">Documentation</a>
    <span> | </span>
    <a href="https://go.usher.so/discord">Discord</a>
    <span> | </span>
@@ -28,9 +22,9 @@
 
 ## 👋 Introduction
 
-Usher is an Open Source Partnerships Platform that enables Brands to grow through performance-based marketing.
+Open Source Web3 integrated Referrals Platform that enables Brands to grow through performance-based marketing.
 
-Start a Partner, Affiliate, Ambassador, or Reseller Program by deploying Usher, or engaging a [public managed Usher Core Node](https://app.usher.so/?ref=github).
+Deploy the platform to start a Partner, Affiliate, Ambassador, or Reseller Program.
 
 ### Screenshots
 

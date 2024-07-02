@@ -1,0 +1,16 @@
+{
+	"name": "@usher.so/datamodels",
+	"version": "0.0.10",
+	"type": "module",
+	"license": "MIT",
+	"typedoc": {
+		"entryPoint": "./src/index.ts",
+		"readmeFile": "./README.md",
+		"displayName": "Usher Datamodels",
+		"tsconfig": "./tsconfig.lib.json"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/usherlabs/programs.git"
+	}
+}

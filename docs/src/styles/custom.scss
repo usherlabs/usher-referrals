@@ -1,0 +1,29 @@
+/**
+ * Any CSS included here will be global. The classic template
+ * bundles Infima by default. Infima is a CSS framework designed to
+ * work well for content-centric websites.
+ */
+
+@use "./tailwind.css";
+@use "./colors";
+@use "./misc-global";
+@use "./typography";
+
+@use "./components/_back-to-top-button";
+@use "./components/_doc-item";
+@use "./components/_doc-page";
+@use "./components/_doc-sidebar";
+@use "./components/_edit-this-page";
+@use "./components/_markdown";
+@use "./components/_navbar";
+@use "./components/_navbar-sidebar";
+@use "./components/_pagination";
+@use "./components/_search";
+@use "./components/_table";
+@use "./components/_tabs";
+@use "./components/_theme-toggle";
+@use "./components/_toc";
+
+body {
+	flex-grow: 1;
+}

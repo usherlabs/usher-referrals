@@ -1,0 +1,88 @@
+---
+sidebar_position: 3
+---
+
+# Security Measures
+
+## Introduction
+
+Usher is a platform built on trust, transparency, and security principles. This section outlines the various security
+measures the Usher stack incorporates to mitigate risks of fraud, safeguard user data, and ensure a reliable platform
+experience.
+
+## Personhood Verification
+
+Personhood Verification (PV) is an optional but highly recommended security measure for campaigns to ensure Sybil
+Resistance and prevent malicious mass-user attacks on Partner Programs. Similar in nature to KYC software, PV leverages
+decentralization and cutting-edge zero-knowledge technologies to keep partners’ anonymity secure, while delivering the
+benefits of biometrics sybil resistance. This maintains the worldwide accessibility of the platform while keeping Brands
+and Partner Programs secure.
+
+By verifying each human partner's unique identity, PV helps prevent bad-actor partners from engaging in click-farming
+activities that may siphon rewards from a partner program.
+
+### When is PV Necessary?
+
+PV is necessary when the financial value rewarded to the partner is less than the value acquired from the Referred User
+at the same conversion point. In other words, PV should be employed when the reward value at conversion is higher than
+the cost of executing PV.
+
+**Examples of when PV is required:**
+
+1. An app that rewards partners with unvalued NFTs when a Referred User creates an account by connecting their wallet.
+2. A website that rewards partners for leads generated through form submissions.
+
+The above examples do not include financial value capture at the point of conversion and reward. Without PV, the
+campaigns in these examples are susceptible to mass-user attacks, meaning that a bad-acting partner can claim more
+rewards than they truly deserve.
+
+**Examples of when PV is not required:**
+
+1. A DeFi app where partners are rewarded when Referred Users stake crypto, and the rewards for each conversion are a
+   fraction of the fees accrued by the Web3 brand.
+2. An eCommerce store that rewards partners after an item has been purchased by a referred user.
+3. An NFT marketplace where partners are rewarded when Referred Users purchase an NFT, and the rewards for each purchase
+   are a fraction of the fees accrued by the NFT marketplace.
+
+### How PV Works
+
+Usher uses [Humanode](https://humanode.io/) to facilitate biometrics processing, ensuring a unique human being
+manages each partner account. Humanode's technology combines zero-knowledge technology with [FaceTec
+](https://www.facetec.com/), a global leader in biometrics, delivering a reliable and secure means of
+personhood verification for all parties involved.
+
+:::info
+Video and media captured for biometrics processing will never leave the user's device. Instead, a mathematical facial
+model is produced and encrypted on the device before being sent to Humanode, a decentralized network, for processing.
+:::
+
+This is a video demonstrating the process of verifying your personhood:
+
+import LoomVideo from "@site/src/components/global/LoomVideo";
+
+<LoomVideo
+src={"https://www.loom.com/embed/5b21d9c654d14fc38d566c74b1125d41"}
+hideOwner
+/>
+
+
+## Bot Prevention
+
+Usher takes a proactive approach to bot prevention, ensuring that your partnerships remain spam-free and focused on real
+human users.
+
+### BotD: The First Line of Defense
+
+Usher Invite Links embed a bot detection framework by the team at [https://fingerprint.com/](https://fingerprint.com/).
+This technology is trained to determine whether a browser is real, or emulated.
+
+### HCaptcha: The Last Line of Defense
+
+Usher employs the HCaptcha system to truly differentiate between bots and humans. This technology protects both the
+Partner UI (preventing spam account creation) and the Invite system (verifying the humanity of Referred Users).
+
+## Key Takeaways
+
+Usher's comprehensive security measures are designed to instil confidence in the platform's reliability and protect
+users from potential risks. Using personhood verification and bot prevention, Usher creates an environment where users
+can enjoy a secure, engaging, and trustworthy experience.

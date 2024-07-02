@@ -1,0 +1,28 @@
+{
+	"$schema": "https://json.schemastore.org/tsconfig",
+	"display": "UsherJS",
+	"compilerOptions": {
+		"baseUrl": ".",
+		"preserveConstEnums": true,
+    "strictNullChecks": true,
+    "sourceMap": true,
+    "allowJs": true,
+    "outDir": "dist",
+		"lib": ["es2017", "dom"],
+    "rootDir": "./",
+		"target": "ES6",
+		"moduleResolution": "node",
+		"allowSyntheticDefaultImports": true,
+		"strict": true,
+		"skipLibCheck": true,
+		"esModuleInterop": true,
+		"declaration": true,
+		"paths": {
+			"@/*": ["./src/*"]
+		}
+	},
+	"exclude": [
+		"node_modules"
+	],
+	"include": ["src/**/*.ts"]
+}
