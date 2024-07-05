@@ -1,5 +1,5 @@
 <div align="center">
-  <h1>Usher Core</h1>
+  <h1>Usher Web3 Referrals</h1>
 	<div>
 		<span>
 			<a href="https://www.npmjs.com/package/prisma"><img src="https://img.shields.io/badge/-web3-blue" /></a>
