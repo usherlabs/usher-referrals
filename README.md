@@ -17,7 +17,7 @@
    <span> | </span>
    <a href="https://go.usher.so/discord">Discord</a>
    <span> | </span>
-   <a href="https://go.usher.so/twitter">Twitter</a>
+   <a href="https://go.usher.so/twitter">X/Twitter</a>
 </div>
 
 ## 👋 Introduction
@@ -228,7 +228,7 @@ There are many ways you can contribute to taking Usher’s mission to empower pa
 - Open issues for bugs, typos, any kind of errors you encountered, or features you missed
 - Submit pull requests for something you are able to tackle (tests are always great ways to start it out)
 - Engage with our community on our [Discord server](https://go.usher.so/discord) or
-  our [Twitter profile](https://twitter.com/usher_web3)
+  our [X/Twitter profile](https://x.com/usher_web3)
 - What about writing an article and exposing it somewhere? How great would be to help people know there is Usher out
   there desiring to help them build strong communities? Spread the word!
 
